@@ -205,11 +205,64 @@ def _prop_group_match(board, clue) -> int:
     return changed
 
 
+# --- Sequential clues: bounds/arc-consistency on an ordered category's ranks --
+# For ordered category p, a term's "rank" is the index of its price item (items
+# are value-sorted ascending). poss(t) = ranks not yet ruled out for t.
+def _poss(board, t, p):
+    return [q for q in range(board.n) if board.get(t[0], t[1], p, q) != N]
+
+
+def _rule_out(board, t, p, ranks):
+    return sum(board.set(t[0], t[1], p, q, N) for q in ranks)
+
+
+def _prop_greater(board, clue) -> int:  # rank(a) > rank(b)
+    p = clue.cat
+    pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
+    if not pa or not pb:
+        return 0
+    changed = _rule_out(board, clue.a, p, [q for q in pa if q <= min(pb)])
+    changed += _rule_out(board, clue.b, p, [q for q in pb if q >= max(pa)])
+    return changed
+
+
+def _prop_diff(board, clue) -> int:  # value(a) - value(b) == delta
+    p, v, d = clue.cat, clue._values, clue.delta
+    pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
+    changed = _rule_out(board, clue.a, p, [qa for qa in pa if not any(v[qa] - v[qb] == d for qb in pb)])
+    changed += _rule_out(board, clue.b, p, [qb for qb in pb if not any(v[qa] - v[qb] == d for qa in pa)])
+    return changed
+
+
+def _prop_between(board, clue) -> int:  # rank(c) strictly between rank(a), rank(b)
+    p = clue.cat
+    pa, pb, pc = _poss(board, clue.a, p), _poss(board, clue.b, p), _poss(board, clue.c, p)
+    if not pa or not pb or not pc:
+        return 0
+    btw = lambda x, y, z: min(x, y) < z < max(x, y)
+    changed = _rule_out(board, clue.c, p, [qc for qc in pc if not any(btw(qa, qb, qc) for qa in pa for qb in pb)])
+    changed += _rule_out(board, clue.a, p, [qa for qa in pa if not any(btw(qa, qb, qc) for qb in pb for qc in pc)])
+    changed += _rule_out(board, clue.b, p, [qb for qb in pb if not any(btw(qa, qb, qc) for qa in pa for qc in pc)])
+    return changed
+
+
+def _prop_adjacent(board, clue) -> int:  # rank(b) == rank(a) + 1
+    p = clue.cat
+    pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
+    changed = _rule_out(board, clue.a, p, [qa for qa in pa if qa + 1 not in pb])
+    changed += _rule_out(board, clue.b, p, [qb for qb in pb if qb - 1 not in pa])
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
     "ExactlyKLinks": _prop_exactly,
     "GroupMatch": _prop_group_match,
+    "Greater": _prop_greater,
+    "Diff": _prop_diff,
+    "Between": _prop_between,
+    "Adjacent": _prop_adjacent,
 }
 
 

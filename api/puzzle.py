@@ -1,6 +1,6 @@
 """Vercel Python serverless function: generate a logic-grid puzzle as JSON.
 
-    GET /api/puzzle?difficulty=medium&items=4&seed=3   -> puzzle payload
+    GET /api/puzzle?difficulty=medium&items=4&price=1&seed=3   -> puzzle payload
 
 The actual generation lives in ``logicgrid.webapi`` so it stays unit-testable
 without spinning up HTTP.
@@ -37,8 +37,12 @@ def _build_response(query: dict) -> tuple[int, dict]:
         except (TypeError, ValueError):
             return 400, {"error": f"seed must be an integer, got {seed_raw!r}"}
 
+    with_price = query.get("price", ["0"])[0] in ("1", "true", "on", "yes")
+
     try:
-        return 200, build_payload(seed=seed, difficulty=difficulty, items=items)
+        return 200, build_payload(
+            seed=seed, difficulty=difficulty, items=items, with_price=with_price
+        )
     except ValueError as exc:
         return 400, {"error": str(exc)}
 

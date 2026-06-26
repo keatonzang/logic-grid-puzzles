@@ -123,6 +123,51 @@ class Diff(Clue):
         )
 
 
+class Between(Clue):
+    """Entity of `c` ranks strictly between entities of `a` and `b` in ordered
+    category `cat` (endpoints in either order)."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, b: Term, c: Term):
+        self.cat, self.a, self.b, self.c = cat, a, b, c
+        self.involved = frozenset({cat, a[0], b[0], c[0]})
+
+    def holds(self, X) -> bool:
+        ra = X[entity_of(X, self.a)][self.cat]
+        rb = X[entity_of(X, self.b)][self.cat]
+        rc = X[entity_of(X, self.c)][self.cat]
+        return min(ra, rb) < rc < max(ra, rb)
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        return (
+            f"{_label(theme, self.c)}'s {cn} is between {_label(theme, self.a)}'s "
+            f"and {_label(theme, self.b)}'s."
+        )
+
+
+class Adjacent(Clue):
+    """Entity of `b` ranks exactly one step above entity of `a` in ordered
+    category `cat` (immediately before/after, nothing between)."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, b: Term):
+        self.cat, self.a, self.b = cat, a, b
+        self.involved = frozenset({cat, a[0], b[0]})
+
+    def holds(self, X) -> bool:
+        return X[entity_of(X, self.b)][self.cat] == X[entity_of(X, self.a)][self.cat] + 1
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        return (
+            f"{_label(theme, self.a)}'s {cn} is immediately below "
+            f"{_label(theme, self.b)}'s, with nothing in between."
+        )
+
+
 def _join(labels: list[str], conj: str) -> str:
     """'A <conj> B' / 'A, B, <conj> C' — Oxford-comma list with a conjunction."""
     if len(labels) == 2:

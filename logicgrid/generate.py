@@ -6,8 +6,10 @@ import random
 from dataclasses import dataclass
 
 from .clues import (
+    Adjacent,
     AllDifferent,
     Among,
+    Between,
     Diff,
     EitherOr,
     ExactlyKLinks,
@@ -115,26 +117,43 @@ def build_clue_pool(
                         if e1 != e2:
                             negatives.append(Negative((c1, X[e1][c1]), (c2, X[e2][c2])))
 
-    # Sequential clues (higher-than / exact-difference) on ordered categories,
-    # disabled by default.
+    # Sequential clues on an ordered category (rank = item index, ascending):
+    # higher/lower-than, exact-difference, between, immediately-before/after.
+    # Reference terms come from any non-ordered category. Disabled by default.
     for cn in range(k) if include_sequential else ():
         cat = theme.categories[cn]
         if not cat.ordered:
             continue
         refs = [c for c in range(k) if c != cn]
-        for e1 in range(n):
+
+        def ref(e):  # a random non-ordered reference term for entity e
+            c = rng.choice(refs)
+            return (c, X[e][c])
+
+        rank = {e: X[e][cn] for e in range(n)}            # item index == rank
+        by_rank = sorted(range(n), key=lambda e: rank[e])  # entities low -> high
+
+        for e1 in range(n):  # higher-than + exact-difference for every ordered pair
             for e2 in range(n):
-                if e1 == e2:
+                if rank[e1] <= rank[e2]:
                     continue
-                v1, v2 = cat.value(X[e1][cn]), cat.value(X[e2][cn])
-                if v1 <= v2:
-                    continue
-                cref = rng.choice(refs)
-                a = (cref, X[e1][cref])
-                b = (cref, X[e2][cref])
+                a, b = ref(e1), ref(e2)
                 comparisons.append(Greater(cn, a, b))
                 if cat.values is not None:
-                    comparisons.append(Diff(cn, a, b, v1 - v2, cat.values))
+                    comparisons.append(
+                        Diff(cn, a, b, cat.value(X[e1][cn]) - cat.value(X[e2][cn]), cat.values)
+                    )
+
+        for idx in range(n - 1):  # immediately-before/after (consecutive ranks)
+            comparisons.append(Adjacent(cn, ref(by_rank[idx]), ref(by_rank[idx + 1])))
+
+        for mid in range(n):  # between: a middle-ranked entity, one below + one above
+            lows = [e for e in range(n) if rank[e] < rank[mid]]
+            highs = [e for e in range(n) if rank[e] > rank[mid]]
+            if lows and highs:
+                comparisons.append(
+                    Between(cn, ref(rng.choice(lows)), ref(rng.choice(highs)), ref(mid))
+                )
 
     # "One of N" disjunctions over option terms. For each anchor entity e a term
     # (co, io) with co != ca is *true* iff it is e's real item there.
@@ -296,11 +315,13 @@ _DIFFICULTY_POOL = {
         among_sizes=(2, 3), enable_either=True, enable_neither=True,
         enable_alldiff=True, multi_match=False,
         enable_pairing=False, enable_match=False,
+        include_sequential=True,  # only fires when an ordered category exists
     ),
     "hard": dict(
         among_sizes=(2, 3), enable_either=True, enable_neither=True,
         enable_alldiff=True, multi_match=True,
         enable_pairing=True, enable_match=True,
+        include_sequential=True,
     ),
 }
 

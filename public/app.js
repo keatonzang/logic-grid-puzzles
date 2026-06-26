@@ -23,6 +23,7 @@ async function generate() {
     difficulty: $("difficulty").value,
     items: $("items").value,
   });
+  if ($("price").checked) params.set("price", "1");
   const seed = $("seed").value.trim();
   if (seed !== "") params.set("seed", seed);
 

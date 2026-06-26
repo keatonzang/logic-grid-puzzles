@@ -5,8 +5,10 @@ from __future__ import annotations
 import pytest
 
 from logicgrid.clues import (
+    Adjacent,
     AllDifferent,
     Among,
+    Between,
     Diff,
     EitherOr,
     ExactlyKLinks,
@@ -89,6 +91,33 @@ def test_diff_text(ordered_theme):
     text = Diff(2, (0, 2), (0, 0), 2, values).text(ordered_theme)
     assert "exactly 2 more" in text
     assert "Year" in text
+
+
+def test_between_holds(ordered_theme, identity_solution):
+    # ranks under identity: entity i has rank i in ordered cat 2
+    assert Between(2, (0, 0), (0, 2), (0, 1)).holds(identity_solution)      # 0 < 1 < 2
+    assert Between(2, (0, 2), (0, 0), (0, 1)).holds(identity_solution)      # endpoints swapped
+    assert not Between(2, (0, 0), (0, 1), (0, 2)).holds(identity_solution)  # 2 not between 0,1
+
+
+def test_between_text(ordered_theme, identity_solution):
+    text = Between(2, (0, 0), (0, 2), (0, 1)).text(ordered_theme)  # Xi, Zu, Yo
+    assert text == "Yo's Year is between Xi's and Zu's."
+
+
+def test_between_involves_all_three(ordered_theme):
+    assert Between(2, (0, 0), (1, 1), (0, 2)).involved == frozenset({0, 1, 2})
+
+
+def test_adjacent_holds(ordered_theme, identity_solution):
+    assert Adjacent(2, (0, 0), (0, 1)).holds(identity_solution)      # rank 1 == 0 + 1
+    assert not Adjacent(2, (0, 0), (0, 2)).holds(identity_solution)  # 2 != 0 + 1
+    assert not Adjacent(2, (0, 1), (0, 0)).holds(identity_solution)  # wrong direction
+
+
+def test_adjacent_text(ordered_theme, identity_solution):
+    text = Adjacent(2, (0, 0), (0, 1)).text(ordered_theme)  # Xi, Yo
+    assert text == "Xi's Year is immediately below Yo's, with nothing in between."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------

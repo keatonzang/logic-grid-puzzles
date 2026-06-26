@@ -27,6 +27,10 @@ CAFE_POOLS: dict[str, list[str]] = {
     "Drink": ["Americano", "Chai", "Cortado", "Espresso", "Latte", "Macchiato", "Mocha", "Ristretto"],
     "Pastry": ["Bagel", "Brioche", "Croissant", "Danish", "Donut", "Muffin", "Scone", "Tart"],
 }
+# Optional ordered/numeric 4th category. Sampled prices are sorted by value
+# (ascending = rank), enabling the sequential clues (more/less, exact-diff,
+# between, immediately-before/after).
+PRICE_POOL = [3, 4, 5, 6, 7, 8, 9, 10]
 
 MIN_ITEMS = 3
 MAX_ITEMS = 6
@@ -40,12 +44,18 @@ def clamp_items(items: int) -> int:
     return max(MIN_ITEMS, min(MAX_ITEMS, int(items)))
 
 
-def build_cafe_theme(rng: random.Random, items: int) -> Theme:
-    """Sample `items` members for each café category, sorted alphabetically."""
+def build_cafe_theme(rng: random.Random, items: int, with_price: bool = False) -> Theme:
+    """Sample `items` members for each café category (sorted alphabetically). With
+    `with_price`, append an ordered numeric Price category (sorted by value)."""
     categories = [
         Category(name, sorted(rng.sample(pool, items)))
         for name, pool in CAFE_POOLS.items()
     ]
+    if with_price:
+        values = sorted(rng.sample(PRICE_POOL, items))  # ascending = rank order
+        categories.append(
+            Category("Price", [f"${v}" for v in values], ordered=True, values=values)
+        )
     theme = Theme(
         name=CAFE_NAME,
         description=CAFE_DESCRIPTION,
@@ -68,6 +78,7 @@ def build_payload(
     seed: int | None = None,
     difficulty: str = DEFAULT_DIFFICULTY,
     items: int = DEFAULT_ITEMS,
+    with_price: bool = False,
 ) -> dict:
     """Generate a puzzle and return a JSON-serialisable description.
 
@@ -82,7 +93,7 @@ def build_payload(
 
     rng = random.Random(seed)
     theme, puzzle, report = generate_rated(
-        lambda r: build_cafe_theme(r, items), rng, difficulty
+        lambda r: build_cafe_theme(r, items, with_price), rng, difficulty
     )
 
     return {
@@ -93,6 +104,7 @@ def build_payload(
         "requested": difficulty,
         "difficulty": report["band"],  # the *measured* difficulty (no guessing)
         "items": items,
+        "with_price": with_price,
         "rating": {  # how the deductive solver graded it
             "ceiling": report["ceiling"],
             "steps": report["steps"],

@@ -17,8 +17,15 @@ in four flavours:
 
 - **is** — `Marple goes with Study.`
 - **is not** — `Spade does not go with Library.`
-- **higher than** — `Borealis has a higher Landing than Cygnus.` (ordered categories)
-- **exact difference** — `Sato's Landing is exactly 3 more than Lindqvist's.` (numeric categories)
+- **higher / lower than** (`Greater`) — `The order with Latte has a higher Price than the one with Mocha.`
+- **exact difference** (`Diff`) — `Latte's Price is exactly 2 more than Mocha's.` (numeric)
+- **between** (`Between`) — `Cara's Price is between Ava's and Ben's.`
+- **immediately before/after** (`Adjacent`) — `Ava's Price is immediately below Ben's, with nothing in between.`
+
+These four **sequential** clues need an *ordered* category. The café has an optional
+numeric **Price** category (toggle), sorted by value (= rank); each has a sound
+deductive propagator (bounds/arc-consistency on ranks) so price puzzles stay
+logic-solvable.
 - **at least K of N** (`Among`, inclusive) — `Ava goes with at least one of Bagel or Latte.`
   / `Holmes goes with at least two of Butler, Attic, and Painting.` Options may span
   categories; being inclusive it does **not** imply they differ. A threshold K ≥ 2 needs

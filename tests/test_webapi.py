@@ -30,6 +30,24 @@ def test_build_cafe_theme_shape_and_alphabetical():
     theme.validate()
 
 
+def test_build_cafe_theme_with_price():
+    theme = build_cafe_theme(random.Random(1), 4, with_price=True)
+    assert theme.k == 4
+    price = theme.categories[3]
+    assert price.name == "Price"
+    assert price.ordered
+    assert price.values == sorted(price.values)  # ascending = rank order
+    assert price.items == [f"${v}" for v in price.values]
+
+
+def test_build_payload_with_price():
+    p = build_payload(seed=2, difficulty="medium", items=4, with_price=True)
+    assert p["with_price"] is True
+    names = [c["name"] for c in p["categories"]]
+    assert names == ["Customer", "Drink", "Pastry", "Price"]
+    assert p["difficulty"] == "medium"  # measured == requested, still no guessing
+
+
 def test_clamp_items_bounds():
     assert clamp_items(1) == MIN_ITEMS
     assert clamp_items(99) == MAX_ITEMS
