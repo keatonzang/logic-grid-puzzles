@@ -69,8 +69,12 @@ function buildState() {
 function render() {
   $("p-name").textContent = puzzle.name;
   $("p-desc").textContent = puzzle.description;
+  const tier = puzzle.rating ? puzzle.rating.ceiling : null;
+  const tierNote = tier != null
+    ? ` · <span title="hardest deduction technique needed (4 = proof by contradiction)">logic tier ${tier}</span>`
+    : "";
   $("p-meta").innerHTML =
-    `${puzzle.categories.length} × ${puzzle.items} · <b>${puzzle.difficulty}</b> · ` +
+    `${puzzle.categories.length} × ${puzzle.items} · <b>${puzzle.difficulty}</b>${tierNote} · ` +
     `${puzzle.clues.length} clues · seed <code>${puzzle.seed}</code>`;
 
   const ol = $("clues");

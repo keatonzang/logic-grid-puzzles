@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import random
 
-from .generate import DIFFICULTIES, generate_puzzle
+from .generate import DIFFICULTIES, generate_rated
 from .model import Category, Theme
 
 # The single theme. Categories are fixed (3); their members are sampled from
@@ -81,16 +81,23 @@ def build_payload(
         seed = random.randrange(_MAX_SEED)
 
     rng = random.Random(seed)
-    theme = build_cafe_theme(rng, items)
-    puzzle = generate_puzzle(theme, rng, difficulty=difficulty)
+    theme, puzzle, report = generate_rated(
+        lambda r: build_cafe_theme(r, items), rng, difficulty
+    )
 
     return {
         "name": theme.name,
         "description": theme.description,
         "entity_noun": theme.entity_noun,
         "seed": seed,
-        "difficulty": difficulty,
+        "requested": difficulty,
+        "difficulty": report["band"],  # the *measured* difficulty (no guessing)
         "items": items,
+        "rating": {  # how the deductive solver graded it
+            "ceiling": report["ceiling"],
+            "steps": report["steps"],
+            "total_steps": report["total_steps"],
+        },
         "categories": [
             {"name": c.name, "items": list(c.items)} for c in theme.categories
         ],

@@ -62,7 +62,7 @@ def test_difficulty_controls_clue_palette_and_size(plain_theme):
             total += len(p.clues)
         sizes[d] = total
         if d == "easy":
-            assert seen <= {"Positive", "Negative", "Among"}  # direct only
+            assert seen <= {"Positive", "Negative"}  # is / is-not only
         if d == "hard":
             assert "GroupMatch" in seen or "ExactlyKLinks" in seen  # trickiest unlocked
     # easy hands back more clues than hard (extra given vs leanest)

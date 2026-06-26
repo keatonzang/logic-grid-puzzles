@@ -287,10 +287,10 @@ DIFFICULTIES = ("easy", "medium", "hard")
 # + same-category "one of two"); medium adds either-or / neither / all-different;
 # hard unlocks the trickiest (at-least-K, exclusive pairing, group match).
 _DIFFICULTY_POOL = {
-    "easy": dict(
-        enable_among=True, among_sizes=(2,), same_category_prob=1.0,
-        enable_either=False, enable_neither=False, enable_alldiff=False,
-        multi_match=False, enable_pairing=False, enable_match=False,
+    "easy": dict(  # is / is-not only -> solvable by transitivity (no clue tricks)
+        enable_among=False, enable_either=False, enable_neither=False,
+        enable_alldiff=False, multi_match=False,
+        enable_pairing=False, enable_match=False,
     ),
     "medium": dict(
         among_sizes=(2, 3), enable_either=True, enable_neither=True,
@@ -304,14 +304,10 @@ _DIFFICULTY_POOL = {
     ),
 }
 
-# (minimize attempts -> keep the leanest, extra redundant clues as a fraction of
-# the minimal set). Easy gives extra clues (shorter chains); hard hunts the
-# leanest set (deepest deduction).
-_DIFFICULTY_SHAPE = {
-    "easy": (1, 0.6),
-    "medium": (3, 0.0),
-    "hard": (8, 0.0),
-}
+# Extra redundant clues as a fraction of the minimal set. Easy hands back more
+# (shorter chains). The actual difficulty is *measured* by `grade`, so we no
+# longer over-minimize — generate-and-grade selects by the measured band.
+_DIFFICULTY_EXTRA = {"easy": 0.6, "medium": 0.0, "hard": 0.0}
 
 
 def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
@@ -341,14 +337,9 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "medium"
     if count_solutions(theme, pool, cap=2) != 1:
         raise RuntimeError("clue pool failed to yield a unique solution (internal error)")
 
-    tries, extra_frac = _DIFFICULTY_SHAPE[difficulty]
     best = minimize(theme, pool, rng)
-    for _ in range(tries - 1):  # keep the leanest minimal set found
-        cand = minimize(theme, pool, rng)
-        if len(cand) < len(best):
-            best = cand
-
     clues = list(best)
+    extra_frac = _DIFFICULTY_EXTRA[difficulty]
     if extra_frac > 0:  # easy: hand back extra true clues so less inference is needed
         chosen = {id(c) for c in best}
         extras = [c for c in pool if id(c) not in chosen]
@@ -356,3 +347,34 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "medium"
         clues += extras[: round(extra_frac * len(best))]
     rng.shuffle(clues)
     return Puzzle(theme=theme, solution=X, clues=clues)
+
+
+def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int = 16):
+    """Generate-and-grade: sample candidates until one's *measured* difficulty
+    band matches `target`, guaranteeing a logic-solvable (no-guessing) puzzle.
+
+    `make_theme(rng)` builds a (possibly randomized) theme per attempt. Returns
+    (theme, puzzle, report). Ambiguous puzzles (need techniques beyond tier 4)
+    are skipped; if the exact band is never hit, the closest solvable one is
+    returned.
+    """
+    from .deduce import grade  # local import avoids a module cycle
+
+    if target not in DIFFICULTIES:
+        raise ValueError(f"unknown difficulty: {target!r}")
+    order = ("easy", "medium", "hard")
+    fallback = None
+    for _ in range(max_attempts):
+        theme = make_theme(rng)
+        puzzle = generate_puzzle(theme, rng, difficulty=target)
+        report = grade(theme, puzzle.clues)
+        if report["band"] == "ambiguous":
+            continue  # needs tier 5+ (nested hypotheticals) — not shipping yet
+        if report["band"] == target:
+            return theme, puzzle, report
+        # keep the closest-by-band candidate as a fallback
+        if fallback is None or abs(order.index(report["band"]) - order.index(target)) < abs(
+            order.index(fallback[2]["band"]) - order.index(target)
+        ):
+            fallback = (theme, puzzle, report)
+    return fallback

@@ -60,6 +60,27 @@ The solver assigns one category column at a time (most-constrained first) and
 prunes against every clue whose columns are fully assigned, so the small sizes
 typical of these puzzles (≤ 6×6) solve instantly.
 
+## Difficulty: measured, not guessed (`logicgrid/deduce.py`)
+
+Difficulty is *measured* by a second, human-style solver that uses only
+deduction techniques, cheapest first, and reports what the solve required:
+
+| Tier | Technique |
+|---|---|
+| 0 | givens — direct is / is-not / neither / all-different |
+| 1 | line completion — each item links exactly one other in a block |
+| 2 | transitivity — combine blocks through a shared entity (the core move) |
+| 3 | clue propagation — among / either-or / exactly-K / group-match narrowing |
+| 4 | proof by contradiction — assume a cell, propagate, eliminate on conflict |
+
+The **band** is the hardest technique needed: ceiling ≤ 2 → **easy**, 3 →
+**medium**, 4 → **hard**. This is rigorous logic, not guessing — tiers 1–3 are
+forward propagation, tier 4 is a contradiction proof. Generation is
+**generate-and-grade**: sample candidates, grade each, keep one whose *measured*
+band matches the request — so every puzzle is **solvable by logic alone, no
+guessing**, and "hard" genuinely requires a contradiction step. (A rare puzzle
+needing nested hypotheticals — "tier 5+" — is skipped for now.)
+
 ## Writing a theme
 
 Themes are plain YAML (or JSON — same shape, no PyYAML needed). All categories
