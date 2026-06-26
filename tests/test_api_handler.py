@@ -22,30 +22,34 @@ def api():
     return module
 
 
-def test_list_route(api):
-    status, payload = api._build_response({"list": ["1"]})
-    assert status == 200
-    assert "themes" in payload and len(payload["themes"]) >= 2
-
-
-def test_default_puzzle_route(api):
+def test_default_route(api):
     status, payload = api._build_response({})
     assert status == 200
-    assert payload["theme"] == "morning_rush"  # the 3x4 default
+    assert payload["difficulty"] == "medium"
+    assert payload["items"] == 4
     assert payload["clues"]
 
 
 def test_explicit_params(api):
-    status, payload = api._build_response({"theme": ["space_colony"], "seed": ["12"]})
+    status, payload = api._build_response(
+        {"difficulty": ["hard"], "items": ["5"], "seed": ["12"]}
+    )
     assert status == 200
-    assert payload["theme"] == "space_colony"
+    assert payload["difficulty"] == "hard"
+    assert payload["items"] == 5
     assert payload["seed"] == 12
 
 
-def test_unknown_theme_is_400(api):
-    status, payload = api._build_response({"theme": ["atlantis"]})
+def test_unknown_difficulty_is_400(api):
+    status, payload = api._build_response({"difficulty": ["wizard"]})
     assert status == 400
-    assert "unknown theme" in payload["error"]
+    assert "difficulty" in payload["error"]
+
+
+def test_bad_items_is_400(api):
+    status, payload = api._build_response({"items": ["lots"]})
+    assert status == 400
+    assert "items must be an integer" in payload["error"]
 
 
 def test_bad_seed_is_400(api):

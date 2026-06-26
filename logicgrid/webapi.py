@@ -1,96 +1,59 @@
-"""Web/serverless layer: a registry of built-in themes plus a JSON-serialisable
-puzzle payload.
+"""Web/serverless layer: a single café theme whose members vary per puzzle,
+plus a JSON-serialisable puzzle payload.
 
-Kept deliberately dependency-free (no file IO, no PyYAML) so it runs cleanly
-inside a serverless function with a cold start. The theme dicts below mirror the
-canonical YAML files in ``themes/`` — keep them in sync if the YAML changes.
+Kept dependency-free (no file IO, no PyYAML) so it runs cleanly in a serverless
+function. Each puzzle samples `items` members from each category's pool and
+sorts them alphabetically, so categories always render A→Z.
 """
 
 from __future__ import annotations
 
 import random
 
-from .generate import generate_puzzle
-from .model import Theme
-from .themes import theme_from_dict
+from .generate import DIFFICULTIES, generate_puzzle
+from .model import Category, Theme
 
-# Mirror of themes/*.yaml, embedded so the function needs no file access.
-THEME_DICTS: dict[str, dict] = {
-    "morning_rush": {
-        "name": "The Morning Rush",
-        "description": (
-            "Four regulars each ordered a different drink and a different pastry "
-            "one busy morning at the corner cafe. Work out who had what."
-        ),
-        "entity_noun": "order",
-        "categories": [
-            {"name": "Customer", "items": ["Ava", "Ben", "Cara", "Dane"]},
-            {"name": "Drink", "items": ["Latte", "Mocha", "Cortado", "Chai"]},
-            {"name": "Pastry", "items": ["Scone", "Bagel", "Muffin", "Donut"]},
-        ],
-    },
-    "detectives": {
-        "name": "The Vanished Heirloom",
-        "description": (
-            "A priceless heirloom has gone missing from the manor. Four "
-            "detectives each questioned a different suspect, in a different "
-            "room, about a different object. Use the clues to work out who did "
-            "what."
-        ),
-        "entity_noun": "case",
-        "categories": [
-            {"name": "Detective", "items": ["Holmes", "Marple", "Poirot", "Spade"]},
-            {"name": "Suspect", "items": ["Butler", "Cousin", "Gardener", "Maid"]},
-            {"name": "Room", "items": ["Library", "Study", "Cellar", "Attic"]},
-            {"name": "Object", "items": ["Locket", "Painting", "Ledger", "Brooch"]},
-        ],
-    },
-    "space_colony": {
-        "name": "Frontier Landings",
-        "description": (
-            "Five colony ships touched down on the new world in different "
-            "years, each captained by a different officer and carrying a "
-            "different cargo. Work out the full manifest."
-        ),
-        "entity_noun": "ship",
-        "categories": [
-            {"name": "Ship", "items": ["Aurora", "Borealis", "Cygnus", "Dragon", "Equinox"]},
-            {"name": "Captain", "items": ["Reyes", "Okafor", "Sato", "Nazari", "Lindqvist"]},
-            {"name": "Cargo", "items": ["Seedstock", "Reactors", "Medicine", "Livestock", "Textiles"]},
-            {
-                "name": "Landing",
-                "items": ["2161", "2164", "2167", "2170", "2173"],
-                "ordered": True,
-                "values": [2161, 2164, 2167, 2170, 2173],
-            },
-        ],
-    },
+# The single theme. Categories are fixed (3); their members are sampled from
+# these pools so every puzzle is a fresh draw. Pools are large enough to support
+# the maximum grid size, and labels are globally unique across categories.
+CAFE_NAME = "The Morning Rush"
+CAFE_DESCRIPTION = (
+    "Regulars at the corner café each ordered a different drink and a different "
+    "pastry one busy morning. Work out who had what."
+)
+CAFE_ENTITY_NOUN = "order"
+CAFE_POOLS: dict[str, list[str]] = {
+    "Customer": ["Ava", "Ben", "Cara", "Dane", "Edith", "Felix", "Greta", "Hugo"],
+    "Drink": ["Americano", "Chai", "Cortado", "Espresso", "Latte", "Macchiato", "Mocha", "Ristretto"],
+    "Pastry": ["Bagel", "Brioche", "Croissant", "Danish", "Donut", "Muffin", "Scone", "Tart"],
 }
 
-DEFAULT_THEME = "morning_rush"
+MIN_ITEMS = 3
+MAX_ITEMS = 6
+DEFAULT_ITEMS = 4
+DEFAULT_DIFFICULTY = "medium"
+
 _MAX_SEED = 1_000_000
 
 
-def list_themes() -> list[dict]:
-    """Lightweight catalogue for populating a theme picker."""
-    out = []
-    for key, data in THEME_DICTS.items():
-        out.append(
-            {
-                "key": key,
-                "name": data["name"],
-                "description": data["description"],
-                "size": len(data["categories"][0]["items"]),
-                "categories": len(data["categories"]),
-            }
-        )
-    return out
+def clamp_items(items: int) -> int:
+    return max(MIN_ITEMS, min(MAX_ITEMS, int(items)))
 
 
-def get_theme(theme_key: str) -> Theme:
-    if theme_key not in THEME_DICTS:
-        raise KeyError(theme_key)
-    return theme_from_dict(THEME_DICTS[theme_key])
+def build_cafe_theme(rng: random.Random, items: int) -> Theme:
+    """Sample `items` members for each café category, sorted alphabetically."""
+    categories = [
+        Category(name, sorted(rng.sample(pool, items)))
+        for name, pool in CAFE_POOLS.items()
+    ]
+    theme = Theme(
+        name=CAFE_NAME,
+        description=CAFE_DESCRIPTION,
+        categories=categories,
+        entity_noun=CAFE_ENTITY_NOUN,
+    )
+    theme.validate()
+    return theme
 
 
 def _solution_rows(theme: Theme, X: list[list[int]]) -> list[list[str]]:
@@ -101,30 +64,35 @@ def _solution_rows(theme: Theme, X: list[list[int]]) -> list[list[str]]:
     ]
 
 
-def build_payload(theme_key: str = DEFAULT_THEME, seed: int | None = None) -> dict:
+def build_payload(
+    seed: int | None = None,
+    difficulty: str = DEFAULT_DIFFICULTY,
+    items: int = DEFAULT_ITEMS,
+) -> dict:
     """Generate a puzzle and return a JSON-serialisable description.
 
     A concrete ``seed`` is always resolved and echoed back so any puzzle can be
     reproduced from the response alone.
     """
-    if theme_key not in THEME_DICTS:
-        raise KeyError(theme_key)
+    if difficulty not in DIFFICULTIES:
+        raise ValueError(f"unknown difficulty: {difficulty!r}")
+    items = clamp_items(items)
     if seed is None:
         seed = random.randrange(_MAX_SEED)
 
-    theme = theme_from_dict(THEME_DICTS[theme_key])
     rng = random.Random(seed)
-    puzzle = generate_puzzle(theme, rng)
+    theme = build_cafe_theme(rng, items)
+    puzzle = generate_puzzle(theme, rng, difficulty=difficulty)
 
     return {
-        "theme": theme_key,
         "name": theme.name,
         "description": theme.description,
         "entity_noun": theme.entity_noun,
         "seed": seed,
+        "difficulty": difficulty,
+        "items": items,
         "categories": [
-            {"name": c.name, "items": list(c.items), "ordered": c.ordered}
-            for c in theme.categories
+            {"name": c.name, "items": list(c.items)} for c in theme.categories
         ],
         "clues": [clue.text(theme) for clue in puzzle.clues],
         "solution": _solution_rows(theme, puzzle.solution),

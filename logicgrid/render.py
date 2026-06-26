@@ -42,7 +42,7 @@ def render_grids(puzzle: Puzzle, solved: bool = False) -> str:
     """Pairwise grids for every pair of categories.
 
     Blank for solving; with X (linked) / . (not linked) marks when `solved`.
-    A compact stand-in for PuzzleBaron's interlocked staircase grid.
+    A compact stand-in for the interlocked staircase grid.
     """
     theme, X = puzzle.theme, puzzle.solution
     n, k = theme.n, theme.k

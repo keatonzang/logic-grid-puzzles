@@ -60,6 +60,14 @@ def build_clue_pool(
     max_pairing: int = 25,
     match_sizes: tuple[int, ...] = (2, 3),
     max_match: int = 25,
+    enable_negatives: bool = True,
+    enable_among: bool = True,
+    enable_either: bool = True,
+    enable_neither: bool = True,
+    enable_alldiff: bool = True,
+    enable_pairing: bool = True,
+    enable_match: bool = True,
+    include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
     disjunctions (Among / EitherOr / Neither), all true under X.
@@ -101,12 +109,15 @@ def build_clue_pool(
         for c2 in range(c1 + 1, k):
             for e in range(n):
                 positives.append(Positive((c1, X[e][c1]), (c2, X[e][c2])))
-            for e1 in range(n):
-                for e2 in range(n):
-                    if e1 != e2:
-                        negatives.append(Negative((c1, X[e1][c1]), (c2, X[e2][c2])))
+            if enable_negatives:
+                for e1 in range(n):
+                    for e2 in range(n):
+                        if e1 != e2:
+                            negatives.append(Negative((c1, X[e1][c1]), (c2, X[e2][c2])))
 
-    for cn in range(k):
+    # Sequential clues (higher-than / exact-difference) on ordered categories,
+    # disabled by default.
+    for cn in range(k) if include_sequential else ():
         cat = theme.categories[cn]
         if not cat.ordered:
             continue
@@ -164,15 +175,18 @@ def build_clue_pool(
             for size in among_sizes:
                 if size < 2:
                     continue
-                opts = make_options(size, True)
-                if opts is not None:
-                    among.append(Among(anchor, opts))
-                opts = make_options(size, True)
-                if opts is not None:
-                    either.append(EitherOr(anchor, opts))
-                opts = make_options(size, False)
-                if opts is not None:
-                    neither.append(Neither(anchor, opts))
+                if enable_among:
+                    opts = make_options(size, True)
+                    if opts is not None:
+                        among.append(Among(anchor, opts))
+                if enable_either:
+                    opts = make_options(size, True)
+                    if opts is not None:
+                        either.append(EitherOr(anchor, opts))
+                if enable_neither:
+                    opts = make_options(size, False)
+                    if opts is not None:
+                        neither.append(Neither(anchor, opts))
 
             # "At least K of N" Among over DISTINCT categories. Always ambiguous:
             # K is kept strictly below N (K == N would just be N direct links), so
@@ -192,7 +206,7 @@ def build_clue_pool(
 
     # "All different": N terms on N distinct entities, spanning >= 2 categories
     # (categories may repeat). Generated for N >= 3 (N == 2 would be a Negative).
-    for size in alldiff_sizes:
+    for size in alldiff_sizes if enable_alldiff else ():
         if not 3 <= size <= n:
             continue
         for _ in range(4 * n):
@@ -207,7 +221,7 @@ def build_clue_pool(
 
     # Exclusive pairing: exactly `pairing_k` of N positive links hold. A true
     # link joins two terms on one entity; a false link joins two entities.
-    for size in pairing_sizes:
+    for size in pairing_sizes if enable_pairing else ():
         if not 1 <= pairing_k < size:  # keep it ambiguous (never all-true/all-false)
             continue
         for _ in range(3 * n):
@@ -229,7 +243,7 @@ def build_clue_pool(
     # into disjoint left/right pools, so each group may span several categories
     # (e.g. a Pastry and a Customer) yet the two sides never share one — which
     # would otherwise read as "a Drink goes with another Drink".
-    for size in match_sizes:
+    for size in match_sizes if enable_match else ():
         if not 2 <= size <= n:
             continue
         for _ in range(3 * n):
@@ -267,6 +281,39 @@ def build_clue_pool(
     )
 
 
+DIFFICULTIES = ("easy", "medium", "hard")
+
+# Which clue families each difficulty draws from. Easy stays direct (is / is-not
+# + same-category "one of two"); medium adds either-or / neither / all-different;
+# hard unlocks the trickiest (at-least-K, exclusive pairing, group match).
+_DIFFICULTY_POOL = {
+    "easy": dict(
+        enable_among=True, among_sizes=(2,), same_category_prob=1.0,
+        enable_either=False, enable_neither=False, enable_alldiff=False,
+        multi_match=False, enable_pairing=False, enable_match=False,
+    ),
+    "medium": dict(
+        among_sizes=(2, 3), enable_either=True, enable_neither=True,
+        enable_alldiff=True, multi_match=False,
+        enable_pairing=False, enable_match=False,
+    ),
+    "hard": dict(
+        among_sizes=(2, 3), enable_either=True, enable_neither=True,
+        enable_alldiff=True, multi_match=True,
+        enable_pairing=True, enable_match=True,
+    ),
+}
+
+# (minimize attempts -> keep the leanest, extra redundant clues as a fraction of
+# the minimal set). Easy gives extra clues (shorter chains); hard hunts the
+# leanest set (deepest deduction).
+_DIFFICULTY_SHAPE = {
+    "easy": (1, 0.6),
+    "medium": (3, 0.0),
+    "hard": (8, 0.0),
+}
+
+
 def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
     """Greedily remove clues in random order while uniqueness is preserved.
 
@@ -284,12 +331,28 @@ def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
     return current
 
 
-def generate_puzzle(theme: Theme, rng: random.Random) -> Puzzle:
+def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "medium") -> Puzzle:
+    if difficulty not in DIFFICULTIES:
+        raise ValueError(f"unknown difficulty: {difficulty!r}")
     theme.validate()
     X = random_solution(theme, rng)
-    pool = build_clue_pool(theme, X, rng)
+    pool = build_clue_pool(theme, X, rng, **_DIFFICULTY_POOL[difficulty])
     # positives alone pin the solution, so the full pool is necessarily unique
     if count_solutions(theme, pool, cap=2) != 1:
         raise RuntimeError("clue pool failed to yield a unique solution (internal error)")
-    clues = minimize(theme, pool, rng)
+
+    tries, extra_frac = _DIFFICULTY_SHAPE[difficulty]
+    best = minimize(theme, pool, rng)
+    for _ in range(tries - 1):  # keep the leanest minimal set found
+        cand = minimize(theme, pool, rng)
+        if len(cand) < len(best):
+            best = cand
+
+    clues = list(best)
+    if extra_frac > 0:  # easy: hand back extra true clues so less inference is needed
+        chosen = {id(c) for c in best}
+        extras = [c for c in pool if id(c) not in chosen]
+        rng.shuffle(extras)
+        clues += extras[: round(extra_frac * len(best))]
+    rng.shuffle(clues)
     return Puzzle(theme=theme, solution=X, clues=clues)

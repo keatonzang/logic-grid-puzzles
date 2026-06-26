@@ -1,6 +1,6 @@
 # Logic Grid Puzzle Generator
 
-Dynamically generate PuzzleBaron-style logic grid puzzles from editable theme
+Dynamically generate logic grid puzzles from editable theme
 files. Each generated puzzle is guaranteed to have **exactly one** solution.
 
 ```
@@ -151,8 +151,8 @@ logicgrid/
 
 ## Possible next steps
 
-- **Interlocked "staircase" grid** — render the single L-shaped PuzzleBaron grid
-  instead of separate pairwise blocks (`render.py` / front end).
+- **Interlocked "staircase" grid (CLI)** — the web app renders the single
+  L-shaped grid on desktop; bring the same to `render.py`.
 - **Difficulty rating** — swap the uniqueness check for a human-style deductive
   solver that reports the inference depth needed, to grade and target difficulty.
 - **More clue types** — "either/or", "one of these three", before/after chains.

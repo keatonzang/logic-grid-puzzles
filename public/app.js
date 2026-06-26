@@ -2,12 +2,12 @@
 
 const $ = (id) => document.getElementById(id);
 const STATES = ["", "=", "×"]; // 0 blank, 1 link (=), 2 no-link (×)
+const DESKTOP = window.matchMedia("(min-width: 821px)"); // staircase vs pairwise
 
 let puzzle = null;        // current payload
 // `manual` is the source of truth: what the user explicitly set in each cell
 // (0 blank, 1 link "=", 2 no-link "×"). The displayed × marks are *derived*:
 // any blank cell sharing a row or column with a manual "=" shows an auto "×".
-// Removing the "=" therefore reverts only those auto marks, never manual ones.
 let manual = {};          // "i-j" -> n_i x n_j array of 0/1/2 (user intent)
 let linked = {};          // "i-j" -> Set of "aIdx,bIdx" that are truly linked
 
@@ -18,22 +18,12 @@ async function fetchJSON(url) {
   return data;
 }
 
-async function loadThemes() {
-  const { themes } = await fetchJSON("/api/puzzle?list=1");
-  const sel = $("theme");
-  sel.innerHTML = "";
-  for (const t of themes) {
-    const opt = document.createElement("option");
-    opt.value = t.key;
-    opt.textContent = `${t.name} (${t.size}×${t.categories})`;
-    sel.appendChild(opt);
-  }
-}
-
 async function generate() {
-  const theme = $("theme").value;
+  const params = new URLSearchParams({
+    difficulty: $("difficulty").value,
+    items: $("items").value,
+  });
   const seed = $("seed").value.trim();
-  const params = new URLSearchParams({ theme });
   if (seed !== "") params.set("seed", seed);
 
   $("error").hidden = true;
@@ -80,7 +70,8 @@ function render() {
   $("p-name").textContent = puzzle.name;
   $("p-desc").textContent = puzzle.description;
   $("p-meta").innerHTML =
-    `Seed <code>${puzzle.seed}</code> · ${puzzle.clues.length} clues`;
+    `${puzzle.categories.length} × ${puzzle.items} · <b>${puzzle.difficulty}</b> · ` +
+    `${puzzle.clues.length} clues · seed <code>${puzzle.seed}</code>`;
 
   const ol = $("clues");
   ol.innerHTML = "";
@@ -90,15 +81,57 @@ function render() {
     ol.appendChild(li);
   }
 
-  const host = $("grids");
-  host.innerHTML = "";
-  const cats = puzzle.categories;
-  for (const [i, j] of pairs()) {
-    host.appendChild(renderGrid(i, j, cats));
-  }
+  renderBoard();
   setResult("", "");
 }
 
+// Pick the layout for the viewport, (re)build the DOM, and repaint marks from
+// `manual` so state survives a desktop/mobile switch.
+function renderBoard() {
+  const host = $("grids");
+  host.innerHTML = "";
+  const cats = puzzle.categories;
+  if (DESKTOP.matches) {
+    host.className = "board-staircase";
+    host.appendChild(renderStaircase(cats));
+  } else {
+    host.className = "board-pairwise";
+    for (const [i, j] of pairs()) host.appendChild(renderGrid(i, j, cats));
+  }
+  for (const key of Object.keys(manual)) paintGrid(key);
+}
+
+function cell(tag, text, cls) {
+  const el = document.createElement(tag);
+  el.className = cls;
+  el.textContent = text;
+  return el;
+}
+
+function col(cls) {
+  const c = document.createElement("col");
+  c.className = cls;
+  return c;
+}
+
+function vlabel(th, text) {
+  th.title = text;
+  const span = document.createElement("span"); // rotated vertically in CSS
+  span.textContent = text;
+  th.appendChild(span);
+  return th;
+}
+
+function dataCell(key, a, b, extra) {
+  const td = cell("td", "", "cell" + (extra ? " " + extra : ""));
+  td.dataset.key = key;
+  td.dataset.a = a;
+  td.dataset.b = b;
+  td.addEventListener("click", onCellClick);
+  return td;
+}
+
+// --- Mobile: separate pairwise blocks ---------------------------------------
 function renderGrid(i, j, cats) {
   const key = `${i}-${j}`;
   const block = document.createElement("div");
@@ -109,30 +142,14 @@ function renderGrid(i, j, cats) {
 
   const table = document.createElement("table");
   table.className = "grid";
-
-  // Fixed column widths via <colgroup> + table-layout:fixed so every grid has
-  // identical dimensions no matter how long the labels are.
   const colgroup = document.createElement("colgroup");
-  const lab = document.createElement("col");
-  lab.className = "rowlab-col";
-  colgroup.appendChild(lab);
-  cats[j].items.forEach(() => {
-    const c = document.createElement("col");
-    c.className = "cell-col";
-    colgroup.appendChild(c);
-  });
+  colgroup.appendChild(col("rowlab-col"));
+  cats[j].items.forEach(() => colgroup.appendChild(col("cell-col")));
   table.appendChild(colgroup);
 
   const head = document.createElement("tr");
   head.appendChild(cell("th", "", "corner"));
-  for (const label of cats[j].items) {
-    const th = cell("th", "", "col");
-    th.title = label;
-    const span = document.createElement("span"); // rotated vertically in CSS
-    span.textContent = label;
-    th.appendChild(span);
-    head.appendChild(th);
-  }
+  for (const label of cats[j].items) head.appendChild(vlabel(cell("th", "", "col"), label));
   table.appendChild(head);
 
   cats[i].items.forEach((rowLabel, a) => {
@@ -140,14 +157,7 @@ function renderGrid(i, j, cats) {
     const rh = cell("th", rowLabel, "row");
     rh.title = rowLabel;
     tr.appendChild(rh);
-    cats[j].items.forEach((_, b) => {
-      const td = cell("td", "", "cell");
-      td.dataset.key = key;
-      td.dataset.a = a;
-      td.dataset.b = b;
-      td.addEventListener("click", onCellClick);
-      tr.appendChild(td);
-    });
+    cats[j].items.forEach((_, b) => tr.appendChild(dataCell(key, a, b)));
     table.appendChild(tr);
   });
 
@@ -155,11 +165,78 @@ function renderGrid(i, j, cats) {
   return block;
 }
 
-function cell(tag, text, cls) {
-  const el = document.createElement(tag);
-  el.className = cls;
-  el.textContent = text;
-  return el;
+// --- Desktop: one interlocked staircase grid --------------------------------
+// Column blocks are categories 1..K-1; row blocks are 0..K-2. A block (row i,
+// col j) exists only when i < j, which carves the staircase notch.
+function renderStaircase(cats) {
+  const K = cats.length;
+  const N = cats[0].items.length;
+  const colCats = [];
+  for (let j = 1; j < K; j++) colCats.push(j);
+  const rowCats = [];
+  for (let i = 0; i < K - 1; i++) rowCats.push(i);
+
+  const table = document.createElement("table");
+  table.className = "staircase";
+
+  const cg = document.createElement("colgroup");
+  cg.appendChild(col("sc-catcol"));
+  cg.appendChild(col("sc-rowlab-col"));
+  colCats.forEach(() => cats[0].items.forEach(() => cg.appendChild(col("cell-col"))));
+  table.appendChild(cg);
+
+  // header row 1: column-category names
+  const h1 = document.createElement("tr");
+  const corner = cell("th", "", "sc-corner");
+  corner.colSpan = 2;
+  corner.rowSpan = 2;
+  h1.appendChild(corner);
+  for (const j of colCats) {
+    const th = cell("th", cats[j].name, "sc-colcat blk-left");
+    th.colSpan = N;
+    h1.appendChild(th);
+  }
+  table.appendChild(h1);
+
+  // header row 2: column item labels (vertical)
+  const h2 = document.createElement("tr");
+  for (const j of colCats) {
+    cats[j].items.forEach((label, b) =>
+      h2.appendChild(vlabel(cell("th", "", "col" + (b === 0 ? " blk-left" : "")), label))
+    );
+  }
+  table.appendChild(h2);
+
+  // body
+  for (const i of rowCats) {
+    cats[i].items.forEach((rowLabel, a) => {
+      const tr = document.createElement("tr");
+      if (a === 0) {
+        const catTh = vlabel(cell("th", "", "sc-rowcat" + (i > 0 ? " blk-top" : "")), cats[i].name);
+        catTh.rowSpan = N;
+        tr.appendChild(catTh);
+      }
+      const rh = cell("th", rowLabel, "row" + (a === 0 && i > 0 ? " blk-top" : ""));
+      rh.title = rowLabel;
+      tr.appendChild(rh);
+      for (const j of colCats) {
+        for (let b = 0; b < N; b++) {
+          const edge = (b === 0 ? "blk-left " : "") + (a === 0 && i > 0 ? "blk-top" : "");
+          if (i < j) {
+            tr.appendChild(dataCell(`${i}-${j}`, a, b, edge.trim()));
+          } else {
+            tr.appendChild(cell("td", "", ("void " + edge).trim()));
+          }
+        }
+      }
+      table.appendChild(tr);
+    });
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "staircase-wrap";
+  wrap.appendChild(table);
+  return wrap;
 }
 
 function cellEl(key, a, b) {
@@ -170,13 +247,12 @@ function cellEl(key, a, b) {
 
 // Grid-interaction logic (derive / nextState / lineHasEqElsewhere) lives in the
 // shared, unit-tested module logic.js, exposed here as the global `LG`.
-
-// Re-derive one grid and repaint all its cells.
 function paintGrid(key) {
   const { display, lit } = LG.derive(manual[key]);
   for (let a = 0; a < display.length; a++) {
     for (let b = 0; b < display[a].length; b++) {
       const td = cellEl(key, a, b);
+      if (!td) continue;
       const state = display[a][b];
       td.textContent = STATES[state];
       td.classList.toggle("yes", state === 1);
@@ -185,7 +261,6 @@ function paintGrid(key) {
       td.classList.remove("right", "wrong");
     }
   }
-  return display;
 }
 
 function onCellClick(e) {
@@ -217,6 +292,7 @@ function check() {
         const truth = linked[key].has(`${a},${b}`);
         const state = display[a][b];
         const td = cellEl(key, a, b);
+        if (!td) continue;
         if (state === 1 && truth) { td.classList.add("right"); correctYes++; }
         else if (state === 1 && !truth) { td.classList.add("wrong"); mistakes++; }
         else if (state === 2 && truth) { td.classList.add("wrong"); mistakes++; }
@@ -269,10 +345,11 @@ $("generate").addEventListener("click", generate);
 $("check").addEventListener("click", check);
 $("reveal").addEventListener("click", reveal);
 $("clear").addEventListener("click", clearGrids);
+// Swap layouts when crossing the breakpoint, preserving marks.
+DESKTOP.addEventListener("change", () => { if (puzzle) renderBoard(); });
 
 (async function init() {
   try {
-    await loadThemes();
     await generate();
   } catch (err) {
     $("loading").hidden = true;

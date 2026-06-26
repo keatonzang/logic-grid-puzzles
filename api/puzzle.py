@@ -1,8 +1,6 @@
 """Vercel Python serverless function: generate a logic-grid puzzle as JSON.
 
-Routes (both served at /api/puzzle):
-    GET /api/puzzle?list=1                       -> {"themes": [...]}
-    GET /api/puzzle?theme=detectives&seed=3       -> puzzle payload
+    GET /api/puzzle?difficulty=medium&items=4&seed=3   -> puzzle payload
 
 The actual generation lives in ``logicgrid.webapi`` so it stays unit-testable
 without spinning up HTTP.
@@ -19,14 +17,18 @@ from urllib.parse import parse_qs, urlparse
 # Make the repo root importable so ``logicgrid`` resolves in the function bundle.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from logicgrid.webapi import DEFAULT_THEME, build_payload, list_themes  # noqa: E402
+from logicgrid.webapi import DEFAULT_DIFFICULTY, DEFAULT_ITEMS, build_payload  # noqa: E402
 
 
 def _build_response(query: dict) -> tuple[int, dict]:
-    if query.get("list"):
-        return 200, {"themes": list_themes()}
+    difficulty = query.get("difficulty", [DEFAULT_DIFFICULTY])[0]
 
-    theme = query.get("theme", [DEFAULT_THEME])[0]
+    items_raw = query.get("items", [DEFAULT_ITEMS])[0]
+    try:
+        items = int(items_raw)
+    except (TypeError, ValueError):
+        return 400, {"error": f"items must be an integer, got {items_raw!r}"}
+
     seed_raw = query.get("seed", [None])[0]
     seed = None
     if seed_raw not in (None, ""):
@@ -36,9 +38,9 @@ def _build_response(query: dict) -> tuple[int, dict]:
             return 400, {"error": f"seed must be an integer, got {seed_raw!r}"}
 
     try:
-        return 200, build_payload(theme, seed=seed)
-    except KeyError:
-        return 400, {"error": f"unknown theme: {theme!r}"}
+        return 200, build_payload(seed=seed, difficulty=difficulty, items=items)
+    except ValueError as exc:
+        return 400, {"error": str(exc)}
 
 
 class handler(BaseHTTPRequestHandler):

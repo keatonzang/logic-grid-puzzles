@@ -113,6 +113,39 @@ button.primary:hover { filter: brightness(1.08); }
   justify-content: center;
   gap: 1.5rem 1.25rem;
 }
+#grids.board-staircase { display: block; overflow-x: auto; }
+.staircase-wrap { display: flex; justify-content: center; min-width: max-content; }
+
+/* ---- Desktop interlocked staircase grid ---- */
+table.staircase { table-layout: fixed; border-collapse: collapse; }
+col.sc-catcol { width: 1.7rem; }
+col.sc-rowlab-col { width: var(--rowlab); }
+table.staircase th, table.staircase td {
+  border: 1px solid var(--line);
+  text-align: center;
+  overflow: hidden;
+}
+table.staircase .sc-corner { border: none; background: transparent; }
+th.sc-colcat {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--ink);
+  padding: .3rem .2rem;
+  background: var(--panel-2);
+}
+th.sc-rowcat { background: var(--panel-2); padding: 0; vertical-align: middle; }
+th.sc-rowcat span {
+  display: inline-block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+table.staircase td.void { border: none; background: transparent; cursor: default; }
+table.staircase .blk-left { border-left: 2px solid var(--muted); }
+table.staircase .blk-top { border-top: 2px solid var(--muted); }
 
 .grid-block {
   display: flex;

@@ -37,13 +37,41 @@ def test_clue_pool_all_true_and_pins_solution(plain_theme):
     assert count_solutions(plain_theme, pool, cap=2) == 1
 
 
-def test_ordered_theme_pool_has_comparisons(ordered_theme):
-    rng = random.Random(2)
-    X = random_solution(ordered_theme, rng)
-    pool = build_clue_pool(ordered_theme, X, rng)
+def test_sequential_disabled_by_default_enabled_on_request(ordered_theme):
     from logicgrid.clues import Diff, Greater
 
-    assert any(isinstance(c, (Greater, Diff)) for c in pool)
+    rng = random.Random(2)
+    X = random_solution(ordered_theme, rng)
+    off = build_clue_pool(ordered_theme, X, rng)
+    assert not any(isinstance(c, (Greater, Diff)) for c in off)  # disabled by default
+    on = build_clue_pool(ordered_theme, X, rng, include_sequential=True)
+    assert any(isinstance(c, (Greater, Diff)) for c in on)
+
+
+def test_difficulty_controls_clue_palette_and_size(plain_theme):
+    from logicgrid.clues import ExactlyKLinks, GroupMatch
+    from logicgrid.generate import DIFFICULTIES
+
+    sizes = {}
+    for d in DIFFICULTIES:
+        seen = set()
+        total = 0
+        for s in range(12):
+            p = generate_puzzle(plain_theme, random.Random(s), difficulty=d)
+            seen.update(type(c).__name__ for c in p.clues)
+            total += len(p.clues)
+        sizes[d] = total
+        if d == "easy":
+            assert seen <= {"Positive", "Negative", "Among"}  # direct only
+        if d == "hard":
+            assert "GroupMatch" in seen or "ExactlyKLinks" in seen  # trickiest unlocked
+    # easy hands back more clues than hard (extra given vs leanest)
+    assert sizes["easy"] > sizes["hard"]
+
+
+def test_unknown_difficulty_raises(plain_theme):
+    with pytest.raises(ValueError, match="unknown difficulty"):
+        generate_puzzle(plain_theme, random.Random(0), difficulty="legendary")
 
 
 def test_pool_contains_all_disjunction_types(plain_theme):
