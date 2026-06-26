@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logic Grid Puzzles</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🧩</text></svg>" />
+</head>
+<body>
+  <header>
+    <h1>🧩 Logic Grid Puzzles</h1>
+    <p class="tagline">Every puzzle has exactly one solution. Fill the grids — click a cell to cycle <b>blank → ✓ → ✗</b>.</p>
+  </header>
+
+  <section class="controls">
+    <label>Theme
+      <select id="theme"></select>
+    </label>
+    <label>Seed
+      <input id="seed" type="number" inputmode="numeric" placeholder="random" />
+    </label>
+    <button id="generate" class="primary">Generate</button>
+  </section>
+
+  <main id="puzzle" hidden>
+    <div class="puzzle-head">
+      <h2 id="p-name"></h2>
+      <p id="p-desc" class="desc"></p>
+      <p class="meta"><span id="p-meta"></span></p>
+    </div>
+
+    <div class="layout">
+      <section class="clues-panel">
+        <h3>Clues</h3>
+        <ol id="clues"></ol>
+      </section>
+
+      <section class="grids-panel">
+        <div class="grid-actions">
+          <button id="check">Check</button>
+          <button id="reveal">Reveal solution</button>
+          <button id="clear">Clear</button>
+          <span id="result" class="result"></span>
+        </div>
+        <div id="grids"></div>
+      </section>
+    </div>
+  </main>
+
+  <p id="loading" class="loading">Loading…</p>
+  <p id="error" class="error" hidden></p>
+
+  <footer>
+    <span>Generated server-side in Python · guaranteed unique solution</span>
+  </footer>
+
+  <script src="/logic.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

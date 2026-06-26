@@ -1,0 +1,21 @@
+# Demonstrates an ORDERED numeric category (Landing) enabling "higher than"
+# and exact-difference clues. Items in `Landing` are listed ascending and the
+# `values` give the numeric year used for difference clues.
+name: "Frontier Landings"
+description: >-
+  Five colony ships touched down on the new world in different years, each
+  captained by a different officer and carrying a different cargo. Work out the
+  full manifest.
+entity_noun: ship
+
+categories:
+  - name: Ship
+    items: [Aurora, Borealis, Cygnus, Dragon, Equinox]
+  - name: Captain
+    items: [Reyes, Okafor, Sato, Nazari, Lindqvist]
+  - name: Cargo
+    items: [Seedstock, Reactors, Medicine, Livestock, Textiles]
+  - name: Landing
+    items: ["2161", "2164", "2167", "2170", "2173"]
+    ordered: true
+    values: [2161, 2164, 2167, 2170, 2173]
