@@ -86,7 +86,7 @@ def test_greater_holds(ordered_theme, identity_solution):
 
 def test_greater_text(ordered_theme, identity_solution):
     text = Greater(2, (0, 2), (0, 0)).text(ordered_theme)
-    assert "higher Year" in text
+    assert "higher year" in text
     assert "Zu" in text and "Xi" in text
 
 
@@ -101,7 +101,7 @@ def test_diff_text(ordered_theme):
     values = [2001, 2002, 2003]
     text = Diff(2, (0, 2), (0, 0), 2, values).text(ordered_theme)
     assert "exactly 2 more" in text
-    assert "Year" in text
+    assert "year" in text  # category name reads lower-case mid-sentence
 
 
 def test_between_holds(ordered_theme, identity_solution):
@@ -113,7 +113,7 @@ def test_between_holds(ordered_theme, identity_solution):
 
 def test_between_text(ordered_theme, identity_solution):
     text = Between(2, (0, 0), (0, 2), (0, 1)).text(ordered_theme)  # Xi, Zu, Yo
-    assert text == "Yo's Year is between Xi and Zu."
+    assert text == "Yo's year is between Xi and Zu."
 
 
 def test_between_involves_all_three(ordered_theme):
@@ -128,7 +128,7 @@ def test_adjacent_holds(ordered_theme, identity_solution):
 
 def test_adjacent_text(ordered_theme, identity_solution):
     text = Adjacent(2, (0, 0), (0, 1)).text(ordered_theme)  # Xi, Yo
-    assert text == "Xi's Year is immediately below Yo."
+    assert text == "Xi's year is immediately below Yo."
 
 
 def test_next_to_is_undirected(ordered_theme, identity_solution):
@@ -141,7 +141,7 @@ def test_next_to_is_undirected(ordered_theme, identity_solution):
 
 def test_next_to_text(ordered_theme, identity_solution):
     assert NextTo(2, (0, 0), (0, 1)).text(ordered_theme) == \
-        "Xi's Year is immediately next to Yo."
+        "Xi's year is immediately next to Yo."
 
 
 def test_abs_apart_at_least(ordered_theme, identity_solution):
@@ -163,9 +163,9 @@ def test_abs_apart_at_most(ordered_theme, identity_solution):
 def test_abs_apart_text(ordered_theme):
     v = [2001, 2002, 2003]
     assert AbsApart(2, (0, 2), (0, 0), 2, True, v).text(ordered_theme) == \
-        "Zu's Year is at least 2 away from Xi."
+        "Zu's year is at least 2 away from Xi."
     assert AbsApart(2, (0, 0), (0, 1), 1, False, v).text(ordered_theme) == \
-        "Xi's Year is at most 1 away from Yo."
+        "Xi's year is at most 1 away from Yo."
 
 
 def test_unit_prefixes_amounts_in_numeric_clues():
@@ -179,13 +179,13 @@ def test_unit_prefixes_amounts_in_numeric_clues():
         Category("Price", ["$5", "$7", "$9"], ordered=True, values=v, unit="$"),
     ])
     assert Diff(2, (0, 2), (0, 0), 4, v).text(theme) == \
-        "Cara's Price is exactly $4 more than Ava."
+        "Cara's price is exactly $4 more than Ava."
     assert AtLeastApart(2, (0, 2), (0, 0), 4, v).text(theme) == \
-        "Cara's Price is at least $4 more than Ava."
+        "Cara's price is at least $4 more than Ava."
     assert AbsApart(2, (0, 2), (0, 0), 4, True, v).text(theme) == \
-        "Cara's Price is at least $4 away from Ava."
+        "Cara's price is at least $4 away from Ava."
     assert AbsApart(2, (0, 1), (0, 0), 2, False, v).text(theme) == \
-        "Ben's Price is at most $2 away from Ava."
+        "Ben's price is at most $2 away from Ava."
 
 
 # --- new value dials: AtLeastApart / MultiCompare / AtMost --------------------
@@ -197,7 +197,7 @@ def test_at_least_apart_holds_and_text(ordered_theme, identity_solution):
     assert AtLeastApart(2, (0, 2), (0, 0), 1, v).holds(identity_solution)      # 2 >= 1 (loose)
     assert not AtLeastApart(2, (0, 2), (0, 0), 3, v).holds(identity_solution)  # 2 >= 3 fails
     assert AtLeastApart(2, (0, 2), (0, 0), 2, v).text(ordered_theme) == \
-        "Zu's Year is at least 2 more than Xi."
+        "Zu's year is at least 2 more than Xi."
 
 
 def test_multi_compare_holds_and_text(ordered_theme, identity_solution):
@@ -206,7 +206,7 @@ def test_multi_compare_holds_and_text(ordered_theme, identity_solution):
     assert above.holds(identity_solution)
     assert below.holds(identity_solution)
     assert not MultiCompare(2, (0, 1), [(0, 0), (0, 2)], greater=True).holds(identity_solution)
-    assert above.text(ordered_theme) == "Zu's Year was more than both Xi and Yo."
+    assert above.text(ordered_theme) == "Zu's year was more than both Xi and Yo."
 
 
 def test_at_most_holds_and_text(plain_theme, identity_solution):

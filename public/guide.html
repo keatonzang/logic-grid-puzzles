@@ -89,7 +89,7 @@
       </p>
       <p>
         A harder puzzle can have <b>more than one</b> ordered category — say a class's <i>Grade</i> and its
-        <i>Period</i> — and every comparison names which one it's about (“…has a higher <i>Period</i> than…”).
+        <i>Period</i> — and every comparison names which one it's about (“…has a higher <i>period</i> than…”).
         Some are true <i>numbers</i> with “exactly N more” difference clues; others are plain <i>ordinals</i>
         (1st, 2nd, 3rd…) that only support higher / lower / next-to.
       </p>
@@ -97,7 +97,7 @@
       <div class="rules">
         <article class="rule">
           <h3>Higher / lower than <span class="tag ord">ordered</span></h3>
-          <p class="eg">“Ava has a higher Price than the order with Mocha.”</p>
+          <p class="eg">“Ava has a higher price than the order with Mocha.”</p>
           <p><b>Parameters:</b> the ordered category, and two items.</p>
           <p><b>Means:</b> rank(Latte) &gt; rank(Mocha).</p>
           <p><b>On the grid:</b> the bigger item can't be the lowest rank; the smaller can't be the
@@ -106,7 +106,7 @@
 
         <article class="rule">
           <h3>Exact difference <span class="tag ord">numeric</span></h3>
-          <p class="eg">“Ava's Price is exactly $2 more than the order with Mocha.”</p>
+          <p class="eg">“Ava's price is exactly $2 more than the order with Mocha.”</p>
           <p><b>Parameters:</b> the numeric category, two items, and an amount.</p>
           <p><b>Means:</b> value(Latte) − value(Mocha) = the amount, exactly.</p>
           <p><b>On the grid:</b> keep only the value pairs that are exactly that far apart — both items
@@ -116,7 +116,7 @@
 
         <article class="rule">
           <h3>At least apart <span class="tag ord">numeric</span></h3>
-          <p class="eg">“Ben's Price is at least $3 more than the order with Ristretto.”</p>
+          <p class="eg">“Ben's price is at least $3 more than the order with Ristretto.”</p>
           <p><b>Parameters:</b> the numeric category, two items, and a minimum amount.</p>
           <p><b>Means:</b> value(Ristretto) − value(Jade) ≥ the amount (directional — it also tells you
             which is bigger).</p>
@@ -126,7 +126,7 @@
 
         <article class="rule">
           <h3>Away from <span class="tag ord">numeric</span></h3>
-          <p class="eg">“Ben's Price is at least $3 away from the order with the Ivory mug.” · “The order with Mocha's Price is at most $2 away from Ava.”</p>
+          <p class="eg">“Ben's price is at least $3 away from the order with the Ivory mug.” · “The order with Mocha's price is at most $2 away from Ava.”</p>
           <p><b>Parameters:</b> the numeric category, two items, an amount, and whether it's a minimum
             (<i>at least</i>) or a maximum (<i>at most</i>).</p>
           <p><b>Means:</b> the two prices differ by at least / at most that amount — an <em>absolute</em>
@@ -138,7 +138,7 @@
 
         <article class="rule">
           <h3>Between <span class="tag ord">ordered</span></h3>
-          <p class="eg">“Cara's Price is between Ava and Ben.”</p>
+          <p class="eg">“Cara's price is between Ava and Ben.”</p>
           <p><b>Parameters:</b> the ordered category and three items (the middle one, plus the two endpoints).</p>
           <p><b>Means:</b> the middle item's rank lies strictly between the other two (endpoints in
             either order).</p>
@@ -148,7 +148,7 @@
 
         <article class="rule">
           <h3>Immediately before / after <span class="tag ord">ordered</span></h3>
-          <p class="eg">“Ava's Price is immediately below Ben.”</p>
+          <p class="eg">“Ava's price is immediately below Ben.”</p>
           <p><b>Parameters:</b> the ordered category and two items.</p>
           <p><b>Means:</b> the two ranks are consecutive, in a known direction — rank(Ben) = rank(Ava) + 1.</p>
           <p><b>On the grid:</b> the tightest sequential clue. Each item's rank forces the other's, so
@@ -157,7 +157,7 @@
 
         <article class="rule">
           <h3>Immediately next to <span class="tag ord">ordered</span></h3>
-          <p class="eg">“Cara's Price is immediately next to the order with Latte.”</p>
+          <p class="eg">“Cara's price is immediately next to the order with Latte.”</p>
           <p><b>Parameters:</b> the ordered category and two items.</p>
           <p><b>Means:</b> the two ranks are consecutive, but in <em>either</em> direction — one is one
             step above or below the other.</p>
@@ -168,7 +168,7 @@
 
         <article class="rule">
           <h3>More / less than several <span class="tag ord">ordered</span></h3>
-          <p class="eg">“Hugo's Price was more than both Ava and the order with the Donut.”</p>
+          <p class="eg">“Hugo's price was more than both Ava and the order with the Donut.”</p>
           <p><b>Parameters:</b> the ordered category, one item, a list of other items, and a direction.</p>
           <p><b>Means:</b> the one item out-ranks (or under-ranks) <em>every</em> item in the list.</p>
           <p><b>On the grid:</b> like several “higher/lower” clues at once — being above all of them
