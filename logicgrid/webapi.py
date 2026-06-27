@@ -180,6 +180,24 @@ THEME_SPECS: tuple = (
         ),
         numeric=NumericSpec("Budget", unit_prefix="$", unit_suffix="k", min_start=10, start_max=40, steps=(5, 10)),
     ),
+    ThemeSpec(
+        key="school",
+        name="The Schoolhouse",
+        description=(
+            "Each teacher at the schoolhouse leads a different class in a "
+            "different room. Work out who teaches what, and where."
+        ),
+        entity_noun="class",
+        subject_name="Teacher",
+        subject_items=("Ames", "Boyd", "Carver", "Dunn", "Ellis", "Frost", "Hale", "Nash"),
+        attributes=(
+            ("Subject", ("Art", "Biology", "Chemistry", "English", "French", "Geography", "History", "Music")),
+            ("Room", ("Annex", "Bungalow", "Cloister", "Greenhouse", "Library", "Pavilion", "Studio", "Workshop")),
+            ("Student", ("Iris", "Jonah", "Kira", "Liam", "Mona", "Noah", "Piper", "Quinn")),
+            ("Club", ("Chess", "Choir", "Debate", "Drama", "Robotics", "Rowing", "Scouts", "Yearbook")),
+        ),
+        numeric=NumericSpec("Grade", unit_suffix="%", min_start=70, start_max=80, steps=(2, 5)),
+    ),
 )
 
 THEMES: dict = {spec.key: spec for spec in THEME_SPECS}

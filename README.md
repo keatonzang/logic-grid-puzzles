@@ -153,6 +153,7 @@ drop-down, served from `GET /api/puzzle?themes=1`:
 | `mystery` | Murder at the Manor | — |
 | `space` | The Mars Colony | Distance (` ly`) |
 | `engineer` | The Engineering Firm | Budget (`$…k`) |
+| `school` | The Schoolhouse | Grade (`…%`) |
 
 Add a theme by appending a `ThemeSpec` to `THEME_SPECS` in `logicgrid/webapi.py`.
 
