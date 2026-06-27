@@ -82,28 +82,28 @@ def _reason_line(theme, before: Board, i, a, j, b, v) -> str:
         if m[a].count(N) == before.n - 1:
             return (
                 f"In {_cat(theme, i)} × {_cat(theme, j)}, {_label(theme, (i, a))} "
-                f"must be {_label(theme, (j, b))} — every other {_cat(theme, j)} "
+                f"must go with {_label(theme, (j, b))} — every other {_cat(theme, j)} "
                 f"is already crossed out for it."
             )
         return (
             f"In {_cat(theme, i)} × {_cat(theme, j)}, {_label(theme, (j, b))} "
-            f"must be {_label(theme, (i, a))} — every other {_cat(theme, i)} "
+            f"must go with {_label(theme, (i, a))} — every other {_cat(theme, i)} "
             f"is already crossed out for it."
         )
     # v == N: there is an established link in the same row or column
     for b2 in range(before.n):
         if m[a][b2] == Y:
             return (
-                f"{_label(theme, (i, a))} is {_label(theme, (j, b2))}, so it "
-                f"can't also be {_label(theme, (j, b))}."
+                f"{_label(theme, (i, a))} goes with {_label(theme, (j, b2))}, so it "
+                f"can't also go with {_label(theme, (j, b))}."
             )
     for a2 in range(before.n):
         if m[a2][b] == Y:
             return (
-                f"{_label(theme, (j, b))} is {_label(theme, (i, a2))}, so "
-                f"{_label(theme, (i, a))} can't be {_label(theme, (j, b))}."
+                f"{_label(theme, (j, b))} goes with {_label(theme, (i, a2))}, so "
+                f"{_label(theme, (i, a))} can't go with {_label(theme, (j, b))}."
             )
-    return f"{_label(theme, (i, a))} can't be {_label(theme, (j, b))}."
+    return f"{_label(theme, (i, a))} can't go with {_label(theme, (j, b))}."
 
 
 def _reason_trans(theme, before: Board, i, a, j, b, v) -> str:
@@ -118,40 +118,39 @@ def _reason_trans(theme, before: Board, i, a, j, b, v) -> str:
             continue
         if v == Y and rp == Y and rq == Y:
             return (
-                f"{_label(theme, p)} is {_label(theme, r)}, and {_label(theme, q)} "
-                f"is {_label(theme, r)}, so {_label(theme, p)} is {_label(theme, q)}."
+                f"{_label(theme, p)} goes with {_label(theme, r)}, and {_label(theme, q)} "
+                f"goes with {_label(theme, r)}, so {_label(theme, p)} goes with {_label(theme, q)}."
             )
         if v == N and rp == Y and rq == N:
             return (
-                f"{_label(theme, p)} is {_label(theme, r)}, but {_label(theme, q)} "
-                f"isn't, so {_label(theme, p)} isn't {_label(theme, q)}."
+                f"{_label(theme, p)} goes with {_label(theme, r)}, but {_label(theme, q)} "
+                f"doesn't, so {_label(theme, p)} doesn't go with {_label(theme, q)}."
             )
         if v == N and rp == N and rq == Y:
             return (
-                f"{_label(theme, q)} is {_label(theme, r)}, but {_label(theme, p)} "
-                f"isn't, so {_label(theme, p)} isn't {_label(theme, q)}."
+                f"{_label(theme, q)} goes with {_label(theme, r)}, but {_label(theme, p)} "
+                f"doesn't, so {_label(theme, p)} doesn't go with {_label(theme, q)}."
             )
-    link = "is" if v == Y else "isn't"
+    link = "goes with" if v == Y else "doesn't go with"
     return f"Cross-referencing the established links, {_label(theme, p)} {link} {_label(theme, q)}."
 
 
 def _reason_clue(theme, clue, i, a, j, b, v) -> str:
-    rel = "must be" if v == Y else "can't be"
-    return (
-        f"From the clue “{clue.text(theme)}” — "
-        f"{_label(theme, (i, a))} {rel} {_label(theme, (j, b))}."
-    )
+    rel = "must go with" if v == Y else "can't go with"
+    # strip the clue's own trailing period so the embedded quote + em-dash reads cleanly
+    text = clue.text(theme).rstrip(".")
+    return f"From the clue “{text}” — {_label(theme, (i, a))} {rel} {_label(theme, (j, b))}."
 
 
 def _reason_hyp(theme, i, a, j, b, v) -> str:
     if v == N:
         return (
-            f"Suppose {_label(theme, (i, a))} were {_label(theme, (j, b))} — "
-            f"following the clues from there hits a contradiction, so it isn't."
+            f"Suppose {_label(theme, (i, a))} went with {_label(theme, (j, b))} — "
+            f"following the clues from there hits a contradiction, so it doesn't."
         )
     return (
-        f"Suppose {_label(theme, (i, a))} were not {_label(theme, (j, b))} — "
-        f"that hits a contradiction, so it must be."
+        f"Suppose {_label(theme, (i, a))} didn't go with {_label(theme, (j, b))} — "
+        f"that hits a contradiction, so it does."
     )
 
 

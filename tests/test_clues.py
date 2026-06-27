@@ -356,7 +356,7 @@ def test_all_different_involves_each_category():
 def test_all_different_text(plain_theme):
     # plain_theme.entity_noun == "row" -> pluralised to "rows"
     clue = AllDifferent([(0, 0), (1, 1), (2, 2)])  # Ann, Eel, Ice
-    assert clue.text(plain_theme) == "Ann, Eel, and Ice are all different rows."
+    assert clue.text(plain_theme) == "Ann, Eel, and Ice belong to different rows."
 
 
 def test_all_different_allows_repeated_categories(identity_solution):

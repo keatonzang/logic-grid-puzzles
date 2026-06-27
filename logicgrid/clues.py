@@ -480,8 +480,10 @@ class AllDifferent(Clue):
         return len(set(ents)) == len(ents)
 
     def text(self, theme: Theme) -> str:
+        # "belong to different <entities>" reads correctly even when the listed
+        # terms span categories (a Wares and a Quarter aren't themselves artisans).
         labels = [_label(theme, t) for t in self.terms]
-        return f"{_join(labels, 'and')} are all different {_plural(theme.entity_noun)}."
+        return f"{_join(labels, 'and')} belong to different {_plural(theme.entity_noun)}."
 
 
 class ExactlyKLinks(Clue):
