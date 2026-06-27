@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from logicgrid.clues import (
+    AbsApart,
     Adjacent,
     AllDifferent,
     Among,
@@ -19,6 +20,7 @@ from logicgrid.clues import (
     MultiCompare,
     Negative,
     Neither,
+    NextTo,
     Positive,
     entity_of,
 )
@@ -121,6 +123,43 @@ def test_adjacent_holds(ordered_theme, identity_solution):
 def test_adjacent_text(ordered_theme, identity_solution):
     text = Adjacent(2, (0, 0), (0, 1)).text(ordered_theme)  # Xi, Yo
     assert text == "Xi's Year is immediately below Yo's."
+
+
+def test_next_to_is_undirected(ordered_theme, identity_solution):
+    # consecutive ranks hold in EITHER direction (unlike Adjacent)
+    assert NextTo(2, (0, 0), (0, 1)).holds(identity_solution)   # ranks 0,1
+    assert NextTo(2, (0, 1), (0, 0)).holds(identity_solution)   # reversed -> still next to
+    assert not NextTo(2, (0, 0), (0, 2)).holds(identity_solution)  # 2 apart
+    assert NextTo(2, (0, 1), (0, 0)).removal_class == 1
+
+
+def test_next_to_text(ordered_theme, identity_solution):
+    assert NextTo(2, (0, 0), (0, 1)).text(ordered_theme) == \
+        "Xi's Year is immediately next to Yo's."
+
+
+def test_abs_apart_at_least(ordered_theme, identity_solution):
+    v = [2001, 2002, 2003]
+    # |2003 - 2001| = 2; direction-free
+    assert AbsApart(2, (0, 2), (0, 0), 2, True, v).holds(identity_solution)
+    assert AbsApart(2, (0, 0), (0, 2), 2, True, v).holds(identity_solution)  # reversed
+    assert not AbsApart(2, (0, 2), (0, 0), 3, True, v).holds(identity_solution)
+
+
+def test_abs_apart_at_most(ordered_theme, identity_solution):
+    v = [2001, 2002, 2003]
+    # at most 1 away: ranks 0 and 1 (gap 1) hold; ranks 0 and 2 (gap 2) don't
+    assert AbsApart(2, (0, 0), (0, 1), 1, False, v).holds(identity_solution)
+    assert AbsApart(2, (0, 1), (0, 0), 1, False, v).holds(identity_solution)  # reversed
+    assert not AbsApart(2, (0, 0), (0, 2), 1, False, v).holds(identity_solution)
+
+
+def test_abs_apart_text(ordered_theme):
+    v = [2001, 2002, 2003]
+    assert AbsApart(2, (0, 2), (0, 0), 2, True, v).text(ordered_theme) == \
+        "Zu's Year is at least 2 away from Xi's."
+    assert AbsApart(2, (0, 0), (0, 1), 1, False, v).text(ordered_theme) == \
+        "Xi's Year is at most 1 away from Yo's."
 
 
 # --- new value dials: AtLeastApart / MultiCompare / AtMost --------------------

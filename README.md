@@ -13,25 +13,28 @@ python generate.py themes/morning_rush.yaml --seed 1 --no-grid
 
 For a theme of K categories × N items, the generator emits a clue list, a set
 of blank pairwise grids to solve on, and (optionally) the answer key. Clues come
-in four flavours:
+in many flavours:
 
 - **is** — `Marple goes with Study.`
 - **is not** — `Spade does not go with Library.`
 - **higher / lower than** (`Greater`) — `The order with Latte has a higher Price than the one with Mocha.`
 - **exact difference** (`Diff`) — `Latte's Price is exactly 2 more than Mocha's.` (numeric)
 - **between** (`Between`) — `Cara's Price is between Ava's and Ben's.`
-- **immediately before/after** (`Adjacent`) — `Ava's Price is immediately below Ben's, with nothing in between.`
-- **at least apart** (`AtLeastApart`) — `Ristretto's Price is at least 3 more than Jade's.` (loose, ranged)
+- **immediately before/after** (`Adjacent`) — `Ava's Price is immediately below Ben's.` (directional)
+- **immediately next to** (`NextTo`) — `Cara's Price is immediately next to Latte's.` (undirected)
+- **at least apart** (`AtLeastApart`) — `Ristretto's Price is at least 3 more than Jade's.` (directional, ranged)
+- **away from** (`AbsApart`) — `Ben's Price is at least 3 away from Ivory's.` / `Mocha's Price is at most 2 away from Ava's.` (symmetric distance; `at most` bounds two items *close*)
 - **less/more than both** (`MultiCompare`) — `Croissant's Price was more than both Hugo's and Donut's.`
 - **at most K of N** (`AtMost`) — `Vanilla goes with at most one of Ben, Rose, and $8.` (complement of Among)
 
-These four **sequential** clues need an *ordered* category. The café rolls in a
+These **sequential** clues need an *ordered* category. The café rolls in a
 numeric **Price** category (~50% of medium/hard puzzles), sorted by value (= rank);
 the web app also supports **3–5 categories** (Customer + a sample of Drink / Pastry /
 Syrup / Mug, plus maybe Price), with items per category capped as categories grow so
-generation stays fast. Each sequential clue has a sound
-deductive propagator (bounds/arc-consistency on ranks) so price puzzles stay
-logic-solvable.
+generation stays fast. The two sides of a comparison are drawn from *distinct*
+categories where possible, so clues mix categories freely (e.g. the Ben order vs the
+Ivory-mug order). Each sequential clue has a sound deductive propagator
+(bounds/arc-consistency on ranks) so price puzzles stay logic-solvable.
 - **at least K of N** (`Among`, inclusive) — `Ava goes with at least one of Bagel or Latte.`
   / `Holmes goes with at least two of Butler, Attic, and Painting.` Options may span
   categories; being inclusive it does **not** imply they differ. A threshold K ≥ 2 needs

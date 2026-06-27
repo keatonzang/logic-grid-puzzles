@@ -83,6 +83,8 @@
         These need an <b>ordered</b> category — one whose items have a natural order or value, like
         <i>Price</i>. An item's position in that order is its <b>rank</b> (lowest = rank 1). They never
         name a cell directly; instead they constrain ranks, which you then pin down by elimination.
+        Either side of a comparison can be <em>any</em> item, so they freely mix categories — e.g.
+        “the <i>Ben</i> order” versus “the <i>Latte</i> order” versus “the <i>Ivory-mug</i> order”.
       </p>
 
       <div class="rules">
@@ -109,9 +111,22 @@
           <h3>At least apart <span class="tag ord">numeric</span></h3>
           <p class="eg">“Ristretto's price is at least $3 more than Jade's.”</p>
           <p><b>Parameters:</b> the numeric category, two items, and a minimum amount.</p>
-          <p><b>Means:</b> value(Ristretto) − value(Jade) ≥ the amount.</p>
+          <p><b>Means:</b> value(Ristretto) − value(Jade) ≥ the amount (directional — it also tells you
+            which is bigger).</p>
           <p><b>On the grid:</b> a looser version of exact difference — it trims the extreme ranks off
             both items without pinning the gap.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Away from <span class="tag ord">numeric</span></h3>
+          <p class="eg">“Ben's price is at least $3 away from the Ivory-mug order's.” · “Mocha's price is at most $2 away from Ava's.”</p>
+          <p><b>Parameters:</b> the numeric category, two items, an amount, and whether it's a minimum
+            (<i>at least</i>) or a maximum (<i>at most</i>).</p>
+          <p><b>Means:</b> the two prices differ by at least / at most that amount — an <em>absolute</em>
+            distance, so it says nothing about which is bigger.</p>
+          <p><b>On the grid:</b> <i>at least</i> away pushes the two items apart (each must have a far-enough
+            partner); <i>at most</i> away is the only clue that pins two items <em>close</em> together —
+            powerful once one of them is placed.</p>
         </article>
 
         <article class="rule">
@@ -126,11 +141,22 @@
 
         <article class="rule">
           <h3>Immediately before / after <span class="tag ord">ordered</span></h3>
-          <p class="eg">“Ava's price is immediately below Ben's, with nothing in between.”</p>
+          <p class="eg">“Ava's price is immediately below Ben's.”</p>
           <p><b>Parameters:</b> the ordered category and two items.</p>
-          <p><b>Means:</b> the two ranks are consecutive — rank(Ben) = rank(Ava) + 1.</p>
+          <p><b>Means:</b> the two ranks are consecutive, in a known direction — rank(Ben) = rank(Ava) + 1.</p>
           <p><b>On the grid:</b> the tightest sequential clue. Each item's rank forces the other's, so
             once one end is known the other follows instantly.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Immediately next to <span class="tag ord">ordered</span></h3>
+          <p class="eg">“Cara's price is immediately next to the Latte order's.”</p>
+          <p><b>Parameters:</b> the ordered category and two items.</p>
+          <p><b>Means:</b> the two ranks are consecutive, but in <em>either</em> direction — one is one
+            step above or below the other.</p>
+          <p><b>On the grid:</b> like before/after without the direction. Each item is restricted to
+            ranks that have a neighbour still open for the other; the ends of the order (only one
+            neighbour) are the quickest to resolve.</p>
         </article>
 
         <article class="rule">

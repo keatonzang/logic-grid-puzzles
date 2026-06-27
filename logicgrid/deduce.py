@@ -277,6 +277,30 @@ def _prop_at_least_apart(board, clue) -> int:  # value(a) - value(b) >= delta
     return changed
 
 
+def _prop_next_to(board, clue) -> int:  # |rank(a) - rank(b)| == 1
+    p = clue.cat
+    pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
+    if not pa or not pb:
+        return 0
+    changed = _rule_out(board, clue.a, p, [qa for qa in pa if qa - 1 not in pb and qa + 1 not in pb])
+    changed += _rule_out(board, clue.b, p, [qb for qb in pb if qb - 1 not in pa and qb + 1 not in pa])
+    return changed
+
+
+def _prop_abs_apart(board, clue) -> int:  # |value(a) - value(b)| >= / <= delta
+    p, v, d = clue.cat, clue._values, clue.delta
+    pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
+    if not pa or not pb:
+        return 0
+    if clue.at_least:
+        has_partner = lambda x, ys: any(abs(v[x] - v[y]) >= d for y in ys)
+    else:
+        has_partner = lambda x, ys: any(abs(v[x] - v[y]) <= d for y in ys)
+    changed = _rule_out(board, clue.a, p, [qa for qa in pa if not has_partner(qa, pb)])
+    changed += _rule_out(board, clue.b, p, [qb for qb in pb if not has_partner(qb, pa)])
+    return changed
+
+
 def _prop_multi_compare(board, clue) -> int:  # rank(c) >/< every other
     p, changed = clue.cat, 0
     for o in clue.others:
@@ -312,7 +336,9 @@ _PROPAGATORS = {
     "Diff": _prop_diff,
     "Between": _prop_between,
     "Adjacent": _prop_adjacent,
+    "NextTo": _prop_next_to,
     "AtLeastApart": _prop_at_least_apart,
+    "AbsApart": _prop_abs_apart,
     "MultiCompare": _prop_multi_compare,
     "AtMost": _prop_at_most,
 }

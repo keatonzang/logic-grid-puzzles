@@ -6,6 +6,7 @@ import random
 from dataclasses import dataclass
 
 from .clues import (
+    AbsApart,
     Adjacent,
     AllDifferent,
     Among,
@@ -20,6 +21,7 @@ from .clues import (
     MultiCompare,
     Negative,
     Neither,
+    NextTo,
     Positive,
 )
 from .model import Theme
@@ -124,26 +126,33 @@ def build_clue_pool(
                             negatives.append(Negative((c1, X[e1][c1]), (c2, X[e2][c2])))
 
     # Sequential clues on an ordered category (rank = item index, ascending):
-    # higher/lower-than, exact-difference, between, immediately-before/after.
-    # Reference terms come from any non-ordered category. Disabled by default.
+    # higher/lower-than, exact-difference, between, immediately before/after and
+    # next-to, at-least/at-most apart. Reference terms come from any non-ordered
+    # category, drawn from *distinct* categories where possible so a comparison
+    # naturally mixes categories ("the Ben order vs the Latte order"). Disabled
+    # by default.
     for cn in range(k) if include_sequential else ():
         cat = theme.categories[cn]
         if not cat.ordered:
             continue
         refs = [c for c in range(k) if c != cn]
 
-        def ref(e):  # a random non-ordered reference term for entity e
-            c = rng.choice(refs)
-            return (c, X[e][c])
+        def refs_for(entities):
+            """One reference term per entity, from distinct non-ordered categories
+            where possible (so the two sides of a comparison span categories)."""
+            m = len(entities)
+            cats = rng.sample(refs, m) if len(refs) >= m else [rng.choice(refs) for _ in entities]
+            return [(c, X[e][c]) for c, e in zip(cats, entities)]
 
         rank = {e: X[e][cn] for e in range(n)}            # item index == rank
         by_rank = sorted(range(n), key=lambda e: rank[e])  # entities low -> high
+        step = cat.values[1] - cat.values[0] if cat.values and n >= 2 else 1
 
         for e1 in range(n):  # higher-than for every ordered pair
             for e2 in range(n):
                 if rank[e1] <= rank[e2]:
                     continue
-                a, b = ref(e1), ref(e2)
+                a, b = refs_for([e1, e2])
                 comparisons.append(Greater(cn, a, b))
                 # Exact-difference only for a *middle* gap (2..n-2 ranks): with
                 # evenly-spaced values that gap repeats, so the clue narrows
@@ -154,36 +163,50 @@ def build_clue_pool(
                         Diff(cn, a, b, cat.value(X[e1][cn]) - cat.value(X[e2][cn]), cat.values)
                     )
 
-        for idx in range(n - 1):  # immediately-before/after (consecutive ranks)
-            comparisons.append(Adjacent(cn, ref(by_rank[idx]), ref(by_rank[idx + 1])))
+        for idx in range(n - 1):  # consecutive ranks: before/after + next-to
+            a, b = refs_for([by_rank[idx], by_rank[idx + 1]])
+            comparisons.append(Adjacent(cn, a, b))  # directional: a immediately below b
+            comparisons.append(NextTo(cn, a, b))    # undirected: immediately next to
 
         for mid in range(n):  # between: a middle-ranked entity, one below + one above
             lows = [e for e in range(n) if rank[e] < rank[mid]]
             highs = [e for e in range(n) if rank[e] > rank[mid]]
             if lows and highs:
-                comparisons.append(
-                    Between(cn, ref(rng.choice(lows)), ref(rng.choice(highs)), ref(mid))
-                )
+                a, b, c = refs_for([rng.choice(lows), rng.choice(highs), mid])
+                comparisons.append(Between(cn, a, b, c))
 
-        # at-least-apart: a >= b + delta, a loose multiple of the (even) step,
-        # >= 2 steps so it differs from "more than" / "immediately before".
-        step = cat.values[1] - cat.values[0] if cat.values and n >= 2 else 1
-        for e1 in range(n):
-            for e2 in range(n):
-                m = rank[e1] - rank[e2]
-                if m >= 2 and cat.values is not None:
-                    delta = step * rng.randint(2, m)
-                    comparisons.append(AtLeastApart(cn, ref(e1), ref(e2), delta, cat.values))
+        if cat.values is not None:
+            for e1 in range(n):
+                for e2 in range(n):
+                    if e1 == e2:
+                        continue
+                    m = rank[e1] - rank[e2]
+                    # at-least-apart / at-least-away: a loose multiple of the
+                    # (even) step, >= 2 steps so it differs from "more than".
+                    if m >= 2:
+                        a, b = refs_for([e1, e2])
+                        delta = step * rng.randint(2, m)
+                        comparisons.append(AtLeastApart(cn, a, b, delta, cat.values))  # directional
+                        comparisons.append(AbsApart(cn, a, b, delta, True, cat.values))  # symmetric
+                    # at-most-away: |gap| <= delta, with delta >= the true gap but
+                    # below the full range, so it bounds the two items *close*.
+                    g = abs(m)
+                    if e1 < e2 and 1 <= g <= n - 2:
+                        a, b = refs_for([e1, e2])
+                        delta = step * rng.randint(g, n - 2)
+                        comparisons.append(AbsApart(cn, a, b, delta, False, cat.values))
 
         for c in range(n):  # less/more than both of two others
             highs = [e for e in range(n) if rank[e] > rank[c]]
             lows = [e for e in range(n) if rank[e] < rank[c]]
             if len(highs) >= 2:
                 o1, o2 = rng.sample(highs, 2)
-                comparisons.append(MultiCompare(cn, ref(c), [ref(o1), ref(o2)], False))
+                tc, t1, t2 = refs_for([c, o1, o2])
+                comparisons.append(MultiCompare(cn, tc, [t1, t2], False))
             if len(lows) >= 2:
                 o1, o2 = rng.sample(lows, 2)
-                comparisons.append(MultiCompare(cn, ref(c), [ref(o1), ref(o2)], True))
+                tc, t1, t2 = refs_for([c, o1, o2])
+                comparisons.append(MultiCompare(cn, tc, [t1, t2], True))
 
     # "One of N" disjunctions over option terms. For each anchor entity e a term
     # (co, io) with co != ca is *true* iff it is e's real item there.

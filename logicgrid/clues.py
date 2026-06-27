@@ -149,7 +149,7 @@ class Between(Clue):
 
 class Adjacent(Clue):
     """Entity of `b` ranks exactly one step above entity of `a` in ordered
-    category `cat` (immediately before/after, nothing between)."""
+    category `cat` (immediately before/after)."""
 
     removal_class = 1
 
@@ -163,6 +163,27 @@ class Adjacent(Clue):
     def text(self, theme: Theme) -> str:
         cn = theme.categories[self.cat].name
         return f"{_label(theme, self.a)}'s {cn} is immediately below {_label(theme, self.b)}'s."
+
+
+class NextTo(Clue):
+    """Entities of `a` and `b` sit on consecutive ranks in ordered category `cat`
+    (|rank difference| == 1) — immediately next to each other, in either
+    direction. The undirected sibling of Adjacent."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, b: Term):
+        self.cat, self.a, self.b = cat, a, b
+        self.involved = frozenset({cat, a[0], b[0]})
+
+    def holds(self, X) -> bool:
+        ra = X[entity_of(X, self.a)][self.cat]
+        rb = X[entity_of(X, self.b)][self.cat]
+        return abs(ra - rb) == 1
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        return f"{_label(theme, self.a)}'s {cn} is immediately next to {_label(theme, self.b)}'s."
 
 
 class AtLeastApart(Clue):
@@ -186,6 +207,35 @@ class AtLeastApart(Clue):
         return (
             f"{_label(theme, self.a)}'s {cn} is at least {self.delta} more "
             f"than {_label(theme, self.b)}'s."
+        )
+
+
+class AbsApart(Clue):
+    """Entities of `a` and `b` differ by at least / at most `delta` in numeric
+    category `cat`, as an absolute distance (direction-free) — "at least N away
+    from" / "at most N away from". Unlike AtLeastApart it says nothing about
+    which is larger; "at most" is the only clue that bounds two items *close*
+    together."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, b: Term, delta: int, at_least: bool, values: list[int]):
+        self.cat, self.a, self.b, self.delta = cat, a, b, delta
+        self.at_least = at_least
+        self._values = values
+        self.involved = frozenset({cat, a[0], b[0]})
+
+    def holds(self, X) -> bool:
+        ea, eb = entity_of(X, self.a), entity_of(X, self.b)
+        gap = abs(self._values[X[ea][self.cat]] - self._values[X[eb][self.cat]])
+        return gap >= self.delta if self.at_least else gap <= self.delta
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        rel = "at least" if self.at_least else "at most"
+        return (
+            f"{_label(theme, self.a)}'s {cn} is {rel} {self.delta} away "
+            f"from {_label(theme, self.b)}'s."
         )
 
 

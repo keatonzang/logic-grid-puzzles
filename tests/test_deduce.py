@@ -94,6 +94,35 @@ def test_solver_sound_across_cafe_sizes():
             assert _agrees(report["board"], puzzle.solution)
 
 
+def test_next_to_propagator_narrows(ordered_theme):
+    # ordered cat 2 (Year), n=3. Pin term (1,0)'s rank to 0 by crossing 1 and 2.
+    from logicgrid.clues import NextTo
+    from logicgrid.deduce import _prop_next_to
+
+    bd = Board(ordered_theme)
+    bd.set(1, 0, 2, 1, N)
+    bd.set(1, 0, 2, 2, N)  # (1,0) can only be rank 0 now
+    # (0,1) must be immediately next to rank 0 -> only rank 1 survives
+    _prop_next_to(bd, NextTo(2, (0, 1), (1, 0)))
+    assert bd.get(0, 1, 2, 0) == N  # rank 0 ruled out (would be 0 apart)
+    assert bd.get(0, 1, 2, 1) != N  # rank 1 kept (exactly 1 apart)
+    assert bd.get(0, 1, 2, 2) == N  # rank 2 ruled out (2 apart)
+
+
+def test_abs_apart_at_most_propagator_narrows(ordered_theme):
+    from logicgrid.clues import AbsApart
+    from logicgrid.deduce import _prop_abs_apart
+
+    v = [2001, 2002, 2003]
+    bd = Board(ordered_theme)
+    bd.set(1, 0, 2, 1, N)
+    bd.set(1, 0, 2, 2, N)  # (1,0) pinned to rank 0
+    # "(0,1) is at most 1 away from (1,0)" -> rank 2 (gap 2) is impossible
+    _prop_abs_apart(bd, AbsApart(2, (0, 1), (1, 0), 1, False, v))
+    assert bd.get(0, 1, 2, 2) == N
+    assert bd.get(0, 1, 2, 0) != N and bd.get(0, 1, 2, 1) != N
+
+
 @pytest.mark.parametrize("target", ["medium", "hard"])
 def test_sequential_price_stays_sound_and_no_guessing(target):
     # The Price (ordered) category brings sequential clues; their propagators
