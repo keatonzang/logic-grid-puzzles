@@ -299,6 +299,104 @@
       </ol>
     </section>
 
+    <!-- ===================== TRICKS ===================== -->
+    <section class="card">
+      <h2>Grid tricks &amp; logical tricks</h2>
+      <p class="lead">
+        The named patterns experienced solvers reach for. The <b>grid tricks</b> are about the geometry
+        of the ✓/✗ marks; the <b>logical tricks</b> are about the reasoning that links separate facts.
+        Learn to spot these and most puzzles unravel without ever guessing.
+      </p>
+
+      <h3 class="sub">Grid tricks</h3>
+      <div class="rules">
+        <article class="rule">
+          <h3>The triangle rule <span class="tag logic">transitivity</span></h3>
+          <p class="eg">Ava = Latte, and Latte = $5 ⟹ Ava = $5. Ava = Latte, but Latte ≠ $5 ⟹ Ava ≠ $5.</p>
+          <p>Any three categories form a <b>triangle</b> of three blocks, and two sides force the third.
+            A shared ✓ carries a fact straight through; a ✓ on one side plus a ✗ on another lands a new ✗.
+            This is the single most productive move on the board — every time you place a ✓, walk that
+            item through <em>every</em> other category looking for a third side to complete.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Two ✗ tell you nothing <span class="tag neg">trap</span></h3>
+          <p class="eg">Ava ≠ Latte and Latte ≠ $5 does <b>not</b> mean Ava = $5 (or ≠ $5).</p>
+          <p>The triangle rule only fires when at least one side is a ✓. Two “different” facts never
+            combine — a classic mistake. Don't try to chain ✗ through a shared item.</p>
+        </article>
+
+        <article class="rule">
+          <h3>One ✓ per line <span class="tag pos">pigeonhole</span></h3>
+          <p class="eg">A row (or column) of a block with every cell ✗ but one — the survivor is ✓.</p>
+          <p>Each item links exactly one item in the other category, so every row and every column of a
+            block holds exactly one ✓. Place a ✓ and the rest of its row <em>and</em> column become ✗;
+            cross a line down to a single blank and that blank is forced ✓. Hunt for the lines that are
+            already nearly full of ✗ — they're one mark from resolving.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Twins (naked pairs) <span class="tag logic">counting</span></h3>
+          <p class="eg">If only Ava and Ben can be the $4 or $5 orders, those two prices are spoken for —
+            ✗ them against everyone else.</p>
+          <p>When two entities can each only be one of the same two items, that pair of items is used up by
+            those two entities, even though you don't yet know which is which. The same works in reverse
+            (two items that can only land on the same two entities). Borrowed straight from Sudoku, and a
+            quiet way to clear a column.</p>
+        </article>
+
+        <article class="rule">
+          <h3>The third block is free <span class="tag logic">consistency</span></h3>
+          <p class="eg">Once the Customer↔Drink and Drink↔Price blocks are solved, Customer↔Price is fully
+            determined — fill it in by triangle, no clues needed.</p>
+          <p>With K categories you don't have to solve all the blocks independently. Any one block is the
+            composition of the other two through a shared category, so finishing two sides of every
+            triangle hands you the third for free.</p>
+        </article>
+      </div>
+
+      <h3 class="sub">Logical tricks</h3>
+      <div class="rules">
+        <article class="rule">
+          <h3>The counting squeeze <span class="tag logic">counting</span></h3>
+          <p class="eg">“Exactly two of A, B, C” — cross one off and the other two are ✓; confirm two and
+            the third is ✗.</p>
+          <p>Counting clues (<i>at least / at most / exactly K of N</i>, <i>either-or</i>, <i>exclusive
+            pairing</i>) do nothing on an empty board but turn decisive as options get crossed out.
+            Re-read them after <em>every</em> elimination — an <i>either/or</i> collapses the instant one
+            side dies, and an <i>exactly-K</i> squeezes from both ends at once.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Work the extremes <span class="tag ord">ordered</span></h3>
+          <p class="eg">“Latte costs more than Mocha, Chai, and Tea” ⟹ Latte is the dearest; nothing can be
+            below the cheapest.</p>
+          <p>On an ordered category, pin the ends first. An item above several others is forced toward the
+            top of the range (below several, toward the bottom); <i>between</i> tightens as its endpoints
+            land, and <i>at most … away</i> clamps two items next to each other. Solve inward from the
+            highest and lowest ranks.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Count the slots <span class="tag ord">numeric</span></h3>
+          <p class="eg">“X is at least $3 more than Y” with prices $2/$4/$6 ⟹ X can't be $2 or $4, Y can't
+            be $6 — only the far ranks survive.</p>
+          <p>A difference or gap clue restricts both items to ranks where a valid partner still exists.
+            Counting how many ranks remain after the gap is applied often eliminates several at once —
+            especially near the ends, where there's no room to spare.</p>
+        </article>
+
+        <article class="rule">
+          <h3>What-if (proof by contradiction) <span class="tag logic">advanced</span></h3>
+          <p class="eg">Suppose Ava = $5; follow the clues; if that forces two items into one slot, Ava ≠ $5.</p>
+          <p>When nothing else moves, tentatively assume a blank is ✓ (or ✗) and chase the consequences.
+            A contradiction proves the opposite — and because every puzzle here is solvable by logic alone,
+            a contradiction is a sound deduction, never a gamble. Keep the test short: assume, propagate,
+            and back out the moment it breaks.</p>
+        </article>
+      </div>
+    </section>
+
     <!-- ===================== STRATEGY ===================== -->
     <section class="card">
       <h2>Practical strategy</h2>
