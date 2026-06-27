@@ -36,6 +36,8 @@ async function generate() {
     items: $("items").value,
     categories: $("categories").value,
   });
+  const theme = $("theme").value;
+  if (theme) params.set("theme", theme);
   const seed = $("seed").value.trim();
   if (seed !== "") params.set("seed", seed);
 
@@ -557,6 +559,7 @@ async function hint() {
       difficulty: puzzle.requested,
       items: puzzle.items,
       categories: puzzle.n_categories,
+      theme: puzzle.theme,
       known: currentKnown(),
     });
     if (step.done) {
@@ -586,6 +589,24 @@ function syncItemOptions() {
   if (+sel.value > maxN) sel.value = String(maxN);
 }
 
+// Populate the theme picker from the server catalogue.
+async function loadThemes() {
+  try {
+    const data = await fetchJSON("/api/puzzle?themes=1");
+    const sel = $("theme");
+    sel.innerHTML = "";
+    for (const t of data.themes) {
+      const opt = document.createElement("option");
+      opt.value = t.key;
+      opt.textContent = t.name;
+      opt.title = t.description;
+      sel.appendChild(opt);
+    }
+  } catch (err) {
+    // leave the picker empty; generation falls back to the server default theme
+  }
+}
+
 $("generate").addEventListener("click", generate);
 $("hint").addEventListener("click", hint);
 $("print").addEventListener("click", () => window.print());
@@ -593,6 +614,8 @@ $("check").addEventListener("click", check);
 $("reveal").addEventListener("click", reveal);
 $("clear").addEventListener("click", clearGrids);
 $("categories").addEventListener("change", syncItemOptions);
+// Switching theme draws a fresh puzzle in that theme.
+$("theme").addEventListener("change", generate);
 // Swap layouts when crossing the breakpoint, preserving marks.
 DESKTOP.addEventListener("change", () => { if (puzzle) renderBoard(); });
 // Keep the desktop grid fitted to the window as it resizes.
@@ -600,6 +623,7 @@ window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
 
 (async function init() {
   syncItemOptions();
+  await loadThemes();
   try {
     await generate();
   } catch (err) {

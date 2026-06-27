@@ -26,13 +26,15 @@ class Category:
     # values aligned to items, enabling exact-difference clues.
     ordered: bool = False
     values: list[int] | None = None
-    # `unit` is a prefix shown on numeric *amounts* in clue text (e.g. "$" so an
-    # exact-difference clue reads "exactly $2 more"). Empty for plain numbers.
+    # `unit`/`unit_suffix` wrap numeric *amounts* in clue text: a prefix (e.g. "$"
+    # -> "$2") and/or a suffix (e.g. " gp" -> "20 gp"). Both empty for plain
+    # numbers.
     unit: str = ""
+    unit_suffix: str = ""
 
     def amount(self, n: int) -> str:
-        """Format a numeric amount with this category's unit, e.g. '$3'."""
-        return f"{self.unit}{n}"
+        """Format a numeric amount with this category's unit, e.g. '$3' or '20 gp'."""
+        return f"{self.unit}{n}{self.unit_suffix}"
 
     def value(self, item_index: int) -> int:
         """Rank (or numeric value) used by comparison clues."""

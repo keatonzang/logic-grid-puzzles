@@ -25,6 +25,7 @@ from logicgrid.webapi import (  # noqa: E402
     DEFAULT_CATEGORIES,
     DEFAULT_DIFFICULTY,
     DEFAULT_ITEMS,
+    DEFAULT_THEME,
     build_hint,
 )
 
@@ -52,8 +53,10 @@ def _build_response(body: dict) -> tuple[int, dict]:
     if not isinstance(known, dict):
         return 400, {"error": "known must be an object of i-j -> matrix"}
 
+    theme = body.get("theme", DEFAULT_THEME)
+
     try:
-        return 200, build_hint(seed, difficulty, items, categories, known)
+        return 200, build_hint(seed, difficulty, items, categories, known, theme)
     except ValueError as exc:
         return 400, {"error": str(exc)}
 

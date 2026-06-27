@@ -17,10 +17,13 @@ from logicgrid.webapi import (
     MIN_CATEGORIES,
     MIN_ITEMS,
     SUBJECT,
+    THEMES,
     build_cafe_theme,
     build_payload,
+    build_theme,
     clamp_categories,
     clamp_items,
+    list_themes,
 )
 
 
@@ -127,3 +130,57 @@ def test_every_difficulty_and_size_is_unique(difficulty, items):
     puzzle = generate_puzzle(theme, rng, difficulty=difficulty)
     assert count_solutions(theme, puzzle.clues, cap=2) == 1
     assert all(c.holds(puzzle.solution) for c in puzzle.clues)
+
+
+# --- Theme registry ----------------------------------------------------------
+
+def test_list_themes_catalogue():
+    cat = list_themes()
+    assert [t["key"] for t in cat] == list(THEMES)
+    assert {"cafe", "kings_guild", "dnd", "mystery", "space", "engineer"}.issubset(set(THEMES))
+    for t in cat:
+        assert t["name"] and t["description"]
+
+
+def test_theme_specs_pools_are_valid():
+    # Each theme has globally-unique items and enough pools/members for any size.
+    for spec in THEMES.values():
+        items = list(spec.subject_items) + [it for _, its in spec.attributes for it in its]
+        assert len(items) == len(set(items)), f"{spec.key} has duplicate items"
+        assert len(spec.subject_items) >= MAX_ITEMS
+        assert len(spec.attributes) >= 4  # subject + 4 attributes supports k=5
+        for name, pool in spec.attributes:
+            assert len(pool) >= MAX_ITEMS, (spec.key, name)
+
+
+@pytest.mark.parametrize("key", list(THEMES))
+def test_each_theme_builds_unique_puzzle(key):
+    from logicgrid.generate import generate_puzzle
+
+    rng = random.Random(5)
+    theme = build_theme(THEMES[key], rng, items=4, categories=4)
+    theme.validate()
+    puzzle = generate_puzzle(theme, rng, difficulty="medium")
+    assert count_solutions(theme, puzzle.clues, cap=2) == 1
+    assert all(c.holds(puzzle.solution) for c in puzzle.clues)
+
+
+def test_build_payload_theme_echoed_and_named():
+    p = build_payload(seed=3, theme="dnd")
+    assert p["theme"] == "dnd"
+    assert p["name"] == THEMES["dnd"].name
+
+
+def test_build_payload_unknown_theme_raises():
+    with pytest.raises(ValueError, match="unknown theme"):
+        build_payload(seed=1, theme="nope")
+
+
+def test_numeric_suffix_unit_in_clue_text():
+    # D&D gold uses a suffix unit (" gp"): items render "50 gp" and amounts too.
+    rng = random.Random(3)
+    theme = build_theme(THEMES["dnd"], rng, items=4, categories=4, use_numeric=True)
+    gold = theme.categories[-1]
+    assert gold.name == "Gold" and gold.unit_suffix == " gp"
+    assert gold.items == [f"{v} gp" for v in gold.values]
+    assert gold.amount(20) == "20 gp"

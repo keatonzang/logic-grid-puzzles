@@ -38,6 +38,7 @@ def theme_from_dict(data: dict) -> Theme:
                 ordered=bool(c.get("ordered", False)),
                 values=list(c["values"]) if c.get("values") is not None else None,
                 unit=c.get("unit", ""),
+                unit_suffix=c.get("unit_suffix", ""),
             )
         )
     theme = Theme(

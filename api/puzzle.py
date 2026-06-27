@@ -21,11 +21,17 @@ from logicgrid.webapi import (  # noqa: E402
     DEFAULT_CATEGORIES,
     DEFAULT_DIFFICULTY,
     DEFAULT_ITEMS,
+    DEFAULT_THEME,
     build_payload,
+    list_themes,
 )
 
 
 def _build_response(query: dict) -> tuple[int, dict]:
+    if "themes" in query:  # catalogue for the theme picker
+        return 200, {"themes": list_themes()}
+
+    theme = query.get("theme", [DEFAULT_THEME])[0]
     difficulty = query.get("difficulty", [DEFAULT_DIFFICULTY])[0]
 
     items_raw = query.get("items", [DEFAULT_ITEMS])[0]
@@ -50,7 +56,7 @@ def _build_response(query: dict) -> tuple[int, dict]:
 
     try:
         return 200, build_payload(
-            seed=seed, difficulty=difficulty, items=items, categories=categories
+            seed=seed, difficulty=difficulty, items=items, categories=categories, theme=theme
         )
     except ValueError as exc:
         return 400, {"error": str(exc)}

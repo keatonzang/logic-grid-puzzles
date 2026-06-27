@@ -92,3 +92,42 @@ def test_hint_unknown_difficulty_is_400(hint_api):
     status, payload = hint_api._build_response({"seed": 3, "difficulty": "wizard"})
     assert status == 400
     assert "difficulty" in payload["error"]
+
+
+def test_themes_listing(api):
+    status, payload = api._build_response({"themes": ["1"]})
+    assert status == 200
+    keys = [t["key"] for t in payload["themes"]]
+    assert "cafe" in keys and "dnd" in keys
+    assert all(t["name"] and t["description"] for t in payload["themes"])
+
+
+def test_puzzle_theme_param(api):
+    status, payload = api._build_response({"theme": ["dnd"], "seed": ["3"]})
+    assert status == 200
+    assert payload["theme"] == "dnd"
+    assert payload["name"] == "The Adventuring Party"
+
+
+def test_unknown_theme_is_400(api):
+    status, payload = api._build_response({"theme": ["atlantis"]})
+    assert status == 400
+    assert "unknown theme" in payload["error"]
+
+
+def test_hint_theme(hint_api):
+    status, payload = hint_api._build_response(
+        {"seed": 3, "difficulty": "medium", "items": 4, "categories": 3,
+         "theme": "dnd", "known": {}}
+    )
+    assert status == 200
+    assert payload["tier"] == 0
+    assert payload["text"]
+
+
+def test_hint_unknown_theme_is_400(hint_api):
+    status, payload = hint_api._build_response(
+        {"seed": 3, "theme": "atlantis", "known": {}}
+    )
+    assert status == 400
+    assert "unknown theme" in payload["error"]

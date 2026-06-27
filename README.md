@@ -128,11 +128,33 @@ clues:
     values: [2161, 2164, 2167, 2170, 2173]
 ```
 
-Add an optional `unit` (a prefix) to format the *amounts* in numeric clue text —
-e.g. `unit: "$"` makes a difference clue read "exactly **$2** more". The café's
-Price category uses it; it defaults to empty (plain numbers).
+Add an optional `unit` (a prefix) and/or `unit_suffix` to format the *amounts* in
+numeric clue text — `unit: "$"` makes a difference clue read "exactly **$2**
+more", while `unit_suffix: " gp"` reads "exactly **20 gp** more". The café's Price
+uses a prefix, the D&D theme's Gold a suffix; both default to empty (plain
+numbers).
 
 See `themes/detectives.yaml` (plain) and `themes/space_colony.yaml` (ordered).
+
+### Built-in web themes
+
+The web app ships a registry of themes (the CLI reads YAML files; the serverless
+functions can't, so the web themes live as specs in `logicgrid/webapi.py`). Each
+spec is a subject pool, several attribute pools (each with enough members for the
+largest grid), and an optional numeric category; every puzzle samples `items`
+members per category and which attributes appear varies per seed. The picker is a
+drop-down, served from `GET /api/puzzle?themes=1`:
+
+| Key | Name | Numeric category |
+|-----|------|------------------|
+| `cafe` | The Morning Rush | Price (`$`) |
+| `kings_guild` | The King's Guild | Dues (` coins`) |
+| `dnd` | The Adventuring Party | Gold (` gp`) |
+| `mystery` | Murder at the Manor | — |
+| `space` | The Mars Colony | Distance (` ly`) |
+| `engineer` | The Engineering Firm | Budget (`$…k`) |
+
+Add a theme by appending a `ThemeSpec` to `THEME_SPECS` in `logicgrid/webapi.py`.
 
 ## Web app
 
@@ -157,12 +179,13 @@ so the uniqueness guarantee is identical to the CLI. Three solving aids:
   clues, blank grids) with the **answer key on its own tear-off page**. Print or
   save-as-PDF straight from the browser.
 
-- `api/puzzle.py` — Vercel serverless function. `GET /api/puzzle?difficulty=…&
-  items=…&categories=…&seed=…` returns a puzzle as JSON (categories, clue text,
-  and the solution; a concrete `seed` is always echoed back so any puzzle is
-  reproducible).
+- `api/puzzle.py` — Vercel serverless function. `GET /api/puzzle?theme=…&
+  difficulty=…&items=…&categories=…&seed=…` returns a puzzle as JSON (categories,
+  clue text, and the solution; the `theme` key and a concrete `seed` are always
+  echoed back so any puzzle is reproducible). `GET /api/puzzle?themes=1` returns
+  the theme catalogue for the picker.
 - `api/hint.py` — Vercel serverless function. `POST /api/hint` with
-  `{seed, difficulty, items, categories, known}` regenerates the exact puzzle
+  `{seed, theme, difficulty, items, categories, known}` regenerates the exact puzzle
   (generation is deterministic in the seed) and returns the next explained
   deduction, or `{"done": true}` once nothing new can be deduced.
 - `logicgrid/webapi.py` — dependency-free puzzle/payload/hint builders shared by
@@ -208,7 +231,7 @@ logicgrid/
   hint.py              step-by-step hint engine (explained deductive trace)
   render.py            console rendering: clues, grids, solution table
   themes.py            YAML/JSON theme loader
-  webapi.py            puzzle / payload / hint builders (web/serverless layer)
+  webapi.py            puzzle / payload / hint builders + web theme registry
 ```
 
 ## Possible next steps
@@ -216,7 +239,8 @@ logicgrid/
 - **Interlocked "staircase" grid (CLI)** — the web app renders the single
   L-shaped grid on desktop; bring the same to `render.py`.
 - **Natural-language phrasing templates** per theme for richer clue prose.
-- **More themes** — add YAML files and mirror them into `logicgrid/webapi.py`.
+- **More themes** — add YAML files (CLI) or a `ThemeSpec` to `THEME_SPECS` in
+  `logicgrid/webapi.py` (web). The web app currently ships six (see above).
 - **Hints in the CLI** — surface `logicgrid/hint.py`'s explained trace as an
   interactive `--hint`/walkthrough mode for the terminal solver.
 
