@@ -217,8 +217,11 @@ td.cell.hint-flash { animation: hint-flash .8s ease-out; }
 .progress h3 { margin: 0 0 .6rem; font-size: 1rem; display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
 .progress-count { font-size: .82rem; font-weight: 600; color: var(--muted); }
 .progress-count.done { color: var(--good); }
-.progress-table { width: 100%; table-layout: fixed; }
-.progress-table th, .progress-table td { padding: .35rem .5rem; font-size: .82rem; word-break: break-word; }
+/* Cells never wrap; if the table is wider than the sidebar (lots of categories)
+   it scrolls horizontally instead of squashing words onto multiple lines. */
+#progress-body { overflow-x: auto; }
+.progress-table { width: 100%; }
+.progress-table th, .progress-table td { padding: .35rem .5rem; font-size: .82rem; white-space: nowrap; }
 .progress-table td { transition: color .15s, background .15s; }
 .progress-table td.blank { background: var(--panel-2); }
 .progress-table td:first-child, .progress-table th:first-child { color: var(--ink); font-weight: 600; }
@@ -321,7 +324,7 @@ td.cell {
   height: var(--cell);
   padding: 0;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: calc(var(--cell) * 0.55);  /* glyph scales with the cell */
   font-weight: 600;
   line-height: 1;
   user-select: none;

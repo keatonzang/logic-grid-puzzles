@@ -47,6 +47,7 @@ async function generate() {
     buildState();
     render();
     $("puzzle").hidden = false;
+    fitBoard(); // now the grid has a real width to measure against
   } catch (err) {
     $("error").textContent = err.message;
     $("error").hidden = false;
@@ -206,6 +207,30 @@ function renderBoard() {
     for (const [i, j] of pairs()) host.appendChild(renderGrid(i, j, cats));
   }
   for (const key of Object.keys(manual)) paintGrid(key);
+  fitBoard();
+}
+
+// Shrink the desktop staircase's cells so the whole grid fits the available
+// width — the full grid is always visible, no horizontal scrollbar. Cells are
+// capped at the default size (never enlarged) and floored so they stay tappable.
+// Overhead (row labels, category labels, borders) is measured rather than
+// estimated, so the fit is exact.
+function fitBoard() {
+  if (!puzzle || !DESKTOP.matches) return;
+  const host = $("grids");
+  const table = host.querySelector("table.staircase");
+  if (!table) return;
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const cols = (puzzle.categories.length - 1) * puzzle.categories[0].items.length;
+  if (cols <= 0) return;
+  const DEFAULT = 2.2 * rem, MIN = 1.1 * rem;
+  table.style.setProperty("--cell", DEFAULT + "px");
+  const natural = table.scrollWidth;        // width with full-size cells
+  const avail = host.clientWidth - 2;
+  if (natural <= avail) return;             // already fits — keep default size
+  const overhead = natural - cols * DEFAULT; // labels + all borders (constant)
+  const cell = Math.max(MIN, Math.min(DEFAULT, (avail - overhead) / cols));
+  table.style.setProperty("--cell", cell + "px");
 }
 
 function cell(tag, text, cls) {
@@ -546,16 +571,31 @@ async function hint() {
   }
 }
 
+// More categories allow fewer items (generation must stay fast) — mirror the
+// server's cap (logicgrid/webapi.py _MAX_ITEMS_BY_K) so the Items dropdown only
+// offers sizes the server will actually honour, instead of silently downgrading.
+const MAX_ITEMS_BY_K = { 3: 5, 4: 4, 5: 4 };
+function syncItemOptions() {
+  const maxN = MAX_ITEMS_BY_K[+$("categories").value] || 5;
+  const sel = $("items");
+  for (const opt of sel.options) opt.disabled = +opt.value > maxN;
+  if (+sel.value > maxN) sel.value = String(maxN);
+}
+
 $("generate").addEventListener("click", generate);
 $("hint").addEventListener("click", hint);
 $("print").addEventListener("click", () => window.print());
 $("check").addEventListener("click", check);
 $("reveal").addEventListener("click", reveal);
 $("clear").addEventListener("click", clearGrids);
+$("categories").addEventListener("change", syncItemOptions);
 // Swap layouts when crossing the breakpoint, preserving marks.
 DESKTOP.addEventListener("change", () => { if (puzzle) renderBoard(); });
+// Keep the desktop grid fitted to the window as it resizes.
+window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
 
 (async function init() {
+  syncItemOptions();
   try {
     await generate();
   } catch (err) {
