@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Solve · Logic Grid Puzzles</title>
+  <meta name="description" content="A reference to every clue type and the deduction techniques for solving logic grid puzzles." />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🧩</text></svg>" />
+</head>
+<body class="guide">
+  <header>
+    <p class="crumb"><a href="/">← Back to the puzzles</a></p>
+    <h1>🧩 How to Solve Logic Grid Puzzles</h1>
+    <p class="tagline">What each clue means, the parameters it carries, what it lets you deduce — and the techniques that turn clues into a full solution.</p>
+  </header>
+
+  <main class="guide-body">
+    <!-- ===================== THE BASICS ===================== -->
+    <section class="card">
+      <h2>The idea</h2>
+      <p>
+        Every puzzle has a set of <b>categories</b> (e.g. <i>Customer</i>, <i>Drink</i>, <i>Price</i>),
+        each with the same number of <b>items</b>. Exactly one item from every category belongs to
+        each <b>entity</b> (one row of the answer) — a <i>perfect one-to-one matching</i> between every
+        pair of categories. Your job is to recover that matching. There is always <b>exactly one</b>
+        solution, and it can always be reached by logic alone — no guessing required.
+      </p>
+
+      <h3 class="sub">The grid</h3>
+      <p>
+        You work in pairwise grids — one block for each pair of categories. Each cell is the
+        relationship between one item and another:
+      </p>
+      <ul class="legend">
+        <li><span class="chip yes">✓</span> <b>Link.</b> These two items belong to the same entity.</li>
+        <li><span class="chip no">✗</span> <b>No link.</b> These two items belong to different entities.</li>
+        <li><span class="chip blank"></span> <b>Blank.</b> Not yet known.</li>
+      </ul>
+      <p>
+        The one rule that powers everything: <b>each item links exactly one item in every other
+        category</b>. So the moment you place a <span class="chip yes">✓</span>, every other cell in
+        that row <em>and</em> that column becomes a <span class="chip no">✗</span> (the app fills these
+        dim auto-✗ marks for you). And if a whole line has all but one cell crossed out, the survivor
+        must be the <span class="chip yes">✓</span>.
+      </p>
+      <p class="tip">
+        💡 In the app, click a cell to cycle <b>blank → ✓ → ✗</b>. Click a clue to cross it off once
+        you've used it, and hit <b>Hint</b> for the next logical step with an explanation.
+      </p>
+    </section>
+
+    <!-- ===================== DIRECT CLUES ===================== -->
+    <section class="card">
+      <h2>Direct clues</h2>
+      <p class="lead">The bread and butter — they speak about a single cell.</p>
+
+      <div class="rules">
+        <article class="rule">
+          <h3>Is <span class="tag pos">positive</span></h3>
+          <p class="eg">“Ava goes with Latte.”</p>
+          <p><b>Parameters:</b> two items.</p>
+          <p><b>Means:</b> the two items share an entity — a <span class="chip yes">✓</span> in that cell.</p>
+          <p><b>On the grid:</b> place the ✓, then ✗ the rest of its row and column. This is the
+            strongest clue — one positive instantly fixes a whole line.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Is not <span class="tag neg">negative</span></h3>
+          <p class="eg">“Spade does not go with the Library.”</p>
+          <p><b>Parameters:</b> two items.</p>
+          <p><b>Means:</b> the two items are on different entities — a <span class="chip no">✗</span>.</p>
+          <p><b>On the grid:</b> mark the single ✗. On its own it only removes one possibility, but
+            negatives stack: cross off enough of a line and the last cell is forced to ✓.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== ORDERED / NUMERIC ===================== -->
+    <section class="card">
+      <h2>Ordered &amp; numeric clues</h2>
+      <p class="lead">
+        These need an <b>ordered</b> category — one whose items have a natural order or value, like
+        <i>Price</i>. An item's position in that order is its <b>rank</b> (lowest = rank 1). They never
+        name a cell directly; instead they constrain ranks, which you then pin down by elimination.
+      </p>
+
+      <div class="rules">
+        <article class="rule">
+          <h3>Higher / lower than <span class="tag ord">ordered</span></h3>
+          <p class="eg">“The order with Latte costs more than the one with Mocha.”</p>
+          <p><b>Parameters:</b> the ordered category, and two items.</p>
+          <p><b>Means:</b> rank(Latte) &gt; rank(Mocha).</p>
+          <p><b>On the grid:</b> the bigger item can't be the lowest rank; the smaller can't be the
+            highest. Chain several of these to order everyone end to end.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Exact difference <span class="tag ord">numeric</span></h3>
+          <p class="eg">“Latte's price is exactly $2 more than Mocha's.”</p>
+          <p><b>Parameters:</b> the numeric category, two items, and an amount.</p>
+          <p><b>Means:</b> value(Latte) − value(Mocha) = the amount, exactly.</p>
+          <p><b>On the grid:</b> keep only the value pairs that are exactly that far apart — both items
+            are restricted to ranks where a partner exists. (When prices are evenly spaced this fixes
+            the <i>gap</i>, not the absolute price.)</p>
+        </article>
+
+        <article class="rule">
+          <h3>At least apart <span class="tag ord">numeric</span></h3>
+          <p class="eg">“Ristretto's price is at least $3 more than Jade's.”</p>
+          <p><b>Parameters:</b> the numeric category, two items, and a minimum amount.</p>
+          <p><b>Means:</b> value(Ristretto) − value(Jade) ≥ the amount.</p>
+          <p><b>On the grid:</b> a looser version of exact difference — it trims the extreme ranks off
+            both items without pinning the gap.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Between <span class="tag ord">ordered</span></h3>
+          <p class="eg">“Cara's price is between Ava's and Ben's.”</p>
+          <p><b>Parameters:</b> the ordered category and three items (the middle one, plus the two endpoints).</p>
+          <p><b>Means:</b> the middle item's rank lies strictly between the other two (endpoints in
+            either order).</p>
+          <p><b>On the grid:</b> the middle item can't be the lowest or highest of the three; the
+            endpoints can't sit next to each other with no room between.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Immediately before / after <span class="tag ord">ordered</span></h3>
+          <p class="eg">“Ava's price is immediately below Ben's, with nothing in between.”</p>
+          <p><b>Parameters:</b> the ordered category and two items.</p>
+          <p><b>Means:</b> the two ranks are consecutive — rank(Ben) = rank(Ava) + 1.</p>
+          <p><b>On the grid:</b> the tightest sequential clue. Each item's rank forces the other's, so
+            once one end is known the other follows instantly.</p>
+        </article>
+
+        <article class="rule">
+          <h3>More / less than several <span class="tag ord">ordered</span></h3>
+          <p class="eg">“Croissant cost more than both Hugo's and Donut's.”</p>
+          <p><b>Parameters:</b> the ordered category, one item, a list of other items, and a direction.</p>
+          <p><b>Means:</b> the one item out-ranks (or under-ranks) <em>every</em> item in the list.</p>
+          <p><b>On the grid:</b> like several “higher/lower” clues at once — being above all of them
+            pushes the item toward the top of the range (or the bottom, if below).</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== LOGICAL / COUNTING ===================== -->
+    <section class="card">
+      <h2>Logical &amp; counting clues</h2>
+      <p class="lead">
+        These talk about <i>how many</i> of a set of options match — often across several categories at
+        once. They get sharper as the grid fills: cross off enough options and the rest are forced.
+      </p>
+
+      <div class="rules">
+        <article class="rule">
+          <h3>At least K of N <span class="tag logic">counting</span></h3>
+          <p class="eg">“Ava goes with at least one of Bagel or Latte.” · “Holmes goes with at least two of Butler, the Attic, and the Painting.”</p>
+          <p><b>Parameters:</b> an anchor item, a list of options, and a threshold K.</p>
+          <p><b>Means:</b> at least K of the options share the anchor's entity. It's <i>inclusive</i> —
+            it never tells you <em>which</em> ones, and K is always below N.</p>
+          <p><b>On the grid:</b> when only K options are still possible (the rest crossed out), all K
+            must be ✓. For K ≥ 2 the options live in distinct categories, so at most one matches per category.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Either / or <span class="tag logic">exclusive</span></h3>
+          <p class="eg">“Ava goes with either Bagel or Latte.” · “…exactly one of A, B, or C.”</p>
+          <p><b>Parameters:</b> an anchor item and a list of options (two or more).</p>
+          <p><b>Means:</b> <i>exactly one</i> option matches. Because two can't both match, the options
+            must sit on different entities.</p>
+          <p><b>On the grid:</b> the instant one option turns ✓, ✗ all the others; the instant all but
+            one are ✗, that one is ✓.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Neither / nor <span class="tag neg">negative</span></h3>
+          <p class="eg">“Ava goes with neither Bagel nor Latte.” · “…none of A, B, or C.”</p>
+          <p><b>Parameters:</b> an anchor item and a list of options.</p>
+          <p><b>Means:</b> none of the options match — a batch of ✗ in one stroke.</p>
+          <p><b>On the grid:</b> cross off every option against the anchor at once.</p>
+        </article>
+
+        <article class="rule">
+          <h3>At most K of N <span class="tag logic">counting</span></h3>
+          <p class="eg">“Vanilla goes with at most one of Ben, Rose, and $8.”</p>
+          <p><b>Parameters:</b> an anchor item, a list of options, and a cap K.</p>
+          <p><b>Means:</b> no more than K options match — the complement of “at least”.</p>
+          <p><b>On the grid:</b> once K options are confirmed ✓, the remaining options must be ✗.</p>
+        </article>
+
+        <article class="rule">
+          <h3>All different <span class="tag neg">negative</span></h3>
+          <p class="eg">“Ava, Ben, Chai, and Latte are all different orders.”</p>
+          <p><b>Parameters:</b> a list of three or more items (spanning at least two categories).</p>
+          <p><b>Means:</b> every listed item is on a distinct entity — the conjunction of all the
+            pairwise “is not” facts among them.</p>
+          <p><b>On the grid:</b> ✗ each cross-category pair in the list. Great for thinning out a column fast.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Exclusive pairing <span class="tag logic">counting</span></h3>
+          <p class="eg">“Either Ben goes with Latte, or Cara goes with Chai — but not both.”</p>
+          <p><b>Parameters:</b> a list of candidate links, and how many of them (K) actually hold.</p>
+          <p><b>Means:</b> exactly K of the listed links are true. The classic case (K=1 of 2) is an
+            exclusive or — one holds, the other doesn't.</p>
+          <p><b>On the grid:</b> confirm a link and the quota may force the rest to ✗; cross off enough
+            and the remainder are forced to ✓.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Group match <span class="tag logic">matching</span></h3>
+          <p class="eg">“Between Ava and Ben, one goes with Latte and the other with Bagel.”</p>
+          <p><b>Parameters:</b> two equal-size groups of items.</p>
+          <p><b>Means:</b> the two groups cover the same set of entities, paired one-to-one — but which
+            pairs with which is hidden.</p>
+          <p><b>On the grid:</b> nobody outside the groups can hold those items; within them, a ✓ on one
+            pairing ✗-es the conflicting alternatives, narrowing the permutation.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== TECHNIQUES ===================== -->
+    <section class="card">
+      <h2>Turning clues into a solution</h2>
+      <p class="lead">
+        These are the deduction moves, cheapest first — the same ladder the <b>Hint</b> button climbs.
+        Always exhaust the easy ones before reaching for a harder one.
+      </p>
+
+      <ol class="techniques">
+        <li>
+          <span class="tier">1 · Givens</span>
+          <p>Mark everything the direct clues state outright — every “is” (✓) and “is not” (✗),
+            plus the batched ✗ from <i>neither</i> and <i>all different</i>. This is your starting board.</p>
+        </li>
+        <li>
+          <span class="tier">2 · Elimination</span>
+          <p>Within a block, each item links exactly one other. So a ✓ crosses out the rest of its row
+            and column, and a line with one blank left and everything else ✗ forces that blank to ✓.
+            Apply this after every single mark — it cascades.</p>
+        </li>
+        <li>
+          <span class="tier">3 · Cross-reference</span>
+          <p>The core move. Combine two blocks through a shared item: if <i>Ava = Latte</i> and
+            <i>Latte = $5</i>, then <i>Ava = $5</i>. And if <i>Ava = Latte</i> but <i>$5 ≠ Latte</i>,
+            then <i>Ava ≠ $5</i>. Chaining facts across categories is what cracks most puzzles.</p>
+        </li>
+        <li>
+          <span class="tier">4 · Clue logic</span>
+          <p>Re-read the counting and ordered clues as the grid fills. An <i>either/or</i> with one side
+            crossed out forces the other; a <i>between</i> tightens as its endpoints get placed; an
+            <i>at least</i> resolves once only enough options remain. Loop back to elimination and
+            cross-reference after each.</p>
+        </li>
+        <li>
+          <span class="tier">5 · What-if</span>
+          <p>For the hardest puzzles: tentatively assume a blank cell is ✓ (or ✗), follow the
+            consequences, and if they lead to a contradiction, the opposite must be true. Use this only
+            when nothing else moves — every puzzle here is solvable without guessing, so a contradiction
+            is always a valid deduction, not a gamble.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== STRATEGY ===================== -->
+    <section class="card">
+      <h2>Practical strategy</h2>
+      <ul class="strategy">
+        <li><b>Start with the positives and negatives.</b> They give you free ✓/✗ and seed the cascades.</li>
+        <li><b>Cross off aggressively.</b> Every ✗ you can justify shrinks the search; a line full of ✗ hands you a ✓.</li>
+        <li><b>Use the whole grid, not one block.</b> Most progress comes from cross-referencing facts between category pairs through a shared item.</li>
+        <li><b>Mine the ordered column for extremes.</b> Comparison clues quickly fix who's lowest and highest; work inward from the ends.</li>
+        <li><b>Revisit counting clues often.</b> They do nothing early but become decisive once a few options are crossed out.</li>
+        <li><b>Cross off clues as you exhaust them</b> so you can see what's left to use.</li>
+        <li><b>Stuck? Hit Hint.</b> It shows the next sound step and names the technique — a good way to learn the moves on a real board.</li>
+      </ul>
+    </section>
+
+    <p class="back-cta"><a class="btn-link" href="/">← Back to the puzzles</a></p>
+  </main>
+
+  <footer>
+    <span>Every puzzle has exactly one solution · solvable by logic alone, no guessing</span>
+  </footer>
+</body>
+</html>
