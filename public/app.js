@@ -95,6 +95,11 @@ function fmtTime(ms) {
   return `${m}:${String(s % 60).padStart(2, "0")}.${d}`;
 }
 
+// The live ticking clock is hidden for now — we still measure the elapsed time
+// and report it on a solve, just without a running display during play. Flip
+// this (e.g. from a future user setting) to show the clock live again.
+const SHOW_LIVE_TIMER = false;
+
 function paintTimer() {
   $("timer").textContent = fmtTime(performance.now() - timerStart);
 }
@@ -104,8 +109,9 @@ function startTimer() {
   timerStart = performance.now();
   timerDone = false;
   const t = $("timer");
-  t.hidden = false;
   t.classList.remove("done");
+  if (!SHOW_LIVE_TIMER) { t.hidden = true; return; } // measure silently
+  t.hidden = false;
   const tick = () => {
     if (timerDone) return;
     paintTimer();
@@ -120,6 +126,7 @@ function stopTimer(solved) {
   if (timerDone || !timerStart) return;
   timerDone = true;
   if (timerRAF) { cancelAnimationFrame(timerRAF); timerRAF = null; }
+  if (!SHOW_LIVE_TIMER) return; // stays hidden; the time is reported in the solve banner
   paintTimer();
   if (solved) $("timer").classList.add("done");
 }
@@ -289,12 +296,26 @@ function computeEntityRows() {
   return rows;
 }
 
+// The "solution so far" reconstructed from the player's links, plus how much of
+// it is pinned down. `complete` means every entity's every category is resolved
+// — the table is full — which is exactly when we accept the puzzle as done, even
+// if not every ✓ was placed by hand (links inferred transitively count too).
+function tableProgress() {
+  const cats = puzzle.categories;
+  const k = cats.length, n = cats[0].items.length;
+  const rows = computeEntityRows();
+  let filled = 0;
+  for (const row of rows) for (let c = 1; c < k; c++) if (row[c] != null) filled++;
+  const total = n * (k - 1);
+  return { rows, filled, total, complete: total > 0 && filled === total };
+}
+
 function renderProgress() {
   const host = $("progress");
   host.hidden = false;
   const cats = puzzle.categories;
   const k = cats.length, n = cats[0].items.length;
-  const rows = computeEntityRows();
+  const { rows, filled, total, complete } = tableProgress();
 
   const table = document.createElement("table");
   table.className = "key-table progress-table";
@@ -302,14 +323,12 @@ function renderProgress() {
   for (const c of cats) head.appendChild(cell("th", c.name, ""));
   table.appendChild(head);
 
-  let filled = 0;
   for (const row of rows) {
     const tr = document.createElement("tr");
     row.forEach((item, c) => {
       const label = item == null ? "" : cats[c].items[item];
       const td = cell("td", label, item == null ? "blank" : "");
       tr.appendChild(td);
-      if (c >= 1 && item != null) filled++;
     });
     table.appendChild(tr);
   }
@@ -317,9 +336,7 @@ function renderProgress() {
   body.innerHTML = "";
   body.appendChild(table);
 
-  const total = n * (k - 1);
   $("progress-count").textContent = `${filled} / ${total}`;
-  const complete = total > 0 && filled === total;
   $("check").classList.toggle("ready", complete);
   $("progress-count").classList.toggle("done", complete);
 
@@ -552,25 +569,29 @@ function clearHighlights() {
 
 function check() {
   clearHighlights();
-  let correctYes = 0, mistakes = 0, totalLinks = 0;
+  // Flag any mark that contradicts the truth (a ✓ on a non-link, or a ✗ on a
+  // real link). The puzzle is done once the *table* is fully reconstructed — you
+  // needn't have placed every ✓ by hand — so completion is judged from the
+  // solution-so-far, not from counting explicit links on the board.
+  let mistakes = 0;
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
     const { display } = LG.derive(manual[key]);
-    totalLinks += puzzle.solution.length; // n links per pair
     for (let a = 0; a < display.length; a++) {
       for (let b = 0; b < display[a].length; b++) {
         const truth = linked[key].has(`${a},${b}`);
         const state = display[a][b];
         const td = cellEl(key, a, b);
         if (!td) continue;
-        if (state === 1 && truth) { td.classList.add("right"); correctYes++; }
+        if (state === 1 && truth) td.classList.add("right");
         else if (state === 1 && !truth) { td.classList.add("wrong"); mistakes++; }
         else if (state === 2 && truth) { td.classList.add("wrong"); mistakes++; }
       }
     }
   }
-  const missing = totalLinks - correctYes;
-  if (mistakes === 0 && missing === 0) {
+  const { filled, total, complete } = tableProgress();
+  const remaining = total - filled;
+  if (mistakes === 0 && complete) {
     const first = !timerDone; // only the checking run that solves it reports the stats
     if (first && timerStart) {
       const steps = history.size();
@@ -578,16 +599,16 @@ function check() {
         `<b>${fmtTime(performance.now() - timerStart)}</b>` +
         ` · <b>${steps}</b> step${steps === 1 ? "" : "s"}`;
       stopTimer(true);
-      setFeedback(`🎉 <b>Solved!</b> Every link is correct — ${stats}.`, "good");
+      setFeedback(`🎉 <b>Solved!</b> The whole table checks out — ${stats}.`, "good");
     } else {
       stopTimer(true);
-      setFeedback("🎉 <b>Solved!</b> Every link is correct.", "good");
+      setFeedback("🎉 <b>Solved!</b> The whole table checks out.", "good");
     }
   } else if (mistakes === 0) {
-    setFeedback(`No mistakes so far — <b>${missing}</b> link${missing > 1 ? "s" : ""} still to place.`, "warn");
+    setFeedback(`No mistakes so far — <b>${remaining}</b> more to work out.`, "warn");
   } else {
     const bits = [`<b>${mistakes}</b> mistake${mistakes > 1 ? "s" : ""} (highlighted)`];
-    if (missing) bits.push(`<b>${missing}</b> link${missing > 1 ? "s" : ""} to go`);
+    if (remaining > 0) bits.push(`<b>${remaining}</b> still to work out`);
     setFeedback(bits.join(" · "), "bad");
   }
 }
