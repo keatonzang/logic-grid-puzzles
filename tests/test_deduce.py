@@ -187,6 +187,77 @@ def test_iff_propagator():
     _prop_iff(bd, clue); assert bd.get(0, 0, 1, 0) == Y
 
 
+def _grouped_theme():
+    # Pet grouped: Furred = {Dog(0), Fox(2)}, Finned = {Eel(1)}
+    return Theme(
+        name="g", description="d", entity_noun="home",
+        categories=[
+            Category("Owner", ["Ann", "Bo", "Cy"]),
+            Category("Pet", ["Dog", "Eel", "Fox"], group_noun="kind",
+                     groups=(("Furred", ("Dog", "Fox")), ("Finned", ("Eel",)))),
+        ],
+    )
+
+
+def test_in_group_propagator_crosses_off_complement():
+    from logicgrid.clues import InGroup
+    from logicgrid.deduce import _prop_in_group
+
+    bd = Board(_grouped_theme())
+    _prop_in_group(bd, InGroup((0, 0), 1, "Furred", (0, 2)))  # Ann is Furred -> not Eel(1)
+    assert bd.get(0, 0, 1, 1) == N
+    assert bd.get(0, 0, 1, 0) == U and bd.get(0, 0, 1, 2) == U
+
+
+def test_same_group_propagator_narrows_to_shared_groups():
+    from logicgrid.clues import SameGroup
+    from logicgrid.deduce import _prop_same_group
+
+    part = ((0, 2), (1,))
+    bd = Board(_grouped_theme())
+    # Pin Ann to Finned (only Eel possible): cross off Dog, Fox for Ann
+    bd.set(0, 0, 1, 0, N)
+    bd.set(0, 0, 1, 2, N)
+    _prop_same_group(bd, SameGroup((0, 0), (0, 1), 1, "kind", part))
+    # Bo must also be Finned -> Bo can't be Dog or Fox
+    assert bd.get(0, 1, 1, 0) == N and bd.get(0, 1, 1, 2) == N
+    assert bd.get(0, 1, 1, 1) != N
+
+
+def test_diff_group_propagator_excludes_pinned_group():
+    from logicgrid.clues import DiffGroup
+    from logicgrid.deduce import _prop_diff_group
+
+    part = ((0, 2), (1,))
+    bd = Board(_grouped_theme())
+    bd.set(0, 0, 1, 0, N)  # Ann pinned to Finned (Eel)
+    bd.set(0, 0, 1, 2, N)
+    _prop_diff_group(bd, DiffGroup((0, 0), (0, 1), 1, "kind", part))
+    assert bd.get(0, 1, 1, 1) == N  # Bo can't be Finned (Eel)
+
+
+def test_group_clues_stay_sound_and_no_guessing():
+    # King's Guild hard puzzles that keep a group clue must stay logic-solvable
+    # and the solver must reach the true solution (catches an unsound propagator).
+    from logicgrid.webapi import build_puzzle
+
+    seen = 0
+    for seed in range(40):
+        th, puzzle, _rep, _ = build_puzzle(seed, "hard", items=4, categories=5, theme="kings_guild")
+        names = {type(c).__name__ for c in puzzle.clues}
+        if not (names & {"InGroup", "SameGroup", "DiffGroup"}):
+            continue
+        seen += 1
+        rep = solve(th, puzzle.clues)
+        assert rep["solved"] and not rep["needs_guessing"], seed
+        board = rep["board"]
+        for e in range(th.n):
+            for i in range(th.k):
+                for j in range(i + 1, th.k):
+                    assert board.get(i, puzzle.solution[e][i], j, puzzle.solution[e][j]) == Y
+    assert seen, "no group clues kept across the sampled seeds"
+
+
 def test_conditional_clues_stay_sound_and_no_guessing():
     # Hard puzzles that keep an Implies/Iff must remain logic-solvable with the
     # solver reaching the true solution (an unsound propagator would diverge).

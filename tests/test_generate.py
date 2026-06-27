@@ -66,6 +66,45 @@ def test_conditional_clues_gated_off_by_default(plain_theme):
             assert cats(c.left) != cats(c.right)
 
 
+def test_group_clues_need_a_grouping_and_the_flag():
+    from logicgrid.clues import DiffGroup, InGroup, SameGroup
+    from logicgrid.model import Category, Theme
+
+    grouped = Theme("G", "", [
+        Category("Owner", ["Ann", "Bo", "Cy", "Di"]),
+        Category("Pet", ["Cat", "Dog", "Eel", "Fox"], group_noun="kind",
+                 groups=(("Furred", ("Cat", "Dog", "Fox")), ("Finned", ("Eel",)))),
+        Category("Toy", ["Ball", "Cube", "Disc", "Rope"]),
+    ], entity_noun="home")
+    rng = random.Random(2)
+    X = random_solution(grouped, rng)
+
+    is_group = lambda c: isinstance(c, (InGroup, SameGroup, DiffGroup))
+    off = build_clue_pool(grouped, X, rng)  # flag defaults off
+    assert not any(is_group(c) for c in off)
+    on = build_clue_pool(grouped, X, rng, enable_groups=True)
+    assert any(is_group(c) for c in on)
+    assert all(c.holds(X) for c in on)
+
+
+def test_group_clues_absent_without_a_grouping(plain_theme):
+    # A theme with no grouping never yields group clues even with the flag on.
+    from logicgrid.clues import DiffGroup, InGroup, SameGroup
+
+    rng = random.Random(2)
+    X = random_solution(plain_theme, rng)
+    pool = build_clue_pool(plain_theme, X, rng, enable_groups=True)
+    assert not any(isinstance(c, (InGroup, SameGroup, DiffGroup)) for c in pool)
+
+
+def test_groups_enabled_for_medium_and_hard_only():
+    from logicgrid.generate import _DIFFICULTY_POOL
+
+    assert _DIFFICULTY_POOL["easy"].get("enable_groups", False) is False
+    assert _DIFFICULTY_POOL["medium"]["enable_groups"] is True
+    assert _DIFFICULTY_POOL["hard"]["enable_groups"] is True
+
+
 def test_conditionals_are_hard_only(plain_theme):
     # Easy/medium never surface if-then / iff; hard does (over several seeds).
     palette = {d: set() for d in ("easy", "medium", "hard")}

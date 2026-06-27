@@ -13,11 +13,14 @@ from logicgrid.clues import (
     AtMost,
     Between,
     Diff,
+    DiffGroup,
     EitherOr,
     Exactly,
     ExactlyKLinks,
     Iff,
     Implies,
+    InGroup,
+    SameGroup,
     GroupMatch,
     Greater,
     MultiCompare,
@@ -250,6 +253,48 @@ def test_iff_holds_and_text(plain_theme, identity_solution):
     assert Iff(A_D, A_G).removal_class == 2
     assert Iff(((0, 0), (1, 0)), ((1, 1), (2, 2))).text(plain_theme) == \
         "Ann goes with Dog if and only if Eel goes with Ice."
+
+
+# --- Hierarchy / groups ------------------------------------------------------
+# Pet category grouped into "kinds": Furred = {Dog, Fox}, Finned = {Eel}.
+
+def _group_theme():
+    from logicgrid.model import Category, Theme
+
+    return Theme("G", "", [
+        Category("Owner", ["Ann", "Bo", "Cy"]),
+        Category("Pet", ["Dog", "Eel", "Fox"], group_noun="kind",
+                 groups=(("Furred", ("Dog", "Fox")), ("Finned", ("Eel",)))),
+    ], entity_noun="home")
+
+
+_GROUP_X = [[0, 0], [1, 1], [2, 2]]  # Ann-Dog, Bo-Eel, Cy-Fox
+_FURRED, _FINNED = (0, 2), (1,)
+_PART = (_FURRED, _FINNED)
+
+
+def test_in_group_holds_and_text():
+    g = _group_theme()
+    assert InGroup((0, 0), 1, "Furred", _FURRED).holds(_GROUP_X)       # Ann -> Dog in Furred
+    assert not InGroup((0, 1), 1, "Furred", _FURRED).holds(_GROUP_X)   # Bo -> Eel not in Furred
+    assert InGroup((0, 0), 1, "Furred", _FURRED).removal_class == 2
+    assert InGroup((0, 0), 1, "Furred", _FURRED).text(g) == "Ann belongs to the Furred."
+
+
+def test_same_group_holds_and_text():
+    g = _group_theme()
+    assert SameGroup((0, 0), (0, 2), 1, "kind", _PART).holds(_GROUP_X)      # Dog & Fox both Furred
+    assert not SameGroup((0, 0), (0, 1), 1, "kind", _PART).holds(_GROUP_X)  # Dog vs Eel
+    assert SameGroup((0, 0), (0, 2), 1, "kind", _PART).text(g) == \
+        "Ann and Cy are in the same kind."
+
+
+def test_diff_group_holds_and_text():
+    g = _group_theme()
+    assert DiffGroup((0, 0), (0, 1), 1, "kind", _PART).holds(_GROUP_X)      # Furred vs Finned
+    assert not DiffGroup((0, 0), (0, 2), 1, "kind", _PART).holds(_GROUP_X)  # both Furred
+    assert DiffGroup((0, 0), (0, 1), 1, "kind", _PART).text(g) == \
+        "Ann and Bo are in different kinds."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------

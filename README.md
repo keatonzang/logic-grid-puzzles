@@ -41,13 +41,13 @@ Ivory-mug order). Each sequential clue has a sound deductive propagator
   options in **distinct categories** (one match max per category), which the generator
   enforces. K is always kept **below N** (no strong K = N case), so a threshold clue
   never collapses to N direct links. Disable the K ≥ 2 variants with
-  `build_clue_pool(multi_match=False)`; `same_category_prob` (a future difficulty knob)
-  biases threshold-1 disjunctions toward all-one-category option lists.
+  `build_clue_pool(multi_match=False)`. Option lists are sampled freely across
+  categories (no same-category weighting).
 - **either/or** (`EitherOr`, exclusive) — `Ava goes with either Bagel or Latte.`
   Exactly one holds, so the two options must sit on **different** entities. Takes any N
   (`exactly one of A, B, or C`).
 - **neither/nor** (`Neither`) — `Ava goes with neither Bagel nor Latte.` / `none of A, B, or C.`
-- **all different** (`AllDifferent`) — `Ava, Ben, Chai, and Latte are all different orders.`
+- **all different** (`AllDifferent`) — `Ava, Ben, Chai, and Latte belong to different orders.`
   N terms on distinct entities, spanning ≥ 2 categories (categories may repeat). Equivalent
   to the conjunction of the pairwise "is not" facts; generated for N in 3..items
   (`alldiff_sizes`).
@@ -56,6 +56,24 @@ Ivory-mug order). Each sequential clue has a sound deductive propagator
 - **group match** (`GroupMatch`) — `Between Ava and Ben, one goes with Latte and the other with Bagel.`
   Two equal-size groups cover the same entities, paired in unknown order; N in 2..items
   (`match_sizes`). For N ≥ 3: `… go with …, in some order.`
+- **exactly K of N** (`Exactly`) — `Ava goes with exactly two of Bagel, Latte, and the Jade mug.`
+  Precisely K options match — `Among` (≥ K) and `AtMost` (≤ K) at once (`enable_exactly`).
+- **if–then** (`Implies`) — `If Ava goes with Latte, then Ben goes with the Bagel.`
+  A one-way conditional: when the antecedent link holds the consequent must too. Fires
+  forward (modus ponens) and backward (contrapositive). Hard puzzles only (`enable_conditional`).
+- **if and only if** (`Iff`) — `Ava goes with Latte if and only if Ben goes with the Bagel.`
+  Both links are true together or false together (degenerate 2-entity cases are deduped
+  against `GroupMatch`, which subsumes them). Hard only.
+
+These **group / hierarchy** clues need a theme whose grouped category defines `groups`
+(e.g. King's Guild files each *trade* into a *guild*). They compile down to facts on that
+existing category — no extra grid — and only appear when a puzzle keeps one (`enable_groups`,
+medium/hard); a puzzle can always roll with no hierarchy at all.
+
+- **belongs to a group** (`InGroup`) — `The artisan with the Millpond workshop belongs to the Ironmongers' Guild.`
+  The entity's trade is one of that guild's members.
+- **same group** (`SameGroup`) — `… and … are in the same guild.` Both entities' trades share a guild.
+- **different groups** (`DiffGroup`) — `… and … are in different guilds.` Their trades lie in separate guilds.
 
 The "one of N" disjunctions default to N ∈ {2, 3} via `build_clue_pool(among_sizes=…)`.
 
@@ -70,7 +88,10 @@ The "one of N" disjunctions default to N ∈ {2, 3} via `build_clue_pool(among_s
 3. **Minimize.** Greedily drop clues in random order as long as the puzzle still
    has a unique solution (verified by a backtracking solution-counter that stops
    at 2). The result is a compact, locally-minimal clue set with a natural mix of
-   clue types.
+   clue types. The one deliberate skew: group/hierarchy clues are considered for
+   removal last, so they survive into ~half of hard grouped puzzles instead of
+   ~5% — they carry real deductive weight, so keeping them doesn't soften the
+   measured difficulty band.
 
 The solver assigns one category column at a time (most-constrained first) and
 prunes against every clue whose columns are fully assigned, so the small sizes
@@ -86,7 +107,7 @@ deduction techniques, cheapest first, and reports what the solve required:
 | 0 | givens — direct is / is-not / neither / all-different |
 | 1 | line completion — each item links exactly one other in a block |
 | 2 | transitivity — combine blocks through a shared entity (the core move) |
-| 3 | clue propagation — among / either-or / exactly-K / group-match narrowing |
+| 3 | clue propagation — among / either-or / exactly-K / conditional / group-match / hierarchy narrowing |
 | 4 | proof by contradiction — assume a cell, propagate, eliminate on conflict |
 
 The **band** is the hardest technique needed: ceiling ≤ 2 → **easy**, 3 →
@@ -153,6 +174,29 @@ template you supply:
 So a clue reads "Ellis' Grade is at least 4% away from the person studying
 Debate" rather than the bare "…away from Debate's". (In a web `ThemeSpec`, the
 same is given as a `referents=(("Club", "the person studying {}"), …)` tuple.)
+
+### Grouped / hierarchy categories
+
+A category can bundle its items into named **groups** to unlock the hierarchy
+clues (*belongs to a group* / *same group* / *different groups*). Give the
+category a `group_noun` (how one group is named in clue text) and a `groups`
+list partitioning its items — every item must appear in exactly one group:
+
+```yaml
+  - name: Trade
+    items: [Blacksmith, Carpenter, Cooper, Fletcher, Mason, Potter, Tanner, Weaver]
+    group_noun: guild
+    groups:
+      - { label: "Ironmongers' Guild", items: [Blacksmith, Fletcher, Mason] }
+      - { label: "Joiners' Guild",     items: [Carpenter, Cooper, Potter] }
+      - { label: "Clothiers' Guild",   items: [Tanner, Weaver] }
+```
+
+Groups compile to facts on the `Trade` column — there is no extra grid — so a
+puzzle can always roll with no hierarchy clues at all, and the guilds are only
+ever mentioned when one survives into the clue set. See `themes/` for the King's
+Guild theme; in a web `ThemeSpec` the same is a `group_def=(category, group_noun,
+((label, (items…)), …))` tuple, restricted to the sampled items at build time.
 
 ### Single-file representation (import / export)
 

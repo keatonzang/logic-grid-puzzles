@@ -364,6 +364,50 @@ def _prop_iff(board, clue) -> int:  # left link holds <=> right link holds
     return changed
 
 
+# --- Hierarchy / group clues (resolve on the grouped category's column) ------
+def _poss_groups(board, term, cat, partition):
+    """Group indices still possible for `term` — a group where at least one of its
+    items isn't yet ruled out for term's entity."""
+    return {
+        gi
+        for gi, members in enumerate(partition)
+        if any(_g(board, term, (cat, x)) != N for x in members)
+    }
+
+
+def _prop_in_group(board, clue) -> int:  # entity's grouped item must be in the group
+    members = set(clue.members)
+    return sum(
+        _s(board, clue.anchor, (clue.cat, x), N)
+        for x in range(board.n)
+        if x not in members
+    )
+
+
+def _prop_same_group(board, clue) -> int:  # a and b fall in the same group
+    cat, part = clue.cat, clue.partition
+    shared = _poss_groups(board, clue.a, cat, part) & _poss_groups(board, clue.b, cat, part)
+    changed = 0
+    for gi, members in enumerate(part):  # neither may sit in a group the other can't
+        if gi not in shared:
+            for x in members:
+                changed += _s(board, clue.a, (cat, x), N)
+                changed += _s(board, clue.b, (cat, x), N)
+    return changed
+
+
+def _prop_diff_group(board, clue) -> int:  # a and b fall in different groups
+    cat, part = clue.cat, clue.partition
+    changed = 0
+    for t, other in ((clue.a, clue.b), (clue.b, clue.a)):
+        poss = _poss_groups(board, t, cat, part)
+        if len(poss) == 1:  # t's group is pinned -> other can't be in it
+            (gi,) = tuple(poss)
+            for x in part[gi]:
+                changed += _s(board, other, (cat, x), N)
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
@@ -371,6 +415,9 @@ _PROPAGATORS = {
     "ExactlyKLinks": _prop_exactly,
     "Implies": _prop_implies,
     "Iff": _prop_iff,
+    "InGroup": _prop_in_group,
+    "SameGroup": _prop_same_group,
+    "DiffGroup": _prop_diff_group,
     "GroupMatch": _prop_group_match,
     "Greater": _prop_greater,
     "Diff": _prop_diff,

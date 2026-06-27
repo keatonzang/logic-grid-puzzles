@@ -285,6 +285,48 @@
       </div>
     </section>
 
+    <!-- ===================== HIERARCHY / GROUPS ===================== -->
+    <section class="card">
+      <h2>Hierarchy &amp; group clues</h2>
+      <p class="lead">
+        Some themes sort one category into bigger <b>groups</b> — the King's Guild puzzle, for
+        instance, files each <i>trade</i> into a <i>guild</i> (the Ironmongers', Joiners' and
+        Clothiers'). A group is just a fixed bundle of items, so these clues are really shorthand for
+        “the entity's trade is one of <i>these</i>.” They only appear in a puzzle when the theme has a
+        hierarchy <em>and</em> the puzzle actually keeps a clue that uses it — otherwise no groups are
+        ever mentioned.
+      </p>
+
+      <div class="rules">
+        <article class="rule">
+          <h3>Belongs to a group <span class="tag group">hierarchy</span></h3>
+          <p class="eg">“The artisan with the Millpond workshop belongs to the Ironmongers' Guild.”</p>
+          <p><b>Parameters:</b> an item (the anchor) and one group.</p>
+          <p><b>Means:</b> that entity's trade is one of the members of the named guild — but not which one.</p>
+          <p><b>On the grid:</b> ✗ every trade <em>outside</em> the guild for that entity; the survivors are
+            its only candidates, which line elimination then whittles down.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Same group <span class="tag group">hierarchy</span></h3>
+          <p class="eg">“The artisan with the Millpond workshop and the artisan with the Bishop patron are in the same guild.”</p>
+          <p><b>Parameters:</b> two items from outside the grouped category.</p>
+          <p><b>Means:</b> both entities' trades fall in one shared guild (which one is hidden).</p>
+          <p><b>On the grid:</b> a trade either side can't have rules out that whole guild for both; once one
+            side's guild is pinned, the other must sit in it too.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Different groups <span class="tag group">hierarchy</span></h3>
+          <p class="eg">“The artisan with the Millpond workshop and the artisan with the Bishop patron are in different guilds.”</p>
+          <p><b>Parameters:</b> two items from outside the grouped category.</p>
+          <p><b>Means:</b> the two entities' trades lie in separate guilds.</p>
+          <p><b>On the grid:</b> once one side's guild is known, cross every trade in that guild off the other
+            side.</p>
+        </article>
+      </div>
+    </section>
+
     <!-- ===================== TECHNIQUES ===================== -->
     <section class="card">
       <h2>Turning clues into a solution</h2>

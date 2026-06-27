@@ -40,6 +40,8 @@ def theme_from_dict(data: dict) -> Theme:
                 unit=c.get("unit", ""),
                 unit_suffix=c.get("unit_suffix", ""),
                 referent=c.get("referent", ""),
+                group_noun=c.get("group_noun", ""),
+                groups=tuple((g["label"], tuple(g["items"])) for g in c.get("groups", [])),
             )
         )
     theme = Theme(
@@ -70,6 +72,9 @@ def theme_to_dict(theme: Theme) -> dict:
             cd["unit_suffix"] = c.unit_suffix
         if c.referent:
             cd["referent"] = c.referent
+        if c.has_groups:
+            cd["group_noun"] = c.group_noun
+            cd["groups"] = [{"label": label, "items": list(members)} for label, members in c.groups]
         cats.append(cd)
     return {
         "name": theme.name,

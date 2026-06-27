@@ -14,6 +14,7 @@ from .clues import (
     AtMost,
     Between,
     Diff,
+    DiffGroup,
     EitherOr,
     Exactly,
     ExactlyKLinks,
@@ -21,6 +22,8 @@ from .clues import (
     Greater,
     Iff,
     Implies,
+    InGroup,
+    SameGroup,
     MultiCompare,
     Negative,
     Neither,
@@ -72,6 +75,7 @@ def build_clue_pool(
     max_atmost: int = 20,
     max_exactly: int = 20,
     max_conditional: int = 14,
+    max_groups: int = 12,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -82,6 +86,7 @@ def build_clue_pool(
     enable_atmost: bool = True,
     enable_exactly: bool = True,
     enable_conditional: bool = False,
+    enable_groups: bool = False,
     include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
@@ -121,6 +126,7 @@ def build_clue_pool(
     exactly: list = []
     implies: list = []
     iff: list = []
+    groups: list = []
 
     for c1 in range(k):
         for c2 in range(c1 + 1, k):
@@ -383,6 +389,42 @@ def build_clue_pool(
             implies.append(Implies(l1, l2) if rng.random() < 0.5 else Implies(l2, l1))
             iff.append(Iff(l1, l2))
 
+    # Hierarchy / group clues over a grouped category (e.g. Trade -> Guild). The
+    # group is just a partition of that column's items, so these resolve on the
+    # ordinary grid; they only exist when the theme attached a grouping. Needs
+    # >= 2 groups present (sampled) to say anything non-trivial.
+    for cat in range(k) if enable_groups else ():
+        catobj = theme.categories[cat]
+        if not catobj.has_groups:
+            continue
+        labels = [label for label, _ in catobj.groups]
+        parts = [tuple(catobj.items.index(m) for m in members) for _, members in catobj.groups]
+        if len(parts) < 2:
+            continue
+        group_of = {x: gi for gi, members in enumerate(parts) for x in members}
+        noun = catobj.group_noun
+        non_cat = [co for co in range(k) if co != cat]
+
+        def anchor_for(e):  # name entity e by a random non-grouped category
+            co = rng.choice(non_cat)
+            return (co, X[e][co])
+
+        for e in range(n):  # "X belongs to the <guild>"
+            gi = group_of.get(X[e][cat])
+            if gi is not None:
+                groups.append(InGroup(anchor_for(e), cat, labels[gi], parts[gi]))
+
+        for e1 in range(n):  # same- / different-group over entity pairs
+            for e2 in range(e1 + 1, n):
+                g1, g2 = group_of.get(X[e1][cat]), group_of.get(X[e2][cat])
+                if g1 is None or g2 is None:
+                    continue
+                a, b = anchor_for(e1), anchor_for(e2)
+                if g1 == g2:
+                    groups.append(SameGroup(a, b, cat, noun, parts))
+                else:
+                    groups.append(DiffGroup(a, b, cat, noun, parts))
+
     rng.shuffle(negatives)
     rng.shuffle(comparisons)
     rng.shuffle(among)
@@ -395,6 +437,7 @@ def build_clue_pool(
     rng.shuffle(exactly)
     rng.shuffle(implies)
     rng.shuffle(iff)
+    rng.shuffle(groups)
     return (
         positives
         + negatives[:max_negatives]
@@ -409,6 +452,7 @@ def build_clue_pool(
         + exactly[:max_exactly]
         + implies[:max_conditional]
         + iff[:max_conditional]
+        + groups[:max_groups]
     )
 
 
@@ -428,6 +472,7 @@ _DIFFICULTY_POOL = {
         among_sizes=(2, 3), enable_either=True, enable_neither=True,
         enable_alldiff=True, multi_match=False,
         enable_pairing=False, enable_match=False,
+        enable_groups=True,  # only fires when a theme attached a grouping
         include_sequential=True,  # only fires when an ordered category exists
     ),
     "hard": dict(
@@ -435,6 +480,7 @@ _DIFFICULTY_POOL = {
         enable_alldiff=True, multi_match=True,
         enable_pairing=True, enable_match=True,
         enable_conditional=True,  # if-then / iff (conditional reasoning)
+        enable_groups=True,
         include_sequential=True,
     ),
 }
@@ -450,15 +496,27 @@ _DIFFICULTY_EXTRA = {"easy": 0.6, "medium": 0.0, "hard": 0.0}
 # clue (the result stays unique, just slightly less minimal).
 _MINIMIZE_NODE_BUDGET = 20000
 
+# Clue types that name a hierarchy/group; minimize keeps these to the end of the
+# removal order so they survive into the minimal set more often (see minimize).
+_GROUP_CLUES = {"InGroup", "SameGroup", "DiffGroup"}
+
 
 def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
-    """Greedily remove clues in random order while uniqueness is preserved.
+    """Greedily remove clues while uniqueness is preserved.
 
     A clue set is locally minimal once no further single clue can be dropped.
-    Random removal order yields a natural mix of clue types in a compact set.
+    Removal order is randomised so the surviving minimal set varies between
+    seeds; difficulty is then selected by ``generate_rated`` measuring the band,
+    which keeps calibration honest. The one deliberate skew: *group* clues are
+    considered for removal last, so a puzzle that can keep a hierarchy clue
+    tends to (guilds appear in ~half of hard King's Guild puzzles instead of
+    ~5%). This is safe because group clues carry real deductive weight, so
+    keeping them doesn't push the measured band down — a broader "keep all the
+    interesting clues" bias was tried and it skewed medium puzzles to easy.
     """
     removal_order = list(clues)
     rng.shuffle(removal_order)
+    removal_order.sort(key=lambda c: 1 if type(c).__name__ in _GROUP_CLUES else 0)
 
     current = list(clues)
     for cl in removal_order:

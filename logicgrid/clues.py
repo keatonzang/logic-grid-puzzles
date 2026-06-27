@@ -601,3 +601,85 @@ class Iff(Clue):
         l0, l1 = [_label(theme, t) for t in self.left]
         r0, r1 = [_label(theme, t) for t in self.right]
         return f"{l0} goes with {l1} if and only if {r0} goes with {r1}."
+
+
+# --- Hierarchy / groups ------------------------------------------------------
+# A *group* is a named block of one category's items (Trades -> Guilds). These
+# clues constrain which group an entity's item falls in; they read in the group's
+# vocabulary but resolve entirely on the grouped category's ordinary column.
+
+def _group_index(partition, item_index: int) -> int:
+    for gi, members in enumerate(partition):
+        if item_index in members:
+            return gi
+    return -1
+
+
+class InGroup(Clue):
+    """The entity of `anchor` has, in grouped category `cat`, an item belonging to
+    the group `label` — "Aldric belongs to the Smiths' Guild"."""
+
+    removal_class = 2
+
+    def __init__(self, anchor: Term, cat: int, label: str, members):
+        self.anchor = anchor
+        self.cat = cat
+        self.label = label
+        self.members = tuple(sorted(members))  # item indices of the group in `cat`
+        self.involved = frozenset({anchor[0], cat})
+
+    def holds(self, X) -> bool:
+        return X[entity_of(X, self.anchor)][self.cat] in self.members
+
+    def text(self, theme: Theme) -> str:
+        return f"{_cap(_ref(theme, self.anchor))} belongs to the {self.label}."
+
+
+class SameGroup(Clue):
+    """Entities of `a` and `b` fall in the *same* group of category `cat` —
+    "Aldric and Beatrix are in the same guild"."""
+
+    removal_class = 2
+
+    def __init__(self, a: Term, b: Term, cat: int, group_noun: str, partition):
+        self.a, self.b = a, b
+        self.cat = cat
+        self.group_noun = group_noun
+        self.partition = tuple(tuple(sorted(g)) for g in partition)
+        self.involved = frozenset({a[0], b[0], cat})
+
+    def holds(self, X) -> bool:
+        ga = _group_index(self.partition, X[entity_of(X, self.a)][self.cat])
+        gb = _group_index(self.partition, X[entity_of(X, self.b)][self.cat])
+        return ga >= 0 and ga == gb
+
+    def text(self, theme: Theme) -> str:
+        return (
+            f"{_cap(_ref(theme, self.a))} and {_ref(theme, self.b)} are in the "
+            f"same {self.group_noun}."
+        )
+
+
+class DiffGroup(Clue):
+    """Entities of `a` and `b` fall in *different* groups of category `cat` —
+    "Aldric and Beatrix are in different guilds"."""
+
+    removal_class = 2
+
+    def __init__(self, a: Term, b: Term, cat: int, group_noun: str, partition):
+        self.a, self.b = a, b
+        self.cat = cat
+        self.group_noun = group_noun
+        self.partition = tuple(tuple(sorted(g)) for g in partition)
+        self.involved = frozenset({a[0], b[0], cat})
+
+    def holds(self, X) -> bool:
+        ga = _group_index(self.partition, X[entity_of(X, self.a)][self.cat])
+        gb = _group_index(self.partition, X[entity_of(X, self.b)][self.cat])
+        return ga >= 0 and gb >= 0 and ga != gb
+
+    def text(self, theme: Theme) -> str:
+        return (
+            f"{_cap(_ref(theme, self.a))} and {_ref(theme, self.b)} are in "
+            f"different {_plural(self.group_noun)}."
+        )

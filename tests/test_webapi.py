@@ -239,3 +239,50 @@ def test_two_numerics_payload_reproducible():
     a = build_payload(seed=7, difficulty="hard", items=4, categories=5, theme="school")
     b = build_payload(seed=7, difficulty="hard", items=4, categories=5, theme="school")
     assert a == b
+
+
+# --- Hierarchy / groups ------------------------------------------------------
+
+def test_kings_guild_has_a_group_def():
+    spec = THEMES["kings_guild"]
+    cat_name, noun, groups = spec.group_def
+    assert cat_name == "Trade" and noun == "guild"
+    # every trade is in exactly one guild
+    grouped = [it for _, items in groups for it in items]
+    assert sorted(grouped) == sorted(dict(spec.attributes)["Trade"])
+
+
+def test_groups_roll_is_optional_and_gated():
+    from logicgrid.webapi import _roll_use_groups
+
+    guild = THEMES["kings_guild"]
+
+    def roll(seed, difficulty):
+        return _roll_use_groups(guild, difficulty, random.Random(seed))
+
+    assert all(roll(s, "easy") is False for s in range(40))         # never on easy
+    rolls = [roll(s, "hard") for s in range(40)]
+    assert any(rolls) and not all(rolls)                            # (a) both occur
+    # themes without a hierarchy never roll one
+    assert all(_roll_use_groups(THEMES["dnd"], "hard", random.Random(s)) is False for s in range(20))
+
+
+def test_build_theme_attaches_restricted_grouping():
+    rng = random.Random(5)
+    theme = build_theme(THEMES["kings_guild"], rng, items=4, categories=5, use_groups=True)
+    trade = next(c for c in theme.categories if c.name == "Trade")
+    assert trade.has_groups and trade.group_noun == "guild"
+    # groups only contain sampled trades, no empties
+    grouped = [it for _, members in trade.groups for it in members]
+    assert set(grouped) <= set(trade.items)
+    assert all(members for _, members in trade.groups)
+
+
+def test_grouped_theme_round_trips_through_json():
+    from logicgrid.themes import theme_from_json, theme_to_dict, theme_to_json
+
+    theme = build_theme(THEMES["kings_guild"], random.Random(5), items=4, categories=5, use_groups=True)
+    again = theme_from_json(theme_to_json(theme))
+    assert theme_to_dict(again) == theme_to_dict(theme)
+    trade = next(c for c in again.categories if c.name == "Trade")
+    assert trade.has_groups

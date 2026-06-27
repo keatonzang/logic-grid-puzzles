@@ -37,6 +37,13 @@ class Category:
     # subject category (index 0) is the entity's identity and always reads as the
     # bare item (a name), so its referent is ignored.
     referent: str = ""
+    # A two-level *hierarchy*: this category's items are partitioned into named
+    # groups (e.g. Trades -> Guilds). `group_noun` is the collective noun
+    # ("guild"); `groups` is ((label, (item, ...)), ...). Groups are a clue layer
+    # only — the category stays an ordinary bijective column, and the grouping
+    # surfaces purely in group-clue text. Empty = no hierarchy.
+    group_noun: str = ""
+    groups: tuple = ()
 
     def amount(self, n: int) -> str:
         """Format a numeric amount with this category's unit, e.g. '$3' or '20 gp'."""
@@ -47,6 +54,17 @@ class Category:
         if self.values is not None:
             return self.values[item_index]
         return item_index  # items are listed ascending, so the index is the rank
+
+    @property
+    def has_groups(self) -> bool:
+        return bool(self.group_noun and self.groups)
+
+    def group_of(self, item: str) -> str | None:
+        """The group label containing `item`, or None if it isn't grouped."""
+        for label, members in self.groups:
+            if item in members:
+                return label
+        return None
 
 
 @dataclass
@@ -82,6 +100,20 @@ class Theme:
                 raise ValueError(f"category '{c.name}' has duplicate items")
             if c.values is not None and len(c.values) != n:
                 raise ValueError(f"category '{c.name}': `values` length must equal item count")
+            if c.groups:
+                seen: set[str] = set()
+                for label, members in c.groups:
+                    for m in members:
+                        if m not in c.items:
+                            raise ValueError(
+                                f"category '{c.name}': group '{label}' references "
+                                f"unknown item '{m}'"
+                            )
+                        if m in seen:
+                            raise ValueError(
+                                f"category '{c.name}': item '{m}' is in more than one group"
+                            )
+                        seen.add(m)
         # item labels should be globally unique so clue text is unambiguous
         all_items = [it for c in self.categories for it in c.items]
         if len(set(all_items)) != len(all_items):

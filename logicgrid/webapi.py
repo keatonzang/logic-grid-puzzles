@@ -83,6 +83,11 @@ class ThemeSpec:
     # category names an entity by its item in cross-category clue text. Anything
     # unlisted falls back to "the {entity_noun} with {item}".
     referents: tuple = ()
+    # Optional two-level hierarchy: (category_name, group_noun, ((label, (item,
+    # ...)), ...)) partitioning that category's *full pool* into named groups
+    # (e.g. Trade -> guilds). Rolled in only sometimes (see build_puzzle) and only
+    # surfaces via group clues, so a puzzle can have no hierarchy at all.
+    group_def: tuple = ()
 
     @property
     def numerics(self) -> tuple:
@@ -128,6 +133,18 @@ THEME_SPECS: tuple = (
             ("Patron", ("Baron", "Bishop", "Countess", "Duke", "Earl", "Knight", "Prince", "Sheriff")),
         ),
         numeric=NumericSpec("Dues", unit_suffix=" coins", min_start=2, start_max=12, steps=(1, 2)),
+        # A two-level hierarchy: each Trade belongs to a guild. Surfaces only via
+        # group clues ("Aldric belongs to the Ironmongers' Guild", "Aldric and
+        # Beatrix are in the same guild") and only when rolled in.
+        group_def=(
+            "Trade",
+            "guild",
+            (
+                ("Ironmongers' Guild", ("Blacksmith", "Fletcher", "Mason")),
+                ("Joiners' Guild", ("Carpenter", "Cooper", "Potter")),
+                ("Clothiers' Guild", ("Tanner", "Weaver")),
+            ),
+        ),
     ),
     ThemeSpec(
         key="dnd",
@@ -260,17 +277,33 @@ def max_items_for(categories: int) -> int:
     return _MAX_ITEMS_BY_K.get(clamp_categories(categories), MAX_ITEMS)
 
 
+def _restrict_groups(full_groups: tuple, items: list) -> tuple:
+    """Keep only sampled items in each group and drop groups left empty."""
+    iset = set(items)
+    out = []
+    for label, members in full_groups:
+        keep = tuple(m for m in members if m in iset)
+        if keep:
+            out.append((label, keep))
+    return tuple(out)
+
+
 def build_theme(
     spec: ThemeSpec,
     rng: random.Random,
     items: int,
     categories: int = DEFAULT_CATEGORIES,
     n_numeric: int = 0,
+    use_groups: bool = False,
 ) -> Theme:
     """Sample a concrete theme from a spec: the subject + (K-1) attribute
     categories, ``n_numeric`` of which are this theme's ordered categories (primary
     first). Members are alphabetised (numeric by value); which attributes appear
     varies per draw. ``n_numeric`` accepts a bool too (False/True -> 0/1).
+
+    When ``use_groups`` and the spec declares a ``group_def``, that grouped
+    category is force-included and gets its (sampled-restricted) partition, so the
+    theme can carry a hierarchy.
     """
     k = clamp_categories(categories)
     items = min(clamp_items(items), max_items_for(k))  # fewer items as k grows
@@ -282,9 +315,20 @@ def build_theme(
     n_attr = k - 1 - len(numerics)
     names = [name for name, _ in spec.attributes]
     pools = dict(spec.attributes)
-    chosen = sorted(rng.sample(names, n_attr), key=names.index)  # canonical order
+
+    # Force-include the grouped category when rolling a hierarchy (if there's room).
+    group_cat = spec.group_def[0] if (use_groups and spec.group_def) else None
+    forced = [group_cat] if (group_cat in names and n_attr >= 1) else []
+    rest = [nm for nm in names if nm not in forced]
+    chosen = forced + rng.sample(rest, n_attr - len(forced))
+    chosen = sorted(chosen, key=names.index)  # canonical order
     for name in chosen:
-        cats.append(Category(name, sorted(rng.sample(pools[name], items)), referent=refs.get(name, "")))
+        pool_items = sorted(rng.sample(pools[name], items))
+        kwargs = {"referent": refs.get(name, "")}
+        if name == group_cat and name in forced:
+            kwargs["group_noun"] = spec.group_def[1]
+            kwargs["groups"] = _restrict_groups(spec.group_def[2], pool_items)
+        cats.append(Category(name, pool_items, **kwargs))
 
     for ns in numerics:
         if ns.valued:
@@ -362,6 +406,17 @@ def _roll_n_numeric(spec: ThemeSpec, difficulty: str, categories: int, rng: rand
     return n
 
 
+GROUP_PROB = 0.5  # chance an eligible (medium/hard) puzzle rolls in its hierarchy
+
+
+def _roll_use_groups(spec: ThemeSpec, difficulty: str, rng: random.Random) -> bool:
+    """Whether to include the theme's group hierarchy (consumes ``rng`` only when
+    the theme actually has one, so other themes' sequences are unaffected)."""
+    if not spec.group_def or difficulty not in ("medium", "hard"):
+        return False
+    return rng.random() < GROUP_PROB
+
+
 def build_puzzle(
     seed: int | None = None,
     difficulty: str = DEFAULT_DIFFICULTY,
@@ -392,9 +447,10 @@ def build_puzzle(
     # ordered dial is gated to hard puzzles with enough categories to spare.
     rng = random.Random(seed)
     n_numeric = _roll_n_numeric(spec, difficulty, categories, rng)
+    use_groups = _roll_use_groups(spec, difficulty, rng)  # only consumes rng if theme has a group_def
 
     theme_obj, puzzle, report = generate_rated(
-        lambda r: build_theme(spec, r, items, categories, n_numeric), rng, difficulty
+        lambda r: build_theme(spec, r, items, categories, n_numeric, use_groups), rng, difficulty
     )
     return theme_obj, puzzle, report, seed
 
