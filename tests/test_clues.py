@@ -8,12 +8,17 @@ from logicgrid.clues import (
     Adjacent,
     AllDifferent,
     Among,
+    AtLeastApart,
+    AtMost,
     Between,
     Diff,
     EitherOr,
     ExactlyKLinks,
+    Extreme,
     GroupMatch,
     Greater,
+    Half,
+    MultiCompare,
     Negative,
     Neither,
     Positive,
@@ -118,6 +123,50 @@ def test_adjacent_holds(ordered_theme, identity_solution):
 def test_adjacent_text(ordered_theme, identity_solution):
     text = Adjacent(2, (0, 0), (0, 1)).text(ordered_theme)  # Xi, Yo
     assert text == "Xi's Year is immediately below Yo's, with nothing in between."
+
+
+# --- new value dials: AtLeastApart / Extreme / Half / MultiCompare / AtMost ---
+# ordered_theme cat 2 = Year, values [2001, 2002, 2003]; identity ranks 0,1,2.
+
+def test_at_least_apart_holds_and_text(ordered_theme, identity_solution):
+    v = [2001, 2002, 2003]
+    assert AtLeastApart(2, (0, 2), (0, 0), 2, v).holds(identity_solution)      # gap 2 >= 2
+    assert AtLeastApart(2, (0, 2), (0, 0), 1, v).holds(identity_solution)      # 2 >= 1 (loose)
+    assert not AtLeastApart(2, (0, 2), (0, 0), 3, v).holds(identity_solution)  # 2 >= 3 fails
+    assert AtLeastApart(2, (0, 2), (0, 0), 2, v).text(ordered_theme) == \
+        "Zu's Year is at least 2 more than Xi's."
+
+
+def test_extreme_holds_and_text(ordered_theme, identity_solution):
+    assert Extreme(2, (0, 2), highest=True).holds(identity_solution)   # rank 2 = top
+    assert Extreme(2, (0, 0), highest=False).holds(identity_solution)  # rank 0 = bottom
+    assert not Extreme(2, (0, 0), highest=True).holds(identity_solution)
+    assert Extreme(2, (0, 2), highest=True).text(ordered_theme) == "Zu had the highest Year."
+
+
+def test_half_holds_and_text(ordered_theme, identity_solution):
+    # n=3: lower half = rank < 1 (just rank 0); upper = rank >= 2
+    assert Half(2, (0, 0), upper=False).holds(identity_solution)
+    assert Half(2, (0, 2), upper=True).holds(identity_solution)
+    assert not Half(2, (0, 1), upper=False).holds(identity_solution)  # middle, neither
+    assert Half(2, (0, 0), upper=False).text(ordered_theme) == "Xi's Year was in the lower half."
+
+
+def test_multi_compare_holds_and_text(ordered_theme, identity_solution):
+    above = MultiCompare(2, (0, 2), [(0, 0), (0, 1)], greater=True)   # Zu > Xi and Yo
+    below = MultiCompare(2, (0, 0), [(0, 1), (0, 2)], greater=False)  # Xi < Yo and Zu
+    assert above.holds(identity_solution)
+    assert below.holds(identity_solution)
+    assert not MultiCompare(2, (0, 1), [(0, 0), (0, 2)], greater=True).holds(identity_solution)
+    assert above.text(ordered_theme) == "Zu's Year was more than both Xi's and Yo's."
+
+
+def test_at_most_holds_and_text(plain_theme, identity_solution):
+    assert AtMost((0, 0), [(1, 0), (2, 1)], 1).holds(identity_solution)      # 1 match <= 1
+    assert not AtMost((0, 0), [(1, 0), (2, 0)], 1).holds(identity_solution)  # 2 matches > 1
+    assert AtMost((0, 0), [(1, 0), (2, 1)], 1).removal_class == 2
+    assert AtMost((0, 0), [(1, 0), (2, 1)], 1).text(plain_theme) == \
+        "Ann goes with at most one of Dog and Hop."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------

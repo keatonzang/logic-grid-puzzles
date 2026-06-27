@@ -266,6 +266,57 @@ def _prop_adjacent(board, clue) -> int:  # rank(b) == rank(a) + 1
     return changed
 
 
+def _prop_at_least_apart(board, clue) -> int:  # value(a) - value(b) >= delta
+    p, v, d = clue.cat, clue._values, clue.delta
+    pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
+    if not pa or not pb:
+        return 0
+    min_b, max_a = min(v[q] for q in pb), max(v[q] for q in pa)
+    changed = _rule_out(board, clue.a, p, [q for q in pa if v[q] < min_b + d])
+    changed += _rule_out(board, clue.b, p, [q for q in pb if v[q] > max_a - d])
+    return changed
+
+
+def _prop_extreme(board, clue) -> int:  # rank(a) is highest / lowest
+    p = clue.cat
+    target = board.n - 1 if clue.highest else 0
+    return _rule_out(board, clue.a, p, [q for q in _poss(board, clue.a, p) if q != target])
+
+
+def _prop_half(board, clue) -> int:  # rank(a) in upper / lower half
+    p, n = clue.cat, board.n
+    pa = _poss(board, clue.a, p)
+    if clue.upper:
+        return _rule_out(board, clue.a, p, [q for q in pa if q < n - n // 2])
+    return _rule_out(board, clue.a, p, [q for q in pa if q >= n // 2])
+
+
+def _prop_multi_compare(board, clue) -> int:  # rank(c) >/< every other
+    p, changed = clue.cat, 0
+    for o in clue.others:
+        pc, po = _poss(board, clue.c, p), _poss(board, o, p)
+        if not pc or not po:
+            continue
+        if clue.greater:  # c > o
+            changed += _rule_out(board, clue.c, p, [q for q in pc if q <= min(po)])
+            changed += _rule_out(board, o, p, [q for q in po if q >= max(pc)])
+        else:  # c < o
+            changed += _rule_out(board, clue.c, p, [q for q in pc if q >= max(po)])
+            changed += _rule_out(board, o, p, [q for q in po if q <= min(pc)])
+    return changed
+
+
+def _prop_at_most(board, clue) -> int:  # at most k options match the anchor
+    states = [_g(board, clue.anchor, o) for o in clue.options]
+    if states.count(Y) != clue.k:
+        return 0
+    changed = 0  # quota reached -> the rest can't match
+    for o, s in zip(clue.options, states):
+        if s == U:
+            changed += _s(board, clue.anchor, o, N)
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
@@ -275,6 +326,11 @@ _PROPAGATORS = {
     "Diff": _prop_diff,
     "Between": _prop_between,
     "Adjacent": _prop_adjacent,
+    "AtLeastApart": _prop_at_least_apart,
+    "Extreme": _prop_extreme,
+    "Half": _prop_half,
+    "MultiCompare": _prop_multi_compare,
+    "AtMost": _prop_at_most,
 }
 
 

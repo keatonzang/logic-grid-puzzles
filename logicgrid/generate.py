@@ -9,12 +9,17 @@ from .clues import (
     Adjacent,
     AllDifferent,
     Among,
+    AtLeastApart,
+    AtMost,
     Between,
     Diff,
     EitherOr,
     ExactlyKLinks,
+    Extreme,
     GroupMatch,
     Greater,
+    Half,
+    MultiCompare,
     Negative,
     Neither,
     Positive,
@@ -62,6 +67,7 @@ def build_clue_pool(
     max_pairing: int = 25,
     match_sizes: tuple[int, ...] = (2, 3),
     max_match: int = 25,
+    max_atmost: int = 20,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -106,6 +112,7 @@ def build_clue_pool(
     alldiff: list = []
     pairing: list = []
     match: list = []
+    atmost: list = []
 
     for c1 in range(k):
         for c2 in range(c1 + 1, k):
@@ -158,6 +165,36 @@ def build_clue_pool(
                 comparisons.append(
                     Between(cn, ref(rng.choice(lows)), ref(rng.choice(highs)), ref(mid))
                 )
+
+        # at-least-apart: a >= b + delta, a loose multiple of the (even) step,
+        # >= 2 steps so it differs from "more than" / "immediately before".
+        step = cat.values[1] - cat.values[0] if cat.values and n >= 2 else 1
+        for e1 in range(n):
+            for e2 in range(n):
+                m = rank[e1] - rank[e2]
+                if m >= 2 and cat.values is not None:
+                    delta = step * rng.randint(2, m)
+                    comparisons.append(AtLeastApart(cn, ref(e1), ref(e2), delta, cat.values))
+
+        comparisons.append(Extreme(cn, ref(by_rank[-1]), True))   # the priciest
+        comparisons.append(Extreme(cn, ref(by_rank[0]), False))   # the cheapest
+
+        if n >= 4:  # upper/lower half (a clear half; skip the middle on odd n)
+            for e in range(n):
+                if rank[e] < n // 2:
+                    comparisons.append(Half(cn, ref(e), False))
+                elif rank[e] >= n - n // 2:
+                    comparisons.append(Half(cn, ref(e), True))
+
+        for c in range(n):  # less/more than both of two others
+            highs = [e for e in range(n) if rank[e] > rank[c]]
+            lows = [e for e in range(n) if rank[e] < rank[c]]
+            if len(highs) >= 2:
+                o1, o2 = rng.sample(highs, 2)
+                comparisons.append(MultiCompare(cn, ref(c), [ref(o1), ref(o2)], False))
+            if len(lows) >= 2:
+                o1, o2 = rng.sample(lows, 2)
+                comparisons.append(MultiCompare(cn, ref(c), [ref(o1), ref(o2)], True))
 
     # "One of N" disjunctions over option terms. For each anchor entity e a term
     # (co, io) with co != ca is *true* iff it is e's real item there.
@@ -215,17 +252,21 @@ def build_clue_pool(
             # K is kept strictly below N (K == N would just be N direct links), so
             # it needs N >= 3 distinct categories. Exactly K options are true.
             if multi_match:
+                def distinct_opts(n_opts, n_true):
+                    cats = rng.sample(non_anchor, n_opts)
+                    true_cats = set(rng.sample(cats, n_true))
+                    return [
+                        (co, X[e][co])
+                        if co in true_cats
+                        else (co, rng.choice([i for i in range(n) if i != X[e][co]]))
+                        for co in cats
+                    ]
+
                 for n_opts in range(3, len(non_anchor) + 1):
-                    for at_least in range(2, n_opts):
-                        cats = rng.sample(non_anchor, n_opts)
-                        true_cats = set(rng.sample(cats, at_least))
-                        opts = [
-                            (co, X[e][co])
-                            if co in true_cats
-                            else (co, rng.choice([i for i in range(n) if i != X[e][co]]))
-                            for co in cats
-                        ]
-                        among.append(Among(anchor, opts, at_least=at_least))
+                    for at_least in range(2, n_opts):  # "at least K of N" (K < N)
+                        among.append(Among(anchor, distinct_opts(n_opts, at_least), at_least=at_least))
+                    for k_max in range(1, n_opts - 1):  # "at most K of N" (K < N-? ... < N)
+                        atmost.append(AtMost(anchor, distinct_opts(n_opts, k_max), k_max))
 
     # "All different": N terms on N distinct entities, spanning >= 2 categories
     # (categories may repeat). Generated for N >= 3 (N == 2 would be a Negative).
@@ -291,6 +332,7 @@ def build_clue_pool(
     rng.shuffle(alldiff)
     rng.shuffle(pairing)
     rng.shuffle(match)
+    rng.shuffle(atmost)
     return (
         positives
         + negatives[:max_negatives]
@@ -301,6 +343,7 @@ def build_clue_pool(
         + alldiff[:max_alldiff]
         + pairing[:max_pairing]
         + match[:max_match]
+        + atmost[:max_atmost]
     )
 
 

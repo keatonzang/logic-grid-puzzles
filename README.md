@@ -21,6 +21,11 @@ in four flavours:
 - **exact difference** (`Diff`) — `Latte's Price is exactly 2 more than Mocha's.` (numeric)
 - **between** (`Between`) — `Cara's Price is between Ava's and Ben's.`
 - **immediately before/after** (`Adjacent`) — `Ava's Price is immediately below Ben's, with nothing in between.`
+- **at least apart** (`AtLeastApart`) — `Ristretto's Price is at least 3 more than Jade's.` (loose, ranged)
+- **extreme** (`Extreme`) — `Macchiato had the lowest Price.`
+- **half** (`Half`) — `Mocha's Price was in the upper half.`
+- **less/more than both** (`MultiCompare`) — `Croissant's Price was more than both Hugo's and Donut's.`
+- **at most K of N** (`AtMost`) — `Vanilla goes with at most one of Ben, Rose, and $8.` (complement of Among)
 
 These four **sequential** clues need an *ordered* category. The café rolls in a
 numeric **Price** category (~50% of medium/hard puzzles), sorted by value (= rank);

@@ -168,6 +168,93 @@ class Adjacent(Clue):
         )
 
 
+class AtLeastApart(Clue):
+    """Entity of `a` exceeds entity of `b` by *at least* `delta` in value — a
+    loose, ranged version of exact-difference (an inequality, so it narrows
+    rather than pinning)."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, b: Term, delta: int, values: list[int]):
+        self.cat, self.a, self.b, self.delta = cat, a, b, delta
+        self._values = values
+        self.involved = frozenset({cat, a[0], b[0]})
+
+    def holds(self, X) -> bool:
+        ea, eb = entity_of(X, self.a), entity_of(X, self.b)
+        return self._values[X[ea][self.cat]] - self._values[X[eb][self.cat]] >= self.delta
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        return (
+            f"{_label(theme, self.a)}'s {cn} is at least {self.delta} more "
+            f"than {_label(theme, self.b)}'s."
+        )
+
+
+class Extreme(Clue):
+    """Entity of `a` has the highest (or lowest) rank in ordered category `cat`."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, highest: bool):
+        self.cat, self.a, self.highest = cat, a, highest
+        self.involved = frozenset({cat, a[0]})
+
+    def holds(self, X) -> bool:
+        rank = X[entity_of(X, self.a)][self.cat]
+        return rank == (len(X) - 1 if self.highest else 0)
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        which = "highest" if self.highest else "lowest"
+        return f"{_label(theme, self.a)} had the {which} {cn}."
+
+
+class Half(Clue):
+    """Entity of `a` is in the upper (or lower) half of ordered category `cat`."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, upper: bool):
+        self.cat, self.a, self.upper = cat, a, upper
+        self.involved = frozenset({cat, a[0]})
+
+    def holds(self, X) -> bool:
+        n = len(X)
+        rank = X[entity_of(X, self.a)][self.cat]
+        return rank >= n - n // 2 if self.upper else rank < n // 2
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        half = "upper" if self.upper else "lower"
+        return f"{_label(theme, self.a)}'s {cn} was in the {half} half."
+
+
+class MultiCompare(Clue):
+    """Entity of `c` ranks above (greater) or below ALL of `others` in ordered
+    category `cat` — e.g. "less than both A and B"."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, c: Term, others, greater: bool):
+        self.cat, self.c, self.greater = cat, c, greater
+        self.others = tuple(sorted(others))
+        self.involved = frozenset({cat, c[0], *(o[0] for o in self.others)})
+
+    def holds(self, X) -> bool:
+        rc = X[entity_of(X, self.c)][self.cat]
+        ro = [X[entity_of(X, o)][self.cat] for o in self.others]
+        return all(rc > r for r in ro) if self.greater else all(rc < r for r in ro)
+
+    def text(self, theme: Theme) -> str:
+        cn = theme.categories[self.cat].name
+        labels = [f"{_label(theme, o)}'s" for o in self.others]
+        rel = "more" if self.greater else "less"
+        joiner = "both " if len(labels) == 2 else "all of "
+        return f"{_label(theme, self.c)}'s {cn} was {rel} than {joiner}{_join(labels, 'and')}."
+
+
 def _join(labels: list[str], conj: str) -> str:
     """'A <conj> B' / 'A, B, <conj> C' — Oxford-comma list with a conjunction."""
     if len(labels) == 2:
@@ -288,6 +375,27 @@ class Neither(_Disjunction):
         else:
             phrase = f"none of {_join_or(labels)}"
         return f"{_label(theme, self.anchor)} goes with {phrase}."
+
+
+class AtMost(_Disjunction):
+    """At most `k` of the option items belong to the anchor's entity — the
+    complement of Among. Needs distinct-category options (else trivially true,
+    since an entity matches at most one item per category)."""
+
+    removal_class = 2
+
+    def __init__(self, anchor: Term, options, k: int):
+        super().__init__(anchor, options)
+        self.k = k
+
+    def holds(self, X) -> bool:
+        return self._matches(X) <= self.k
+
+    def text(self, theme: Theme) -> str:
+        return (
+            f"{_label(theme, self.anchor)} goes with at most "
+            f"{_count_word(self.k)} of {_join(self._labels(theme), 'and')}."
+        )
 
 
 class AllDifferent(Clue):
