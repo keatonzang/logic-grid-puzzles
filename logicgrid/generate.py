@@ -19,6 +19,8 @@ from .clues import (
     ExactlyKLinks,
     GroupMatch,
     Greater,
+    Iff,
+    Implies,
     MultiCompare,
     Negative,
     Neither,
@@ -70,6 +72,7 @@ def build_clue_pool(
     max_match: int = 25,
     max_atmost: int = 20,
     max_exactly: int = 20,
+    max_conditional: int = 14,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -79,6 +82,7 @@ def build_clue_pool(
     enable_match: bool = True,
     enable_atmost: bool = True,
     enable_exactly: bool = True,
+    enable_conditional: bool = False,
     include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
@@ -118,6 +122,8 @@ def build_clue_pool(
     match: list = []
     atmost: list = []
     exactly: list = []
+    implies: list = []
+    iff: list = []
 
     for c1 in range(k):
         for c2 in range(c1 + 1, k):
@@ -355,6 +361,40 @@ def build_clue_pool(
                 right.append((cr, X[e][cr]))
             match.append(GroupMatch(left, right))
 
+    # Conditional clues over two *links* (each a pair of terms in distinct
+    # categories): "if A then B" (Implies) and "A iff B" (Iff). Both are built
+    # from two links of *equal* truth under X — so the implication always has a
+    # live trigger (modus ponens when both true, contrapositive when both false)
+    # and the biconditional holds. Hard only, and n >= 3 so they don't collapse to
+    # a 2-item equivalent. We skip the parallel 2x2 shape (both links over the same
+    # category pair) — that's the cross-entity swap GroupMatch covers more strongly.
+    if enable_conditional and n >= 3 and k >= 3:
+        def a_link(same_entity):
+            c1, c2 = rng.sample(range(k), 2)
+            if same_entity:
+                e = rng.randrange(n)
+                return ((c1, X[e][c1]), (c2, X[e][c2]))
+            e1, e2 = rng.sample(range(n), 2)
+            return ((c1, X[e1][c1]), (c2, X[e2][c2]))
+
+        def cats_of(link):
+            return frozenset({link[0][0], link[1][0]})
+
+        seen = set()
+        for _ in range(6 * n):
+            same = rng.random() < 0.5  # both-true vs both-false pair
+            l1, l2 = a_link(same), a_link(same)
+            l1, l2 = tuple(sorted(l1)), tuple(sorted(l2))
+            if l1 == l2 or cats_of(l1) == cats_of(l2):  # trivial / GroupMatch echo
+                continue
+            key = tuple(sorted((l1, l2)))
+            if key in seen:
+                continue
+            seen.add(key)
+            # implication: random orientation (either link can be the trigger)
+            implies.append(Implies(l1, l2) if rng.random() < 0.5 else Implies(l2, l1))
+            iff.append(Iff(l1, l2))
+
     rng.shuffle(negatives)
     rng.shuffle(comparisons)
     rng.shuffle(among)
@@ -365,6 +405,8 @@ def build_clue_pool(
     rng.shuffle(match)
     rng.shuffle(atmost)
     rng.shuffle(exactly)
+    rng.shuffle(implies)
+    rng.shuffle(iff)
     return (
         positives
         + negatives[:max_negatives]
@@ -377,6 +419,8 @@ def build_clue_pool(
         + match[:max_match]
         + atmost[:max_atmost]
         + exactly[:max_exactly]
+        + implies[:max_conditional]
+        + iff[:max_conditional]
     )
 
 
@@ -402,6 +446,7 @@ _DIFFICULTY_POOL = {
         among_sizes=(2, 3), enable_either=True, enable_neither=True,
         enable_alldiff=True, multi_match=True,
         enable_pairing=True, enable_match=True,
+        enable_conditional=True,  # if-then / iff (conditional reasoning)
         include_sequential=True,
     ),
 }

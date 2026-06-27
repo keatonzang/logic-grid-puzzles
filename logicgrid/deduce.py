@@ -341,11 +341,36 @@ def _prop_exactly_anchor(board, clue) -> int:  # exactly k options match the anc
     return changed
 
 
+def _prop_implies(board, clue) -> int:  # if ante link holds, so does cons link
+    a = _g(board, *clue.ante)
+    c = _g(board, *clue.cons)
+    changed = 0
+    if a == Y:  # modus ponens
+        changed += _s(board, *clue.cons, Y)
+    if c == N:  # modus tollens (contrapositive)
+        changed += _s(board, *clue.ante, N)
+    return changed
+
+
+def _prop_iff(board, clue) -> int:  # left link holds <=> right link holds
+    left, right = clue.left, clue.right
+    l = _g(board, *left)
+    r = _g(board, *right)
+    changed = 0
+    if l != U:  # carry left's known truth to right (raises Contradiction on conflict)
+        changed += _s(board, *right, l)
+    if r != U:  # and vice versa
+        changed += _s(board, *left, r)
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
     "Exactly": _prop_exactly_anchor,
     "ExactlyKLinks": _prop_exactly,
+    "Implies": _prop_implies,
+    "Iff": _prop_iff,
     "GroupMatch": _prop_group_match,
     "Greater": _prop_greater,
     "Diff": _prop_diff,

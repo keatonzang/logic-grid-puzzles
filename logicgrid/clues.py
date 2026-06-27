@@ -516,3 +516,61 @@ class GroupMatch(Clue):
                 f"and the other with {right[1]}."
             )
         return f"{_join(left, 'and')} go with {_join(right, 'and')}, in some order."
+
+
+# A *link* is a pair of terms in distinct categories, asserting they share an
+# entity. Implies/Iff are conditionals *between* two links — the one reasoning
+# mode (modus ponens / tollens) the other clue types don't exercise.
+
+class Implies(Clue):
+    """One-directional conditional: if `ante`'s two terms share an entity, then
+    `cons`'s do too — "if A goes with B, then C goes with D".
+
+    Unlocks modus ponens (antecedent true => consequent true) and its
+    contrapositive (consequent false => antecedent false); it says nothing when
+    the antecedent is false. The weakest of the conditional family — see Iff, and
+    GroupMatch (which is a still-stronger "if/else" over a 2x2 of terms)."""
+
+    removal_class = 2
+
+    def __init__(self, ante, cons):
+        self.ante = tuple(sorted(ante))   # (term, term), distinct categories
+        self.cons = tuple(sorted(cons))
+        self.involved = frozenset(t[0] for t in (*self.ante, *self.cons))
+
+    def holds(self, X) -> bool:
+        a = entity_of(X, self.ante[0]) == entity_of(X, self.ante[1])
+        c = entity_of(X, self.cons[0]) == entity_of(X, self.cons[1])
+        return (not a) or c
+
+    def text(self, theme: Theme) -> str:
+        a0, a1 = [_label(theme, t) for t in self.ante]
+        c0, c1 = [_label(theme, t) for t in self.cons]
+        return f"If {a0} goes with {a1}, then {c0} goes with {c1}."
+
+
+class Iff(Clue):
+    """Biconditional: `left`'s two terms share an entity if and only if `right`'s
+    do — "A goes with B if and only if C goes with D". Both links hold together or
+    fail together, in both directions.
+
+    Stronger than Implies (fires both ways, both polarities); weaker than a
+    GroupMatch over the same terms (which also pins the else-branch to specific
+    items). Each side is a link between two terms in distinct categories."""
+
+    removal_class = 2
+
+    def __init__(self, left, right):
+        self.left = tuple(sorted(left))
+        self.right = tuple(sorted(right))
+        self.involved = frozenset(t[0] for t in (*self.left, *self.right))
+
+    def holds(self, X) -> bool:
+        l = entity_of(X, self.left[0]) == entity_of(X, self.left[1])
+        r = entity_of(X, self.right[0]) == entity_of(X, self.right[1])
+        return l == r
+
+    def text(self, theme: Theme) -> str:
+        l0, l1 = [_label(theme, t) for t in self.left]
+        r0, r1 = [_label(theme, t) for t in self.right]
+        return f"{l0} goes with {l1} if and only if {r0} goes with {r1}."

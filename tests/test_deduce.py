@@ -146,6 +146,78 @@ def test_exactly_anchor_propagator():
     assert bd.get(0, 0, 3, 0) == Y
 
 
+def _plain3():
+    return Theme(
+        name="t", description="d", entity_noun="x",
+        categories=[Category("C" + str(i), ["a", "b", "c"]) for i in range(3)],
+    )
+
+
+def test_implies_propagator():
+    from logicgrid.clues import Implies
+    from logicgrid.deduce import _prop_implies
+
+    theme = _plain3()
+    clue = Implies(((0, 0), (1, 0)), ((0, 0), (2, 0)))  # if (0,0)-(1,0) then (0,0)-(2,0)
+
+    bd = Board(theme); bd.set(0, 0, 1, 0, Y)             # modus ponens
+    _prop_implies(bd, clue); assert bd.get(0, 0, 2, 0) == Y
+
+    bd = Board(theme); bd.set(0, 0, 2, 0, N)             # modus tollens (contrapositive)
+    _prop_implies(bd, clue); assert bd.get(0, 0, 1, 0) == N
+
+    bd = Board(theme); bd.set(0, 0, 1, 0, N)             # antecedent false -> no move
+    _prop_implies(bd, clue); assert bd.get(0, 0, 2, 0) == U
+
+
+def test_iff_propagator():
+    from logicgrid.clues import Iff
+    from logicgrid.deduce import _prop_iff
+
+    theme = _plain3()
+    clue = Iff(((0, 0), (1, 0)), ((0, 0), (2, 0)))
+
+    bd = Board(theme); bd.set(0, 0, 1, 0, Y)             # left true -> right true
+    _prop_iff(bd, clue); assert bd.get(0, 0, 2, 0) == Y
+
+    bd = Board(theme); bd.set(0, 0, 1, 0, N)             # left false -> right false
+    _prop_iff(bd, clue); assert bd.get(0, 0, 2, 0) == N
+
+    bd = Board(theme); bd.set(0, 0, 2, 0, Y)             # right true -> left true (both ways)
+    _prop_iff(bd, clue); assert bd.get(0, 0, 1, 0) == Y
+
+
+def test_conditional_clues_stay_sound_and_no_guessing():
+    # Hard puzzles that keep an Implies/Iff must remain logic-solvable with the
+    # solver reaching the true solution (an unsound propagator would diverge).
+    theme = Theme(
+        name="t", description="d", entity_noun="order",
+        categories=[
+            Category("Customer", ["Ava", "Ben", "Cara", "Dane"]),
+            Category("Drink", ["Chai", "Latte", "Mocha", "Tea"]),
+            Category("Pastry", ["Bagel", "Donut", "Scone", "Tart"]),
+            Category("Mug", ["Amber", "Cobalt", "Ivory", "Jade"]),
+        ],
+    )
+    n, k = theme.n, theme.k
+    seen = 0
+    for seed in range(25):
+        rng = random.Random(seed)
+        _th, puzzle, _rep = generate_rated(lambda r: theme, rng, "hard")
+        names = {type(c).__name__ for c in puzzle.clues}
+        if not (names & {"Implies", "Iff"}):
+            continue
+        seen += 1
+        rep = solve(theme, puzzle.clues)
+        assert rep["solved"] and not rep["needs_guessing"], seed
+        board = rep["board"]
+        for e in range(n):  # solver's board agrees with the true solution
+            for i in range(k):
+                for j in range(i + 1, k):
+                    assert board.get(i, puzzle.solution[e][i], j, puzzle.solution[e][j]) == Y
+    assert seen, "no conditional clues kept across the sampled seeds"
+
+
 @pytest.mark.parametrize("target", ["medium", "hard"])
 def test_sequential_price_stays_sound_and_no_guessing(target):
     # The Price (ordered) category brings sequential clues; their propagators

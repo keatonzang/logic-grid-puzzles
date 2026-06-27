@@ -16,6 +16,8 @@ from logicgrid.clues import (
     EitherOr,
     Exactly,
     ExactlyKLinks,
+    Iff,
+    Implies,
     GroupMatch,
     Greater,
     MultiCompare,
@@ -220,6 +222,34 @@ def test_exactly_holds_and_text(plain_theme, identity_solution):
     assert Exactly((0, 0), [(1, 0), (2, 1)], 2).removal_class == 2
     assert Exactly((0, 0), [(1, 0), (2, 1)], 2).text(plain_theme) == \
         "Ann goes with exactly two of Dog and Hop."
+
+
+# --- Conditionals: links A–B and C–D (entity 0 = Ann/Dog/Gin) ----------------
+
+def test_implies_holds_and_text(plain_theme, identity_solution):
+    A_D = ((0, 0), (1, 0))    # Ann–Dog: true (both entity 0)
+    A_G = ((0, 0), (2, 0))    # Ann–Gin: true (both entity 0)
+    A_Hop = ((0, 0), (2, 1))  # Ann–Hop: false
+    Eel_Ice = ((1, 1), (2, 2))  # false (different entities)
+    assert Implies(A_D, A_G).holds(identity_solution)        # T -> T
+    assert not Implies(A_D, A_Hop).holds(identity_solution)  # T -> F  (violated)
+    assert Implies(Eel_Ice, A_Hop).holds(identity_solution)  # F -> _  (vacuous)
+    assert Implies(A_D, A_G).removal_class == 2
+    assert Implies(((0, 0), (1, 0)), ((1, 1), (2, 2))).text(plain_theme) == \
+        "If Ann goes with Dog, then Eel goes with Ice."
+
+
+def test_iff_holds_and_text(plain_theme, identity_solution):
+    A_D = ((0, 0), (1, 0))    # true
+    A_G = ((0, 0), (2, 0))    # true
+    A_Hop = ((0, 0), (2, 1))  # false
+    Eel_Ice = ((1, 1), (2, 2))  # false
+    assert Iff(A_D, A_G).holds(identity_solution)        # T <-> T
+    assert Iff(A_Hop, Eel_Ice).holds(identity_solution)  # F <-> F
+    assert not Iff(A_D, A_Hop).holds(identity_solution)  # T <-> F
+    assert Iff(A_D, A_G).removal_class == 2
+    assert Iff(((0, 0), (1, 0)), ((1, 1), (2, 2))).text(plain_theme) == \
+        "Ann goes with Dog if and only if Eel goes with Ice."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------
