@@ -62,10 +62,14 @@
           <button id="reveal">Reveal solution</button>
           <button id="clear">Clear</button>
           <button id="print">🖨 Print</button>
-          <span id="result" class="result"></span>
         </div>
-        <div id="hint-box" class="hint-box" hidden></div>
+        <div id="feedback" class="feedback empty" aria-live="polite"></div>
         <div id="grids"></div>
+
+        <section id="progress" class="progress" hidden>
+          <h3>Your solution so far <span id="progress-count" class="progress-count"></span></h3>
+          <div id="progress-body"></div>
+        </section>
       </section>
     </div>
 

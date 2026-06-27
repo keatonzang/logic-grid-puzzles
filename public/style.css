@@ -122,24 +122,42 @@ button.primary:hover { filter: brightness(1.08); }
   align-items: center;
   margin-bottom: 1rem;
 }
-.result { font-weight: 600; margin-left: auto; }
-.result.good { color: var(--good); }
-.result.bad { color: var(--bad); }
-
 .hint-btn { border-color: var(--accent); color: var(--accent); }
 .hint-btn:hover { background: rgba(110, 168, 254, .12); }
 
-/* --- Hint explainer panel --- */
-.hint-box {
+/* Check lights up once the live solution table is fully filled in. */
+#check.ready {
+  background: var(--good);
+  color: #06210d;
+  border-color: var(--good);
+  font-weight: 600;
+  animation: check-ready 1.3s ease-in-out infinite;
+}
+@keyframes check-ready { 50% { box-shadow: 0 0 0 4px rgba(81, 207, 102, .25); } }
+
+/* --- Feedback banner (hints + check results). Reserves its height so showing
+   or clearing it never shifts the grid below; invisible when empty. --- */
+.feedback {
+  min-height: 4.5rem;  /* fits a two-line hint, so showing one never shifts the grid */
+  margin-bottom: 1rem;
   background: var(--panel-2);
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   border-radius: 8px;
   padding: .65rem .85rem;
-  margin-bottom: 1rem;
   line-height: 1.5;
   font-size: .92rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .25rem .1rem;
 }
+/* persistent status bar even with no message (muted), so it never pops in/out */
+.feedback.empty { border-left-color: var(--line); color: var(--muted); }
+.feedback.good { border-left-color: var(--good); color: var(--good); }
+.feedback.warn { border-left-color: #f0b429; color: #f6c453; }
+.feedback.bad { border-left-color: var(--bad); color: var(--bad); }
+.feedback b { color: inherit; }
 .hint-tier {
   display: inline-block;
   background: var(--accent);
@@ -167,6 +185,16 @@ td.cell.hint-flash { animation: hint-flash .8s ease-out; }
 .key-table { border-collapse: collapse; }
 .key-table th, .key-table td { border: 1px solid var(--line); padding: .4rem .7rem; text-align: left; font-size: .9rem; }
 .key-table th { background: var(--panel-2); }
+
+/* --- Live solution table: fills in from the user's ✓ links --- */
+.progress { margin-top: 1.5rem; }
+.progress h3 { margin: 0 0 .6rem; font-size: 1rem; display: flex; align-items: baseline; gap: .5rem; }
+.progress-count { font-size: .82rem; font-weight: 600; color: var(--muted); }
+.progress-count.done { color: var(--good); }
+.progress-table { width: 100%; table-layout: fixed; }
+.progress-table td { transition: color .15s, background .15s; }
+.progress-table td.blank { background: var(--panel-2); }
+.progress-table td:first-child, .progress-table th:first-child { color: var(--ink); font-weight: 600; }
 
 #grids {
   display: flex;
@@ -395,7 +423,7 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
 /* --- Print: clean black-on-white puzzle + a tear-off answer key page --- */
 @media print {
   body { background: #fff; color: #000; padding: .5rem; }
-  .controls, .grid-actions, #hint-box, footer, .tagline, #loading, #error { display: none !important; }
+  .controls, .grid-actions, #feedback, #progress, footer, .tagline, .nav-links, #loading, #error { display: none !important; }
   header { margin-bottom: .75rem; }
   header h1 { color: #000; font-size: 1.4rem; }
   #p-name, #p-desc, .meta, .meta code { color: #000; }

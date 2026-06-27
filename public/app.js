@@ -106,8 +106,9 @@ function render() {
 
   renderAnswerKey();
   renderBoard();
-  clearHint();
-  setResult("", "");
+  resetHintButton();
+  setFeedback("");
+  renderProgress();
 }
 
 // Solution table, shown only when printing (its own page, after the puzzle).
@@ -125,6 +126,70 @@ function renderAnswerKey() {
     table.appendChild(tr);
   }
   body.appendChild(table);
+}
+
+// --- Live solution table: each entity's items, derived from the user's ✓ links.
+// Links are chained across grids (union-find over ✓ marks), so a ✓ anywhere that
+// connects back to a row's anchor fills that cell in. When every cell is filled,
+// the Check button lights up.
+function computeEntityRows() {
+  const cats = puzzle.categories;
+  const k = cats.length, n = cats[0].items.length;
+  const parent = Array.from({ length: k * n }, (_, x) => x);
+  const find = (x) => { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };
+  for (const [i, j] of pairs()) {
+    const M = manual[`${i}-${j}`];
+    for (let a = 0; a < n; a++)
+      for (let b = 0; b < n; b++)
+        if (M[a][b] === 1) parent[find(i * n + a)] = find(j * n + b);
+  }
+  const rows = [];
+  for (let a = 0; a < n; a++) {
+    const root = find(a); // anchor: item a of category 0
+    const row = [a];
+    for (let c = 1; c < k; c++) {
+      const hits = [];
+      for (let i = 0; i < n; i++) if (find(c * n + i) === root) hits.push(i);
+      row.push(hits.length === 1 ? hits[0] : null); // unique link only
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+function renderProgress() {
+  const host = $("progress");
+  host.hidden = false;
+  const cats = puzzle.categories;
+  const k = cats.length, n = cats[0].items.length;
+  const rows = computeEntityRows();
+
+  const table = document.createElement("table");
+  table.className = "key-table progress-table";
+  const head = document.createElement("tr");
+  for (const c of cats) head.appendChild(cell("th", c.name, ""));
+  table.appendChild(head);
+
+  let filled = 0;
+  for (const row of rows) {
+    const tr = document.createElement("tr");
+    row.forEach((item, c) => {
+      const label = item == null ? "" : cats[c].items[item];
+      const td = cell("td", label, item == null ? "blank" : "");
+      tr.appendChild(td);
+      if (c >= 1 && item != null) filled++;
+    });
+    table.appendChild(tr);
+  }
+  const body = $("progress-body");
+  body.innerHTML = "";
+  body.appendChild(table);
+
+  const total = n * (k - 1);
+  $("progress-count").textContent = `${filled} / ${total}`;
+  const complete = total > 0 && filled === total;
+  $("check").classList.toggle("ready", complete);
+  $("progress-count").classList.toggle("done", complete);
 }
 
 // Pick the layout for the viewport, (re)build the DOM, and repaint marks from
@@ -313,9 +378,10 @@ function onCellClick(e) {
   const b = +td.dataset.b;
   manual[key][a][b] = LG.nextState(manual[key], a, b);
   paintGrid(key);
-  clearHighlights(); // a fresh edit invalidates any prior check
-  clearHint();       // ...and any pending hint
-  setResult("", "");
+  clearHighlights();   // a fresh edit invalidates any prior check
+  resetHintButton();   // ...and any pending hint
+  setFeedback("");
+  renderProgress();    // keep the live solution table in sync
 }
 
 function clearHighlights() {
@@ -345,18 +411,19 @@ function check() {
   }
   const missing = totalLinks - correctYes;
   if (mistakes === 0 && missing === 0) {
-    setResult("Solved! 🎉", "good");
+    setFeedback("🎉 <b>Solved!</b> Every link is correct.", "good");
+  } else if (mistakes === 0) {
+    setFeedback(`No mistakes so far — <b>${missing}</b> link${missing > 1 ? "s" : ""} still to place.`, "warn");
   } else {
-    const bits = [];
-    if (mistakes) bits.push(`${mistakes} mistake${mistakes > 1 ? "s" : ""}`);
-    if (missing) bits.push(`${missing} link${missing > 1 ? "s" : ""} to go`);
-    setResult(bits.join(" · "), "bad");
+    const bits = [`<b>${mistakes}</b> mistake${mistakes > 1 ? "s" : ""} (highlighted)`];
+    if (missing) bits.push(`<b>${missing}</b> link${missing > 1 ? "s" : ""} to go`);
+    setFeedback(bits.join(" · "), "bad");
   }
 }
 
 function reveal() {
   clearHighlights();
-  clearHint();
+  resetHintButton();
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
     const M = manual[key];
@@ -367,24 +434,31 @@ function reveal() {
     }
     paintGrid(key);
   }
-  setResult("Solution revealed", "");
+  setFeedback("Solution revealed.", "");
+  renderProgress();
 }
 
 function clearGrids() {
   clearHighlights();
-  clearHint();
+  resetHintButton();
   for (const key of Object.keys(manual)) {
     const M = manual[key];
     for (let a = 0; a < M.length; a++) M[a].fill(0);
     paintGrid(key);
   }
-  setResult("", "");
+  setFeedback("");
+  renderProgress();
 }
 
-function setResult(text, cls) {
-  const el = $("result");
-  el.textContent = text;
-  el.className = "result" + (cls ? " " + cls : "");
+// A persistent status bar with a reserved height (CSS), so messages never shift
+// the grid below. With no message it shows a muted default tip rather than
+// collapsing.
+const DEFAULT_FEEDBACK = "Click a cell to cycle ✓ / ✗. Press <b>Hint</b> for the next logical step.";
+function setFeedback(html, cls) {
+  const el = $("feedback");
+  const empty = !html;
+  el.className = "feedback" + (empty ? " empty" : "") + (cls ? " " + cls : "");
+  el.innerHTML = empty ? DEFAULT_FEEDBACK : html;
 }
 
 // --- Hints: ask the server for the next single explained deduction ----------
@@ -397,15 +471,14 @@ function currentKnown() {
   return out;
 }
 
-function showHintBox(step, placed) {
-  const box = $("hint-box");
-  box.hidden = false;
+function hintHtml(step, placed) {
   const tail = placed
     ? `<span class="hint-placed">— placed ✓</span>`
     : `<span class="hint-cta">Tap the glowing cell or “Reveal tile” to fill it in.</span>`;
-  box.innerHTML =
+  return (
     `<span class="hint-tier">${step.tier_name}</span>` +
-    `<span class="hint-text">${escapeHtml(step.text)}</span> ${tail}`;
+    `<span class="hint-text">${escapeHtml(step.text)}</span> ${tail}`
+  );
 }
 
 function escapeHtml(s) {
@@ -427,28 +500,28 @@ function applyHint(step) {
   if (td) { td.classList.add("hint-flash"); setTimeout(() => td.classList.remove("hint-flash"), 800); }
 }
 
-function clearHint() {
+// Resets only the pending-hint UI (the glowing target + button label). The
+// feedback banner is managed separately by the caller.
+function resetHintButton() {
   pendingHint = null;
   document.querySelectorAll("td.cell.hint-target").forEach((td) => td.classList.remove("hint-target"));
   $("hint").textContent = "💡 Hint";
-  const box = $("hint-box");
-  box.hidden = true;
-  box.innerHTML = "";
 }
 
 async function hint() {
   if (!puzzle) return;
   if (pendingHint) {              // second click reveals the tile we explained
     const step = pendingHint;
-    clearHint();
+    resetHintButton();
     applyHint(step);
-    showHintBox(step, true);
+    setFeedback(hintHtml(step, true), "hint");
     clearHighlights();
+    renderProgress();
     return;
   }
   const btn = $("hint");
   btn.disabled = true;
-  setResult("", "");
+  setFeedback("");
   try {
     const step = await postJSON("/api/hint", {
       seed: puzzle.seed,
@@ -458,18 +531,16 @@ async function hint() {
       known: currentKnown(),
     });
     if (step.done) {
-      const box = $("hint-box");
-      box.hidden = false;
-      box.innerHTML = `<span class="hint-text">Every remaining tile follows from what you've got — you've effectively cracked it. Hit <b>Check</b>!</span>`;
+      setFeedback("Every remaining tile follows from what you've got — you've effectively cracked it. Hit <b>Check</b>!", "good");
       return;
     }
     pendingHint = step;
-    showHintBox(step, false);
+    setFeedback(hintHtml(step, false), "hint");
     btn.textContent = "Reveal tile ✨";
     const td = cellEl(step.key, step.a, step.b);
     if (td) { td.classList.add("hint-target"); td.scrollIntoView({ block: "nearest", inline: "nearest" }); }
   } catch (err) {
-    setResult(err.message, "bad");
+    setFeedback(escapeHtml(err.message), "bad");
   } finally {
     btn.disabled = false;
   }
