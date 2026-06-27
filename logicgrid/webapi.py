@@ -92,7 +92,9 @@ def build_cafe_theme(
         step = rng.choice(PRICE_STEPS)
         start = rng.randint(PRICE_MIN, PRICE_START_MAX)
         values = [start + i * step for i in range(items)]  # evenly spaced = rank order
-        cats.append(Category("Price", [f"${v}" for v in values], ordered=True, values=values))
+        cats.append(
+            Category("Price", [f"${v}" for v in values], ordered=True, values=values, unit="$")
+        )
 
     theme = Theme(
         name=CAFE_NAME,

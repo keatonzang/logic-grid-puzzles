@@ -162,6 +162,26 @@ def test_abs_apart_text(ordered_theme):
         "Xi's Year is at most 1 away from Yo's."
 
 
+def test_unit_prefixes_amounts_in_numeric_clues():
+    # a category with a unit ("$") formats clue *amounts*, e.g. "exactly $3 more"
+    from logicgrid.model import Category, Theme
+
+    v = [5, 7, 9]
+    theme = Theme("Café", "", [
+        Category("Customer", ["Ava", "Ben", "Cara"]),
+        Category("Drink", ["Chai", "Latte", "Mocha"]),
+        Category("Price", ["$5", "$7", "$9"], ordered=True, values=v, unit="$"),
+    ])
+    assert Diff(2, (0, 2), (0, 0), 4, v).text(theme) == \
+        "Cara's Price is exactly $4 more than Ava's."
+    assert AtLeastApart(2, (0, 2), (0, 0), 4, v).text(theme) == \
+        "Cara's Price is at least $4 more than Ava's."
+    assert AbsApart(2, (0, 2), (0, 0), 4, True, v).text(theme) == \
+        "Cara's Price is at least $4 away from Ava's."
+    assert AbsApart(2, (0, 1), (0, 0), 2, False, v).text(theme) == \
+        "Ben's Price is at most $2 away from Ava's."
+
+
 # --- new value dials: AtLeastApart / MultiCompare / AtMost --------------------
 # ordered_theme cat 2 = Year, values [2001, 2002, 2003]; identity ranks 0,1,2.
 

@@ -116,9 +116,9 @@ class Diff(Clue):
         return self._values[X[ea][self.cat]] - self._values[X[eb][self.cat]] == self.delta
 
     def text(self, theme: Theme) -> str:
-        cn = theme.categories[self.cat].name
+        cat = theme.categories[self.cat]
         return (
-            f"{_label(theme, self.a)}'s {cn} is exactly {self.delta} more "
+            f"{_label(theme, self.a)}'s {cat.name} is exactly {cat.amount(self.delta)} more "
             f"than {_label(theme, self.b)}'s."
         )
 
@@ -203,9 +203,9 @@ class AtLeastApart(Clue):
         return self._values[X[ea][self.cat]] - self._values[X[eb][self.cat]] >= self.delta
 
     def text(self, theme: Theme) -> str:
-        cn = theme.categories[self.cat].name
+        cat = theme.categories[self.cat]
         return (
-            f"{_label(theme, self.a)}'s {cn} is at least {self.delta} more "
+            f"{_label(theme, self.a)}'s {cat.name} is at least {cat.amount(self.delta)} more "
             f"than {_label(theme, self.b)}'s."
         )
 
@@ -231,10 +231,10 @@ class AbsApart(Clue):
         return gap >= self.delta if self.at_least else gap <= self.delta
 
     def text(self, theme: Theme) -> str:
-        cn = theme.categories[self.cat].name
+        cat = theme.categories[self.cat]
         rel = "at least" if self.at_least else "at most"
         return (
-            f"{_label(theme, self.a)}'s {cn} is {rel} {self.delta} away "
+            f"{_label(theme, self.a)}'s {cat.name} is {rel} {cat.amount(self.delta)} away "
             f"from {_label(theme, self.b)}'s."
         )
 

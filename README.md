@@ -18,12 +18,12 @@ in many flavours:
 - **is** — `Marple goes with Study.`
 - **is not** — `Spade does not go with Library.`
 - **higher / lower than** (`Greater`) — `The order with Latte has a higher Price than the one with Mocha.`
-- **exact difference** (`Diff`) — `Latte's Price is exactly 2 more than Mocha's.` (numeric)
+- **exact difference** (`Diff`) — `Latte's Price is exactly $2 more than Mocha's.` (numeric)
 - **between** (`Between`) — `Cara's Price is between Ava's and Ben's.`
 - **immediately before/after** (`Adjacent`) — `Ava's Price is immediately below Ben's.` (directional)
 - **immediately next to** (`NextTo`) — `Cara's Price is immediately next to Latte's.` (undirected)
-- **at least apart** (`AtLeastApart`) — `Ristretto's Price is at least 3 more than Jade's.` (directional, ranged)
-- **away from** (`AbsApart`) — `Ben's Price is at least 3 away from Ivory's.` / `Mocha's Price is at most 2 away from Ava's.` (symmetric distance; `at most` bounds two items *close*)
+- **at least apart** (`AtLeastApart`) — `Ristretto's Price is at least $3 more than Jade's.` (directional, ranged)
+- **away from** (`AbsApart`) — `Ben's Price is at least $3 away from Ivory's.` / `Mocha's Price is at most $2 away from Ava's.` (symmetric distance; `at most` bounds two items *close*)
 - **less/more than both** (`MultiCompare`) — `Croissant's Price was more than both Hugo's and Donut's.`
 - **at most K of N** (`AtMost`) — `Vanilla goes with at most one of Ben, Rose, and $8.` (complement of Among)
 
@@ -127,6 +127,10 @@ clues:
     ordered: true
     values: [2161, 2164, 2167, 2170, 2173]
 ```
+
+Add an optional `unit` (a prefix) to format the *amounts* in numeric clue text —
+e.g. `unit: "$"` makes a difference clue read "exactly **$2** more". The café's
+Price category uses it; it defaults to empty (plain numbers).
 
 See `themes/detectives.yaml` (plain) and `themes/space_colony.yaml` (ordered).
 
