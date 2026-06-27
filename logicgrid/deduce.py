@@ -274,9 +274,9 @@ def _sweep_clues(board, clues) -> int:
     )
 
 
-def _run_propagation(board, clues) -> None:
-    """Tiers 1-3 to a fixpoint (givens are already on the board). Raises
-    Contradiction if a forced fact conflicts."""
+def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0) -> None:
+    """Tiers 1-3 to a fixpoint; with hyp_depth > 0, also apply hypotheticals
+    nested up to that depth. Raises Contradiction on conflict."""
     while True:
         if _sweep_lines(board):
             continue
@@ -284,14 +284,16 @@ def _run_propagation(board, clues) -> None:
             continue
         if _sweep_clues(board, clues):
             continue
+        if hyp_depth and _hypothetical_at(board, clues, hyp_depth):
+            continue
         return
 
 
-# --- Tier 4: hypothetical (proof by contradiction, single-step lookahead) ----
-def _sweep_hypothetical(board, clues) -> int:
-    """Assume an unknown cell's value; if propagation hits a contradiction, the
-    other value is forced. Still pure logic — for a unique puzzle some such cell
-    always exists once forward propagation stalls."""
+# --- Tiers 4+: hypotheticals (proof by contradiction, nested lookahead) -------
+# A `depth`-d hypothetical assumes a cell value and propagates with tiers up to
+# (d-1) hypotheticals inside. depth 1 == tier 4 (single what-if); depth 2 ==
+# tier 5 (a what-if whose inner reasoning may itself need a what-if).
+def _sweep_hypothetical(board, clues, depth: int) -> int:
     for (i, j), m in board.cell.items():
         for a in range(board.n):
             for b in range(board.n):
@@ -301,23 +303,32 @@ def _sweep_hypothetical(board, clues) -> int:
                     test = board.copy()
                     test.set(i, a, j, b, trial)
                     try:
-                        _run_propagation(test, clues)
+                        _propagate_to_fixpoint(test, clues, depth - 1)
                     except Contradiction:
                         board.set(i, a, j, b, other)
                         return 1
     return 0
 
 
-def solve(theme: Theme, clues: list, allow_hypothetical: bool = True) -> dict:
+def _hypothetical_at(board, clues, max_depth: int) -> int:
+    """Try shallow hypotheticals first, deepening only when needed."""
+    for depth in range(1, max_depth + 1):
+        if _sweep_hypothetical(board, clues, depth):
+            return depth
+    return 0
+
+
+def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
     """Solve by pure deduction, cheapest technique first. Returns a report:
       solved, needs_guessing, ceiling (highest tier used), steps (per tier),
       total_steps, board.
 
-    With allow_hypothetical, tier 4 (contradiction reasoning) is used when
-    forward propagation stalls — so every unique puzzle solves with no guessing.
+    Hypotheticals (tier 4 = depth 1, tier 5 = depth 2, …) kick in when forward
+    propagation stalls, escalating depth only as needed — so unique puzzles solve
+    with no guessing. max_hyp_depth caps the deepest nesting (0 = forward only).
     """
     board = Board(theme)
-    steps = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
+    steps = {t: 0 for t in range(6)}
     steps[0] = _apply_givens(board, clues)
     while not board.solved():
         c = _sweep_lines(board)
@@ -332,12 +343,16 @@ def solve(theme: Theme, clues: list, allow_hypothetical: bool = True) -> dict:
         if c:
             steps[3] += c
             continue
-        if allow_hypothetical:
-            c = _sweep_hypothetical(board, clues)
+        progressed = False
+        for depth in range(1, max_hyp_depth + 1):
+            c = _sweep_hypothetical(board, clues, depth)
             if c:
-                steps[4] += c
-                continue
-        break  # stuck even with hypotheticals -> genuinely ambiguous
+                steps[3 + depth] += c  # depth 1 -> tier 4, depth 2 -> tier 5
+                progressed = True
+                break
+        if progressed:
+            continue
+        break  # stuck even at max depth -> needs deeper nesting (tier 6+)
     solved = board.solved()
     used = [t for t, s in steps.items() if s]
     return {
@@ -351,34 +366,34 @@ def solve(theme: Theme, clues: list, allow_hypothetical: bool = True) -> dict:
 
 
 # Difficulty band by the hardest technique the solve required.
-#   <=2  easy   (givens / line completion / transitivity only)
-#     3  medium (needs counting/matching clue propagation)
-#     4  hard   (needs at least one proof-by-contradiction step)
-_BANDS = {0: "easy", 1: "easy", 2: "easy", 3: "medium", 4: "hard"}
+#   <=2 easy · 3 medium · 4 hard (1 contradiction) · 5 expert (nested contradiction)
+_BANDS = {0: "easy", 1: "easy", 2: "easy", 3: "medium", 4: "hard", 5: "expert"}
 
 
 def _score(r: dict) -> int:
     s = r["steps"]
-    return r["ceiling"] * 1000 + s[4] * 50 + s[3] * 5 + s[2]
+    return r["ceiling"] * 1000 + s[5] * 200 + s[4] * 50 + s[3] * 5 + s[2]
 
 
 def grade(theme: Theme, clues: list) -> dict:
-    """Difficulty report: band + ordinal score (ceiling dominates; ties broken by
-    work at the top tiers).
+    """Difficulty report: band + ordinal score (ceiling dominates).
 
-    Fast path: forward propagation (tiers 0-3, no hypotheticals) classifies easy
-    vs. medium cheaply. Only puzzles that stall there pay the tier-4 cost — and
-    that confirms 'hard' (or 'ambiguous' if even tier 4 can't finish it).
+    Classify cheaply: forward propagation (no hypotheticals) settles easy/medium;
+    one round of contradiction reasoning (tier 4) confirms hard. We deliberately
+    cap at tier 4 — tier-5 (nested hypothetical) puzzles are vanishingly rare at
+    these sizes and depth-2 grading is far too slow, so anything still unsolved is
+    'ambiguous' and skipped at generation. (`solve(..., max_hyp_depth=2)` can
+    still reason deeper for offline analysis.)
     """
-    cheap = solve(theme, clues, allow_hypothetical=False)
-    if cheap["solved"]:
-        cheap["band"] = _BANDS[cheap["ceiling"]]
-        cheap["score"] = _score(cheap)
-        return cheap
-    full = solve(theme, clues, allow_hypothetical=True)
-    full["band"] = "hard" if full["solved"] else "ambiguous"
-    full["score"] = _score(full)
-    return full
+    for depth in (0, 1):
+        r = solve(theme, clues, max_hyp_depth=depth)
+        if r["solved"]:
+            r["band"] = _BANDS[r["ceiling"]]
+            r["score"] = _score(r)
+            return r
+    r["band"] = "ambiguous"
+    r["score"] = _score(r)
+    return r
 
 
 def is_logic_solvable(theme: Theme, clues: list) -> bool:

@@ -383,7 +383,7 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
 
     if target not in DIFFICULTIES:
         raise ValueError(f"unknown difficulty: {target!r}")
-    order = ("easy", "medium", "hard")
+    order = DIFFICULTIES
     fallback = None
     for _ in range(max_attempts):
         theme = make_theme(rng)
