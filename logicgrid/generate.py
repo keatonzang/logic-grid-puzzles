@@ -15,6 +15,7 @@ from .clues import (
     Between,
     Diff,
     EitherOr,
+    Exactly,
     ExactlyKLinks,
     GroupMatch,
     Greater,
@@ -68,6 +69,7 @@ def build_clue_pool(
     match_sizes: tuple[int, ...] = (2, 3),
     max_match: int = 25,
     max_atmost: int = 20,
+    max_exactly: int = 20,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -76,6 +78,7 @@ def build_clue_pool(
     enable_pairing: bool = True,
     enable_match: bool = True,
     enable_atmost: bool = True,
+    enable_exactly: bool = True,
     include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
@@ -114,6 +117,7 @@ def build_clue_pool(
     pairing: list = []
     match: list = []
     atmost: list = []
+    exactly: list = []
 
     for c1 in range(k):
         for c2 in range(c1 + 1, k):
@@ -287,6 +291,14 @@ def build_clue_pool(
                     for k_max in range(1, n_opts):
                         atmost.append(AtMost(anchor, distinct_opts(n_opts, k_max), k_max))
 
+            # "Exactly K of N" (2 <= K < N) — the two-sided count. K == 0/1 are
+            # Neither/EitherOr and K == N is direct links, so start at K == 2,
+            # which needs N >= 3 distinct categories (>= 4 total categories).
+            if enable_exactly:
+                for n_opts in range(3, len(non_anchor) + 1):
+                    for k_exact in range(2, n_opts):
+                        exactly.append(Exactly(anchor, distinct_opts(n_opts, k_exact), k_exact))
+
     # "All different": N terms on N distinct entities, spanning >= 2 categories
     # (categories may repeat). Generated for N >= 3 (N == 2 would be a Negative).
     for size in alldiff_sizes if enable_alldiff else ():
@@ -352,6 +364,7 @@ def build_clue_pool(
     rng.shuffle(pairing)
     rng.shuffle(match)
     rng.shuffle(atmost)
+    rng.shuffle(exactly)
     return (
         positives
         + negatives[:max_negatives]
@@ -363,6 +376,7 @@ def build_clue_pool(
         + pairing[:max_pairing]
         + match[:max_match]
         + atmost[:max_atmost]
+        + exactly[:max_exactly]
     )
 
 
@@ -376,6 +390,7 @@ _DIFFICULTY_POOL = {
         enable_among=False, enable_either=False, enable_neither=False,
         enable_alldiff=False, multi_match=False,
         enable_pairing=False, enable_match=False, enable_atmost=False,
+        enable_exactly=False,
     ),
     "medium": dict(
         among_sizes=(2, 3), enable_either=True, enable_neither=True,

@@ -406,6 +406,32 @@ class AtMost(_Disjunction):
         )
 
 
+class Exactly(_Disjunction):
+    """Exactly `k` of the option items belong to the anchor's entity.
+
+    The two-sided count — the intersection of Among (>= k) and AtMost (<= k). At
+    k == 0 this is Neither and at k == 1 EitherOr, so it is generated only for
+    k >= 2, which forces the options into distinct categories (an entity holds one
+    item per category, so it can match at most one option per category). Likewise
+    k must stay below the option count, else "all of them" is just direct links.
+    """
+
+    removal_class = 2
+
+    def __init__(self, anchor: Term, options, k: int):
+        super().__init__(anchor, options)
+        self.k = k
+
+    def holds(self, X) -> bool:
+        return self._matches(X) == self.k
+
+    def text(self, theme: Theme) -> str:
+        return (
+            f"{_label(theme, self.anchor)} goes with exactly "
+            f"{_count_word(self.k)} of {_join(self._labels(theme), 'and')}."
+        )
+
+
 class AllDifferent(Clue):
     """The listed terms all belong to distinct entities — "A, B, and C are all
     different".

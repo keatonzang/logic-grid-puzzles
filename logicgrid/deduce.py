@@ -327,9 +327,24 @@ def _prop_at_most(board, clue) -> int:  # at most k options match the anchor
     return changed
 
 
+def _prop_exactly_anchor(board, clue) -> int:  # exactly k options match the anchor
+    states = [_g(board, clue.anchor, o) for o in clue.options]
+    changed = 0
+    if states.count(Y) == clue.k:  # quota met -> the rest can't match
+        for o, s in zip(clue.options, states):
+            if s == U:
+                changed += _s(board, clue.anchor, o, N)
+    not_n = [o for o, s in zip(clue.options, states) if s != N]
+    if len(not_n) == clue.k:  # only this many can match, and we need k -> all Y
+        for o in not_n:
+            changed += _s(board, clue.anchor, o, Y)
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
+    "Exactly": _prop_exactly_anchor,
     "ExactlyKLinks": _prop_exactly,
     "GroupMatch": _prop_group_match,
     "Greater": _prop_greater,

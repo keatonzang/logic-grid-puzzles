@@ -123,6 +123,29 @@ def test_abs_apart_at_most_propagator_narrows(ordered_theme):
     assert bd.get(0, 1, 2, 0) != N and bd.get(0, 1, 2, 1) != N
 
 
+def test_exactly_anchor_propagator():
+    from logicgrid.clues import Exactly
+    from logicgrid.deduce import _prop_exactly_anchor
+
+    theme = Theme(
+        name="t", description="d", entity_noun="x",
+        categories=[Category("C" + str(i), ["a", "b", "c", "d"]) for i in range(4)],
+    )
+    clue = Exactly((0, 0), [(1, 0), (2, 0), (3, 0)], 2)  # exactly two of three match
+
+    bd = Board(theme)  # two options Y -> quota met, third forced N
+    bd.set(0, 0, 1, 0, Y)
+    bd.set(0, 0, 2, 0, Y)
+    _prop_exactly_anchor(bd, clue)
+    assert bd.get(0, 0, 3, 0) == N
+
+    bd = Board(theme)  # one option N -> only two left, both needed -> both Y
+    bd.set(0, 0, 1, 0, N)
+    _prop_exactly_anchor(bd, clue)
+    assert bd.get(0, 0, 2, 0) == Y
+    assert bd.get(0, 0, 3, 0) == Y
+
+
 @pytest.mark.parametrize("target", ["medium", "hard"])
 def test_sequential_price_stays_sound_and_no_guessing(target):
     # The Price (ordered) category brings sequential clues; their propagators

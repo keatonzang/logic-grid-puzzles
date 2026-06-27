@@ -14,6 +14,7 @@ from logicgrid.clues import (
     Between,
     Diff,
     EitherOr,
+    Exactly,
     ExactlyKLinks,
     GroupMatch,
     Greater,
@@ -209,6 +210,16 @@ def test_at_most_holds_and_text(plain_theme, identity_solution):
     assert AtMost((0, 0), [(1, 0), (2, 1)], 1).removal_class == 2
     assert AtMost((0, 0), [(1, 0), (2, 1)], 1).text(plain_theme) == \
         "Ann goes with at most one of Dog and Hop."
+
+
+def test_exactly_holds_and_text(plain_theme, identity_solution):
+    # Ann's true options are Dog (1,0) and Gin (2,0); Hop (2,1) is wrong.
+    assert Exactly((0, 0), [(1, 0), (2, 0)], 2).holds(identity_solution)      # 2 match == 2
+    assert not Exactly((0, 0), [(1, 0), (2, 1)], 2).holds(identity_solution)  # 1 match != 2
+    assert not Exactly((0, 0), [(1, 0), (2, 0)], 1).holds(identity_solution)  # 2 match != 1
+    assert Exactly((0, 0), [(1, 0), (2, 1)], 2).removal_class == 2
+    assert Exactly((0, 0), [(1, 0), (2, 1)], 2).text(plain_theme) == \
+        "Ann goes with exactly two of Dog and Hop."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------
