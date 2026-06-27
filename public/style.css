@@ -80,6 +80,8 @@ input { width: 9rem; }
 button { cursor: pointer; transition: border-color .15s, background .15s, transform .05s; }
 button:hover { border-color: var(--accent); }
 button:active { transform: translateY(1px); }
+button:disabled { opacity: .4; cursor: default; transform: none; }
+button:disabled:hover { border-color: var(--line); }
 button.primary { background: var(--accent); color: #0b1020; border-color: var(--accent); font-weight: 600; }
 button.primary:hover { filter: brightness(1.08); }
 

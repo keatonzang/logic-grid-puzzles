@@ -4,7 +4,7 @@
 // Run with:  node --test
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { lineHasEqElsewhere, nextState, derive } = require("../public/logic.js");
+const { lineHasEqElsewhere, nextState, derive, makeHistory } = require("../public/logic.js");
 
 // 0 = blank, 1 = "=", 2 = "×"
 const grid = (n) => Array.from({ length: n }, () => new Array(n).fill(0));
@@ -109,6 +109,89 @@ test("auto-revert: removing an = drops only its auto ×, keeping manual ×", () 
   assert.equal(d.display[0][2], 0, "auto-× reverted to blank");
   assert.equal(d.display[1][1], 2, "manual × preserved");
   assert.equal(d.lit[1][1], true, "and still bright");
+});
+
+// --- Undo/redo history ------------------------------------------------------
+const cell = (key, a, b, before, after) => [{ key, a, b, before, after }];
+
+test("history: a single click records one undoable step", () => {
+  const h = makeHistory(350);
+  assert.equal(h.canUndo(), false);
+  h.record(cell("0-1", 0, 0, 0, 2), "0-1-0-0", 0); // blank → ×
+  assert.equal(h.size(), 1);
+  assert.equal(h.canUndo(), true);
+  const act = h.undo();
+  assert.equal(act.cells[0].before, 0);
+  assert.equal(act.cells[0].after, 2);
+  assert.equal(h.canUndo(), false);
+  assert.equal(h.canRedo(), true);
+});
+
+test("history: a rapid double-click (blank → × → =) coalesces to one step", () => {
+  const h = makeHistory(350);
+  h.record(cell("0-1", 0, 0, 0, 2), "0-1-0-0", 100); // blank → ×
+  h.record(cell("0-1", 0, 0, 2, 1), "0-1-0-0", 180); // × → =  (within 350ms, same cell)
+  assert.equal(h.size(), 1, "merged into a single action");
+  const act = h.undo();
+  assert.equal(act.cells[0].before, 0, "undo reverts straight to blank");
+  assert.equal(act.cells[0].after, 1);
+});
+
+test("history: two slow clicks on the same cell stay two steps", () => {
+  const h = makeHistory(350);
+  h.record(cell("0-1", 0, 0, 0, 2), "0-1-0-0", 100); // blank → ×
+  h.record(cell("0-1", 0, 0, 2, 1), "0-1-0-0", 600); // × → =  (gap > 350ms)
+  assert.equal(h.size(), 2, "kept separate");
+  assert.equal(h.undo().cells[0].after, 1, "first undo: = → ×");
+  assert.equal(h.undo().cells[0].after, 2, "second undo: × → blank");
+});
+
+test("history: rapid clicks on different cells do not coalesce", () => {
+  const h = makeHistory(350);
+  h.record(cell("0-1", 0, 0, 0, 2), "0-1-0-0", 100);
+  h.record(cell("0-1", 1, 1, 0, 2), "0-1-1-1", 150); // different cell, same instant
+  assert.equal(h.size(), 2);
+});
+
+test("history: a coalesced gesture that returns to start drops to nothing", () => {
+  const h = makeHistory(350);
+  h.record(cell("0-1", 0, 0, 0, 2), "0-1-0-0", 100); // blank → ×
+  h.record(cell("0-1", 0, 0, 2, 1), "0-1-0-0", 150); // × → =
+  h.record(cell("0-1", 0, 0, 1, 0), "0-1-0-0", 200); // = → blank (full cycle)
+  assert.equal(h.size(), 0, "net no-op leaves no step");
+  assert.equal(h.canUndo(), false);
+});
+
+test("history: a new edit clears the redo branch", () => {
+  const h = makeHistory(350);
+  h.record(cell("0-1", 0, 0, 0, 2), "0-1-0-0", 100);
+  h.undo();
+  assert.equal(h.canRedo(), true);
+  h.record(cell("0-1", 1, 1, 0, 2), "0-1-1-1", 500); // fresh edit
+  assert.equal(h.canRedo(), false, "redo branch dropped");
+  assert.equal(h.size(), 1);
+});
+
+test("history: bulk actions (e.g. Clear) undo every cell at once", () => {
+  const h = makeHistory(350);
+  const many = [
+    { key: "0-1", a: 0, b: 0, before: 1, after: 0 },
+    { key: "0-1", a: 1, b: 2, before: 2, after: 0 },
+  ];
+  h.record(many, null, 100); // null coalesceKey -> never merges
+  assert.equal(h.size(), 1);
+  const act = h.undo();
+  assert.equal(act.cells.length, 2);
+});
+
+test("history: reset clears both stacks", () => {
+  const h = makeHistory(350);
+  h.record(cell("0-1", 0, 0, 0, 2), "0-1-0-0", 100);
+  h.undo();
+  h.reset();
+  assert.equal(h.canUndo(), false);
+  assert.equal(h.canRedo(), false);
+  assert.equal(h.size(), 0);
 });
 
 test("an auto-× backed by two = (row and column) stays until both are gone", () => {

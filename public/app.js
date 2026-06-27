@@ -20,6 +20,73 @@ let timerStart = 0;
 let timerRAF = null;
 let timerDone = false;
 
+// Undo/redo. Rapid repeat clicks on one cell within this window count as a
+// single gesture (so a double-click blank → × → = undoes in one step); slower
+// clicks stay separate. `history.size()` is the step count reported on a solve.
+const COALESCE_MS = 350;
+const history = LG.makeHistory(COALESCE_MS);
+
+// Snapshot of every grid's manual array, for diffing a mutation into an action.
+function snapshotManual() {
+  const s = {};
+  for (const key of Object.keys(manual)) s[key] = manual[key].map((row) => row.slice());
+  return s;
+}
+
+// Run a board mutation and log it as one undoable action. `coalesceKey`
+// (a cell id) lets same-cell rapid edits merge; pass null for bulk changes.
+function recordMutation(mutate, coalesceKey) {
+  const before = snapshotManual();
+  mutate();
+  const cells = [];
+  for (const key of Object.keys(manual)) {
+    const M = manual[key], B = before[key];
+    for (let a = 0; a < M.length; a++)
+      for (let b = 0; b < M[a].length; b++)
+        if (M[a][b] !== B[a][b]) cells.push({ key, a, b, before: B[a][b], after: M[a][b] });
+  }
+  if (!cells.length) return;
+  history.record(cells, cells.length === 1 ? coalesceKey : null, performance.now());
+  updateUndoUI();
+}
+
+function repaintCells(cells) {
+  const keys = new Set(cells.map((c) => c.key));
+  for (const key of keys) paintGrid(key);
+}
+
+// Shared tail for every board edit: a change invalidates a prior check and any
+// pending hint, and the live solution table must follow.
+function afterEdit() {
+  clearHighlights();
+  resetHintButton();
+  setFeedback("");
+  renderProgress();
+}
+
+function undoEdit() {
+  const act = history.undo();
+  if (!act) return;
+  for (const c of act.cells) manual[c.key][c.a][c.b] = c.before;
+  repaintCells(act.cells);
+  afterEdit();
+  updateUndoUI();
+}
+
+function redoEdit() {
+  const act = history.redo();
+  if (!act) return;
+  for (const c of act.cells) manual[c.key][c.a][c.b] = c.after;
+  repaintCells(act.cells);
+  afterEdit();
+  updateUndoUI();
+}
+
+function updateUndoUI() {
+  $("undo").disabled = !history.canUndo();
+  $("redo").disabled = !history.canRedo();
+}
+
 function fmtTime(ms) {
   const tenths = Math.floor(ms / 100); // a tenth-of-a-second resolution
   const s = Math.floor(tenths / 10), d = tenths % 10;
@@ -128,6 +195,7 @@ function pairs() {
 function buildState() {
   manual = {};
   linked = {};
+  history.reset(); // a fresh puzzle starts with an empty undo stack
   const cats = puzzle.categories;
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
@@ -172,6 +240,7 @@ function render() {
   resetHintButton();
   setFeedback("");
   renderProgress();
+  updateUndoUI();
 }
 
 // Solution table, shown only when printing (its own page, after the puzzle).
@@ -467,12 +536,12 @@ function onCellClick(e) {
   const key = td.dataset.key;
   const a = +td.dataset.a;
   const b = +td.dataset.b;
-  manual[key][a][b] = LG.nextState(manual[key], a, b);
+  recordMutation(
+    () => { manual[key][a][b] = LG.nextState(manual[key], a, b); },
+    `${key}-${a}-${b}`, // same cell within COALESCE_MS merges (double-click = one step)
+  );
   paintGrid(key);
-  clearHighlights();   // a fresh edit invalidates any prior check
-  resetHintButton();   // ...and any pending hint
-  setFeedback("");
-  renderProgress();    // keep the live solution table in sync
+  afterEdit();
 }
 
 function clearHighlights() {
@@ -502,10 +571,18 @@ function check() {
   }
   const missing = totalLinks - correctYes;
   if (mistakes === 0 && missing === 0) {
-    const first = !timerDone; // only show the time on the checking run that solves it
-    const time = first && timerStart ? ` in <b>${fmtTime(performance.now() - timerStart)}</b>` : "";
-    stopTimer(true);
-    setFeedback(`🎉 <b>Solved!</b> Every link is correct${time}.`, "good");
+    const first = !timerDone; // only the checking run that solves it reports the stats
+    if (first && timerStart) {
+      const steps = history.size();
+      const stats =
+        `<b>${fmtTime(performance.now() - timerStart)}</b>` +
+        ` · <b>${steps}</b> step${steps === 1 ? "" : "s"}`;
+      stopTimer(true);
+      setFeedback(`🎉 <b>Solved!</b> Every link is correct — ${stats}.`, "good");
+    } else {
+      stopTimer(true);
+      setFeedback("🎉 <b>Solved!</b> Every link is correct.", "good");
+    }
   } else if (mistakes === 0) {
     setFeedback(`No mistakes so far — <b>${missing}</b> link${missing > 1 ? "s" : ""} still to place.`, "warn");
   } else {
@@ -529,6 +606,8 @@ function reveal() {
     paintGrid(key);
   }
   stopTimer(false); // revealing the answer ends the run (no solve time earned)
+  history.reset();  // the run is over — nothing left to undo back into
+  updateUndoUI();
   setFeedback("Solution revealed.", "");
   renderProgress();
 }
@@ -536,11 +615,14 @@ function reveal() {
 function clearGrids() {
   clearHighlights();
   resetHintButton();
-  for (const key of Object.keys(manual)) {
-    const M = manual[key];
-    for (let a = 0; a < M.length; a++) M[a].fill(0);
-    paintGrid(key);
-  }
+  // One undoable action so an accidental Clear can be taken back in a single undo.
+  recordMutation(() => {
+    for (const key of Object.keys(manual)) {
+      const M = manual[key];
+      for (let a = 0; a < M.length; a++) M[a].fill(0);
+    }
+  });
+  for (const key of Object.keys(manual)) paintGrid(key);
   setFeedback("");
   renderProgress();
 }
@@ -583,13 +665,15 @@ function escapeHtml(s) {
 }
 
 function applyHint(step) {
-  const M = manual[step.key];
-  if (step.value === 1) {
-    // a confirmed link clears any (mistaken) link the player had in its row/col
-    for (let b = 0; b < M[step.a].length; b++) if (M[step.a][b] === 1) M[step.a][b] = 0;
-    for (let a = 0; a < M.length; a++) if (M[a][step.b] === 1) M[a][step.b] = 0;
-  }
-  M[step.a][step.b] = step.value;
+  recordMutation(() => {
+    const M = manual[step.key];
+    if (step.value === 1) {
+      // a confirmed link clears any (mistaken) link the player had in its row/col
+      for (let b = 0; b < M[step.a].length; b++) if (M[step.a][b] === 1) M[step.a][b] = 0;
+      for (let a = 0; a < M.length; a++) if (M[a][step.b] === 1) M[a][step.b] = 0;
+    }
+    M[step.a][step.b] = step.value;
+  });
   paintGrid(step.key);
   const td = cellEl(step.key, step.a, step.b);
   if (td) { td.classList.add("hint-flash"); setTimeout(() => td.classList.remove("hint-flash"), 800); }
@@ -677,6 +761,20 @@ $("print").addEventListener("click", () => window.print());
 $("check").addEventListener("click", check);
 $("reveal").addEventListener("click", reveal);
 $("clear").addEventListener("click", clearGrids);
+$("undo").addEventListener("click", undoEdit);
+$("redo").addEventListener("click", redoEdit);
+
+// Standard editor shortcuts: Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z or Ctrl+Y redo.
+document.addEventListener("keydown", (e) => {
+  if (!puzzle || $("puzzle").hidden) return;
+  const tag = (e.target.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "select" || tag === "textarea") return; // let fields keep Ctrl+Z
+  const mod = e.ctrlKey || e.metaKey;
+  if (!mod) return;
+  const k = e.key.toLowerCase();
+  if (k === "z" && !e.shiftKey) { e.preventDefault(); undoEdit(); }
+  else if ((k === "z" && e.shiftKey) || k === "y") { e.preventDefault(); redoEdit(); }
+});
 $("categories").addEventListener("change", syncItemOptions);
 // Switching theme draws a fresh puzzle in that theme.
 $("theme").addEventListener("change", generate);

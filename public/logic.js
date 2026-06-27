@@ -64,5 +64,51 @@
     return { display, lit };
   }
 
-  return { lineHasEqElsewhere, nextState, derive };
+  // --- Undo/redo history ----------------------------------------------------
+  // A small, DOM-free action stack so undo/redo can be unit-tested. An *action*
+  // is a list of cell changes: `{cells: [{key,a,b,before,after}], t, coalesceKey}`.
+  // A single click is one action over one cell; a hint or "clear" is one action
+  // over many. Rapid repeat clicks on the *same* cell (e.g. a double-click that
+  // runs blank → × → =) coalesce into a single action so undo reverts the whole
+  // gesture at once, while two deliberate, slower clicks stay two actions.
+  //
+  // The caller owns the board: `record` only logs intent, and `undo`/`redo`
+  // hand back the action so the caller can re-apply `before`/`after` itself.
+  // `now` is passed in (performance.now in the browser) so tests stay deterministic.
+  function makeHistory(coalesceMs) {
+    let undo = [];
+    let redo = [];
+
+    function record(cells, coalesceKey, now) {
+      redo = []; // any fresh edit invalidates the redo branch
+      if (coalesceKey && cells.length === 1) {
+        const last = undo[undo.length - 1];
+        if (
+          last &&
+          last.coalesceKey === coalesceKey &&
+          last.cells.length === 1 &&
+          last.cells[0].after === cells[0].before &&
+          now - last.t <= coalesceMs
+        ) {
+          last.cells[0].after = cells[0].after; // extend the gesture's end state
+          last.t = now;
+          if (last.cells[0].before === last.cells[0].after) undo.pop(); // net no-op
+          return;
+        }
+      }
+      undo.push({ cells, t: now, coalesceKey: coalesceKey || null });
+    }
+
+    return {
+      record,
+      undo() { return undo.length ? (redo.push(undo[undo.length - 1]), undo.pop()) : null; },
+      redo() { return redo.length ? (undo.push(redo[redo.length - 1]), redo.pop()) : null; },
+      canUndo: () => undo.length > 0,
+      canRedo: () => redo.length > 0,
+      size: () => undo.length, // committed steps — the "steps to solve" count
+      reset() { undo = []; redo = []; },
+    };
+  }
+
+  return { lineHasEqElsewhere, nextState, derive, makeHistory };
 });
