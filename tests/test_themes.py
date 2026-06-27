@@ -7,7 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from logicgrid.themes import load_theme, theme_from_dict
+from logicgrid.themes import (
+    load_theme,
+    theme_from_dict,
+    theme_from_json,
+    theme_to_dict,
+    theme_to_json,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SHIPPED = [
@@ -82,3 +88,58 @@ def test_shipped_yaml_themes_load_and_validate(path: Path):
     theme = load_theme(path)
     theme.validate()  # should not raise
     assert theme.k >= 2
+
+
+# --- single-file representation: a theme round-trips through JSON --------------
+
+def _rich_theme():
+    # exercises every serialisable field (ordered, values, unit, suffix, referent)
+    data = {
+        "name": "Rich",
+        "description": "every field",
+        "entity_noun": "class",
+        "categories": [
+            {"name": "Teacher", "items": ["Ames", "Boyd"]},
+            {"name": "Club", "items": ["Chess", "Debate"], "referent": "the person studying {}"},
+            {"name": "Grade", "items": ["80%", "85%"], "ordered": True,
+             "values": [80, 85], "unit_suffix": "%"},
+        ],
+    }
+    return theme_from_dict(data)
+
+
+def test_theme_to_dict_omits_defaults_keeps_set_fields():
+    d = theme_to_dict(_rich_theme())
+    assert "ordered" not in d["categories"][0]      # plain category stays minimal
+    assert "referent" not in d["categories"][0]
+    assert d["categories"][1]["referent"] == "the person studying {}"
+    grade = d["categories"][2]
+    assert grade["ordered"] is True and grade["values"] == [80, 85]
+    assert grade["unit_suffix"] == "%"
+
+
+def test_theme_json_round_trips_exactly():
+    theme = _rich_theme()
+    again = theme_from_json(theme_to_json(theme))
+    # the canonical dict is stable across a full export/import cycle
+    assert theme_to_dict(again) == theme_to_dict(theme)
+
+
+def test_round_tripped_theme_generates_a_unique_puzzle():
+    import random
+
+    from logicgrid.generate import generate_puzzle
+    from logicgrid.solver import count_solutions
+
+    theme = theme_from_json(theme_to_json(_rich_theme()))
+    puzzle = generate_puzzle(theme, random.Random(1), difficulty="easy")
+    assert count_solutions(theme, puzzle.clues, cap=2) == 1
+
+
+def test_theme_from_json_surfaces_validation_errors():
+    bad = json.dumps({"categories": [
+        {"name": "A", "items": ["x", "x"]},  # duplicate items
+        {"name": "B", "items": ["y", "z"]},
+    ]})
+    with pytest.raises(ValueError):
+        theme_from_json(bad)

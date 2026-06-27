@@ -154,6 +154,24 @@ So a clue reads "Ellis' Grade is at least 4% away from the person studying
 Debate" rather than the bare "…away from Debate's". (In a web `ThemeSpec`, the
 same is given as a `referents=(("Club", "the person studying {}"), …)` tuple.)
 
+### Single-file representation (import / export)
+
+A concrete theme is **fully described by one self-contained file**. The dict
+above *is* the format; `logicgrid.themes` round-trips it:
+
+```python
+from logicgrid.themes import theme_to_json, theme_from_json
+text  = theme_to_json(theme)      # export — the whole theme as one JSON string
+theme = theme_from_json(text)     # import — parses + validates (raises ValueError on bad input)
+```
+
+The generation and hint engines accept any concrete `Theme`, so an imported
+user-authored theme generates unique puzzles and step-by-step hints with no
+other changes — the foundation for a future in-browser theme editor with
+file import/export. (A serverless endpoint would accept the theme *definition*
+rather than a registry *key*, sending the same definition to `/api/hint` so the
+puzzle regenerates identically — same seed-determinism contract.)
+
 ### Built-in web themes
 
 The web app ships a registry of themes (the CLI reads YAML files; the serverless

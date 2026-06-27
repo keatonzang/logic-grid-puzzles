@@ -50,3 +50,44 @@ def theme_from_dict(data: dict) -> Theme:
     )
     theme.validate()
     return theme
+
+
+def theme_to_dict(theme: Theme) -> dict:
+    """Serialise a Theme to a plain dict — the inverse of ``theme_from_dict`` and
+    the canonical *single-file* representation (round-trips through JSON, ready for
+    a future user-authored-theme import/export). Optional category fields are
+    omitted when at their default, so exported files stay minimal."""
+    cats = []
+    for c in theme.categories:
+        cd: dict = {"name": c.name, "items": list(c.items)}
+        if c.ordered:
+            cd["ordered"] = True
+        if c.values is not None:
+            cd["values"] = list(c.values)
+        if c.unit:
+            cd["unit"] = c.unit
+        if c.unit_suffix:
+            cd["unit_suffix"] = c.unit_suffix
+        if c.referent:
+            cd["referent"] = c.referent
+        cats.append(cd)
+    return {
+        "name": theme.name,
+        "description": theme.description,
+        "entity_noun": theme.entity_noun,
+        "categories": cats,
+    }
+
+
+def theme_to_json(theme: Theme, *, indent: int = 2) -> str:
+    """The whole theme as one JSON string — what import/export round-trips."""
+    return json.dumps(theme_to_dict(theme), indent=indent, ensure_ascii=False)
+
+
+def theme_from_json(text: str) -> Theme:
+    """Parse (and validate) a theme from a JSON string — the import counterpart.
+
+    Raises ``ValueError`` (with a human-readable message from ``Theme.validate``)
+    on a malformed or inconsistent theme, so an importer can surface it directly.
+    """
+    return theme_from_dict(json.loads(text))
