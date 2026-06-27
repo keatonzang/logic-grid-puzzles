@@ -136,6 +136,24 @@ numbers).
 
 See `themes/detectives.yaml` (plain) and `themes/space_colony.yaml` (ordered).
 
+### Referent phrasing
+
+Cross-category clues name an entity by one of its attributes. The first category
+(the subject) is the entity's identity and reads as the bare item — a name
+("Ava"). Any other category reads as a noun phrase: by default "the
+{entity_noun} with {item}" ("the order with Latte"), or a custom `referent`
+template you supply:
+
+```yaml
+  - name: Club
+    items: [Chess, Choir, Debate, Drama]
+    referent: "the person studying {}"   # -> "the person studying Debate"
+```
+
+So a clue reads "Ellis' Grade is at least 4% away from the person studying
+Debate" rather than the bare "…away from Debate's". (In a web `ThemeSpec`, the
+same is given as a `referents=(("Club", "the person studying {}"), …)` tuple.)
+
 ### Built-in web themes
 
 The web app ships a registry of themes (the CLI reads YAML files; the serverless

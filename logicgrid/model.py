@@ -31,6 +31,12 @@ class Category:
     # numbers.
     unit: str = ""
     unit_suffix: str = ""
+    # `referent` is a template for naming an entity *by this category's item* in
+    # cross-category clue text, e.g. "the person studying {}" -> "the person
+    # studying Debate". Empty falls back to "the {entity_noun} with {item}". The
+    # subject category (index 0) is the entity's identity and always reads as the
+    # bare item (a name), so its referent is ignored.
+    referent: str = ""
 
     def amount(self, n: int) -> str:
         """Format a numeric amount with this category's unit, e.g. '$3' or '20 gp'."""

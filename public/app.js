@@ -12,22 +12,36 @@ let manual = {};          // "i-j" -> n_i x n_j array of 0/1/2 (user intent)
 let linked = {};          // "i-j" -> Set of "aIdx,bIdx" that are truly linked
 let pendingHint = null;   // a fetched hint awaiting its "reveal tile" click
 
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  const data = await res.json();
+const TIMEOUT_MSG =
+  "The puzzle took too long to generate. Tap Generate to try again — " +
+  "a fresh attempt usually comes right through (or pick a smaller size).";
+
+// Parse a JSON response, but turn a timeout / gateway error (which comes back as
+// a non-JSON HTML page, not our {error: …} shape) into a friendly, retry-able
+// message instead of a cryptic "Unexpected token <".
+async function readJSON(res) {
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(res.status >= 500 ? TIMEOUT_MSG : `Request failed (${res.status})`);
+  }
   if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
   return data;
 }
 
+async function fetchJSON(url) {
+  return readJSON(await fetch(url));
+}
+
 async function postJSON(url, body) {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
-  return data;
+  return readJSON(
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  );
 }
 
 async function generate() {

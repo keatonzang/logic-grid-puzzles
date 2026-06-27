@@ -250,35 +250,22 @@ def test_multi_match_can_be_disabled(wide_theme):
     assert all(c.at_least == 1 for c in pool if isinstance(c, Among))
 
 
-def test_same_category_prob_one_forces_single_category(wide_theme):
+def test_disjunction_options_not_forced_same_category(wide_theme):
+    # Option lists are sampled freely across categories — never *forced* into a
+    # single category. With a wide theme, cross-category lists should dominate.
     from logicgrid.clues import Among, EitherOr, Neither
 
     rng = random.Random(3)
     X = random_solution(wide_theme, rng)
-    pool = build_clue_pool(wide_theme, X, rng, same_category_prob=1.0)
+    pool = build_clue_pool(wide_theme, X, rng)
     threshold1 = [
         c
         for c in pool
         if isinstance(c, (Among, EitherOr, Neither)) and getattr(c, "at_least", 1) == 1
     ]
     assert threshold1
-    for c in threshold1:
-        assert len({o[0] for o in c.options}) == 1, "all options share one category"
-
-
-def test_same_category_prob_zero_still_allows_cross_category(wide_theme):
-    from logicgrid.clues import Among, EitherOr, Neither
-
-    rng = random.Random(3)
-    X = random_solution(wide_theme, rng)
-    pool = build_clue_pool(wide_theme, X, rng, same_category_prob=0.0)
-    threshold1 = [
-        c
-        for c in pool
-        if isinstance(c, (Among, EitherOr, Neither)) and getattr(c, "at_least", 1) == 1
-    ]
     spanning = [c for c in threshold1 if len({o[0] for o in c.options}) > 1]
-    assert spanning, "with prob 0 we should see cross-category option lists"
+    assert spanning, "free sampling should yield cross-category option lists"
 
 
 def test_generated_either_or_has_exactly_one_true_option(plain_theme):

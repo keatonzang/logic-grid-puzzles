@@ -79,6 +79,10 @@ class ThemeSpec:
     attributes: tuple  # ((name, (item, ...)), ...)
     numeric: NumericSpec | None = None
     extra_numerics: tuple = ()  # further ordered categories, hard-only
+    # ((category_name, "the person studying {}"), ...) — how a non-subject
+    # category names an entity by its item in cross-category clue text. Anything
+    # unlisted falls back to "the {entity_noun} with {item}".
+    referents: tuple = ()
 
     @property
     def numerics(self) -> tuple:
@@ -219,6 +223,12 @@ THEME_SPECS: tuple = (
         # A second ordered dial (hard, K>=4 only): which class period it meets —
         # an ordinal ("Period 1".."Period N"), so higher/next-to but no "2 more".
         extra_numerics=(NumericSpec("Period", unit_prefix="Period ", valued=False),),
+        referents=(
+            ("Subject", "the {} class"),          # the Biology class
+            ("Room", "the class in the {}"),       # the class in the Annex
+            ("Club", "the person studying {}"),    # the person studying Debate
+            ("Period", "the class in {}"),         # the class in Period 3
+        ),
     ),
 )
 
@@ -266,6 +276,7 @@ def build_theme(
     items = min(clamp_items(items), max_items_for(k))  # fewer items as k grows
     cats = [Category(spec.subject_name, sorted(rng.sample(spec.subject_items, items)))]
 
+    refs = dict(spec.referents)  # category name -> referent template
     numerics = spec.numerics[: int(n_numeric)]
     numerics = numerics[: k - 1]  # never more ordered categories than non-subject slots
     n_attr = k - 1 - len(numerics)
@@ -273,7 +284,7 @@ def build_theme(
     pools = dict(spec.attributes)
     chosen = sorted(rng.sample(names, n_attr), key=names.index)  # canonical order
     for name in chosen:
-        cats.append(Category(name, sorted(rng.sample(pools[name], items))))
+        cats.append(Category(name, sorted(rng.sample(pools[name], items)), referent=refs.get(name, "")))
 
     for ns in numerics:
         if ns.valued:
@@ -292,6 +303,7 @@ def build_theme(
                 values=values,
                 unit=ns.unit_prefix,
                 unit_suffix=ns.unit_suffix,
+                referent=refs.get(ns.name, ""),
             )
         )
 

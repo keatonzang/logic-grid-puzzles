@@ -62,7 +62,6 @@ def build_clue_pool(
     max_either: int = 40,
     max_neither: int = 40,
     multi_match: bool = True,
-    same_category_prob: float = 0.5,
     alldiff_sizes: tuple[int, ...] = (3, 4),
     max_alldiff: int = 30,
     pairing_sizes: tuple[int, ...] = (2, 3),
@@ -98,9 +97,7 @@ def build_clue_pool(
     be unlocked later by widening this tuple.
 
     `multi_match` enables "at least K of N" Among clues (K in 2..N-1, distinct
-    categories) — always ambiguous, never K == N. `same_category_prob` is a
-    future difficulty knob: the chance a threshold-1 disjunction draws all its
-    options from one category (1.0 forces same-category, 0.0 spreads them).
+    categories) — always ambiguous, never K == N.
 
     `alldiff_sizes` are the N for "all different" clues (N terms on distinct
     entities, spanning >= 2 categories); generated for N in 3..n.
@@ -221,10 +218,9 @@ def build_clue_pool(
     # "One of N" disjunctions over option terms. For each anchor entity e a term
     # (co, io) with co != ca is *true* iff it is e's real item there.
     #
-    # make_options rolls each threshold-1 clue's options as either all in one
-    # category (probability `same_category_prob`) or spread across categories.
-    # All-same-category is only possible at threshold 1; the "at least K" path
-    # (K >= 2) below requires distinct categories.
+    # Options are sampled freely across the non-anchor categories — an option list
+    # may still happen to repeat a category, but it is never forced to. (The
+    # "at least K" path (K >= 2) below requires distinct categories.)
     for e in range(n):
         for ca in range(k):
             anchor = (ca, X[e][ca])
@@ -235,17 +231,9 @@ def build_clue_pool(
             ]
 
             def make_options(size, include_true):
-                """`size` option terms (one true if include_true), or None if
-                infeasible. Same-category lists must stay below n items so they
-                never cover a whole category (which would be trivially true)."""
-                if rng.random() < same_category_prob:
-                    co = rng.choice(non_anchor)
-                    pool = [i for i in range(n) if i != X[e][co]]
-                    need = size - 1 if include_true else size
-                    if (include_true and size >= n) or len(pool) < need:
-                        return None
-                    decoys = [(co, i) for i in rng.sample(pool, need)]
-                    return [(co, X[e][co]), *decoys] if include_true else decoys
+                """`size` option terms (one true if include_true, else all false),
+                sampled freely across the non-anchor categories, or None if
+                infeasible."""
                 if include_true:
                     if not true_terms or len(false_terms) < size - 1:
                         return None
