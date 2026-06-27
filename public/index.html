@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1>🧩 Logic Grid Puzzles</h1>
-    <p class="tagline">Every puzzle has exactly one solution. Fill the grids — click a cell to cycle <b>blank → ✓ → ✗</b>.</p>
+    <p class="tagline">Every puzzle has exactly one solution. Click a cell to cycle <b>blank → ✓ → ✗</b>, cross off clues as you use them, and hit <b>Hint</b> when stuck.</p>
   </header>
 
   <section class="controls">
@@ -56,14 +56,22 @@
 
       <section class="grids-panel">
         <div class="grid-actions">
+          <button id="hint" class="hint-btn">💡 Hint</button>
           <button id="check">Check</button>
           <button id="reveal">Reveal solution</button>
           <button id="clear">Clear</button>
+          <button id="print">🖨 Print</button>
           <span id="result" class="result"></span>
         </div>
+        <div id="hint-box" class="hint-box" hidden></div>
         <div id="grids"></div>
       </section>
     </div>
+
+    <section id="answer-key" class="answer-key" hidden>
+      <h3>Answer key</h3>
+      <div id="answer-key-body"></div>
+    </section>
   </main>
 
   <p id="loading" class="loading">Loading…</p>

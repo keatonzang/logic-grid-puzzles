@@ -107,8 +107,13 @@ button.primary:hover { filter: brightness(1.08); }
 }
 .clues-panel h3, .grids-panel h3 { margin: 0 0 .75rem; }
 #clues { margin: 0; padding-left: 1.4rem; line-height: 1.7; }
-#clues li { padding-left: .2rem; }
+#clues li { padding-left: .2rem; cursor: pointer; border-radius: 4px; }
+#clues li:hover { color: #fff; }
+#clues li:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 #clues li::marker { color: var(--accent); }
+/* click a clue to strike it through once you've used it */
+#clues li.done { text-decoration: line-through; opacity: .45; }
+#clues li.done::marker { color: var(--muted); }
 
 .grid-actions {
   display: flex;
@@ -120,6 +125,48 @@ button.primary:hover { filter: brightness(1.08); }
 .result { font-weight: 600; margin-left: auto; }
 .result.good { color: var(--good); }
 .result.bad { color: var(--bad); }
+
+.hint-btn { border-color: var(--accent); color: var(--accent); }
+.hint-btn:hover { background: rgba(110, 168, 254, .12); }
+
+/* --- Hint explainer panel --- */
+.hint-box {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: .65rem .85rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  font-size: .92rem;
+}
+.hint-tier {
+  display: inline-block;
+  background: var(--accent);
+  color: #0b1020;
+  font-weight: 700;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding: .12rem .45rem;
+  border-radius: 5px;
+  margin-right: .5rem;
+  vertical-align: middle;
+}
+.hint-cta { color: var(--muted); }
+.hint-placed { color: var(--good); font-weight: 600; }
+
+/* the cell a pending hint points at: a soft pulse until revealed */
+td.cell.hint-target { outline: 2px solid var(--accent); outline-offset: -2px; animation: hint-pulse 1s ease-in-out infinite; }
+@keyframes hint-pulse { 50% { outline-color: #fff; } }
+td.cell.hint-flash { animation: hint-flash .8s ease-out; }
+@keyframes hint-flash { 0% { background: var(--accent); } 100% { } }
+
+/* --- Answer key (print only) --- */
+.answer-key { max-width: 1200px; margin: 1.5rem auto 0; }
+.key-table { border-collapse: collapse; }
+.key-table th, .key-table td { border: 1px solid var(--line); padding: .4rem .7rem; text-align: left; font-size: .9rem; }
+.key-table th { background: var(--panel-2); }
 
 #grids {
   display: flex;
@@ -240,3 +287,35 @@ td.cell.right { background: rgba(81, 207, 102, .18); }
 .error { text-align: center; color: var(--bad); background: rgba(255,107,107,.1); border: 1px solid var(--bad); border-radius: 8px; padding: .75rem; max-width: 600px; margin: 1rem auto; }
 
 footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 2.5rem; }
+
+/* --- Print: clean black-on-white puzzle + a tear-off answer key page --- */
+@media print {
+  body { background: #fff; color: #000; padding: .5rem; }
+  .controls, .grid-actions, #hint-box, footer, .tagline, #loading, #error { display: none !important; }
+  header { margin-bottom: .75rem; }
+  header h1 { color: #000; font-size: 1.4rem; }
+  #p-name, #p-desc, .meta, .meta code { color: #000; }
+  .meta code { background: none; }
+
+  .layout { display: block; max-width: none; }
+  .clues-panel, .grids-panel { background: none; border: none; border-radius: 0; padding: 0; margin-bottom: 1rem; }
+  .clues-panel h3, .grids-panel h3 { color: #000; }
+  #clues, #clues li { color: #000; }
+  #clues li::marker { color: #000; }
+  #clues li.done { opacity: 1; }   /* keep struck clues legible on paper */
+
+  /* black grid lines, blank cells (the marks are hidden so it can be solved on paper) */
+  #grids.board-staircase { overflow: visible; }
+  table.grid th, table.grid td,
+  table.staircase th, table.staircase td { border-color: #000; }
+  th.col span, th.row, .grid-block h4, .grid-block h4 b,
+  th.sc-colcat, th.sc-rowcat span { color: #000 !important; }
+  table.staircase .blk-left, table.staircase .blk-top { border-color: #000 !important; }
+  td.cell { background: #fff !important; color: transparent !important; }
+
+  /* answer key starts a fresh page so it can be torn off */
+  .answer-key { display: block !important; break-before: page; page-break-before: always; }
+  .answer-key h3 { color: #000; }
+  .key-table th, .key-table td { border-color: #000; color: #000; }
+  .key-table th { background: #eee; }
+}

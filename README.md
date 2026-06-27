@@ -133,19 +133,37 @@ An interactive browser solver is deployed on Vercel:
 
 **https://logic-grid-puzzles-beta.vercel.app**
 
-Pick a theme, seed, and style, then solve in clickable pairwise grids (click a
-cell to cycle blank → ✓ → ✗) with **Check** / **Reveal** / **Clear**. Puzzles
+Pick a difficulty, size, and seed, then solve in clickable pairwise grids (click
+a cell to cycle blank → ✓ → ✗) with **Check** / **Reveal** / **Clear**. Puzzles
 are generated server-side by the same Python package via a serverless function,
-so the uniqueness guarantee is identical to the CLI.
+so the uniqueness guarantee is identical to the CLI. Three solving aids:
 
-- `api/puzzle.py` — Vercel serverless function. `GET /api/puzzle?list=1` returns
-  the theme catalogue; `GET /api/puzzle?theme=detectives&seed=3`
-  returns a puzzle as JSON (categories, clue text, and the solution; a concrete
-  `seed` is always echoed back so any puzzle is reproducible).
-- `logicgrid/webapi.py` — dependency-free theme registry + JSON payload builder
-  shared by the function and the tests.
+- **Step-by-step hints** — **Hint** asks the server for the *next single
+  deduction* from your current marks and explains it: the technique (Given,
+  Elimination, Cross-reference, Clue logic, What-if) and the reasoning, e.g.
+  *“Ava is Latte, and $5 is Latte, so Ava is $5.”* It highlights the target
+  cell; a second click fills it in. The hint engine replays the very same tiers
+  the grader uses (`logicgrid/hint.py`), so a hint is always a sound, guess-free
+  next move — and it skips anything you've already worked out.
+- **Cross off clues** — click a clue to strike it through once you've used it.
+- **Print** — a print stylesheet renders a clean black-on-white puzzle (title,
+  clues, blank grids) with the **answer key on its own tear-off page**. Print or
+  save-as-PDF straight from the browser.
+
+- `api/puzzle.py` — Vercel serverless function. `GET /api/puzzle?difficulty=…&
+  items=…&categories=…&seed=…` returns a puzzle as JSON (categories, clue text,
+  and the solution; a concrete `seed` is always echoed back so any puzzle is
+  reproducible).
+- `api/hint.py` — Vercel serverless function. `POST /api/hint` with
+  `{seed, difficulty, items, categories, known}` regenerates the exact puzzle
+  (generation is deterministic in the seed) and returns the next explained
+  deduction, or `{"done": true}` once nothing new can be deduced.
+- `logicgrid/webapi.py` — dependency-free puzzle/payload/hint builders shared by
+  the functions and the tests.
+- `logicgrid/hint.py` — the step-by-step hint engine: an explained replay of the
+  deductive solver's tiers.
 - `public/` — static front end (`index.html` / `style.css` / `app.js`), no build step.
-- `vercel.json` — `@vercel/python` function (bundling `logicgrid/`) + static `public/`.
+- `vercel.json` — `@vercel/python` functions (bundling `logicgrid/`) + static `public/`.
 
 Deploy with `vercel --prod` from this directory.
 
@@ -170,7 +188,8 @@ test_smoke.py          legacy uniqueness/consistency sweep across themes & seeds
 themes/                theme data files (.yaml / .json)
 vercel.json            Vercel build/route config (Python function + static site)
 api/
-  puzzle.py            serverless function: puzzle/theme-list JSON
+  puzzle.py            serverless function: puzzle JSON
+  hint.py              serverless function: next explained deduction JSON
 public/                interactive browser solver (static)
 tests/                 pytest suite (one file per module)
 logicgrid/
@@ -178,21 +197,21 @@ logicgrid/
   clues.py             clue types (Positive/Negative/Greater/Diff)
   solver.py            backtracking solution counter (uniqueness check)
   generate.py          solution → clue pool → minimal unique set
+  deduce.py            human-style deductive solver + difficulty grader
+  hint.py              step-by-step hint engine (explained deductive trace)
   render.py            console rendering: clues, grids, solution table
   themes.py            YAML/JSON theme loader
-  webapi.py            theme registry + JSON puzzle payload (web/serverless layer)
+  webapi.py            puzzle / payload / hint builders (web/serverless layer)
 ```
 
 ## Possible next steps
 
 - **Interlocked "staircase" grid (CLI)** — the web app renders the single
   L-shaped grid on desktop; bring the same to `render.py`.
-- **Difficulty rating** — swap the uniqueness check for a human-style deductive
-  solver that reports the inference depth needed, to grade and target difficulty.
-- **More clue types** — "either/or", "one of these three", before/after chains.
-- **Printable / PDF export** from the web app.
 - **Natural-language phrasing templates** per theme for richer clue prose.
 - **More themes** — add YAML files and mirror them into `logicgrid/webapi.py`.
+- **Hints in the CLI** — surface `logicgrid/hint.py`'s explained trace as an
+  interactive `--hint`/walkthrough mode for the terminal solver.
 
 ## License
 

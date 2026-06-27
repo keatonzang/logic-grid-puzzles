@@ -11,15 +11,24 @@ from pathlib import Path
 
 import pytest
 
-API_FILE = Path(__file__).resolve().parent.parent / "api" / "puzzle.py"
+API_DIR = Path(__file__).resolve().parent.parent / "api"
+
+
+def _load(name):
+    spec = importlib.util.spec_from_file_location(f"api_{name}", API_DIR / f"{name}.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 @pytest.fixture(scope="module")
 def api():
-    spec = importlib.util.spec_from_file_location("api_puzzle", API_FILE)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return _load("puzzle")
+
+
+@pytest.fixture(scope="module")
+def hint_api():
+    return _load("hint")
 
 
 def test_default_route(api):
@@ -56,3 +65,30 @@ def test_bad_seed_is_400(api):
     status, payload = api._build_response({"seed": ["not-a-number"]})
     assert status == 400
     assert "seed must be an integer" in payload["error"]
+
+
+def test_hint_empty_board_is_a_given(hint_api):
+    status, payload = hint_api._build_response(
+        {"seed": 3, "difficulty": "medium", "items": 4, "categories": 3, "known": {}}
+    )
+    assert status == 200
+    assert payload["tier"] == 0
+    assert payload["text"]
+
+
+def test_hint_requires_integer_seed(hint_api):
+    status, payload = hint_api._build_response({"known": {}})
+    assert status == 400
+    assert "seed must be an integer" in payload["error"]
+
+
+def test_hint_rejects_non_dict_known(hint_api):
+    status, payload = hint_api._build_response({"seed": 3, "known": [1, 2, 3]})
+    assert status == 400
+    assert "known" in payload["error"]
+
+
+def test_hint_unknown_difficulty_is_400(hint_api):
+    status, payload = hint_api._build_response({"seed": 3, "difficulty": "wizard"})
+    assert status == 400
+    assert "difficulty" in payload["error"]

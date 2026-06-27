@@ -10,9 +10,21 @@ let puzzle = null;        // current payload
 // any blank cell sharing a row or column with a manual "=" shows an auto "×".
 let manual = {};          // "i-j" -> n_i x n_j array of 0/1/2 (user intent)
 let linked = {};          // "i-j" -> Set of "aIdx,bIdx" that are truly linked
+let pendingHint = null;   // a fetched hint awaiting its "reveal tile" click
 
 async function fetchJSON(url) {
   const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+}
+
+async function postJSON(url, body) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
   return data;
@@ -83,11 +95,36 @@ function render() {
   for (const c of puzzle.clues) {
     const li = document.createElement("li");
     li.textContent = c;
+    li.tabIndex = 0;
+    li.title = "Click to cross off";
+    li.addEventListener("click", () => li.classList.toggle("done"));
+    li.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); li.classList.toggle("done"); }
+    });
     ol.appendChild(li);
   }
 
+  renderAnswerKey();
   renderBoard();
+  clearHint();
   setResult("", "");
+}
+
+// Solution table, shown only when printing (its own page, after the puzzle).
+function renderAnswerKey() {
+  const body = $("answer-key-body");
+  body.innerHTML = "";
+  const table = document.createElement("table");
+  table.className = "key-table";
+  const head = document.createElement("tr");
+  for (const c of puzzle.categories) head.appendChild(cell("th", c.name, ""));
+  table.appendChild(head);
+  for (const row of puzzle.solution) {
+    const tr = document.createElement("tr");
+    for (const label of row) tr.appendChild(cell("td", label, ""));
+    table.appendChild(tr);
+  }
+  body.appendChild(table);
 }
 
 // Pick the layout for the viewport, (re)build the DOM, and repaint marks from
@@ -277,6 +314,7 @@ function onCellClick(e) {
   manual[key][a][b] = LG.nextState(manual[key], a, b);
   paintGrid(key);
   clearHighlights(); // a fresh edit invalidates any prior check
+  clearHint();       // ...and any pending hint
   setResult("", "");
 }
 
@@ -318,6 +356,7 @@ function check() {
 
 function reveal() {
   clearHighlights();
+  clearHint();
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
     const M = manual[key];
@@ -333,6 +372,7 @@ function reveal() {
 
 function clearGrids() {
   clearHighlights();
+  clearHint();
   for (const key of Object.keys(manual)) {
     const M = manual[key];
     for (let a = 0; a < M.length; a++) M[a].fill(0);
@@ -347,7 +387,97 @@ function setResult(text, cls) {
   el.className = "result" + (cls ? " " + cls : "");
 }
 
+// --- Hints: ask the server for the next single explained deduction ----------
+// The board the player can "see" — derived ✓/✗ per pair (auto-× included), so
+// the server skips anything they've already worked out. Matches a hint's value
+// encoding: 0 blank · 1 link (=) · 2 no-link (×).
+function currentKnown() {
+  const out = {};
+  for (const key of Object.keys(manual)) out[key] = LG.derive(manual[key]).display;
+  return out;
+}
+
+function showHintBox(step, placed) {
+  const box = $("hint-box");
+  box.hidden = false;
+  const tail = placed
+    ? `<span class="hint-placed">— placed ✓</span>`
+    : `<span class="hint-cta">Tap the glowing cell or “Reveal tile” to fill it in.</span>`;
+  box.innerHTML =
+    `<span class="hint-tier">${step.tier_name}</span>` +
+    `<span class="hint-text">${escapeHtml(step.text)}</span> ${tail}`;
+}
+
+function escapeHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function applyHint(step) {
+  const M = manual[step.key];
+  if (step.value === 1) {
+    // a confirmed link clears any (mistaken) link the player had in its row/col
+    for (let b = 0; b < M[step.a].length; b++) if (M[step.a][b] === 1) M[step.a][b] = 0;
+    for (let a = 0; a < M.length; a++) if (M[a][step.b] === 1) M[a][step.b] = 0;
+  }
+  M[step.a][step.b] = step.value;
+  paintGrid(step.key);
+  const td = cellEl(step.key, step.a, step.b);
+  if (td) { td.classList.add("hint-flash"); setTimeout(() => td.classList.remove("hint-flash"), 800); }
+}
+
+function clearHint() {
+  pendingHint = null;
+  document.querySelectorAll("td.cell.hint-target").forEach((td) => td.classList.remove("hint-target"));
+  $("hint").textContent = "💡 Hint";
+  const box = $("hint-box");
+  box.hidden = true;
+  box.innerHTML = "";
+}
+
+async function hint() {
+  if (!puzzle) return;
+  if (pendingHint) {              // second click reveals the tile we explained
+    const step = pendingHint;
+    clearHint();
+    applyHint(step);
+    showHintBox(step, true);
+    clearHighlights();
+    return;
+  }
+  const btn = $("hint");
+  btn.disabled = true;
+  setResult("", "");
+  try {
+    const step = await postJSON("/api/hint", {
+      seed: puzzle.seed,
+      difficulty: puzzle.requested,
+      items: puzzle.items,
+      categories: puzzle.n_categories,
+      known: currentKnown(),
+    });
+    if (step.done) {
+      const box = $("hint-box");
+      box.hidden = false;
+      box.innerHTML = `<span class="hint-text">Every remaining tile follows from what you've got — you've effectively cracked it. Hit <b>Check</b>!</span>`;
+      return;
+    }
+    pendingHint = step;
+    showHintBox(step, false);
+    btn.textContent = "Reveal tile ✨";
+    const td = cellEl(step.key, step.a, step.b);
+    if (td) { td.classList.add("hint-target"); td.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+  } catch (err) {
+    setResult(err.message, "bad");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 $("generate").addEventListener("click", generate);
+$("hint").addEventListener("click", hint);
+$("print").addEventListener("click", () => window.print());
 $("check").addEventListener("click", check);
 $("reveal").addEventListener("click", reveal);
 $("clear").addEventListener("click", clearGrids);

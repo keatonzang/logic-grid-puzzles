@@ -11,6 +11,7 @@ from __future__ import annotations
 import random
 
 from .generate import DIFFICULTIES, generate_rated
+from .hint import next_hint
 from .model import Category, Theme
 
 # The single theme. Categories are fixed (3); their members are sampled from
@@ -111,18 +112,19 @@ def _solution_rows(theme: Theme, X: list[list[int]]) -> list[list[str]]:
     ]
 
 
-def build_payload(
+def build_puzzle(
     seed: int | None = None,
     difficulty: str = DEFAULT_DIFFICULTY,
     items: int = DEFAULT_ITEMS,
     categories: int = DEFAULT_CATEGORIES,
-) -> dict:
-    """Generate a puzzle and return a JSON-serialisable description.
+):
+    """Generate a puzzle, returning the live objects ``(theme, puzzle, report,
+    seed)``.
 
-    A concrete ``seed`` is always resolved and echoed back so any puzzle can be
-    reproduced from the response alone. Whether the ordered Price category is
-    included is rolled once up front (only for medium/hard, where its sequential
-    clues are enabled).
+    Deterministic in ``seed``: the same seed + difficulty + items + categories
+    always rebuilds the identical puzzle (including the up-front Price roll), so
+    the hint endpoint can regenerate exactly what the player is looking at. A
+    concrete ``seed`` is always resolved and returned.
     """
     if difficulty not in DIFFICULTIES:
         raise ValueError(f"unknown difficulty: {difficulty!r}")
@@ -138,6 +140,40 @@ def build_payload(
     theme, puzzle, report = generate_rated(
         lambda r: build_cafe_theme(r, items, categories, use_price), rng, difficulty
     )
+    return theme, puzzle, report, seed
+
+
+def build_hint(
+    seed: int,
+    difficulty: str,
+    items: int,
+    categories: int,
+    known: dict | None,
+) -> dict:
+    """Next single explained deduction for the puzzle ``seed`` identifies.
+
+    Regenerates the exact puzzle and asks the hint engine for the first step the
+    player (``known`` board) hasn't already made. ``known`` maps ``"i-j"`` to an
+    n×n matrix of 0 blank / 1 link / 2 no-link, matching a hint's ``value``.
+    """
+    theme, puzzle, _report, _seed = build_puzzle(seed, difficulty, items, categories)
+    return next_hint(theme, puzzle.clues, known)
+
+
+def build_payload(
+    seed: int | None = None,
+    difficulty: str = DEFAULT_DIFFICULTY,
+    items: int = DEFAULT_ITEMS,
+    categories: int = DEFAULT_CATEGORIES,
+) -> dict:
+    """Generate a puzzle and return a JSON-serialisable description.
+
+    A concrete ``seed`` is always resolved and echoed back so any puzzle can be
+    reproduced from the response alone. Whether the ordered Price category is
+    included is rolled once up front (only for medium/hard, where its sequential
+    clues are enabled).
+    """
+    theme, puzzle, report, seed = build_puzzle(seed, difficulty, items, categories)
 
     return {
         "name": theme.name,
