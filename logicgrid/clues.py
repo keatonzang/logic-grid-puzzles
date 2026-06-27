@@ -162,10 +162,7 @@ class Adjacent(Clue):
 
     def text(self, theme: Theme) -> str:
         cn = theme.categories[self.cat].name
-        return (
-            f"{_label(theme, self.a)}'s {cn} is immediately below "
-            f"{_label(theme, self.b)}'s, with nothing in between."
-        )
+        return f"{_label(theme, self.a)}'s {cn} is immediately below {_label(theme, self.b)}'s."
 
 
 class AtLeastApart(Clue):

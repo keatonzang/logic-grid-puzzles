@@ -122,7 +122,7 @@ def test_adjacent_holds(ordered_theme, identity_solution):
 
 def test_adjacent_text(ordered_theme, identity_solution):
     text = Adjacent(2, (0, 0), (0, 1)).text(ordered_theme)  # Xi, Yo
-    assert text == "Xi's Year is immediately below Yo's, with nothing in between."
+    assert text == "Xi's Year is immediately below Yo's."
 
 
 # --- new value dials: AtLeastApart / Extreme / Half / MultiCompare / AtMost ---
