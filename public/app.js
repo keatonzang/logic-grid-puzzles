@@ -12,6 +12,51 @@ let manual = {};          // "i-j" -> n_i x n_j array of 0/1/2 (user intent)
 let linked = {};          // "i-j" -> Set of "aIdx,bIdx" that are truly linked
 let pendingHint = null;   // a fetched hint awaiting its "reveal tile" click
 
+// Solve timer: counts up from generation completion to a verified solve. Purely
+// in-browser (performance.now, no server/leaderboard). `timerStart` is the t0;
+// `timerRAF` is the live animation-frame handle; `timerDone` freezes it after a
+// solve or reveal so re-checking doesn't restart the clock.
+let timerStart = 0;
+let timerRAF = null;
+let timerDone = false;
+
+function fmtTime(ms) {
+  const tenths = Math.floor(ms / 100); // a tenth-of-a-second resolution
+  const s = Math.floor(tenths / 10), d = tenths % 10;
+  if (s < 60) return `${s}.${d}s`;
+  const m = Math.floor(s / 60);
+  return `${m}:${String(s % 60).padStart(2, "0")}.${d}`;
+}
+
+function paintTimer() {
+  $("timer").textContent = fmtTime(performance.now() - timerStart);
+}
+
+function startTimer() {
+  if (timerRAF) cancelAnimationFrame(timerRAF);
+  timerStart = performance.now();
+  timerDone = false;
+  const t = $("timer");
+  t.hidden = false;
+  t.classList.remove("done");
+  const tick = () => {
+    if (timerDone) return;
+    paintTimer();
+    timerRAF = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// Freeze the clock. `solved` true marks a genuine solve (the time stays as a
+// little trophy); otherwise it just stops (e.g. the player revealed the answer).
+function stopTimer(solved) {
+  if (timerDone || !timerStart) return;
+  timerDone = true;
+  if (timerRAF) { cancelAnimationFrame(timerRAF); timerRAF = null; }
+  paintTimer();
+  if (solved) $("timer").classList.add("done");
+}
+
 const TIMEOUT_MSG =
   "The puzzle took too long to generate. Tap Generate to try again — " +
   "a fresh attempt usually comes right through (or pick a smaller size).";
@@ -64,6 +109,7 @@ async function generate() {
     render();
     $("puzzle").hidden = false;
     fitBoard(); // now the grid has a real width to measure against
+    startTimer(); // time the solve from the moment the puzzle is on screen
   } catch (err) {
     $("error").textContent = err.message;
     $("error").hidden = false;
@@ -456,7 +502,10 @@ function check() {
   }
   const missing = totalLinks - correctYes;
   if (mistakes === 0 && missing === 0) {
-    setFeedback("🎉 <b>Solved!</b> Every link is correct.", "good");
+    const first = !timerDone; // only show the time on the checking run that solves it
+    const time = first && timerStart ? ` in <b>${fmtTime(performance.now() - timerStart)}</b>` : "";
+    stopTimer(true);
+    setFeedback(`🎉 <b>Solved!</b> Every link is correct${time}.`, "good");
   } else if (mistakes === 0) {
     setFeedback(`No mistakes so far — <b>${missing}</b> link${missing > 1 ? "s" : ""} still to place.`, "warn");
   } else {
@@ -479,6 +528,7 @@ function reveal() {
     }
     paintGrid(key);
   }
+  stopTimer(false); // revealing the answer ends the run (no solve time earned)
   setFeedback("Solution revealed.", "");
   renderProgress();
 }

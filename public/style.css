@@ -148,6 +148,17 @@ button.primary:hover { filter: brightness(1.08); }
 .hint-btn { border-color: var(--accent); color: var(--accent); }
 .hint-btn:hover { background: rgba(110, 168, 254, .12); }
 
+/* Solve timer — pinned to the right of the actions bar, tabular so the digits
+   don't jitter as the tenths roll over. Greens out once the puzzle is solved. */
+.timer {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-size: .95rem;
+  color: var(--muted);
+  letter-spacing: .02em;
+}
+.timer.done { color: var(--good); font-weight: 600; }
+
 /* Check lights up once the live solution table is fully filled in. */
 #check.ready {
   background: var(--good);
