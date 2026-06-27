@@ -22,8 +22,11 @@ in four flavours:
 - **between** (`Between`) — `Cara's Price is between Ava's and Ben's.`
 - **immediately before/after** (`Adjacent`) — `Ava's Price is immediately below Ben's, with nothing in between.`
 
-These four **sequential** clues need an *ordered* category. The café has an optional
-numeric **Price** category (toggle), sorted by value (= rank); each has a sound
+These four **sequential** clues need an *ordered* category. The café rolls in a
+numeric **Price** category (~50% of medium/hard puzzles), sorted by value (= rank);
+the web app also supports **3–5 categories** (Customer + a sample of Drink / Pastry /
+Syrup / Mug, plus maybe Price), with items per category capped as categories grow so
+generation stays fast. Each sequential clue has a sound
 deductive propagator (bounds/arc-consistency on ranks) so price puzzles stay
 logic-solvable.
 - **at least K of N** (`Among`, inclusive) — `Ava goes with at least one of Bagel or Latte.`

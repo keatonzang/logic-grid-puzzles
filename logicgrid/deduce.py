@@ -132,15 +132,27 @@ def _sweep_transitivity(board) -> int:
     n, k = board.n, board.k
     nodes = [(c, it) for c in range(k) for it in range(n)]
     for pivot in nodes:
-        for q, r in combinations(nodes, 2):
-            if q[0] == r[0]:
-                continue  # same category — relation is structural
-            pq = board.get(pivot[0], pivot[1], q[0], q[1])
-            pr = board.get(pivot[0], pivot[1], r[0], r[1])
-            if pq == Y and pr == Y:
-                changed += _s(board, q, r, Y)
-            elif (pq == Y and pr == N) or (pq == N and pr == Y):
-                changed += _s(board, q, r, N)
+        pc, pi = pivot
+        # bucket the other nodes by their relation to the pivot — only Y/N
+        # buckets produce deductions, so skip the (large) unknown set entirely.
+        ys, ns = [], []
+        for q in nodes:
+            if q == pivot:
+                continue
+            r = board.get(pc, pi, q[0], q[1])
+            if r == Y:
+                ys.append(q)
+            elif r == N:
+                ns.append(q)
+        for a in range(len(ys)):  # same entity as pivot => same as each other
+            qa = ys[a]
+            for b in range(a + 1, len(ys)):
+                if qa[0] != ys[b][0]:
+                    changed += _s(board, qa, ys[b], Y)
+        for qy in ys:  # pivot's entity vs a different entity => different
+            for qn in ns:
+                if qy[0] != qn[0]:
+                    changed += _s(board, qy, qn, N)
     return changed
 
 

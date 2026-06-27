@@ -101,11 +101,11 @@ def test_sequential_price_stays_sound_and_no_guessing(target):
     from logicgrid.clues import Adjacent, Between, Diff, Greater
 
     theme, puzzle, report = generate_rated(
-        lambda r: build_cafe_theme(r, 4, with_price=True), random.Random(7), target
+        lambda r: build_cafe_theme(r, 4, categories=4, use_price=True), random.Random(7), target
     )
     assert report["band"] == target
     assert report["solved"]                       # no guessing
     assert _agrees(report["board"], puzzle.solution)
     # the ordered category exists and is value-sorted
-    price = theme.categories[3]
+    price = theme.categories[-1]
     assert price.ordered and price.values == sorted(price.values)

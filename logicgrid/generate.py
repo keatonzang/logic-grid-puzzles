@@ -331,6 +331,12 @@ _DIFFICULTY_POOL = {
 _DIFFICULTY_EXTRA = {"easy": 0.6, "medium": 0.0, "hard": 0.0}
 
 
+# Cap the uniqueness search per drop-attempt so minimize stays fast even on
+# large grids; if a drop can't be confirmed unique within budget we keep the
+# clue (the result stays unique, just slightly less minimal).
+_MINIMIZE_NODE_BUDGET = 20000
+
+
 def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
     """Greedily remove clues in random order while uniqueness is preserved.
 
@@ -343,7 +349,7 @@ def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
     current = list(clues)
     for cl in removal_order:
         trial = [c for c in current if c is not cl]
-        if is_unique(theme, trial):
+        if is_unique(theme, trial, max_nodes=_MINIMIZE_NODE_BUDGET):
             current = trial
     return current
 
@@ -370,7 +376,7 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "medium"
     return Puzzle(theme=theme, solution=X, clues=clues)
 
 
-def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int = 16):
+def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int = 9):
     """Generate-and-grade: sample candidates until one's *measured* difficulty
     band matches `target`, guaranteeing a logic-solvable (no-guessing) puzzle.
 

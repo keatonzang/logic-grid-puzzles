@@ -17,7 +17,11 @@ import itertools
 from .model import Theme
 
 
-def count_solutions(theme: Theme, clues: list, cap: int = 2) -> int:
+def count_solutions(theme: Theme, clues: list, cap: int = 2, max_nodes: int | None = None) -> int:
+    """Count solutions up to `cap`. With `max_nodes`, abort once that many search
+    nodes are visited and report `cap` ("saturated") — so callers that only want
+    to know "exactly one?" treat an unresolved search as not-unique (conservative
+    and fast). A barely-unique loose clue set can otherwise explode the tree."""
     n, k = theme.n, theme.k
     cols = list(range(1, k))  # column 0 is the fixed anchor (entity i -> item i)
 
@@ -46,10 +50,15 @@ def count_solutions(theme: Theme, clues: list, cap: int = 2) -> int:
     perms = list(itertools.permutations(range(n)))
 
     count = 0
+    nodes = 0
 
     def rec(step: int) -> None:
-        nonlocal count
+        nonlocal count, nodes
         if count >= cap:
+            return
+        nodes += 1
+        if max_nodes is not None and nodes > max_nodes:
+            count = cap  # give up — report saturated
             return
         if step == len(steps):
             count += 1
@@ -67,5 +76,5 @@ def count_solutions(theme: Theme, clues: list, cap: int = 2) -> int:
     return count
 
 
-def is_unique(theme: Theme, clues: list) -> bool:
-    return count_solutions(theme, clues, cap=2) == 1
+def is_unique(theme: Theme, clues: list, max_nodes: int | None = None) -> bool:
+    return count_solutions(theme, clues, cap=2, max_nodes=max_nodes) == 1

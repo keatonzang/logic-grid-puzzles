@@ -22,8 +22,8 @@ async function generate() {
   const params = new URLSearchParams({
     difficulty: $("difficulty").value,
     items: $("items").value,
+    categories: $("categories").value,
   });
-  if ($("price").checked) params.set("price", "1");
   const seed = $("seed").value.trim();
   if (seed !== "") params.set("seed", seed);
 
@@ -171,13 +171,14 @@ function renderGrid(i, j, cats) {
 }
 
 // --- Desktop: one interlocked staircase grid --------------------------------
-// Column blocks are categories 1..K-1; row blocks are 0..K-2. A block (row i,
-// col j) exists only when i < j, which carves the staircase notch.
+// Row blocks are categories 0..K-2 (top→bottom); column blocks are K-1..1 in
+// REVERSE (left→right) — the conventional logic-grid layout, so the staircase
+// notch falls on the lower-right. A block (row i, col j) exists only when i < j.
 function renderStaircase(cats) {
   const K = cats.length;
   const N = cats[0].items.length;
   const colCats = [];
-  for (let j = 1; j < K; j++) colCats.push(j);
+  for (let j = K - 1; j >= 1; j--) colCats.push(j);
   const rowCats = [];
   for (let i = 0; i < K - 1; i++) rowCats.push(i);
 
