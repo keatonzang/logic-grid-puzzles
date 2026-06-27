@@ -156,6 +156,13 @@ drop-down, served from `GET /api/puzzle?themes=1`:
 | `school` | The Schoolhouse | Grade (`…%`) |
 
 Add a theme by appending a `ThemeSpec` to `THEME_SPECS` in `logicgrid/webapi.py`.
+A theme can also declare `extra_numerics` — additional ordered categories beyond
+the primary one. These are gated: a second ordered dial is rolled in only on
+**hard** puzzles with **≥4 categories** (so small grids don't get over-constrained).
+The Schoolhouse uses this for a class's *Grade* (numeric, `%`) plus its *Period*
+(an ordinal — `NumericSpec(..., valued=False)` → "Period 1", higher/next-to clues
+but no "2 more"). Every ordered clue names its own dimension, so multiple dials
+stay unambiguous.
 
 ## Web app
 

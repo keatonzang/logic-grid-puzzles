@@ -32,12 +32,17 @@ _MAX_SEED = 1_000_000
 # --- Theme specs ------------------------------------------------------------
 @dataclass(frozen=True)
 class NumericSpec:
-    """An ordered, numeric category (unlocks comparison / difference clues).
+    """An ordered category (unlocks comparison clues).
 
-    Values are *evenly spaced* (a random start + step) so "exactly N more" stays
-    a relative hint — the gap repeats — rather than pinning exact values. The
-    unit wraps amounts in clue text: a prefix (``"$"`` → ``"$2"``) and/or suffix
-    (``" gp"`` → ``"20 gp"``).
+    When ``valued`` (the default) it is *numeric*: items carry evenly-spaced
+    values (a random start + step) so "exactly N more" stays a relative hint — the
+    gap repeats — rather than pinning exact values, and the unit wraps amounts in
+    clue text: a prefix (``"$"`` → ``"$2"``) and/or suffix (``" gp"`` → ``"20 gp"``).
+
+    When ``valued`` is False it is a plain *ordinal* (e.g. a class Period): items
+    are 1..N rendered through the unit ("Period 1"), the category has rank order
+    but no values, so it gets higher/lower / next-to / between clues but never the
+    exact-difference ones ("2 more" makes no sense for an ordinal).
     """
 
     name: str
@@ -47,6 +52,7 @@ class NumericSpec:
     start_max: int = 12
     steps: tuple = (1, 2)
     prob: float = 0.5  # chance an eligible (medium/hard) puzzle includes it
+    valued: bool = True  # False => ordinal only (no exact-difference clues)
 
     def label(self, v: int) -> str:
         return f"{self.unit_prefix}{v}{self.unit_suffix}"
@@ -55,8 +61,14 @@ class NumericSpec:
 @dataclass(frozen=True)
 class ThemeSpec:
     """A puzzle theme: a subject pool (category 0) + attribute pools + optional
-    numeric category. Each pool holds enough members to support the largest grid;
-    a puzzle samples `items` from each and which attributes appear varies."""
+    ordered/numeric categories. Each pool holds enough members to support the
+    largest grid; a puzzle samples `items` from each and which attributes appear
+    varies.
+
+    ``numeric`` is the primary ordered category (rolled in on medium/hard).
+    ``extra_numerics`` are additional ordered categories — only ever rolled in on
+    hard puzzles with enough categories (see ``build_puzzle``), so a theme can
+    offer two sequential dials (e.g. a class's Grade *and* its Period)."""
 
     key: str
     name: str
@@ -66,6 +78,13 @@ class ThemeSpec:
     subject_items: tuple
     attributes: tuple  # ((name, (item, ...)), ...)
     numeric: NumericSpec | None = None
+    extra_numerics: tuple = ()  # further ordered categories, hard-only
+
+    @property
+    def numerics(self) -> tuple:
+        """All ordered categories, primary first."""
+        primary = (self.numeric,) if self.numeric is not None else ()
+        return primary + self.extra_numerics
 
 
 THEME_SPECS: tuple = (
@@ -197,6 +216,9 @@ THEME_SPECS: tuple = (
             ("Club", ("Chess", "Choir", "Debate", "Drama", "Robotics", "Rowing", "Scouts", "Yearbook")),
         ),
         numeric=NumericSpec("Grade", unit_suffix="%", min_start=70, start_max=80, steps=(2, 5)),
+        # A second ordered dial (hard, K>=4 only): which class period it meets —
+        # an ordinal ("Period 1".."Period N"), so higher/next-to but no "2 more".
+        extra_numerics=(NumericSpec("Period", unit_prefix="Period ", valued=False),),
     ),
 )
 
@@ -233,33 +255,39 @@ def build_theme(
     rng: random.Random,
     items: int,
     categories: int = DEFAULT_CATEGORIES,
-    use_numeric: bool = False,
+    n_numeric: int = 0,
 ) -> Theme:
     """Sample a concrete theme from a spec: the subject + (K-1) attribute
-    categories, optionally one of which is the ordered numeric category. Members
-    are alphabetised (numeric by value). Which attributes appear varies per draw.
+    categories, ``n_numeric`` of which are this theme's ordered categories (primary
+    first). Members are alphabetised (numeric by value); which attributes appear
+    varies per draw. ``n_numeric`` accepts a bool too (False/True -> 0/1).
     """
     k = clamp_categories(categories)
     items = min(clamp_items(items), max_items_for(k))  # fewer items as k grows
     cats = [Category(spec.subject_name, sorted(rng.sample(spec.subject_items, items)))]
 
-    has_numeric = use_numeric and spec.numeric is not None
-    n_attr = k - 1 - (1 if has_numeric else 0)
+    numerics = spec.numerics[: int(n_numeric)]
+    numerics = numerics[: k - 1]  # never more ordered categories than non-subject slots
+    n_attr = k - 1 - len(numerics)
     names = [name for name, _ in spec.attributes]
     pools = dict(spec.attributes)
     chosen = sorted(rng.sample(names, n_attr), key=names.index)  # canonical order
     for name in chosen:
         cats.append(Category(name, sorted(rng.sample(pools[name], items))))
 
-    if has_numeric:
-        ns = spec.numeric
-        step = rng.choice(ns.steps)
-        start = rng.randint(ns.min_start, ns.start_max)
-        values = [start + i * step for i in range(items)]  # evenly spaced = rank order
+    for ns in numerics:
+        if ns.valued:
+            step = rng.choice(ns.steps)
+            start = rng.randint(ns.min_start, ns.start_max)
+            values = [start + i * step for i in range(items)]  # evenly spaced = rank order
+            labels = [ns.label(v) for v in values]
+        else:  # ordinal: 1..N in rank order, no values (no difference clues)
+            values = None
+            labels = [ns.label(i + 1) for i in range(items)]
         cats.append(
             Category(
                 ns.name,
-                [ns.label(v) for v in values],
+                labels,
                 ordered=True,
                 values=values,
                 unit=ns.unit_prefix,
@@ -289,7 +317,7 @@ def build_cafe_theme(
     use_price: bool = False,
 ) -> Theme:
     """The café theme (kept for callers/tests); see ``build_theme``."""
-    return build_theme(THEMES["cafe"], rng, items, categories, use_price)
+    return build_theme(THEMES["cafe"], rng, items, categories, int(use_price))
 
 
 def _solution_rows(theme: Theme, X: list[list[int]]) -> list[list[str]]:
@@ -298,6 +326,28 @@ def _solution_rows(theme: Theme, X: list[list[int]]) -> list[list[str]]:
         [theme.categories[c].items[X[e][c]] for c in range(theme.k)]
         for e in range(theme.n)
     ]
+
+
+def _roll_n_numeric(spec: ThemeSpec, difficulty: str, categories: int, rng: random.Random) -> int:
+    """How many ordered categories this puzzle includes (consumes ``rng``).
+
+    The primary ordered category appears on medium/hard at its ``prob``. A second
+    ordered dial is gated: hard difficulty, K >= 4, and its own ``prob`` roll —
+    so it stays an occasional flavour, never the default.
+    """
+    avail = spec.numerics
+    if not avail or difficulty not in ("medium", "hard"):
+        return 0
+    n = 1 if rng.random() < avail[0].prob else 0
+    if (
+        n == 1
+        and len(avail) >= 2
+        and difficulty == "hard"
+        and clamp_categories(categories) >= 4
+        and rng.random() < avail[1].prob
+    ):
+        n = 2
+    return n
 
 
 def build_puzzle(
@@ -312,7 +362,7 @@ def build_puzzle(
 
     Deterministic in ``(seed, theme, difficulty, items, categories)``: the same
     inputs always rebuild the identical puzzle (including the up-front numeric
-    roll), so the hint endpoint can regenerate exactly what the player sees. A
+    rolls), so the hint endpoint can regenerate exactly what the player sees. A
     concrete ``seed`` is always resolved and returned.
     """
     if difficulty not in DIFFICULTIES:
@@ -325,13 +375,14 @@ def build_puzzle(
     if seed is None:
         seed = random.randrange(_MAX_SEED)
 
+    # How many ordered categories to roll in (decided up front so it's part of the
+    # deterministic puzzle). The primary numeric appears on medium/hard; a second
+    # ordered dial is gated to hard puzzles with enough categories to spare.
     rng = random.Random(seed)
-    use_numeric = False
-    if spec.numeric is not None and difficulty in ("medium", "hard"):
-        use_numeric = rng.random() < spec.numeric.prob  # rolled once, up front
+    n_numeric = _roll_n_numeric(spec, difficulty, categories, rng)
 
     theme_obj, puzzle, report = generate_rated(
-        lambda r: build_theme(spec, r, items, categories, use_numeric), rng, difficulty
+        lambda r: build_theme(spec, r, items, categories, n_numeric), rng, difficulty
     )
     return theme_obj, puzzle, report, seed
 

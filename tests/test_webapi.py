@@ -179,8 +179,63 @@ def test_build_payload_unknown_theme_raises():
 def test_numeric_suffix_unit_in_clue_text():
     # D&D gold uses a suffix unit (" gp"): items render "50 gp" and amounts too.
     rng = random.Random(3)
-    theme = build_theme(THEMES["dnd"], rng, items=4, categories=4, use_numeric=True)
+    theme = build_theme(THEMES["dnd"], rng, items=4, categories=4, n_numeric=1)
     gold = theme.categories[-1]
     assert gold.name == "Gold" and gold.unit_suffix == " gp"
     assert gold.items == [f"{v} gp" for v in gold.values]
     assert gold.amount(20) == "20 gp"
+
+
+# --- Multiple ordered categories --------------------------------------------
+
+def test_school_theme_offers_two_ordered_dials():
+    specs = THEMES["school"].numerics
+    assert [ns.name for ns in specs] == ["Grade", "Period"]  # primary first
+
+
+def test_build_theme_with_two_numerics_is_unique():
+    from logicgrid.generate import generate_puzzle
+
+    rng = random.Random(5)
+    theme = build_theme(THEMES["school"], rng, items=4, categories=5, n_numeric=2)
+    ordered = [c for c in theme.categories if c.ordered]
+    assert {c.name for c in ordered} == {"Grade", "Period"}
+    theme.validate()
+    puzzle = generate_puzzle(theme, rng, difficulty="hard")
+    assert count_solutions(theme, puzzle.clues, cap=2) == 1
+    assert all(c.holds(puzzle.solution) for c in puzzle.clues)
+
+
+def test_build_theme_caps_numerics_to_available_slots():
+    # k=3 leaves only 2 non-subject slots; asking for 2 numerics must not crash
+    # or starve the attribute draw (n_attr stays >= 0).
+    rng = random.Random(1)
+    theme = build_theme(THEMES["school"], rng, items=3, categories=3, n_numeric=2)
+    assert theme.k == 3
+    assert sum(c.ordered for c in theme.categories) <= 2
+
+
+def test_second_dial_is_hard_and_large_only():
+    # The gated second ordered category never appears on medium, nor below K=4,
+    # but does turn up on some hard, large puzzles. Test the roll directly (cheap)
+    # rather than running full generation.
+    from logicgrid.webapi import _roll_n_numeric
+
+    school = THEMES["school"]
+
+    def roll(seed, difficulty, k):
+        return _roll_n_numeric(school, difficulty, k, random.Random(seed))
+
+    assert all(roll(s, "easy", 5) == 0 for s in range(50))          # easy: no numerics
+    assert all(roll(s, "medium", 5) <= 1 for s in range(50))        # medium: at most primary
+    assert all(roll(s, "hard", 3) <= 1 for s in range(50))          # K=3: at most primary
+    assert any(roll(s, "hard", 5) == 2 for s in range(50))          # hard+K=5: sometimes both
+    # single-dial themes never reach two, even on hard/large
+    assert all(_roll_n_numeric(THEMES["dnd"], "hard", 5, random.Random(s)) <= 1 for s in range(50))
+
+
+def test_two_numerics_payload_reproducible():
+    # Determinism must hold with the extra up-front roll (hint endpoint relies on it).
+    a = build_payload(seed=7, difficulty="hard", items=4, categories=5, theme="school")
+    b = build_payload(seed=7, difficulty="hard", items=4, categories=5, theme="school")
+    assert a == b
