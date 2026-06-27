@@ -133,13 +133,17 @@ def build_clue_pool(
         rank = {e: X[e][cn] for e in range(n)}            # item index == rank
         by_rank = sorted(range(n), key=lambda e: rank[e])  # entities low -> high
 
-        for e1 in range(n):  # higher-than + exact-difference for every ordered pair
+        for e1 in range(n):  # higher-than for every ordered pair
             for e2 in range(n):
                 if rank[e1] <= rank[e2]:
                     continue
                 a, b = ref(e1), ref(e2)
                 comparisons.append(Greater(cn, a, b))
-                if cat.values is not None:
+                # Exact-difference only for a *middle* gap (2..n-2 ranks): with
+                # evenly-spaced values that gap repeats, so the clue narrows
+                # rather than pinning exact values, and isn't just "adjacent".
+                gap = rank[e1] - rank[e2]
+                if cat.values is not None and 2 <= gap <= n - 2:
                     comparisons.append(
                         Diff(cn, a, b, cat.value(X[e1][cn]) - cat.value(X[e2][cn]), cat.values)
                     )

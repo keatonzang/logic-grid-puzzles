@@ -31,9 +31,13 @@ ATTRIBUTE_POOLS: dict[str, list[str]] = {
     "Syrup": ["Almond", "Caramel", "Cinnamon", "Hazelnut", "Maple", "Pumpkin", "Toffee", "Vanilla"],
     "Mug": ["Amber", "Cobalt", "Crimson", "Ivory", "Jade", "Onyx", "Rose", "Slate"],
 }
-# Ordered/numeric Price category, sampled in (probabilistically) instead of a
-# toggle. Sorted by value (ascending = rank), enabling the sequential clues.
-PRICE_POOL = [3, 4, 5, 6, 7, 8, 9, 10]
+# Ordered/numeric Price category, rolled in (probabilistically) rather than via a
+# toggle. Prices are *evenly spaced* (a random start + step) so "exactly $N more"
+# stays a relative hint — the gap repeats — instead of pinning exact values, which
+# it would with irregular spacing.
+PRICE_MIN = 2
+PRICE_START_MAX = 12
+PRICE_STEPS = (1, 2)
 PRICE_PROB = 0.5  # chance an eligible (medium/hard) puzzle includes Price
 
 MIN_ITEMS = 3
@@ -84,7 +88,9 @@ def build_cafe_theme(
         cats.append(Category(name, sorted(rng.sample(ATTRIBUTE_POOLS[name], items))))
 
     if use_price:
-        values = sorted(rng.sample(PRICE_POOL, items))  # ascending = rank order
+        step = rng.choice(PRICE_STEPS)
+        start = rng.randint(PRICE_MIN, PRICE_START_MAX)
+        values = [start + i * step for i in range(items)]  # evenly spaced = rank order
         cats.append(Category("Price", [f"${v}" for v in values], ordered=True, values=values))
 
     theme = Theme(
