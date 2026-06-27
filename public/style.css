@@ -93,10 +93,11 @@ button.primary:hover { filter: brightness(1.08); }
    Medium: drop the sidebar under the grid. Mobile: single column. */
 .layout {
   display: grid;
-  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(260px, 330px);
+  /* sidebar width (--side-w) is sized to the table so its columns never scroll */
+  grid-template-columns: minmax(200px, 250px) minmax(0, 1fr) var(--side-w, 320px);
   grid-template-areas: "clues grids side";
   gap: 1.5rem;
-  max-width: 1340px;
+  max-width: 1380px;
   margin: 0 auto;
   align-items: start;
 }
@@ -104,7 +105,9 @@ button.primary:hover { filter: brightness(1.08); }
 .grids-panel { grid-area: grids; }
 .side-panel  { grid-area: side; display: flex; flex-direction: column; gap: 1.25rem; }
 
-@media (max-width: 1100px) {
+/* Below the 3-column breakpoint, drop the table+hint under the grid where they
+   get the full content width (so the table fits without scrolling). */
+@media (max-width: 1299px) {
   .layout {
     grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
     grid-template-areas:
@@ -217,11 +220,16 @@ td.cell.hint-flash { animation: hint-flash .8s ease-out; }
 .progress h3 { margin: 0 0 .6rem; font-size: 1rem; display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
 .progress-count { font-size: .82rem; font-weight: 600; color: var(--muted); }
 .progress-count.done { color: var(--good); }
-/* Cells never wrap; if the table is wider than the sidebar (lots of categories)
-   it scrolls horizontally instead of squashing words onto multiple lines. */
-#progress-body { overflow-x: auto; }
-.progress-table { width: 100%; }
-.progress-table th, .progress-table td { padding: .35rem .5rem; font-size: .82rem; white-space: nowrap; }
+/* Equal-width columns (table-layout: fixed) sized to fit by the sidebar width,
+   so there is no horizontal scroll and every column is the same width. */
+.progress-table { width: 100%; table-layout: fixed; }
+.progress-table th, .progress-table td {
+  padding: .35rem .45rem;
+  font-size: .76rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .progress-table td { transition: color .15s, background .15s; }
 .progress-table td.blank { background: var(--panel-2); }
 .progress-table td:first-child, .progress-table th:first-child { color: var(--ink); font-weight: 600; }

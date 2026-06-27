@@ -191,6 +191,10 @@ function renderProgress() {
   const complete = total > 0 && filled === total;
   $("check").classList.toggle("ready", complete);
   $("progress-count").classList.toggle("done", complete);
+
+  // Size the desktop sidebar so the table's (equal) columns fit without scroll.
+  const sideW = Math.max(280, Math.min(500, k * 86 + 40));
+  document.querySelector(".layout").style.setProperty("--side-w", sideW + "px");
 }
 
 // Pick the layout for the viewport, (re)build the DOM, and repaint marks from
