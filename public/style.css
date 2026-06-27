@@ -89,15 +89,35 @@ button.primary:hover { filter: brightness(1.08); }
 .meta { color: var(--muted); font-size: .85rem; margin: 0; }
 .meta code { background: var(--panel-2); padding: .1rem .4rem; border-radius: 5px; }
 
+/* Desktop: clues · grid · sidebar (table on top, hint/feedback below).
+   Medium: drop the sidebar under the grid. Mobile: single column. */
 .layout {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) 1fr;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(260px, 330px);
+  grid-template-areas: "clues grids side";
   gap: 1.5rem;
-  max-width: 1200px;
+  max-width: 1340px;
   margin: 0 auto;
   align-items: start;
 }
-@media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+.clues-panel { grid-area: clues; }
+.grids-panel { grid-area: grids; }
+.side-panel  { grid-area: side; display: flex; flex-direction: column; gap: 1.25rem; }
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+    grid-template-areas:
+      "clues grids"
+      "clues side";
+  }
+}
+@media (max-width: 820px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "clues" "grids" "side";
+  }
+}
 
 .clues-panel, .grids-panel {
   background: var(--panel);
@@ -138,8 +158,8 @@ button.primary:hover { filter: brightness(1.08); }
 /* --- Feedback banner (hints + check results). Reserves its height so showing
    or clearing it never shifts the grid below; invisible when empty. --- */
 .feedback {
-  min-height: 4.5rem;  /* fits a two-line hint, so showing one never shifts the grid */
-  margin-bottom: 1rem;
+  min-height: 2.6rem;  /* sits at the foot of the sidebar, so it can't shift the grid */
+  margin: 0;
   background: var(--panel-2);
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
@@ -187,11 +207,18 @@ td.cell.hint-flash { animation: hint-flash .8s ease-out; }
 .key-table th { background: var(--panel-2); }
 
 /* --- Live solution table: fills in from the user's ✓ links --- */
-.progress { margin-top: 1.5rem; }
-.progress h3 { margin: 0 0 .6rem; font-size: 1rem; display: flex; align-items: baseline; gap: .5rem; }
+.progress {
+  margin: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+.progress h3 { margin: 0 0 .6rem; font-size: 1rem; display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
 .progress-count { font-size: .82rem; font-weight: 600; color: var(--muted); }
 .progress-count.done { color: var(--good); }
 .progress-table { width: 100%; table-layout: fixed; }
+.progress-table th, .progress-table td { padding: .35rem .5rem; font-size: .82rem; word-break: break-word; }
 .progress-table td { transition: color .15s, background .15s; }
 .progress-table td.blank { background: var(--panel-2); }
 .progress-table td:first-child, .progress-table th:first-child { color: var(--ink); font-weight: 600; }
