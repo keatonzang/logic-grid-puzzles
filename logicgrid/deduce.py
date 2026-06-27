@@ -277,20 +277,6 @@ def _prop_at_least_apart(board, clue) -> int:  # value(a) - value(b) >= delta
     return changed
 
 
-def _prop_extreme(board, clue) -> int:  # rank(a) is highest / lowest
-    p = clue.cat
-    target = board.n - 1 if clue.highest else 0
-    return _rule_out(board, clue.a, p, [q for q in _poss(board, clue.a, p) if q != target])
-
-
-def _prop_half(board, clue) -> int:  # rank(a) in upper / lower half
-    p, n = clue.cat, board.n
-    pa = _poss(board, clue.a, p)
-    if clue.upper:
-        return _rule_out(board, clue.a, p, [q for q in pa if q < n - n // 2])
-    return _rule_out(board, clue.a, p, [q for q in pa if q >= n // 2])
-
-
 def _prop_multi_compare(board, clue) -> int:  # rank(c) >/< every other
     p, changed = clue.cat, 0
     for o in clue.others:
@@ -327,8 +313,6 @@ _PROPAGATORS = {
     "Between": _prop_between,
     "Adjacent": _prop_adjacent,
     "AtLeastApart": _prop_at_least_apart,
-    "Extreme": _prop_extreme,
-    "Half": _prop_half,
     "MultiCompare": _prop_multi_compare,
     "AtMost": _prop_at_most,
 }

@@ -15,10 +15,8 @@ from .clues import (
     Diff,
     EitherOr,
     ExactlyKLinks,
-    Extreme,
     GroupMatch,
     Greater,
-    Half,
     MultiCompare,
     Negative,
     Neither,
@@ -75,6 +73,7 @@ def build_clue_pool(
     enable_alldiff: bool = True,
     enable_pairing: bool = True,
     enable_match: bool = True,
+    enable_atmost: bool = True,
     include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
@@ -176,16 +175,6 @@ def build_clue_pool(
                     delta = step * rng.randint(2, m)
                     comparisons.append(AtLeastApart(cn, ref(e1), ref(e2), delta, cat.values))
 
-        comparisons.append(Extreme(cn, ref(by_rank[-1]), True))   # the priciest
-        comparisons.append(Extreme(cn, ref(by_rank[0]), False))   # the cheapest
-
-        if n >= 4:  # upper/lower half (a clear half; skip the middle on odd n)
-            for e in range(n):
-                if rank[e] < n // 2:
-                    comparisons.append(Half(cn, ref(e), False))
-                elif rank[e] >= n - n // 2:
-                    comparisons.append(Half(cn, ref(e), True))
-
         for c in range(n):  # less/more than both of two others
             highs = [e for e in range(n) if rank[e] > rank[c]]
             lows = [e for e in range(n) if rank[e] < rank[c]]
@@ -248,24 +237,31 @@ def build_clue_pool(
                     if opts is not None:
                         neither.append(Neither(anchor, opts))
 
-            # "At least K of N" Among over DISTINCT categories. Always ambiguous:
-            # K is kept strictly below N (K == N would just be N direct links), so
-            # it needs N >= 3 distinct categories. Exactly K options are true.
-            if multi_match:
-                def distinct_opts(n_opts, n_true):
-                    cats = rng.sample(non_anchor, n_opts)
-                    true_cats = set(rng.sample(cats, n_true))
-                    return [
-                        (co, X[e][co])
-                        if co in true_cats
-                        else (co, rng.choice([i for i in range(n) if i != X[e][co]]))
-                        for co in cats
-                    ]
+            # Distinct-category option lists (exactly `n_true` of them match the
+            # anchor) for the threshold disjunctions below.
+            def distinct_opts(n_opts, n_true):
+                cats = rng.sample(non_anchor, n_opts)
+                true_cats = set(rng.sample(cats, n_true))
+                return [
+                    (co, X[e][co])
+                    if co in true_cats
+                    else (co, rng.choice([i for i in range(n) if i != X[e][co]]))
+                    for co in cats
+                ]
 
+            # "At least K of N" Among (K < N, so always ambiguous; K == N would be N
+            # direct links). Needs N >= 3 distinct categories.
+            if multi_match:
                 for n_opts in range(3, len(non_anchor) + 1):
-                    for at_least in range(2, n_opts):  # "at least K of N" (K < N)
+                    for at_least in range(2, n_opts):
                         among.append(Among(anchor, distinct_opts(n_opts, at_least), at_least=at_least))
-                    for k_max in range(1, n_opts - 1):  # "at most K of N" (K < N-? ... < N)
+
+            # "At most K of N" (K < N). N >= 3 distinct categories — at N == 2 it
+            # collapses toward either/or territory, so keep it to genuine "at most
+            # one of three"-style clues (needs >= 4 total categories).
+            if enable_atmost:
+                for n_opts in range(3, len(non_anchor) + 1):
+                    for k_max in range(1, n_opts):
                         atmost.append(AtMost(anchor, distinct_opts(n_opts, k_max), k_max))
 
     # "All different": N terms on N distinct entities, spanning >= 2 categories
@@ -356,7 +352,7 @@ _DIFFICULTY_POOL = {
     "easy": dict(  # is / is-not only -> solvable by transitivity (no clue tricks)
         enable_among=False, enable_either=False, enable_neither=False,
         enable_alldiff=False, multi_match=False,
-        enable_pairing=False, enable_match=False,
+        enable_pairing=False, enable_match=False, enable_atmost=False,
     ),
     "medium": dict(
         among_sizes=(2, 3), enable_either=True, enable_neither=True,

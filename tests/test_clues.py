@@ -14,10 +14,8 @@ from logicgrid.clues import (
     Diff,
     EitherOr,
     ExactlyKLinks,
-    Extreme,
     GroupMatch,
     Greater,
-    Half,
     MultiCompare,
     Negative,
     Neither,
@@ -125,7 +123,7 @@ def test_adjacent_text(ordered_theme, identity_solution):
     assert text == "Xi's Year is immediately below Yo's."
 
 
-# --- new value dials: AtLeastApart / Extreme / Half / MultiCompare / AtMost ---
+# --- new value dials: AtLeastApart / MultiCompare / AtMost --------------------
 # ordered_theme cat 2 = Year, values [2001, 2002, 2003]; identity ranks 0,1,2.
 
 def test_at_least_apart_holds_and_text(ordered_theme, identity_solution):
@@ -135,21 +133,6 @@ def test_at_least_apart_holds_and_text(ordered_theme, identity_solution):
     assert not AtLeastApart(2, (0, 2), (0, 0), 3, v).holds(identity_solution)  # 2 >= 3 fails
     assert AtLeastApart(2, (0, 2), (0, 0), 2, v).text(ordered_theme) == \
         "Zu's Year is at least 2 more than Xi's."
-
-
-def test_extreme_holds_and_text(ordered_theme, identity_solution):
-    assert Extreme(2, (0, 2), highest=True).holds(identity_solution)   # rank 2 = top
-    assert Extreme(2, (0, 0), highest=False).holds(identity_solution)  # rank 0 = bottom
-    assert not Extreme(2, (0, 0), highest=True).holds(identity_solution)
-    assert Extreme(2, (0, 2), highest=True).text(ordered_theme) == "Zu had the highest Year."
-
-
-def test_half_holds_and_text(ordered_theme, identity_solution):
-    # n=3: lower half = rank < 1 (just rank 0); upper = rank >= 2
-    assert Half(2, (0, 0), upper=False).holds(identity_solution)
-    assert Half(2, (0, 2), upper=True).holds(identity_solution)
-    assert not Half(2, (0, 1), upper=False).holds(identity_solution)  # middle, neither
-    assert Half(2, (0, 0), upper=False).text(ordered_theme) == "Xi's Year was in the lower half."
 
 
 def test_multi_compare_holds_and_text(ordered_theme, identity_solution):

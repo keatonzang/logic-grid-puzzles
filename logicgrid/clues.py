@@ -189,45 +189,6 @@ class AtLeastApart(Clue):
         )
 
 
-class Extreme(Clue):
-    """Entity of `a` has the highest (or lowest) rank in ordered category `cat`."""
-
-    removal_class = 1
-
-    def __init__(self, cat: int, a: Term, highest: bool):
-        self.cat, self.a, self.highest = cat, a, highest
-        self.involved = frozenset({cat, a[0]})
-
-    def holds(self, X) -> bool:
-        rank = X[entity_of(X, self.a)][self.cat]
-        return rank == (len(X) - 1 if self.highest else 0)
-
-    def text(self, theme: Theme) -> str:
-        cn = theme.categories[self.cat].name
-        which = "highest" if self.highest else "lowest"
-        return f"{_label(theme, self.a)} had the {which} {cn}."
-
-
-class Half(Clue):
-    """Entity of `a` is in the upper (or lower) half of ordered category `cat`."""
-
-    removal_class = 1
-
-    def __init__(self, cat: int, a: Term, upper: bool):
-        self.cat, self.a, self.upper = cat, a, upper
-        self.involved = frozenset({cat, a[0]})
-
-    def holds(self, X) -> bool:
-        n = len(X)
-        rank = X[entity_of(X, self.a)][self.cat]
-        return rank >= n - n // 2 if self.upper else rank < n // 2
-
-    def text(self, theme: Theme) -> str:
-        cn = theme.categories[self.cat].name
-        half = "upper" if self.upper else "lower"
-        return f"{_label(theme, self.a)}'s {cn} was in the {half} half."
-
-
 class MultiCompare(Clue):
     """Entity of `c` ranks above (greater) or below ALL of `others` in ordered
     category `cat` — e.g. "less than both A and B"."""
