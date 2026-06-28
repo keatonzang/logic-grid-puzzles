@@ -74,16 +74,20 @@ def test_generate_rated_matches_measured_band(target):
     assert _agrees(report["board"], puzzle.solution)
 
 
-def test_difficulty_tier_ceilings():
-    # normal = no clue tricks (<=2); hard = clue propagation (3);
-    # mega = needs proof-by-contradiction (tier 4).
+def test_difficulty_tiers_increase_by_index():
+    # Bands are quintiles of the composite difficulty index, so they are NOT
+    # ceiling-locked (a clue-heavy ceiling-3 can outrank a sparse ceiling-4). The
+    # robust contract: the index rises up the ladder, the easiest tier stays
+    # genuinely shallow, and the harder ones demand real propagation.
+    from logicgrid.deduce import difficulty_index
+
     e = generate_rated(lambda r: build_cafe_theme(r, 4), random.Random(1), "normal")[2]
     m = generate_rated(lambda r: build_cafe_theme(r, 4), random.Random(1), "hard")[2]
     h = generate_rated(lambda r: build_cafe_theme(r, 4), random.Random(1), "mega")[2]
-    assert e["ceiling"] <= 2
-    assert m["ceiling"] == 3
-    assert h["ceiling"] == 4
-    assert h["steps"][4] >= 1  # at least one hypothetical step
+    assert e["ceiling"] <= 2  # basic pool -> line elimination / transitivity only
+    assert e["band"] == "normal"
+    assert difficulty_index(e) <= difficulty_index(m) <= difficulty_index(h)
+    assert h["ceiling"] >= 3  # mega demands clue-logic or proof-by-contradiction
 
 
 def test_solver_sound_across_cafe_sizes():

@@ -675,18 +675,22 @@ DIFFICULTY_ORDER = ("normal", "hard", "mega", "giga", "tera")
 #                the clues leave after propagation — see solver.search_effort)
 #   * cluecost — mean clue cognitive weight (how sophisticated the clues are)
 # Each is centred/scaled by its measured median and spread so it contributes
-# comparably; the sum is the index, cut into mega/giga/tera. (median, scale):
+# comparably; the sum is the index, which alone names the band. (median, scale):
 _INDEX_NORM = {"whatif": (8.0, 8.0), "lognodes": (7.1, 1.6), "cluecost": (3.0, 0.5)}
-# Cuts at the measured tertiles of the ceiling-4 index, so mega/giga/tera each
-# cover ~a third of the contradiction-difficulty range — fat, equal targets that
-# generate-and-grade hits in a few attempts (and a meaningful third apiece).
-_MEGA_GIGA = -1.8   # index below this -> mega
-_GIGA_TERA = 0.4    # index at/above this -> tera
+# The whole ladder is one index, split into FIVE equal-frequency bands. The four
+# cuts are the measured quintiles of a representative 200-puzzle sample (rounded):
+# sorting puzzles by the index reproduces the reasoning-ceiling ordering on its own
+# (Q1 is pure line/transitivity, Q2 mostly clue-logic, Q3-Q5 progressively harder
+# proof-by-contradiction), with the index resolving hardness *within* a ceiling. So
+# difficulty deliberately does NOT scale linearly — the cuts are wherever the
+# population splits into fifths. One band per cut, low to high:
+_BAND_CUTS = (-7.0, -3.0, -1.65, 0.0)  # < -7 normal · hard · mega · giga · >=0 tera
 
 
 def difficulty_index(report: dict) -> float:
-    """Composite contradiction-tier difficulty (see _INDEX_NORM). Robust to any
-    one signal being noisy because three near-independent signals must agree."""
+    """Composite difficulty score spanning the whole ladder (see _INDEX_NORM).
+    Robust to any one signal being noisy because three near-independent signals
+    must agree."""
     whatif = report["steps"][4] + report["steps"][5]
     lognodes = math.log2(max(1, report.get("nodes", 1)))
     cluecost = report.get("clue_cost", {}).get("mean", _INDEX_NORM["cluecost"][0])
@@ -699,20 +703,15 @@ def difficulty_index(report: dict) -> float:
 
 
 def band_of(report: dict) -> str:
-    """Name the difficulty band for a solved report (see DIFFICULTY_ORDER)."""
-    c = report["ceiling"]
-    if c <= 2:
-        return "normal"
-    if c == 3:
-        return "hard"
-    if c >= 5:
-        return "tera"  # a nested what-if was required — the deepest reasoning
+    """Name the difficulty band for a solved report by quintile of the composite
+    index (see _BAND_CUTS / DIFFICULTY_ORDER). A nested what-if (ceiling >= 5) is
+    unconditionally the top tier — its index lands there anyway, but the floor
+    guards against an undersampled scale."""
+    if report["ceiling"] >= 5:
+        return DIFFICULTY_ORDER[-1]
     d = difficulty_index(report)
-    if d < _MEGA_GIGA:
-        return "mega"
-    if d < _GIGA_TERA:
-        return "giga"
-    return "tera"
+    band = sum(d >= cut for cut in _BAND_CUTS)  # 0..4 -> index into the order
+    return DIFFICULTY_ORDER[band]
 
 
 def _score(r: dict) -> int:
