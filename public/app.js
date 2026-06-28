@@ -514,10 +514,10 @@ function fitGuildBands() {
     top.forEach((el) => shrink(el, "width"));
     let need = 0;
     top.forEach((el) => { need = Math.max(need, el.scrollHeight); });
-    // + room for the .gl's top/bottom padding (~9px) plus breathing space, so the
-    // padding produces real slack around the text instead of being absorbed.
-    const MINH = 1.6 * rem, MAXH = 4.8 * rem;
-    table.style.setProperty("--gband-h", Math.min(MAXH, Math.max(MINH, Math.ceil(need) + 16)) + "px");
+    // + room for the .gl's top/bottom padding (16 + 6) plus a little safety, so the
+    // padding produces real slack (≈16px above / ≈6px below) instead of being absorbed.
+    const MINH = 1.8 * rem, MAXH = 5.2 * rem;
+    table.style.setProperty("--gband-h", Math.min(MAXH, Math.max(MINH, Math.ceil(need) + 24)) + "px");
   });
 }
 
