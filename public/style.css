@@ -301,6 +301,51 @@ table.staircase .blk-top { border-top: 2px solid var(--muted); }
 }
 .grid-block h4 b { color: var(--ink); }
 
+/* --- Groups panel: distinct scratch grids for hierarchy membership --- */
+.groups-panel {
+  margin-top: 1.5rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid #ffc46e;  /* the "group" accent, matching the guide tag */
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+}
+.groups-panel > h3 { margin: 0 0 .25rem; font-size: 1rem; }
+.groups-intro { margin: 0 0 1rem; font-size: .82rem; color: var(--muted); }
+#groups-body { display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; align-items: flex-start; }
+.group-block { max-width: 100%; }
+/* group grids have few, longer-named columns -> auto layout + horizontal headers */
+table.group-grid { table-layout: auto; }
+.group-grid col.cell-col { width: auto; }
+.group-grid th.group-col {
+  font-size: .74rem; font-weight: 600; color: var(--ink);
+  padding: .35rem .55rem; white-space: nowrap; vertical-align: bottom; height: auto;
+  border-bottom: 3px solid var(--gcolor, var(--line));  /* colour-codes the column */
+}
+.group-grid th.group-col .group-size {
+  display: block; font-size: .68rem; font-weight: 700;
+  color: var(--muted); letter-spacing: .03em;
+}
+.group-grid th.group-col.full { color: var(--gcolor); }
+.group-grid th.group-col.full .group-size { color: var(--gcolor); }
+.group-grid td.cell { cursor: pointer; min-width: 2.4rem; }
+.group-dot {
+  display: inline-block; width: .7rem; height: .7rem; border-radius: 50%;
+  margin-right: .45rem; vertical-align: middle;
+}
+.group-legend li { display: flex; align-items: center; }
+.group-legend {
+  list-style: none;
+  margin: .6rem 0 0;
+  padding: 0;
+  font-size: .76rem;
+  color: var(--muted);
+  max-width: 22rem;
+}
+.group-legend li { margin: .15rem 0; }
+.group-legend b { color: var(--ink); font-weight: 600; }
+.group-legend span { color: #ffc46e; }
+
 /* table-layout:fixed + colgroup => identical dimensions regardless of text */
 table.grid { table-layout: fixed; border-collapse: collapse; }
 col.rowlab-col { width: var(--rowlab); }

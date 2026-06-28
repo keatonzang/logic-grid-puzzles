@@ -110,5 +110,49 @@
     };
   }
 
-  return { lineHasEqElsewhere, nextState, derive, makeHistory };
+  // --- Group (subject × group) grids ----------------------------------------
+  // A group column is NOT a permutation: each subject is in exactly ONE group
+  // (one ✓ per row) but a group holds a known number of subjects (`sizes[g]`
+  // ✓ per column). So the rules are: a ✓ crosses out the rest of its row, and a
+  // column auto-crosses its blanks once it already has `sizes[g]` ✓.
+  function _groupCanLink(M, sizes, s, g) {
+    for (let c = 0; c < M[s].length; c++) if (c !== g && M[s][c] === 1) return false;
+    let ones = 0;
+    for (let r = 0; r < M.length; r++) if (M[r][g] === 1) ones++;
+    return ones < sizes[g];
+  }
+
+  // The value a group cell takes when clicked: blank → × → (✓ if allowed) → blank.
+  function nextStateGroup(M, sizes, s, g) {
+    const cur = M[s][g];
+    if (cur === 0) return 2;
+    if (cur === 2) return _groupCanLink(M, sizes, s, g) ? 1 : 0;
+    return 0;
+  }
+
+  // Displayed state of a group grid, with auto-× for full rows/columns. `lit`
+  // marks hand-placed × (bright) versus auto × (dim), mirroring `derive`.
+  function deriveGroup(M, sizes) {
+    const n = M.length;
+    const g = sizes.length;
+    const rowHasOne = new Array(n).fill(false);
+    const colOnes = new Array(g).fill(0);
+    for (let r = 0; r < n; r++)
+      for (let c = 0; c < g; c++)
+        if (M[r][c] === 1) { rowHasOne[r] = true; colOnes[c]++; }
+    const display = [];
+    const lit = [];
+    for (let r = 0; r < n; r++) {
+      display.push([]);
+      lit.push([]);
+      for (let c = 0; c < g; c++) {
+        const forced = rowHasOne[r] || colOnes[c] >= sizes[c];
+        display[r].push(M[r][c] !== 0 ? M[r][c] : forced ? 2 : 0);
+        lit[r].push(M[r][c] === 2);
+      }
+    }
+    return { display, lit };
+  }
+
+  return { lineHasEqElsewhere, nextState, derive, makeHistory, nextStateGroup, deriveGroup };
 });

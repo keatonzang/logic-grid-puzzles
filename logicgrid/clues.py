@@ -745,8 +745,10 @@ class GroupCount(Clue):
         return c == self.k
 
     def text(self, theme: Theme) -> str:
-        prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
         refs = _join([_ref(theme, a) for a in self.anchors], "and")
+        if self.k == 0:  # "exactly 0" / "at most 0" read better as "none"
+            return f"None of {refs} belong to the {self.label}."
+        prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
         return f"{prefix} {_count_word(self.k)} of {refs} belong to the {self.label}."
 
 

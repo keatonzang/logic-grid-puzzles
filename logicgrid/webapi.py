@@ -489,6 +489,16 @@ def build_hint(
     return next_hint(theme_obj, puzzle.clues, known)
 
 
+def _category_payload(c) -> dict:
+    """Serialise a category for the client, including its group partition (the
+    guild/ward each item belongs to) so the UI can show and solve the groups."""
+    out = {"name": c.name, "items": list(c.items)}
+    if c.has_groups:
+        out["group_noun"] = c.group_noun
+        out["groups"] = [{"label": label, "items": list(members)} for label, members in c.groups]
+    return out
+
+
 def build_payload(
     seed: int | None = None,
     difficulty: str = DEFAULT_DIFFICULTY,
@@ -520,9 +530,7 @@ def build_payload(
             "steps": report["steps"],
             "total_steps": report["total_steps"],
         },
-        "categories": [
-            {"name": c.name, "items": list(c.items)} for c in theme_obj.categories
-        ],
+        "categories": [_category_payload(c) for c in theme_obj.categories],
         "clues": [clue.text(theme_obj) for clue in puzzle.clues],
         "solution": _solution_rows(theme_obj, puzzle.solution),
     }

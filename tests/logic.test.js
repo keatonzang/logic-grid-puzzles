@@ -4,7 +4,9 @@
 // Run with:  node --test
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { lineHasEqElsewhere, nextState, derive, makeHistory } = require("../public/logic.js");
+const {
+  lineHasEqElsewhere, nextState, derive, makeHistory, nextStateGroup, deriveGroup,
+} = require("../public/logic.js");
 
 // 0 = blank, 1 = "=", 2 = "×"
 const grid = (n) => Array.from({ length: n }, () => new Array(n).fill(0));
@@ -182,6 +184,43 @@ test("history: bulk actions (e.g. Clear) undo every cell at once", () => {
   assert.equal(h.size(), 1);
   const act = h.undo();
   assert.equal(act.cells.length, 2);
+});
+
+// --- Group grids (subject × group) ------------------------------------------
+// 4 subjects, 2 groups with sizes [3, 1] (e.g. Furred holds 3, Finned holds 1).
+const ggrid = () => Array.from({ length: 4 }, () => [0, 0]);
+const SIZES = [3, 1];
+
+test("group: a ✓ crosses out the rest of its row (one group per subject)", () => {
+  const M = ggrid();
+  M[0][0] = 1; // subject 0 in group 0
+  const { display } = deriveGroup(M, SIZES);
+  assert.equal(display[0][0], 1);
+  assert.equal(display[0][1], 2, "other group in the row auto-crossed");
+});
+
+test("group: a column auto-crosses once it holds `size` ✓", () => {
+  const M = ggrid();
+  M[0][0] = 1; M[1][0] = 1; M[2][0] = 1; // group 0 is full (size 3)
+  const { display } = deriveGroup(M, SIZES);
+  assert.equal(display[3][0], 2, "4th subject can't be in the full group");
+});
+
+test("group: nextStateGroup won't allow a 2nd ✓ in a row or an over-full column", () => {
+  const M = ggrid();
+  M[0][0] = 1;
+  assert.notEqual(nextStateGroup(M, SIZES, 0, 1), 1, "row already has a group");
+  const M2 = ggrid();
+  M2[0][1] = 1; // group 1 full (size 1)
+  M2[1][1] = 2;
+  assert.equal(nextStateGroup(M2, SIZES, 1, 1), 0, "× → blank, never ✓ (column full)");
+});
+
+test("group: cell cycles blank → × → ✓ when allowed", () => {
+  const M = ggrid();
+  assert.equal(nextStateGroup(M, SIZES, 0, 0), 2); M[0][0] = 2;
+  assert.equal(nextStateGroup(M, SIZES, 0, 0), 1); M[0][0] = 1;
+  assert.equal(nextStateGroup(M, SIZES, 0, 0), 0);
 });
 
 test("history: reset clears both stacks", () => {

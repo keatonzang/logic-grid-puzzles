@@ -333,6 +333,11 @@ def test_group_count_text():
     assert al.text(g) == "At least one of Ann and Bo belong to the Furred."
     am = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 1, "atmost")
     assert am.text(g) == "At most one of Ann and Bo belong to the Furred."
+    # k == 0 reads as "None of ..." rather than "Exactly 0 of ..."
+    z_ex = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 0, "exactly")
+    z_am = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 0, "atmost")
+    assert z_ex.text(g) == "None of Ann and Bo belong to the Furred."
+    assert z_am.text(g) == "None of Ann and Bo belong to the Furred."
 
 
 def _ordered_group_theme():

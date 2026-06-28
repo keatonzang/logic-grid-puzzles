@@ -73,6 +73,25 @@ def test_build_payload_defaults():
             assert c["items"] == sorted(c["items"])
 
 
+def test_build_payload_exposes_groups_for_the_ui():
+    # find a King's Guild draw that rolled in a hierarchy, and check the partition
+    # is serialised so the client can render/solve it (and only on grouped cats).
+    for s in range(40):
+        p = build_payload(seed=s, difficulty="medium", items=4, categories=4, theme="kings_guild")
+        grouped = [c for c in p["categories"] if "groups" in c]
+        if not grouped:
+            continue
+        for c in grouped:
+            assert c["group_noun"]
+            members = [it for g in c["groups"] for it in g["items"]]
+            assert sorted(members) == sorted(c["items"])  # partition covers the sampled items
+            assert all(g["label"] and g["items"] for g in c["groups"])
+        # ungrouped categories carry no group keys
+        assert all("groups" not in c for c in p["categories"] if c not in grouped)
+        return
+    raise AssertionError("no grouped payload found across the sampled seeds")
+
+
 def test_build_payload_solution_rows_align():
     p = build_payload(seed=3, items=5)
     assert all(len(c["items"]) == 5 for c in p["categories"])
