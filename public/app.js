@@ -437,20 +437,22 @@ function fitCells() {
   table.style.setProperty("--cell", cell + "px");
 }
 
-// Shrink each guild-band label until it fits its (fixed) box — long names wrap
-// (top band) or scale down (left band) instead of stretching the cell. Shrinks
+// Shrink each guild-band label until it fits inside its padded box — long names
+// wrap at word boundaries and only then scale down, so the text never clips or
+// stretches the cell. Measured on the inner .gl-i (capped to the content box),
+// which detects overflow reliably even when the label is flex-centred. Shrinks
 // only, never enlarges, so type stays even across tabs.
 function fitGuildLabels() {
   const MIN = 7; // px floor; smaller is unreadable and the full name is on hover
-  document.querySelectorAll(".gl").forEach((gl) => {
-    gl.style.removeProperty("--glfs");                       // reset to CSS base
-    let size = parseFloat(getComputedStyle(gl).fontSize);
-    let guard = 24;
+  document.querySelectorAll(".gl-i").forEach((el) => {
+    el.style.removeProperty("--glfs");                       // reset to CSS base
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    let guard = 28;
     const overflows = () =>
-      gl.scrollHeight > gl.clientHeight + 0.5 || gl.scrollWidth > gl.clientWidth + 0.5;
+      el.scrollHeight > el.clientHeight + 0.5 || el.scrollWidth > el.clientWidth + 0.5;
     while (overflows() && size > MIN && guard-- > 0) {
       size -= 0.5;
-      gl.style.setProperty("--glfs", size + "px");
+      el.style.setProperty("--glfs", size + "px");
     }
   });
 }
@@ -476,24 +478,21 @@ function vlabel(th, text) {
   return th;
 }
 
-// A guild-band label cell. The label lives in an absolutely-positioned `.gl` box
-// that wraps (at word boundaries only) and shrink-to-fits (see fitGuildLabels),
-// so its length never sizes the cell — the data tiles stay square. `vertical`
-// rotates the text for the left band so it matches the rotated row-category
-// label; the top band stays horizontal. Full text stays available on hover.
-function guildCell(cls, label, color, vertical) {
+// A guild-band label cell. The label lives in an absolutely-positioned `.gl` box,
+// inside which a `.gl-i` element is capped to the padded content box and wraps (at
+// word boundaries only) + shrink-to-fits (see fitGuildLabels). So the label never
+// sizes the cell — the data tiles stay square. The left band rotates `.gl-i` via
+// CSS to match the row-category label. Full text stays available on hover.
+function guildCell(cls, label, color) {
   const th = cell("th", "", cls);
   th.style.setProperty("--gcolor", color);
   th.title = label;
   const gl = document.createElement("span");
   gl.className = "gl";
-  if (vertical) {
-    const inner = document.createElement("span");
-    inner.textContent = label;
-    gl.appendChild(inner);
-  } else {
-    gl.textContent = label;
-  }
+  const inner = document.createElement("span");
+  inner.className = "gl-i";
+  inner.textContent = label;
+  gl.appendChild(inner);
   th.appendChild(gl);
   return th;
 }
@@ -561,7 +560,7 @@ function renderGrid(i, j, cats) {
     if (rowSegs) {  // left-axis guild band
       const seg = rowSegs.find((s) => s.start === posI);
       if (seg) {
-        const gth = guildCell("sc-rowguild" + (seg.start > 0 ? " grp-top" : ""), seg.label, seg.color, true);
+        const gth = guildCell("sc-rowguild" + (seg.start > 0 ? " grp-top" : ""), seg.label, seg.color);
         gth.rowSpan = seg.size;
         tr.appendChild(gth);
       }
@@ -671,7 +670,7 @@ function renderStaircase(cats) {
         const seg = rowSegs.find((s) => s.start === posI);
         if (seg) {
           const gEdge = seg.start === 0 ? (i > 0 ? " blk-top" : "") : " grp-top";
-          const gth = guildCell("sc-rowguild" + gEdge, seg.label, seg.color, true);
+          const gth = guildCell("sc-rowguild" + gEdge, seg.label, seg.color);
           gth.rowSpan = seg.size;
           tr.appendChild(gth);
         }

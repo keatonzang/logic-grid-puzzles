@@ -302,23 +302,28 @@ th.sc-guild, th.g-band, th.sc-rowguild {
   background: color-mix(in srgb, var(--gcolor) 22%, var(--panel-2));
 }
 th.sc-guild, th.g-band {        /* top band: short, wide; coloured line below */
-  height: 1.7rem;
+  height: 2rem;
   border-bottom: 2px solid var(--gcolor);
 }
 th.sc-rowguild {                /* left band: tall; coloured line beside the items */
   border-right: 2px solid var(--gcolor);
 }
-col.sc-rowguild-col { width: 1.75rem; }
-.gl {                           /* clipped, centred, shrink-to-fit label box */
+col.sc-rowguild-col { width: 1.9rem; }
+.gl {                           /* padded, centred label box (clips overflow) */
   position: absolute;
   inset: 0;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 2px;
+  padding: 4px 3px;
+}
+.gl-i {                         /* capped to the padded box; wraps + shrink-to-fits */
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
   text-align: center;
-  line-height: 1.05;
+  line-height: 1.12;
   white-space: normal;
   overflow-wrap: normal;        /* wrap only at word boundaries — never mid-word */
   word-break: normal;
@@ -326,19 +331,9 @@ col.sc-rowguild-col { width: 1.75rem; }
   font-weight: 600;
   color: var(--ink);
 }
-th.sc-rowguild > .gl { padding: 5px 1px; }  /* breathing room along the rotated text */
-th.sc-rowguild > .gl > span {   /* left band: rotated to match the row-category label */
+th.sc-rowguild .gl-i {          /* left band: rotated to match the row-category label */
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  max-height: 100%;             /* cap the inline (vertical) size so it wraps at words */
-  white-space: normal;
-  overflow-wrap: normal;
-  word-break: normal;
-  text-align: center;
-  line-height: 1.15;
-  font-size: var(--glfs, .68rem);
-  font-weight: 600;
-  color: var(--ink);
 }
 
 .grid-block {
@@ -548,7 +543,7 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
   table.grid th, table.grid td,
   table.staircase th, table.staircase td { border-color: #000; }
   th.col span, th.row, .grid-block h4, .grid-block h4 b,
-  th.sc-colcat, th.sc-rowcat span, .gl, .gl > span { color: #000 !important; }
+  th.sc-colcat, th.sc-rowcat span, .gl-i { color: #000 !important; }
   table.staircase .blk-left, table.staircase .blk-top,
   .grp-left, .grp-top { border-color: #000 !important; }
   th.sc-guild, th.g-band, th.sc-rowguild { background: #eee !important; border-color: #000 !important; }
