@@ -640,6 +640,9 @@ class Not(Statement):
             if g.subject:
                 return f"no one in the {g.label} goes with {_label(theme, g.anchor)}"
             return f"{_ref(theme, g.anchor)} does not belong to the {g.label}"
+        if isinstance(self.s, GroupSubset):  # read a negated universal inline
+            gs = self.s
+            return f"at least one member of the {gs.label_a} does not belong to the {gs.label_b}"
         return f"it is not the case that {self.s.text(theme)}"
 
 
@@ -796,6 +799,68 @@ class GroupLink(Statement):
         if self.subject:
             return f"someone in the {self.label} goes with {_label(theme, self.anchor)}"
         return f"{_ref(theme, self.anchor)} belongs to the {self.label}"
+
+
+class GroupSubset(Statement):
+    """Universal atom: EVERY member of group A (block `members_a` of category
+    `cat_a`) also belongs to group B (block `members_b` of category `cat_b`) — i.e.
+    A ⊆ B membership-wise. The set form of GroupLink: a whole group stands in as an
+    instance ("both members of the Hill Ward belong to the Joiner's Guild").
+
+    It reduces to a block of pairwise non-links: A ⊆ B holds iff no A-member item is
+    linked to any non-B item of `cat_b` (a member of A sitting outside B is the only
+    way to break it). That makes the three-valued eval/constrain exact for the
+    asserted-true direction and sound (partial) for the false direction."""
+
+    def __init__(self, cat_a: int, members_a, label_a: str, cat_b: int, members_b, label_b: str):
+        self.cat_a = cat_a
+        self.members_a = tuple(sorted(members_a))
+        self.label_a = label_a
+        self.cat_b = cat_b
+        self.members_b = tuple(sorted(members_b))
+        self.label_b = label_b
+        self.cats = frozenset({cat_a, cat_b})
+
+    def _bad_pairs(self, n: int):
+        """The (a-item, b-item) cells whose link would violate A ⊆ B: an A-member
+        carried by an entity whose `cat_b` item is OUTSIDE B."""
+        mb = set(self.members_b)
+        return [(a, b) for a in self.members_a for b in range(n) if b not in mb]
+
+    def value(self, X) -> bool:
+        mb = set(self.members_b)
+        ma = set(self.members_a)
+        return all(X[e][self.cat_b] in mb for e in range(len(X)) if X[e][self.cat_a] in ma)
+
+    def eval(self, board) -> int:
+        states = [board.get(self.cat_a, a, self.cat_b, b) for a, b in self._bad_pairs(board.n)]
+        if _Y in states:  # an A-member is pinned outside B -> the universal is broken
+            return _N
+        if all(s == _N for s in states):  # no A-member can sit outside B -> holds
+            return _Y
+        return _U
+
+    def constrain(self, board, target: int) -> int:
+        bad = self._bad_pairs(board.n)
+        if target == _Y:  # all of A in B: no A-member may link to a non-B item
+            return sum(board.set(self.cat_a, a, self.cat_b, b, _N) for a, b in bad)
+        # target N: some A-member sits outside B. Only forced once a single such
+        # link remains open (the rest ruled out) -> pin it true.
+        states = [board.get(self.cat_a, a, self.cat_b, b) for a, b in bad]
+        if _Y in states:
+            return 0  # already witnessed
+        unknown = [(a, b) for (a, b), s in zip(bad, states) if s == _U]
+        if len(unknown) == 1:
+            a, b = unknown[0]
+            return board.set(self.cat_a, a, self.cat_b, b, _Y)
+        return 0
+
+    def _members_phrase(self) -> str:
+        word = "both" if len(self.members_a) == 2 else "all"
+        return f"{word} members of the {self.label_a}"
+
+    def text(self, theme: Theme) -> str:
+        return f"{self._members_phrase()} belong to the {self.label_b}"
 
 
 class Conditional(Clue):
@@ -1131,6 +1196,8 @@ def statement_cost(s: Statement) -> float:
         return 1.0
     if isinstance(s, GroupLink):  # a set-membership instance — a touch heavier
         return 1.4
+    if isinstance(s, GroupSubset):  # a universal over a whole group — heavier still
+        return 2.2
     if isinstance(s, Not):
         return 0.6 + statement_cost(s.s)
     if isinstance(s, (And, Or)):  # case analysis grows with the operands

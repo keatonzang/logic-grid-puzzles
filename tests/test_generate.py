@@ -126,6 +126,35 @@ def test_group_instances_appear_in_disjunctions_and_conditionals():
     assert all(c.holds(X) for c in on)  # every generated clue is true under X
 
 
+def test_group_universal_disjunctions_generate():
+    # "Either {X belongs to guild B} or {all members of ward A belong to guild B}":
+    # a whole group standing in as a universal instance. Needs TWO partitions.
+    from logicgrid.clues import Compound, GroupSubset, Or, Xor
+    from logicgrid.model import Category, Theme
+
+    two = Theme("KG", "", [
+        Category("Owner", ["A", "B", "C", "D"]),
+        Category("Guild", ["g0", "g1", "g2", "g3"], group_noun="guild",
+                 groups=(("Joiner", ("g0", "g1")), ("Smith", ("g2", "g3")))),
+        Category("Ward", ["w0", "w1", "w2", "w3"], group_noun="ward",
+                 groups=(("Hill", ("w0", "w1")), ("Vale", ("w2", "w3")))),
+    ], entity_noun="home")
+    rng = random.Random(4)
+    X = random_solution(two, rng)
+    pool = build_clue_pool(two, X, rng, enable_groups=True, enable_group_instances=True)
+
+    def has_universal(c):
+        if not isinstance(c, Compound):
+            return False
+        parts = c.stmt.parts if isinstance(c.stmt, Or) else (
+            (c.stmt.p, c.stmt.q) if isinstance(c.stmt, Xor) else ())
+        return any(isinstance(p, GroupSubset) for p in parts)
+
+    universals = [c for c in pool if has_universal(c)]
+    assert universals, "expected group-universal disjunction clues"
+    assert all(c.holds(X) for c in pool)
+
+
 def test_group_instances_need_a_grouping():
     # No grouping -> no group-instance clues even with the flag on.
     from logicgrid.clues import Compound

@@ -28,6 +28,7 @@ from .clues import (
     Compound,
     Conditional,
     GroupLink,
+    GroupSubset,
     InGroup,
     Link,
     Not,
@@ -551,6 +552,47 @@ def build_clue_pool(
                 seen_comp.add(txt)
                 compounds.append(clue)
 
+        # Group-UNIVERSAL disjunctions: "either {a named entity belongs to guild B}
+        # or {all members of ward A belong to guild B}" — a whole group standing in
+        # as an instance via GroupSubset. Needs two partitions (the ward supplies A,
+        # the guild supplies the shared target B). One branch is true under X.
+        grouped = _grouped_categories(theme)
+        for ia in range(len(grouped)):
+            for ib in range(len(grouped)):
+                if ia == ib:
+                    continue
+                ca, labs_a, parts_a, _ = grouped[ia]
+                cb, labs_b, parts_b, _ = grouped[ib]
+                for _ in range(3 * n):
+                    gb = rng.randrange(len(parts_b))
+                    B = parts_b[gb]
+                    ga = rng.randrange(len(parts_a))
+                    A = parts_a[ga]
+                    a_ents = [e for e in range(n) if X[e][ca] in A]
+                    if not a_ents:
+                        continue
+                    subset_true = all(X[e][cb] in set(B) for e in a_ents)
+                    # the named branch "<subject> belongs to guild B": make it the
+                    # true branch unless the universal already is (keep exactly one).
+                    pool_named = (
+                        [e for e in range(n) if X[e][cb] not in set(B)] if subset_true
+                        else [e for e in range(n) if X[e][cb] in set(B)]
+                    )
+                    if not pool_named:
+                        continue
+                    e2 = rng.choice(pool_named)
+                    named = GroupLink((0, X[e2][0]), cb, labs_b[gb], B, subject=False)
+                    univ = GroupSubset(ca, A, labs_a[ga], cb, B, labs_b[gb])
+                    stmt = Xor(named, univ) if rng.random() < 0.5 else Or([named, univ])
+                    clue = Compound(stmt)
+                    if not clue.holds(X):
+                        continue
+                    txt = clue.text(theme)
+                    if txt in seen_comp:
+                        continue
+                    seen_comp.add(txt)
+                    compounds.append(clue)
+
     # Hierarchy / group clues over a grouped category (e.g. Trade -> Guild). The
     # group is just a partition of that column's items, so these resolve on the
     # ordinary grid; they only exist when the theme attached a grouping. Needs
@@ -787,6 +829,7 @@ _MINIMIZE_NODE_BUDGET = 20000
 _GROUP_CLUES = {
     "InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount", "GroupOrder",
     "GroupGroupCount", "GroupGroupCompare",
+    "Compound",  # group-instance disjunctions ("either X or someone in G ...")
 }
 
 

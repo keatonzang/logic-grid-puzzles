@@ -444,7 +444,54 @@ def test_compound_propagate_asserts_statement_true():
     assert bd.get(0, 1, 1, 1) == Y
 
 
-def test_group_count_holds_modes():
+# --- GroupSubset: a whole group as a universal instance ("all members of A...") -
+
+def _two_partition_theme():
+    from logicgrid.model import Category, Theme
+    # Guild (cat 1): Joiner={g0,g1}, Smith={g2,g3}.  Ward (cat 2): Hill={w0,w1}, Vale={w2,w3}.
+    return Theme("KG", "", [
+        Category("Owner", ["A", "B", "C", "D"]),
+        Category("Guild", ["g0", "g1", "g2", "g3"], group_noun="guild",
+                 groups=(("Joiner", ("g0", "g1")), ("Smith", ("g2", "g3")))),
+        Category("Ward", ["w0", "w1", "w2", "w3"], group_noun="ward",
+                 groups=(("Hill", ("w0", "w1")), ("Vale", ("w2", "w3")))),
+    ], entity_noun="home")
+
+
+_TWO_X = [[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3]]  # identity: Hill = {A,B} = Joiners
+_HILL, _JOINER, _SMITH = (0, 1), (0, 1), (2, 3)
+
+
+def test_group_subset_value_and_text():
+    from logicgrid.clues import GroupSubset
+
+    g = _two_partition_theme()
+    # All Hill Ward members (entities 0,1) are Joiners (guilds 0,1) -> true.
+    yes = GroupSubset(2, _HILL, "Hill Ward", 1, _JOINER, "Joiners' Guild")
+    no = GroupSubset(2, _HILL, "Hill Ward", 1, _SMITH, "Smiths' Guild")
+    assert yes.value(_TWO_X)
+    assert not no.value(_TWO_X)
+    assert yes.text(g) == "both members of the Hill Ward belong to the Joiners' Guild"
+    assert Not(yes).text(g) == "at least one member of the Hill Ward does not belong to the Joiners' Guild"
+
+
+def test_group_subset_propagation_sound_and_three_valued():
+    from logicgrid.clues import GroupSubset
+    from logicgrid.deduce import Board, Y, N, U
+
+    g = _two_partition_theme()
+    gs = GroupSubset(2, _HILL, "Hill Ward", 1, _JOINER, "Joiners' Guild")
+    # Assert TRUE: no Hill ward item may link to a NON-Joiner guild item (g2, g3).
+    bd = Board(g)
+    gs.constrain(bd, Y)
+    for w in _HILL:
+        assert bd.get(2, w, 1, 2) == N and bd.get(2, w, 1, 3) == N
+    assert bd.get(2, 0, 1, 0) == U  # which Joiner each maps to stays open
+    assert gs.eval(bd) == Y         # already forced -> satisfied
+    # A single witnessed violation makes it evaluate False.
+    bd2 = Board(g)
+    bd2.set(2, 0, 1, 2, Y)          # a Hill ward member IS a Smith
+    assert gs.eval(bd2) == N
     # _GROUP_X: Ann->Dog(Furred), Bo->Eel(Finned), Cy->Fox(Furred). Furred has 2 of 3.
     anchors = [(0, 0), (0, 1), (0, 2)]
     assert GroupCount(anchors, 1, "Furred", _FURRED, 2, "exactly").holds(_GROUP_X)

@@ -490,7 +490,7 @@ def _roll_n_numeric(spec: ThemeSpec, difficulty: str, categories: int, rng: rand
     return n
 
 
-GROUP_PROB = 0.5  # chance an eligible (above-normal) puzzle rolls in its hierarchy
+GROUP_PROB = 0.7  # chance an eligible (above-normal) puzzle rolls in its hierarchy
 
 
 def _roll_use_groups(spec: ThemeSpec, difficulty: str, rng: random.Random) -> bool:
