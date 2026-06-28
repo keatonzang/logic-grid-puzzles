@@ -301,8 +301,8 @@ th.sc-guild, th.g-band, th.sc-rowguild {
   padding: 0;
   background: color-mix(in srgb, var(--gcolor) 22%, var(--panel-2));
 }
-th.sc-guild, th.g-band {        /* top band: short, wide; coloured line below */
-  height: 2rem;
+th.sc-guild, th.g-band {        /* top band: wide; tall enough for a 2-line wrap */
+  height: 2.7rem;
   border-bottom: 2px solid var(--gcolor);
 }
 th.sc-rowguild {                /* left band: tall; coloured line beside the items */
@@ -316,7 +316,7 @@ col.sc-rowguild-col { width: 1.9rem; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5px 2px;
+  padding: 1px;
 }
 .gl-i {                         /* capped to the padded box; wraps + shrink-to-fits */
   max-width: 100%;
