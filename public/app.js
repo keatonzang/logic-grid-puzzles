@@ -412,17 +412,46 @@ function renderBoard() {
 // width, so re-fit the cells around it; then shrink any label whose longest word
 // still overflows its cell-bound dimension.
 function fitBoard() {
-  fitCells();
-  sizeGuildColumns();
-  fitCells();
-  shrinkGuildLabels();
+  fitItemLabelBoxes();   // trim the row-label width + column-header height to their text
+  fitCells();            // initial cell fit (gives guild bands real dims to measure)
+  sizeGuildColumns();    // grow the left guild column to fit its rotated labels
+  fitCells();            // re-fit cells around it — and guarantee the grid never scrolls
+  fitGuildBands();       // shrink guild fonts (bound dim) + grow the top band height
 }
 
-// Shrink the desktop staircase's cells so the whole grid fits the available
-// width — the full grid is always visible, no horizontal scrollbar. Cells are
-// capped at the default size (never enlarged) and floored so they stay tappable.
-// Overhead (row labels, category labels, borders) is measured rather than
-// estimated, so the fit is exact.
+// Trim the item-label boxes to the text they hold (capped at the standard size),
+// so short labels don't leave a lopsided gap: the row-label column width and the
+// rotated column-header band height each become min(default, longest + padding).
+// Height doesn't affect table width; the (smaller) row-label width is set before
+// fitCells so the cells get the freed space.
+function fitItemLabelBoxes() {
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const ROWLAB = 4.75 * rem, HEADER = 6.25 * rem, PAD = 0.9 * rem;
+  const range = document.createRange();
+  document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
+    // row labels (horizontal): width is the limiting dimension. Measure the text
+    // extent via a Range — th.row is right-aligned, so scrollWidth would just
+    // report the box width and miss short labels.
+    let w = 0;
+    table.querySelectorAll("th.row").forEach((th) => {
+      range.selectNodeContents(th);
+      w = Math.max(w, range.getBoundingClientRect().width);
+    });
+    if (w) table.style.setProperty("--rowlab", Math.min(ROWLAB, Math.ceil(w + PAD)) + "px");
+    // column labels (rotated): the header band height is the limiting dimension.
+    // The vertical single-line text overflows the bottom, so scrollHeight reports
+    // its true length regardless of the current band height.
+    let h = 0;
+    table.querySelectorAll("th.col span").forEach((sp) => { h = Math.max(h, sp.scrollHeight); });
+    if (h) table.style.setProperty("--header-h", Math.min(HEADER, Math.ceil(h) + 8) + "px");
+  });
+}
+
+// Shrink the desktop staircase's cells so the whole grid ALWAYS fits the available
+// width — the grid is the priority and must never need a horizontal scrollbar nor
+// be cropped. Cells are capped at the default size (never enlarged); a final guard
+// loop nudges the size down until the measured width actually fits, so rounding or
+// overhead drift can never leave a sliver that triggers a scrollbar.
 function fitCells() {
   if (!puzzle || !DESKTOP.matches) return;
   const host = $("grids");
@@ -431,21 +460,23 @@ function fitCells() {
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   const cols = (puzzle.categories.length - 1) * puzzle.categories[0].items.length;
   if (cols <= 0) return;
-  const DEFAULT = 2.2 * rem, MIN = 1.1 * rem;
+  const DEFAULT = 2.2 * rem, FLOOR = 0.5 * rem;
   table.style.setProperty("--cell", DEFAULT + "px");
-  const natural = table.scrollWidth;        // width with full-size cells
   const avail = host.clientWidth - 2;
-  if (natural <= avail) return;             // already fits — keep default size
-  const overhead = natural - cols * DEFAULT; // labels + all borders (constant)
-  const cell = Math.max(MIN, Math.min(DEFAULT, (avail - overhead) / cols));
+  if (table.scrollWidth <= avail) return;          // already fits — keep default size
+  const overhead = table.scrollWidth - cols * DEFAULT; // labels + all borders (constant)
+  let cell = Math.max(FLOOR, Math.min(DEFAULT, (avail - overhead) / cols));
   table.style.setProperty("--cell", cell + "px");
+  let guard = 48;
+  while (table.scrollWidth > avail && cell > 4 && guard-- > 0) {
+    cell -= 1;
+    table.style.setProperty("--cell", cell + "px");
+  }
 }
 
-// Step 1 of the guild-label fit: widen each table's (shared) left guild column to
-// fit the widest rotated label at base font — the left band's non-disruptive
-// dimension. Measured on .gl-i.scrollWidth, which is the full content width even
-// while the column is still narrow (the rotated text wraps by row height, not
-// column width). The top band needs nothing here: its height auto-grows in CSS.
+// Grow each table's (shared) left guild column to fit the widest rotated label at
+// base font — the left band's non-disruptive (free) dimension. Measured on
+// .gl-i.scrollWidth, the full content width even while the column is still narrow.
 function sizeGuildColumns() {
   document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
     const left = table.querySelectorAll("th.sc-rowguild .gl-i");
@@ -457,26 +488,35 @@ function sizeGuildColumns() {
   });
 }
 
-// Step 2: last resort — shrink a label's font only when its longest single word
-// still overflows the cell-bound dimension (top: wider than its columns; left:
-// taller than its rows), since that can't be solved by growing the free dimension
-// or wrapping. Never enlarges, so type stays even across tabs.
-function shrinkGuildLabels() {
-  const MIN = 7; // px floor; smaller is unreadable and the full name is on hover
+// Final guild-label pass. The labels are absolutely placed, so this never affects
+// table width. For each band: shrink the font only if a single word still overflows
+// the cell-bound dimension (top: wider than its columns; left: taller than its
+// rows). Then grow the top band's HEIGHT (its free dimension) to fit the wrap.
+function fitGuildBands() {
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const MINF = 7; // px font floor; below this it's unreadable (full name is on hover)
   const shrink = (el, axis) => {
-    el.style.removeProperty("--glfs");                       // reset to CSS base
+    el.style.removeProperty("--glfs");
     let size = parseFloat(getComputedStyle(el).fontSize);
     let guard = 28;
     const over = axis === "width"
       ? () => el.scrollWidth > el.clientWidth + 0.5
       : () => el.scrollHeight > el.clientHeight + 0.5;
-    while (over() && size > MIN && guard-- > 0) {
+    while (over() && size > MINF && guard-- > 0) {
       size -= 0.5;
       el.style.setProperty("--glfs", size + "px");
     }
   };
-  document.querySelectorAll("th.sc-rowguild .gl-i").forEach((el) => shrink(el, "height"));
-  document.querySelectorAll("th.sc-guild .gl-i, th.g-band .gl-i").forEach((el) => shrink(el, "width"));
+  document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
+    table.querySelectorAll("th.sc-rowguild .gl-i").forEach((el) => shrink(el, "height"));
+    const top = [...table.querySelectorAll("th.sc-guild .gl-i, th.g-band .gl-i")];
+    if (!top.length) return;
+    top.forEach((el) => shrink(el, "width"));
+    let need = 0;
+    top.forEach((el) => { need = Math.max(need, el.scrollHeight); });
+    const MINH = 1.6 * rem, MAXH = 4.5 * rem;
+    table.style.setProperty("--gband-h", Math.min(MAXH, Math.max(MINH, Math.ceil(need) + 6)) + "px");
+  });
 }
 
 function cell(tag, text, cls) {
@@ -509,7 +549,7 @@ function hexToRgba(hex, a) {
 }
 
 // A guild-band label cell. The label lives in a `.gl` box with an inner `.gl-i`
-// that wraps at word boundaries and is fitted by sizeGuildColumns/shrinkGuildLabels
+// that wraps at word boundaries and is fitted by sizeGuildColumns/fitGuildBands
 // so it never makes a data tile non-square. The left band rotates `.gl-i` via CSS
 // to match the row-category label. Full text stays available on hover.
 function guildCell(cls, label, color) {
@@ -625,7 +665,7 @@ function renderStaircase(cats) {
   // row-label column / first row already separates it). Grouped categories get a
   // labelled, colour-coded guild band over their (now contiguous) items plus thin
   // sub-dividers between groups — on BOTH axes (top band + left band). Labels are
-  // fitted (see guildCell + sizeGuildColumns/shrinkGuildLabels) so they never push
+  // fitted (see guildCell + sizeGuildColumns/fitGuildBands) so they never push
   // a cell out of square.
   const firstCol = colCats[0];
   const anyColGrouped = colCats.some((j) => catGroups(j));

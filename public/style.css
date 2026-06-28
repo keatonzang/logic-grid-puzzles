@@ -291,13 +291,14 @@ table.staircase .blk-top { border-top: 2px solid var(--muted); }
 table.staircase .grp-left, table.grid .grp-left { border-left: 1px dashed var(--muted); }
 table.staircase .grp-top, table.grid .grp-top { border-top: 1px dashed var(--muted); }
 
-/* Labelled, colour-coded guild band over a grouped category's items, on both the
-   top (horizontal) and left (vertical) axes. To stay readable without ever making
-   a data tile non-square, the fit priority is: (1) grow the band's non-disruptive
-   dimension — the top band's height, the left band's column width — then (2) wrap
-   at word boundaries, then (3) shrink the font (fitGuildLabels) only if a single
-   word still overflows the cell-bound dimension. Ungrouped categories get a plain
-   filler so no colour bleeds under them. */
+/* Labelled, colour-coded guild band over a grouped category's items, on the top
+   (horizontal) and left (vertical) axes. The label is ABSOLUTELY placed inside an
+   inner .gl-i capped to the padded box, so it is out of flow and can never grow a
+   data cell — squares stay square and it can't push the table wider. JS
+   (fitGuildBands / sizeGuildColumns) grows the band's free dimension — the top
+   band's height (--gband-h), the left band's column width — then only shrinks the
+   font if a single word still overflows the cell-bound dimension. Ungrouped
+   categories get a plain filler so no colour bleeds under them. */
 th.sc-guild, th.g-band, th.sc-rowguild {
   position: relative;
   padding: 0;
@@ -305,15 +306,22 @@ th.sc-guild, th.g-band, th.sc-rowguild {
      color-mix, so the colour also renders on older mobile browsers */
   background-image: linear-gradient(var(--gcolor-soft, transparent), var(--gcolor-soft, transparent));
 }
-/* TOP band: width fixed by the group's columns; height auto-grows to fit the wrap. */
-th.sc-guild, th.g-band {
-  border-bottom: 2px solid var(--gcolor);
-  vertical-align: middle;
+th.sc-guild, th.g-band { border-bottom: 2px solid var(--gcolor); height: var(--gband-h, 2.4rem); }
+th.sc-rowguild { border-right: 2px solid var(--gcolor); }
+col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit */
+.gl {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
 }
-th.sc-guild > .gl, th.g-band > .gl { display: block; padding: 2px; }
-th.sc-guild .gl-i, th.g-band .gl-i {
-  display: block;
-  max-width: 100%;              /* wrap within the fixed column width */
+.gl-i {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
   text-align: center;
   line-height: 1.12;
   white-space: normal;
@@ -323,33 +331,7 @@ th.sc-guild .gl-i, th.g-band .gl-i {
   font-weight: 600;
   color: var(--ink);
 }
-/* LEFT band: height fixed by the group's rows; column width grown by JS to fit.
-   The label is absolutely placed so it can't push the data rows taller. */
-th.sc-rowguild { border-right: 2px solid var(--gcolor); }
-col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit */
-th.sc-rowguild > .gl {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1px 2px;
-}
-th.sc-rowguild .gl-i {          /* rotated to match the row-category label */
-  max-height: 100%;            /* wrap within the fixed row height */
-  overflow: hidden;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  text-align: center;
-  line-height: 1.12;
-  white-space: normal;
-  overflow-wrap: normal;
-  word-break: normal;
-  font-size: var(--glfs, .72rem);
-  font-weight: 600;
-  color: var(--ink);
-}
+th.sc-rowguild .gl-i { writing-mode: vertical-rl; transform: rotate(180deg); }  /* match the row-category label */
 
 .grid-block {
   display: flex;
