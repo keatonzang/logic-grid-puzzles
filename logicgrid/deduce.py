@@ -536,6 +536,7 @@ _PROPAGATORS = {
     "Exactly": _prop_exactly_anchor,
     "ExactlyKLinks": _prop_exactly,
     "Conditional": _prop_conditional,
+    "Compound": _prop_conditional,  # both just delegate to the statement tree
     "InGroup": _prop_in_group,
     "SameGroup": _prop_same_group,
     "DiffGroup": _prop_diff_group,

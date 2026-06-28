@@ -82,6 +82,66 @@ def test_group_clues_need_a_grouping_and_the_flag():
     assert all(c.holds(X) for c in on)
 
 
+def test_group_instances_appear_in_disjunctions_and_conditionals():
+    # Groups can stand in as instances: a Compound disjunction mixing a named link
+    # with a group existential, and a GroupLink embedded inside a Conditional. Both
+    # are gated behind enable_group_instances and need a grouped category.
+    from logicgrid.clues import Compound, GroupLink, Not
+    from logicgrid.model import Category, Theme
+
+    grouped = Theme("G", "", [
+        Category("Owner", ["Ann", "Bo", "Cy", "Di"]),
+        Category("Pet", ["Cat", "Dog", "Eel", "Fox"], group_noun="kind",
+                 groups=(("Furred", ("Cat", "Dog", "Fox")), ("Finned", ("Eel",)))),
+        Category("Toy", ["Ball", "Cube", "Disc", "Rope"]),
+    ], entity_noun="home")
+    rng = random.Random(5)
+    X = random_solution(grouped, rng)
+
+    off = build_clue_pool(grouped, X, rng, enable_groups=True)  # instances default off
+    assert not any(isinstance(c, Compound) for c in off)
+
+    on = build_clue_pool(
+        grouped, X, rng, enable_groups=True, enable_conditional=True,
+        enable_group_instances=True,
+    )
+    compounds = [c for c in on if isinstance(c, Compound)]
+    assert compounds, "expected group-instance disjunction clues"
+
+    def embeds_group_link(s):
+        if isinstance(s, GroupLink):
+            return True
+        if isinstance(s, Not):
+            return embeds_group_link(s.s)
+        return any(embeds_group_link(p) for p in getattr(s, "parts", ())) or (
+            embeds_group_link(s.p) or embeds_group_link(s.q) if hasattr(s, "p") else False
+        )
+
+    from logicgrid.clues import Conditional
+    cond_with_group = [
+        c for c in on
+        if isinstance(c, Conditional) and (embeds_group_link(c.ante) or embeds_group_link(c.cons))
+    ]
+    assert cond_with_group, "expected a GroupLink embedded in a conditional"
+    assert all(c.holds(X) for c in on)  # every generated clue is true under X
+
+
+def test_group_instances_need_a_grouping():
+    # No grouping -> no group-instance clues even with the flag on.
+    from logicgrid.clues import Compound
+
+    from logicgrid.model import Category, Theme
+    plain = Theme("P", "", [
+        Category("Owner", ["Ann", "Bo", "Cy"]),
+        Category("Pet", ["Cat", "Dog", "Eel"]),
+        Category("Toy", ["Ball", "Cube", "Disc"]),
+    ], entity_noun="home")
+    rng = random.Random(3)
+    X = random_solution(plain, rng)
+    pool = build_clue_pool(plain, X, rng, enable_group_instances=True, enable_conditional=True)
+    assert not any(isinstance(c, Compound) for c in pool)
+
+
 def test_group_clues_absent_without_a_grouping(plain_theme):
     # A theme with no grouping never yields group clues even with the flag on.
     from logicgrid.clues import DiffGroup, InGroup, SameGroup

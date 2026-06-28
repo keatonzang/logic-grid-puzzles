@@ -22,7 +22,9 @@ from logicgrid.clues import (
     GroupGroupCount,
     GroupOrder,
     And,
+    Compound,
     Conditional,
+    GroupLink,
     Link,
     Not,
     Or,
@@ -369,6 +371,77 @@ def test_not_in_group_holds_and_text():
     assert NotInGroup((0, 1), 1, "Furred", _FURRED).removal_class == 2
     assert NotInGroup((0, 1), 1, "Furred", _FURRED).text(g) == \
         "Bo does not belong to the Furred."
+
+
+# --- GroupLink: a group standing in as an instance in the boolean algebra -----
+
+def test_group_link_value_and_text():
+    g = _group_theme()
+    # Ann -> Dog (Furred): the membership statement is true; Bo -> Eel: false.
+    assert GroupLink((0, 0), 1, "Furred", _FURRED).value(_GROUP_X)
+    assert not GroupLink((0, 1), 1, "Furred", _FURRED).value(_GROUP_X)
+    # default phrasing names the anchor as subject; subject=True reads the group as
+    # an existential subject (the disjunction phrasing the user asked for).
+    assert GroupLink((0, 0), 1, "Furred", _FURRED).text(g) == "Ann belongs to the Furred"
+    assert GroupLink((1, 0), 1, "Furred", _FURRED, subject=True).text(g) == \
+        "someone in the Furred goes with Dog"
+    # negation reads inline for both phrasings
+    assert Not(GroupLink((0, 1), 1, "Furred", _FURRED)).text(g) == "Bo does not belong to the Furred"
+    assert Not(GroupLink((1, 0), 1, "Furred", _FURRED, subject=True)).text(g) == \
+        "no one in the Furred goes with Dog"
+
+
+def test_group_link_propagation_is_three_valued():
+    from logicgrid.deduce import Board, Y, N, U
+
+    g = _group_theme()
+    # Assert "the Owner of (Pet=Eel) is in Furred" — anchor on Pet=Eel(item 1),
+    # group Furred = pet items {0,2}. Asserting TRUE rules out the non-member (Eel
+    # itself, item 1): the Eel-owner's pet cannot be Eel under this (it forces a
+    # contradiction would be wrong) — use a cross-category anchor instead.
+    bd = Board(g)
+    # anchor Owner=Ann(0); Furred over Pet {Dog,Fox}={0,2}. Assert TRUE -> Ann's pet
+    # is not the non-member Eel(1).
+    GroupLink((0, 0), 1, "Furred", _FURRED).constrain(bd, Y)
+    assert bd.get(0, 0, 1, 1) == N      # Ann not linked to Eel
+    assert bd.get(0, 0, 1, 0) == U      # but which Furred pet is still open
+    # eval reflects the board: once Ann is pinned to Dog, membership is decided Y
+    bd.set(0, 0, 1, 0, Y)
+    assert GroupLink((0, 0), 1, "Furred", _FURRED).eval(bd) == Y
+    # Assert FALSE -> Bo is in no Furred pet (rules out both members)
+    bd2 = Board(g)
+    GroupLink((0, 1), 1, "Furred", _FURRED).constrain(bd2, N)
+    assert bd2.get(0, 1, 1, 0) == N and bd2.get(0, 1, 1, 2) == N
+    assert GroupLink((0, 1), 1, "Furred", _FURRED).eval(bd2) == N
+
+
+def test_compound_mixes_named_instance_and_group():
+    g = _group_theme()
+    # "Either Ann goes with Eel, or someone in the Furred goes with Eel."
+    named = Link((0, 0), (1, 1))                       # Ann <-> Eel (false under X)
+    grp = GroupLink((1, 1), 1, "Furred", _FURRED, subject=True)  # Eel's owner in Furred? No
+    # Under _GROUP_X Bo(1) owns Eel and Bo is Finned, so both branches are false ->
+    # the inclusive-or compound does NOT hold; flip to a true predicate to check holds.
+    assert not Compound(Or([named, grp])).holds(_GROUP_X)
+    true_named = Link((0, 1), (1, 1))                  # Bo <-> Eel (true)
+    c = Compound(Or([true_named, grp]))
+    assert c.holds(_GROUP_X)
+    assert c.removal_class == 1
+    assert c.involved == frozenset({0, 1})
+    assert c.text(g) == "Either Bo goes with Eel or someone in the Furred goes with Eel."
+
+
+def test_compound_propagate_asserts_statement_true():
+    from logicgrid.deduce import Board, Y, N
+
+    g = _group_theme()
+    # Compound(Or[A, B]) with A already false on the board must force B true.
+    A = Link((0, 0), (1, 1))   # Ann <-> Eel
+    B = Link((0, 1), (1, 1))   # Bo <-> Eel
+    bd = Board(g)
+    bd.set(0, 0, 1, 1, N)      # Ann is NOT Eel -> the disjunction forces Bo = Eel
+    Compound(Or([A, B])).propagate(bd)
+    assert bd.get(0, 1, 1, 1) == Y
 
 
 def test_group_count_holds_modes():

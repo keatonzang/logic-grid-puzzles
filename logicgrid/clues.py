@@ -635,6 +635,11 @@ class Not(Statement):
     def text(self, theme: Theme) -> str:
         if isinstance(self.s, Link):  # read a negated link inline
             return f"{_label(theme, self.s.a)} does not go with {_label(theme, self.s.b)}"
+        if isinstance(self.s, GroupLink):  # read a negated group membership inline
+            g = self.s
+            if g.subject:
+                return f"no one in the {g.label} goes with {_label(theme, g.anchor)}"
+            return f"{_ref(theme, g.anchor)} does not belong to the {g.label}"
         return f"it is not the case that {self.s.text(theme)}"
 
 
@@ -742,6 +747,57 @@ class Xor(Statement):
         return f"either {self.p.text(theme)} or {self.q.text(theme)} (but not both)"
 
 
+class GroupLink(Statement):
+    """Atom: the entity of `anchor` belongs to group `label` — a named block of
+    grouped category `cat`'s items (members are its item indices). The Statement
+    form of InGroup, so a *group* can stand in as an instance anywhere the boolean
+    algebra reaches: a disjunct ("... or someone in the Hill Ward goes with X"), a
+    conditional leaf ("if the artisan with X belongs to the Hill Ward, ..."), an
+    Xor operand, and so on.
+
+    `subject` only flips the English (the logic is identical): False reads the
+    anchor as subject ("<anchor> belongs to the <label>"); True reads the group as
+    an existential subject ("someone in the <label> goes with <anchor's item>") —
+    the natural phrasing when the group is an alternative to a named instance."""
+
+    def __init__(self, anchor: Term, cat: int, label: str, members, subject: bool = False):
+        self.anchor = anchor
+        self.cat = cat
+        self.label = label
+        self.members = tuple(sorted(members))
+        self.subject = subject
+        self.cats = frozenset({anchor[0], cat})
+
+    def value(self, X) -> bool:
+        return X[entity_of(X, self.anchor)][self.cat] in self.members
+
+    def eval(self, board) -> int:
+        ac, ai = self.anchor
+        states = [board.get(ac, ai, self.cat, w) for w in self.members]
+        if _Y in states:  # anchor pinned to a member -> definitely in the group
+            return _Y
+        if all(s == _N for s in states):  # ruled out of every member -> not in it
+            return _N
+        return _U
+
+    def constrain(self, board, target: int) -> int:
+        ac, ai = self.anchor
+        if target == _Y:  # in the group: the anchor cannot hold any non-member item
+            members = set(self.members)
+            return sum(
+                board.set(ac, ai, self.cat, u, _N)
+                for u in range(board.n)
+                if u not in members
+            )
+        # not in the group: the anchor cannot hold any member item
+        return sum(board.set(ac, ai, self.cat, w, _N) for w in self.members)
+
+    def text(self, theme: Theme) -> str:
+        if self.subject:
+            return f"someone in the {self.label} goes with {_label(theme, self.anchor)}"
+        return f"{_ref(theme, self.anchor)} belongs to the {self.label}"
+
+
 class Conditional(Clue):
     """A general if-then / if-and-only-if over two embedded `Statement`s.
 
@@ -791,6 +847,29 @@ class Conditional(Clue):
         if self.biconditional:
             return f"{_cap(at)} if and only if {ct}."
         return f"If {at}, then {ct}."
+
+
+class Compound(Clue):
+    """A standalone assertion that an embedded boolean `Statement` simply holds —
+    the Statement algebra (Link / Not / And / Or / Xor / GroupLink) promoted to a
+    top-level clue instead of only living inside a Conditional. This is what lets a
+    bare disjunction mix a named instance with a group existential: "either Beatrix
+    goes with X, or someone in the Hill Ward does"."""
+
+    removal_class = 1
+
+    def __init__(self, stmt: Statement):
+        self.stmt = stmt
+        self.involved = stmt.cats
+
+    def holds(self, X) -> bool:
+        return self.stmt.value(X)
+
+    def propagate(self, board) -> int:
+        return self.stmt.constrain(board, _Y)  # the statement is asserted true
+
+    def text(self, theme: Theme) -> str:
+        return _cap(self.stmt.text(theme)) + "."
 
 
 # --- Hierarchy / groups ------------------------------------------------------
@@ -1050,6 +1129,8 @@ def statement_cost(s: Statement) -> float:
     """Cognitive weight of an embedded boolean statement (recursive)."""
     if isinstance(s, Link):
         return 1.0
+    if isinstance(s, GroupLink):  # a set-membership instance — a touch heavier
+        return 1.4
     if isinstance(s, Not):
         return 0.6 + statement_cost(s.s)
     if isinstance(s, (And, Or)):  # case analysis grows with the operands
@@ -1086,6 +1167,8 @@ def clue_cost(clue: Clue) -> float:
     if isinstance(clue, Conditional):
         base = 3.0 if clue.biconditional else 2.5  # the case analysis itself
         return base + statement_cost(clue.ante) + statement_cost(clue.cons)
+    if isinstance(clue, Compound):  # a bare asserted statement (e.g. a disjunction)
+        return 1.8 + statement_cost(clue.stmt)
     if isinstance(clue, InGroup):
         return 1.6
     if isinstance(clue, NotInGroup):

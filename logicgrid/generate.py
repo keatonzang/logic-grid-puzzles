@@ -25,7 +25,9 @@ from .clues import (
     GroupOrder,
     Greater,
     And,
+    Compound,
     Conditional,
+    GroupLink,
     InGroup,
     Link,
     Not,
@@ -63,6 +65,25 @@ def random_solution(theme: Theme, rng: random.Random) -> list[list[int]]:
     return X
 
 
+def _grouped_categories(theme: Theme):
+    """For every category that carries a (>=2-block) partition, the data a clue
+    needs to talk about its groups: ``(cat, labels, parts, group_of)`` where
+    ``parts[gi]`` are the item indices of group ``gi`` and ``group_of[item]`` is its
+    group index. Shared by the conditional and group-instance builders."""
+    out = []
+    for cat in range(theme.k):
+        co = theme.categories[cat]
+        if not co.has_groups:
+            continue
+        labels = [lab for lab, _ in co.groups]
+        parts = [tuple(co.items.index(m) for m in mem) for _, mem in co.groups]
+        if len(parts) < 2:
+            continue
+        group_of = {x: gi for gi, mem in enumerate(parts) for x in mem}
+        out.append((cat, labels, parts, group_of))
+    return out
+
+
 def build_clue_pool(
     theme: Theme,
     X: list[list[int]],
@@ -86,6 +107,7 @@ def build_clue_pool(
     max_conditional: int = 14,
     max_groups: int = 24,
     max_cross: int = 6,
+    max_compounds: int = 16,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -97,6 +119,7 @@ def build_clue_pool(
     enable_exactly: bool = True,
     enable_conditional: bool = False,
     enable_groups: bool = False,
+    enable_group_instances: bool = False,
     include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
@@ -137,6 +160,7 @@ def build_clue_pool(
     conditional: list = []
     groups: list = []
     cross: list = []  # cross-group clues (need two grouped categories)
+    compounds: list = []  # bare statement clues mixing a named instance + a group
 
     for c1 in range(k):
         for c2 in range(c1 + 1, k):
@@ -376,6 +400,11 @@ def build_clue_pool(
     # so complexity tracks measured difficulty. Hard only, n >= 3 so links don't
     # collapse to a 2-item equivalent.
     if enable_conditional and n >= 3 and k >= 3:
+        # Grouped categories let a leaf be a GROUP instead of a named instance, so
+        # "someone in the Hill Ward goes with X" can sit inside a conditional /
+        # and / or / xor exactly like an ordinary link.
+        cond_grouped = _grouped_categories(theme) if enable_group_instances else []
+
         def fresh_link(truth: bool, used: set):
             """A Link of the given truth under X whose cell isn't already used in
             this statement (so a clue never repeats or negates its own atom)."""
@@ -393,6 +422,29 @@ def build_clue_pool(
                     return Link(a, b)
             return None
 
+        def fresh_group_link(truth: bool, used: set):
+            """A GroupLink leaf of the given truth: pick a grouped category and an
+            anchor entity, then a group that does (truth) or does not (not truth)
+            contain that entity's grouped item. Fresh per statement via `used`."""
+            for _ in range(16):
+                gc, labels, parts, group_of = rng.choice(cond_grouped)
+                e = rng.randrange(n)
+                gi = group_of.get(X[e][gc])
+                if gi is None:
+                    continue
+                if not truth:
+                    others = [j for j in range(len(parts)) if j != gi]
+                    if not others:
+                        continue
+                    gi = rng.choice(others)
+                co = rng.choice([c for c in range(k) if c != gc])
+                anchor = (co, X[e][co])
+                key = ("g", anchor, gc, gi)
+                if key not in used:
+                    used.add(key)
+                    return GroupLink(anchor, gc, labels[gi], parts[gi], subject=rng.random() < 0.5)
+            return None
+
         def part_truths(op: str, target: bool, size: int):
             """Per-part truths so an `op` of `size` parts evaluates to `target`."""
             if op == "and":  # true iff all true; else exactly one part flips
@@ -403,7 +455,17 @@ def build_clue_pool(
             return base
 
         def atom(target: bool, used: set):
-            """A leaf: a link, or a negated link (~30%), of the given truth."""
+            """A leaf: a (possibly negated, ~30%) link or group-membership of the
+            given truth. A grouped leaf — a *group as instance* — appears ~25% of
+            the time when the theme has groups."""
+            if cond_grouped and rng.random() < 0.25:
+                if rng.random() < 0.7:
+                    g = fresh_group_link(target, used)
+                else:
+                    inner = fresh_group_link(not target, used)
+                    g = Not(inner) if inner is not None else None
+                if g is not None:
+                    return g
             if rng.random() < 0.7:
                 return fresh_link(target, used)
             inner = fresh_link(not target, used)
@@ -451,6 +513,43 @@ def build_clue_pool(
                 continue
             seen_text.add(txt)
             conditional.append(clue)
+
+    # Group-instance disjunctions: a bare "either {named instance} or {someone in a
+    # group}" clue — the group standing in as an alternative instance for the same
+    # predicate. Built as Or/Xor over a Link and a GroupLink, with exactly one side
+    # true under X so the clue actually bites (the solver forces the other side once
+    # it rules one out). Needs a grouped category and n >= 3.
+    if enable_group_instances and n >= 3 and k >= 2:
+        seen_comp: set = set()
+        for gc, labels, parts, group_of in _grouped_categories(theme):
+            for _ in range(4 * n):
+                qc = rng.choice([c for c in range(k) if c != gc])
+                eq = rng.randrange(n)  # the entity holding the shared predicate Q
+                pred = (qc, X[eq][qc])
+                gi = group_of.get(X[eq][gc])
+                if gi is None:
+                    continue
+                pc = rng.choice([c for c in range(k) if c != qc])
+                if rng.random() < 0.5:  # the GROUP branch is the true one
+                    ep = rng.choice([e for e in range(n) if e != eq])
+                    link = Link((pc, X[ep][pc]), pred)  # false: a different entity
+                    grp = GroupLink(pred, gc, labels[gi], parts[gi], subject=True)
+                else:  # the NAMED branch is the true one
+                    others = [j for j in range(len(parts)) if j != gi]
+                    if not others:
+                        continue
+                    gj = rng.choice(others)
+                    link = Link((pc, X[eq][pc]), pred)  # true: same entity
+                    grp = GroupLink(pred, gc, labels[gj], parts[gj], subject=True)
+                stmt = Xor(link, grp) if rng.random() < 0.5 else Or([link, grp])
+                clue = Compound(stmt)
+                if not clue.holds(X):  # exactly one side true -> guard anyway
+                    continue
+                txt = clue.text(theme)
+                if txt in seen_comp:
+                    continue
+                seen_comp.add(txt)
+                compounds.append(clue)
 
     # Hierarchy / group clues over a grouped category (e.g. Trade -> Guild). The
     # group is just a partition of that column's items, so these resolve on the
@@ -600,6 +699,7 @@ def build_clue_pool(
     rng.shuffle(conditional)
     rng.shuffle(groups)
     rng.shuffle(cross)
+    rng.shuffle(compounds)
     return (
         positives
         + negatives[:max_negatives]
@@ -615,6 +715,7 @@ def build_clue_pool(
         + conditional[: 2 * max_conditional]
         + groups[:max_groups]
         + cross[:max_cross]
+        + compounds[:max_compounds]
     )
 
 
@@ -647,6 +748,7 @@ _RICH_POOL = dict(
     enable_pairing=True, enable_match=True,
     enable_conditional=True,  # if-then / iff (conditional reasoning)
     enable_groups=True,
+    enable_group_instances=True,  # groups as instances inside disjunctions / conditionals
     include_sequential=True,
 )
 _DIFFICULTY_POOL = {
