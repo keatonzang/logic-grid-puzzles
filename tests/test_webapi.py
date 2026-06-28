@@ -77,7 +77,7 @@ def test_build_payload_exposes_groups_for_the_ui():
     # find a King's Guild draw that rolled in a hierarchy, and check the partition
     # is serialised so the client can render/solve it (and only on grouped cats).
     for s in range(40):
-        p = build_payload(seed=s, difficulty="medium", items=4, categories=4, theme="kings_guild")
+        p = build_payload(seed=s, difficulty="hard", items=4, categories=4, theme="kings_guild")
         grouped = [c for c in p["categories"] if "groups" in c]
         if not grouped:
             continue
@@ -127,15 +127,15 @@ def test_build_payload_clamps_items():
 
 @pytest.mark.parametrize("k", [3, 4, 5])
 def test_build_payload_category_count(k):
-    p = build_payload(seed=4, difficulty="medium", items=4, categories=k)
+    p = build_payload(seed=4, difficulty="hard", items=4, categories=k)
     assert p["n_categories"] == k
     assert len(p["categories"]) == k
 
 
-def test_build_payload_easy_never_has_price():
-    # Price is only rolled in for medium/hard (where its sequential clues exist).
+def test_build_payload_normal_never_has_price():
+    # Price is only rolled in above normal (where its sequential clues exist).
     for s in range(8):
-        assert build_payload(seed=s, difficulty="easy")["has_price"] is False
+        assert build_payload(seed=s, difficulty="normal")["has_price"] is False
 
 
 @pytest.mark.parametrize("difficulty", DIFFICULTIES)
@@ -179,7 +179,7 @@ def test_each_theme_builds_unique_puzzle(key):
     rng = random.Random(5)
     theme = build_theme(THEMES[key], rng, items=4, categories=4)
     theme.validate()
-    puzzle = generate_puzzle(theme, rng, difficulty="medium")
+    puzzle = generate_puzzle(theme, rng, difficulty="hard")
     assert count_solutions(theme, puzzle.clues, cap=2) == 1
     assert all(c.holds(puzzle.solution) for c in puzzle.clues)
 
@@ -234,10 +234,10 @@ def test_build_theme_caps_numerics_to_available_slots():
     assert sum(c.ordered for c in theme.categories) <= 2
 
 
-def test_second_dial_is_hard_and_large_only():
-    # The gated second ordered category never appears on medium, nor below K=4,
-    # but does turn up on some hard, large puzzles. Test the roll directly (cheap)
-    # rather than running full generation.
+def test_second_dial_is_rich_and_large_only():
+    # The gated second ordered category never appears on normal/hard, nor below
+    # K=4, but does turn up on some mega+ large puzzles. Test the roll directly
+    # (cheap) rather than running full generation.
     from logicgrid.webapi import _roll_n_numeric
 
     school = THEMES["school"]
@@ -245,18 +245,18 @@ def test_second_dial_is_hard_and_large_only():
     def roll(seed, difficulty, k):
         return _roll_n_numeric(school, difficulty, k, random.Random(seed))
 
-    assert all(roll(s, "easy", 5) == 0 for s in range(50))          # easy: no numerics
-    assert all(roll(s, "medium", 5) <= 1 for s in range(50))        # medium: at most primary
-    assert all(roll(s, "hard", 3) <= 1 for s in range(50))          # K=3: at most primary
-    assert any(roll(s, "hard", 5) == 2 for s in range(50))          # hard+K=5: sometimes both
-    # single-dial themes never reach two, even on hard/large
-    assert all(_roll_n_numeric(THEMES["dnd"], "hard", 5, random.Random(s)) <= 1 for s in range(50))
+    assert all(roll(s, "normal", 5) == 0 for s in range(50))        # normal: no numerics
+    assert all(roll(s, "hard", 5) <= 1 for s in range(50))          # hard: at most primary
+    assert all(roll(s, "mega", 3) <= 1 for s in range(50))          # K=3: at most primary
+    assert any(roll(s, "mega", 5) == 2 for s in range(50))          # mega+K=5: sometimes both
+    # single-dial themes never reach two, even on a rich/large puzzle
+    assert all(_roll_n_numeric(THEMES["dnd"], "mega", 5, random.Random(s)) <= 1 for s in range(50))
 
 
 def test_two_numerics_payload_reproducible():
     # Determinism must hold with the extra up-front roll (hint endpoint relies on it).
-    a = build_payload(seed=7, difficulty="hard", items=4, categories=5, theme="school")
-    b = build_payload(seed=7, difficulty="hard", items=4, categories=5, theme="school")
+    a = build_payload(seed=7, difficulty="mega", items=4, categories=5, theme="school")
+    b = build_payload(seed=7, difficulty="mega", items=4, categories=5, theme="school")
     assert a == b
 
 
@@ -281,7 +281,7 @@ def test_groups_roll_is_optional_and_gated():
     def roll(seed, difficulty):
         return _roll_use_groups(guild, difficulty, random.Random(seed))
 
-    assert all(roll(s, "easy") is False for s in range(40))         # never on easy
+    assert all(roll(s, "normal") is False for s in range(40))       # never on normal
     rolls = [roll(s, "hard") for s in range(40)]
     assert any(rolls) and not all(rolls)                            # (a) both occur
     # themes without a hierarchy never roll one

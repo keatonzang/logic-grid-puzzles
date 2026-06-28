@@ -28,7 +28,7 @@ in many flavours:
 - **at most K of N** (`AtMost`) — `Vanilla goes with at most one of Ben, Rose, and $8.` (complement of Among)
 
 These **sequential** clues need an *ordered* category. The café rolls in a
-numeric **Price** category (~50% of medium/hard puzzles), sorted by value (= rank);
+numeric **Price** category (~50% of above-normal puzzles), sorted by value (= rank);
 the web app also supports **3–5 categories** (Customer + a sample of Drink / Pastry /
 Syrup / Mug, plus maybe Price), with items per category capped as categories grow so
 generation stays fast. The two sides of a comparison are drawn from *distinct*
@@ -67,13 +67,13 @@ Ivory-mug order). Each sequential clue has a sound deductive propagator
   evaluate/constrain, so antecedent and consequent can be arbitrarily nested and the
   implication still fires forward (modus ponens) and backward (contrapositive). The
   generator biases toward simple atom⇒atom conditionals and surfaces compound ones more
-  rarely, so the *measured* difficulty tracks the reasoning each actually needs. Hard
-  puzzles only (`enable_conditional`).
+  rarely, so the *measured* difficulty tracks the reasoning each actually needs. Rich
+  tiers (mega and up) only (`enable_conditional`).
 
 These **group / hierarchy** clues need a theme whose grouped category defines `groups`
 (e.g. King's Guild files each *trade* into a *guild*). They compile down to facts on that
 existing category — no extra grid — and only appear when a puzzle keeps one (`enable_groups`,
-medium/hard); a puzzle can always roll with no hierarchy at all.
+any tier above normal); a puzzle can always roll with no hierarchy at all.
 
 - **belongs to a group** (`InGroup`) — `The artisan with the Millpond workshop belongs to the Ironmongers' Guild.`
   The entity's trade is one of that guild's members.
@@ -111,7 +111,7 @@ The "one of N" disjunctions default to N ∈ {2, 3} via `build_clue_pool(among_s
    has a unique solution (verified by a backtracking solution-counter that stops
    at 2). The result is a compact, locally-minimal clue set with a natural mix of
    clue types. The one deliberate skew: group/hierarchy clues are considered for
-   removal last, so they survive into ~half of hard grouped puzzles instead of
+   removal last, so they survive into ~half of rich-tier grouped puzzles instead of
    ~5% — they carry real deductive weight, so keeping them doesn't soften the
    measured difficulty band.
 
@@ -132,13 +132,27 @@ deduction techniques, cheapest first, and reports what the solve required:
 | 3 | clue propagation — among / either-or / exactly-K / conditional / group-match / hierarchy narrowing |
 | 4 | proof by contradiction — assume a cell, propagate, eliminate on conflict |
 
-The **band** is the hardest technique needed: ceiling ≤ 2 → **easy**, 3 →
-**medium**, 4 → **hard**. This is rigorous logic, not guessing — tiers 1–3 are
-forward propagation, tier 4 is a contradiction proof. Generation is
-**generate-and-grade**: sample candidates, grade each, keep one whose *measured*
-band matches the request — so every puzzle is **solvable by logic alone, no
-guessing**, and "hard" genuinely requires a contradiction step. (A rare puzzle
-needing nested hypotheticals — "tier 5+" — is skipped for now.)
+The five named tiers are read off the *ceiling* (the hardest technique a solve
+forces) plus, for the abundant proof-by-contradiction tier, **how many** such
+steps it needs — a finely spread, reliably-generatable signal (nested what-ifs
+alone are rare):
+
+| Tier | Hardest technique a solve forces |
+|---|---|
+| **normal** | ceiling ≤ 2 — transitivity only, no clue tricks |
+| **hard** | ceiling 3 — clue-logic propagation, no contradiction |
+| **mega** | ceiling 4 — needs a proof by contradiction, but few (≤ 4 what-ifs) |
+| **giga** | ceiling 4 — needs many what-ifs (5–14) |
+| **tera** | ceiling 4 with very many what-ifs (> 14), or a nested one (ceiling ≥ 5) |
+
+This is rigorous logic, not guessing — tiers 1–3 are forward propagation, tier 4
+is a contradiction proof. Generation is **generate-and-grade**: sample
+candidates, grade each, keep one whose *measured* band matches the request — so
+every puzzle is **solvable by logic alone, no guessing**. Difficulty and grid
+size are independent controls; the deeper tiers need a roomier grid, so on a
+small grid a request like `tera` degrades gracefully to the hardest band it can
+actually reach (the payload reports both the `requested` tier and the measured
+one). A puzzle needing nesting deeper than we verify is skipped.
 
 ## Writing a theme
 
@@ -261,8 +275,8 @@ drop-down, served from `GET /api/puzzle?themes=1`:
 
 Add a theme by appending a `ThemeSpec` to `THEME_SPECS` in `logicgrid/webapi.py`.
 A theme can also declare `extra_numerics` — additional ordered categories beyond
-the primary one. These are gated: a second ordered dial is rolled in only on
-**hard** puzzles with **≥4 categories** (so small grids don't get over-constrained).
+the primary one. These are gated: a second ordered dial is rolled in only on the
+**rich tiers** (mega and up) with **≥4 categories** (so small grids don't get over-constrained).
 The Schoolhouse uses this for a class's *Grade* (numeric, `%`) plus its *Period*
 (an ordinal — `NumericSpec(..., valued=False)` → "Period 1", higher/next-to clues
 but no "2 more"). Every ordered clue names its own dimension, so multiple dials

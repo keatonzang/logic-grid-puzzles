@@ -58,14 +58,14 @@ def test_trace_is_always_sound(plain_theme):
     # always be solvable — see test_rated_traces_fully_solve.)
     solved = 0
     for s in range(15):
-        p = generate_puzzle(plain_theme, random.Random(s), difficulty="medium")
+        p = generate_puzzle(plain_theme, random.Random(s), difficulty="hard")
         board = _apply(plain_theme, trace(plain_theme, p.clues))
         assert _agrees(plain_theme, board, p.solution), f"steps must be sound (seed {s})"
         solved += board.solved()
     assert solved >= 10
 
 
-@pytest.mark.parametrize("target", ["easy", "medium", "hard"])
+@pytest.mark.parametrize("target", ["normal", "hard", "mega"])
 def test_rated_traces_fully_solve(target):
     for s in range(6):
         theme, puzzle, _ = generate_rated(
@@ -77,7 +77,7 @@ def test_rated_traces_fully_solve(target):
 
 
 def test_trace_steps_are_well_formed(plain_theme):
-    p = generate_puzzle(plain_theme, random.Random(1), difficulty="medium")
+    p = generate_puzzle(plain_theme, random.Random(1), difficulty="hard")
     seen = set()
     for s in trace(plain_theme, p.clues):
         assert s["value"] in (1, 2)
@@ -91,14 +91,14 @@ def test_trace_steps_are_well_formed(plain_theme):
 
 
 def test_first_hint_on_empty_board_is_a_given(plain_theme):
-    p = generate_puzzle(plain_theme, random.Random(0), difficulty="medium")
+    p = generate_puzzle(plain_theme, random.Random(0), difficulty="hard")
     step = next_hint(plain_theme, p.clues, known={})
     assert step["tier"] == 0
     assert step["tier_name"] == "Given"
 
 
 def test_next_hint_skips_cells_already_known(plain_theme):
-    p = generate_puzzle(plain_theme, random.Random(3), difficulty="medium")
+    p = generate_puzzle(plain_theme, random.Random(3), difficulty="hard")
     full = trace(plain_theme, p.clues)
     # Tell the engine the first ten deductions are already on the board.
     known: dict = {}
@@ -111,14 +111,14 @@ def test_next_hint_skips_cells_already_known(plain_theme):
 
 
 def test_next_hint_done_on_solved_board(plain_theme):
-    p = generate_puzzle(plain_theme, random.Random(4), difficulty="medium")
+    p = generate_puzzle(plain_theme, random.Random(4), difficulty="hard")
     known = _known_from_solution(plain_theme, p.solution)
     assert next_hint(plain_theme, p.clues, known) == {"done": True}
 
 
 def test_hard_trace_uses_a_contradiction_step():
     theme, puzzle, report = generate_rated(
-        lambda r: build_cafe_theme(r, 4), random.Random(2), "hard"
+        lambda r: build_cafe_theme(r, 4), random.Random(2), "mega"
     )
     assert report["ceiling"] == 4
     steps = trace(theme, puzzle.clues)
@@ -132,7 +132,7 @@ def test_sequential_price_trace_is_sound():
     theme, puzzle, _ = generate_rated(
         lambda r: build_cafe_theme(r, 4, categories=4, use_price=True),
         random.Random(7),
-        "medium",
+        "hard",
     )
     board = _apply(theme, trace(theme, puzzle.clues))
     assert board.solved()
@@ -141,13 +141,13 @@ def test_sequential_price_trace_is_sound():
 
 def test_build_hint_is_deterministic_and_grounded():
     # Same seed + params -> same puzzle -> same first hint.
-    a = build_hint(3, "medium", 4, 3, known={})
-    b = build_hint(3, "medium", 4, 3, known={})
+    a = build_hint(3, "hard", 4, 3, known={})
+    b = build_hint(3, "hard", 4, 3, known={})
     assert a == b
     assert a["tier"] == 0  # nothing known yet -> a given
 
     # The hint targets a real, correct cell of the regenerated puzzle.
-    theme, puzzle, _r, _s = build_puzzle(3, "medium", 4, 3)
+    theme, puzzle, _r, _s = build_puzzle(3, "hard", 4, 3)
     i, j = (int(x) for x in a["key"].split("-"))
     ent = {
         (c, puzzle.solution[e][c]): e
@@ -159,6 +159,6 @@ def test_build_hint_is_deterministic_and_grounded():
 
 
 def test_build_hint_done_when_board_complete():
-    theme, puzzle, _r, _s = build_puzzle(11, "medium", 4, 3)
+    theme, puzzle, _r, _s = build_puzzle(11, "hard", 4, 3)
     known = _known_from_solution(theme, puzzle.solution)
-    assert build_hint(11, "medium", 4, 3, known) == {"done": True}
+    assert build_hint(11, "hard", 4, 3, known) == {"done": True}

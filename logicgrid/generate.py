@@ -618,39 +618,49 @@ def build_clue_pool(
     )
 
 
-DIFFICULTIES = ("easy", "medium", "hard")
+# The named tiers, easiest first (see deduce.DIFFICULTY_ORDER / band_of). The
+# *measured* difficulty (technique a solve forces) is what separates the tiers;
+# the clue pool below only sets which clue families are even available.
+DIFFICULTIES = ("normal", "hard", "mega", "giga", "tera")
 
-# Which clue families each difficulty draws from. Easy stays direct (is / is-not
-# + same-category "one of two"); medium adds either-or / neither / all-different;
-# hard unlocks the trickiest (at-least-K, exclusive pairing, group match).
+# Which clue families each tier draws from. `normal` stays direct (is / is-not +
+# same-category "one of two"); `hard` adds either-or / neither / all-different /
+# groups / sequential; `mega`/`giga`/`tera` unlock the trickiest (at-least-K,
+# exclusive pairing, group match, conditionals) — they share one rich pool and
+# are pulled apart purely by the measured band the grader assigns.
+_NORMAL_POOL = dict(  # is / is-not only -> solvable by transitivity (no clue tricks)
+    enable_among=False, enable_either=False, enable_neither=False,
+    enable_alldiff=False, multi_match=False,
+    enable_pairing=False, enable_match=False, enable_atmost=False,
+    enable_exactly=False,
+)
+_HARD_POOL = dict(
+    among_sizes=(2, 3), enable_either=True, enable_neither=True,
+    enable_alldiff=True, multi_match=False,
+    enable_pairing=False, enable_match=False,
+    enable_groups=True,  # only fires when a theme attached a grouping
+    include_sequential=True,  # only fires when an ordered category exists
+)
+_RICH_POOL = dict(
+    among_sizes=(2, 3), enable_either=True, enable_neither=True,
+    enable_alldiff=True, multi_match=True,
+    enable_pairing=True, enable_match=True,
+    enable_conditional=True,  # if-then / iff (conditional reasoning)
+    enable_groups=True,
+    include_sequential=True,
+)
 _DIFFICULTY_POOL = {
-    "easy": dict(  # is / is-not only -> solvable by transitivity (no clue tricks)
-        enable_among=False, enable_either=False, enable_neither=False,
-        enable_alldiff=False, multi_match=False,
-        enable_pairing=False, enable_match=False, enable_atmost=False,
-        enable_exactly=False,
-    ),
-    "medium": dict(
-        among_sizes=(2, 3), enable_either=True, enable_neither=True,
-        enable_alldiff=True, multi_match=False,
-        enable_pairing=False, enable_match=False,
-        enable_groups=True,  # only fires when a theme attached a grouping
-        include_sequential=True,  # only fires when an ordered category exists
-    ),
-    "hard": dict(
-        among_sizes=(2, 3), enable_either=True, enable_neither=True,
-        enable_alldiff=True, multi_match=True,
-        enable_pairing=True, enable_match=True,
-        enable_conditional=True,  # if-then / iff (conditional reasoning)
-        enable_groups=True,
-        include_sequential=True,
-    ),
+    "normal": _NORMAL_POOL,
+    "hard": _HARD_POOL,
+    "mega": _RICH_POOL,
+    "giga": _RICH_POOL,
+    "tera": _RICH_POOL,
 }
 
-# Extra redundant clues as a fraction of the minimal set. Easy hands back more
-# (shorter chains). The actual difficulty is *measured* by `grade`, so we no
-# longer over-minimize — generate-and-grade selects by the measured band.
-_DIFFICULTY_EXTRA = {"easy": 0.6, "medium": 0.0, "hard": 0.0}
+# Extra redundant clues as a fraction of the minimal set. `normal` hands back more
+# (shorter chains); every harder tier stays minimal so the reasoning bites. The
+# actual difficulty is *measured* by `grade`, so generate-and-grade selects by band.
+_DIFFICULTY_EXTRA = {"normal": 0.6, "hard": 0.0, "mega": 0.0, "giga": 0.0, "tera": 0.0}
 
 
 # Cap the uniqueness search per drop-attempt so minimize stays fast even on
@@ -691,7 +701,7 @@ def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
     return current
 
 
-def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "medium") -> Puzzle:
+def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal") -> Puzzle:
     if difficulty not in DIFFICULTIES:
         raise ValueError(f"unknown difficulty: {difficulty!r}")
     theme.validate()
@@ -713,19 +723,27 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "medium"
     return Puzzle(theme=theme, solution=X, clues=clues)
 
 
-def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int = 9):
+# Sampling budget per target: the top tiers are rarer in the minimal-puzzle
+# distribution, so they get more attempts before falling back to the closest band.
+_RATED_ATTEMPTS = {"normal": 9, "hard": 9, "mega": 10, "giga": 18, "tera": 28}
+
+
+def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int | None = None):
     """Generate-and-grade: sample candidates until one's *measured* difficulty
     band matches `target`, guaranteeing a logic-solvable (no-guessing) puzzle.
 
     `make_theme(rng)` builds a (possibly randomized) theme per attempt. Returns
-    (theme, puzzle, report). Ambiguous puzzles (need techniques beyond tier 4)
-    are skipped; if the exact band is never hit, the closest solvable one is
-    returned.
+    (theme, puzzle, report). Ambiguous puzzles (need deeper nesting than the grader
+    verifies) are skipped; if the exact band is never hit within the attempt budget
+    the closest solvable one is returned, so a tiny grid that simply can't reach
+    `tera` degrades gracefully to the hardest it can manage.
     """
     from .deduce import grade  # local import avoids a module cycle
 
     if target not in DIFFICULTIES:
         raise ValueError(f"unknown difficulty: {target!r}")
+    if max_attempts is None:
+        max_attempts = _RATED_ATTEMPTS.get(target, 9)
     order = DIFFICULTIES
     fallback = None
     for _ in range(max_attempts):
@@ -733,7 +751,7 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
         puzzle = generate_puzzle(theme, rng, difficulty=target)
         report = grade(theme, puzzle.clues)
         if report["band"] == "ambiguous":
-            continue  # needs tier 5+ (nested hypotheticals) — not shipping yet
+            continue  # needs deeper nesting than we verify — not shipping it
         if report["band"] == target:
             return theme, puzzle, report
         # keep the closest-by-band candidate as a fallback

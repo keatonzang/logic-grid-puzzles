@@ -92,24 +92,24 @@ def test_group_clues_absent_without_a_grouping(plain_theme):
     assert not any(isinstance(c, (InGroup, SameGroup, DiffGroup)) for c in pool)
 
 
-def test_groups_enabled_for_medium_and_hard_only():
+def test_groups_enabled_above_normal_only():
     from logicgrid.generate import _DIFFICULTY_POOL
 
-    assert _DIFFICULTY_POOL["easy"].get("enable_groups", False) is False
-    assert _DIFFICULTY_POOL["medium"]["enable_groups"] is True
-    assert _DIFFICULTY_POOL["hard"]["enable_groups"] is True
+    assert _DIFFICULTY_POOL["normal"].get("enable_groups", False) is False
+    for d in ("hard", "mega", "giga", "tera"):
+        assert _DIFFICULTY_POOL[d]["enable_groups"] is True
 
 
-def test_conditionals_are_hard_only(plain_theme):
-    # Easy/medium never surface conditionals; hard does (over several seeds).
-    palette = {d: set() for d in ("easy", "medium", "hard")}
+def test_conditionals_are_rich_tiers_only(plain_theme):
+    # normal/hard never surface conditionals; mega+ does (over several seeds).
+    palette = {d: set() for d in ("normal", "hard", "mega")}
     for d in palette:
         for s in range(20):
             p = generate_puzzle(plain_theme, random.Random(s), difficulty=d)
             palette[d].update(type(c).__name__ for c in p.clues)
-    assert "Conditional" not in palette["easy"]
-    assert "Conditional" not in palette["medium"]
-    assert "Conditional" in palette["hard"]
+    assert "Conditional" not in palette["normal"]
+    assert "Conditional" not in palette["hard"]
+    assert "Conditional" in palette["mega"]  # mega/giga/tera share the rich pool
 
 
 def test_difficulty_controls_clue_palette_and_size(plain_theme):
@@ -125,12 +125,12 @@ def test_difficulty_controls_clue_palette_and_size(plain_theme):
             seen.update(type(c).__name__ for c in p.clues)
             total += len(p.clues)
         sizes[d] = total
-        if d == "easy":
+        if d == "normal":
             assert seen <= {"Positive", "Negative"}  # is / is-not only
-        if d == "hard":
+        if d == "mega":
             assert "GroupMatch" in seen or "ExactlyKLinks" in seen  # trickiest unlocked
-    # easy hands back more clues than hard (extra given vs leanest)
-    assert sizes["easy"] > sizes["hard"]
+    # normal hands back more clues than the leanest rich tier (extra given vs minimal)
+    assert sizes["normal"] > sizes["mega"]
 
 
 def test_unknown_difficulty_raises(plain_theme):

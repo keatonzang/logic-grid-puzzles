@@ -23,7 +23,10 @@ DEFAULT_ITEMS = 4
 MIN_CATEGORIES = 3
 MAX_CATEGORIES = 5
 DEFAULT_CATEGORIES = 3
-DEFAULT_DIFFICULTY = "medium"
+DEFAULT_DIFFICULTY = "normal"
+# Tiers above `normal` that unlock the extra flavour dials (numerics/hierarchies).
+_NONTRIVIAL = ("hard", "mega", "giga", "tera")
+_RICH = ("mega", "giga", "tera")  # the conditional/pairing/match tiers
 DEFAULT_THEME = "cafe"
 
 _MAX_SEED = 1_000_000
@@ -467,18 +470,18 @@ def _solution_rows(theme: Theme, X: list[list[int]]) -> list[list[str]]:
 def _roll_n_numeric(spec: ThemeSpec, difficulty: str, categories: int, rng: random.Random) -> int:
     """How many ordered categories this puzzle includes (consumes ``rng``).
 
-    The primary ordered category appears on medium/hard at its ``prob``. A second
-    ordered dial is gated: hard difficulty, K >= 4, and its own ``prob`` roll —
-    so it stays an occasional flavour, never the default.
+    The primary ordered category appears above `normal` at its ``prob``. A second
+    ordered dial is gated: the rich tiers (mega/giga/tera), K >= 4, and its own
+    ``prob`` roll — so it stays an occasional flavour, never the default.
     """
     avail = spec.numerics
-    if not avail or difficulty not in ("medium", "hard"):
+    if not avail or difficulty not in _NONTRIVIAL:
         return 0
     n = 1 if rng.random() < avail[0].prob else 0
     if (
         n == 1
         and len(avail) >= 2
-        and difficulty == "hard"
+        and difficulty in _RICH
         and clamp_categories(categories) >= 4
         and rng.random() < avail[1].prob
     ):
@@ -486,13 +489,13 @@ def _roll_n_numeric(spec: ThemeSpec, difficulty: str, categories: int, rng: rand
     return n
 
 
-GROUP_PROB = 0.5  # chance an eligible (medium/hard) puzzle rolls in its hierarchy
+GROUP_PROB = 0.5  # chance an eligible (above-normal) puzzle rolls in its hierarchy
 
 
 def _roll_use_groups(spec: ThemeSpec, difficulty: str, rng: random.Random) -> bool:
     """Whether to include the theme's group hierarchy (consumes ``rng`` only when
     the theme actually has one, so other themes' sequences are unaffected)."""
-    if not spec.group_defs or difficulty not in ("medium", "hard"):
+    if not spec.group_defs or difficulty not in _NONTRIVIAL:
         return False
     return rng.random() < GROUP_PROB
 

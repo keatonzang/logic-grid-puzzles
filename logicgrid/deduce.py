@@ -655,9 +655,36 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
     }
 
 
-# Difficulty band by the hardest technique the solve required.
-#   <=2 easy · 3 medium · 4 hard (1 contradiction) · 5 expert (nested contradiction)
-_BANDS = {0: "easy", 1: "easy", 2: "easy", 3: "medium", 4: "hard", 5: "expert"}
+# Difficulty bands by the hardest technique a solve forces (its *ceiling*):
+#   normal  ceiling <=2   givens / line-elimination / transitivity only
+#   hard    ceiling ==3   clue-logic propagation, no proof-by-contradiction
+#   mega    ceiling ==4   needs what-ifs, but few
+#   giga    ceiling ==4   needs many what-ifs
+#   tera    ceiling ==4   needs very many what-ifs, or a nested one (ceiling >=5)
+# Ceiling 4 (proof-by-contradiction) is by far the most common hard outcome and
+# nested what-ifs (ceiling 5+) are rare, so the top three tiers are separated by
+# HOW MANY contradiction steps the solve needs — a reliably-generatable, finely
+# spread signal (see the measured distribution behind these cut points).
+DIFFICULTY_ORDER = ("normal", "hard", "mega", "giga", "tera")
+_MEGA_MAX_WHATIF = 4    # ceiling-4 with <= this many contradiction steps -> mega
+_GIGA_MAX_WHATIF = 14   # ... up to this many -> giga; beyond (or nested) -> tera
+
+
+def band_of(report: dict) -> str:
+    """Name the difficulty band for a solved report (see DIFFICULTY_ORDER)."""
+    c = report["ceiling"]
+    if c <= 2:
+        return "normal"
+    if c == 3:
+        return "hard"
+    if c >= 5:
+        return "tera"  # a nested what-if was required — the deepest reasoning
+    whatif = report["steps"][4] + report["steps"][5]  # proof-by-contradiction steps
+    if whatif <= _MEGA_MAX_WHATIF:
+        return "mega"
+    if whatif <= _GIGA_MAX_WHATIF:
+        return "giga"
+    return "tera"
 
 
 def _score(r: dict) -> int:
@@ -665,23 +692,21 @@ def _score(r: dict) -> int:
     return r["ceiling"] * 1000 + s[5] * 200 + s[4] * 50 + s[3] * 5 + s[2]
 
 
-def grade(theme: Theme, clues: list) -> dict:
+def grade(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
     """Difficulty report: band + ordinal score (ceiling dominates).
 
-    Classify cheaply: forward propagation (no hypotheticals) settles easy/medium;
-    one round of contradiction reasoning (tier 4) confirms hard. We deliberately
-    cap at tier 4 — tier-5 (nested hypothetical) puzzles are vanishingly rare at
-    these sizes and depth-2 grading is far too slow, so anything still unsolved is
-    'ambiguous' and skipped at generation. (`solve(..., max_hyp_depth=2)` can
-    still reason deeper for offline analysis.)
+    A single escalating solve reports the *ceiling* (the hardest technique it
+    actually used) and the per-tier step counts, which `band_of` turns into a
+    band. Grading caps at one round of contradiction reasoning by default
+    (`max_hyp_depth=1`): the whole normal..tera ladder is reachable from there
+    because the top tiers are distinguished by the *number* of what-ifs, not by
+    nested ones. A puzzle that still won't solve is 'ambiguous' (needs deeper
+    nesting than we verify) and is skipped at generation, so we only ship puzzles
+    proven solvable by logic. (`solve(..., max_hyp_depth=2)` reasons deeper for
+    offline analysis.)
     """
-    for depth in (0, 1):
-        r = solve(theme, clues, max_hyp_depth=depth)
-        if r["solved"]:
-            r["band"] = _BANDS[r["ceiling"]]
-            r["score"] = _score(r)
-            return r
-    r["band"] = "ambiguous"
+    r = solve(theme, clues, max_hyp_depth=max_hyp_depth)
+    r["band"] = band_of(r) if r["solved"] else "ambiguous"
     r["score"] = _score(r)
     return r
 

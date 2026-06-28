@@ -134,7 +134,7 @@ def test_round_tripped_theme_generates_a_unique_puzzle():
     from logicgrid.solver import count_solutions
 
     theme = theme_from_json(theme_to_json(_rich_theme()))
-    puzzle = generate_puzzle(theme, random.Random(1), difficulty="easy")
+    puzzle = generate_puzzle(theme, random.Random(1), difficulty="normal")
     assert count_solutions(theme, puzzle.clues, cap=2) == 1
 
 

@@ -34,7 +34,8 @@ def hint_api():
 def test_default_route(api):
     status, payload = api._build_response({})
     assert status == 200
-    assert payload["difficulty"] == "medium"
+    assert payload["requested"] == "normal"          # default tier
+    assert payload["difficulty"] == "normal"          # a normal puzzle measures normal
     assert payload["items"] == 4
     assert payload["clues"]
 
@@ -44,7 +45,8 @@ def test_explicit_params(api):
         {"difficulty": ["hard"], "items": ["5"], "seed": ["12"]}
     )
     assert status == 200
-    assert payload["difficulty"] == "hard"
+    assert payload["requested"] == "hard"             # honoured the request
+    assert payload["difficulty"] in ("normal", "hard", "mega", "giga", "tera")
     assert payload["items"] == 5
     assert payload["seed"] == 12
 
@@ -69,7 +71,7 @@ def test_bad_seed_is_400(api):
 
 def test_hint_empty_board_is_a_given(hint_api):
     status, payload = hint_api._build_response(
-        {"seed": 3, "difficulty": "medium", "items": 4, "categories": 3, "known": {}}
+        {"seed": 3, "difficulty": "hard", "items": 4, "categories": 3, "known": {}}
     )
     assert status == 200
     assert payload["tier"] == 0
@@ -117,7 +119,7 @@ def test_unknown_theme_is_400(api):
 
 def test_hint_theme(hint_api):
     status, payload = hint_api._build_response(
-        {"seed": 3, "difficulty": "medium", "items": 4, "categories": 3,
+        {"seed": 3, "difficulty": "hard", "items": 4, "categories": 3,
          "theme": "dnd", "known": {}}
     )
     assert status == 200

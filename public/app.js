@@ -269,8 +269,13 @@ function render() {
   const tierNote = tier != null
     ? ` · <span title="hardest deduction technique needed (4 = proof by contradiction)">logic tier ${tier}</span>`
     : "";
+  // measured band can differ from the request when a small grid can't reach the
+  // asked-for tier — surface that honestly rather than silently downgrading.
+  const reqNote = (puzzle.requested && puzzle.requested !== puzzle.difficulty)
+    ? ` <span class="muted" title="you asked for ${puzzle.requested}; this grid could only reach ${puzzle.difficulty} — try more categories or items">(asked ${puzzle.requested})</span>`
+    : "";
   $("p-meta").innerHTML =
-    `${puzzle.categories.length} × ${puzzle.items} · <b>${puzzle.difficulty}</b>${tierNote} · ` +
+    `${puzzle.categories.length} × ${puzzle.items} · <b>${puzzle.difficulty}</b>${reqNote}${tierNote} · ` +
     `${puzzle.clues.length} clues · seed <code>${puzzle.seed}</code>`;
 
   const ol = $("clues");
