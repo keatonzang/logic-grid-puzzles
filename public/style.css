@@ -321,6 +321,10 @@ col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit 
 .gl-i {
   max-width: 100%;
   max-height: 100%;
+  min-width: 0;                 /* flex items default to min-content width, which
+     would let the box grow to the longest word so it never "overflows" and the
+     shrink-to-fit can't see it — pin to 0 so the word overflows and is detected */
+  min-height: 0;
   overflow: hidden;
   text-align: center;
   line-height: 1.12;
