@@ -603,12 +603,24 @@ def build_clue_pool(
             gi = rng.randrange(len(parts))
             actual = sum(1 for e in subset if group_of.get(X[e][cat]) == gi)
             anchors = [anchor_for(e) for e in subset]
-            # a true statement about this subset; vary the relation we phrase it as
-            choices = [("exactly", actual)]
-            if actual >= 1:
-                choices.append(("atleast", rng.randint(1, actual)))
-            if actual <= size - 1:
-                choices.append(("atmost", rng.randint(actual, size - 1)))
+            # A true statement about this subset, phrased so it carries genuine "which
+            # ones?" ambiguity. A bound that forces every anchor IN (K == size) or
+            # every anchor OUT (K == 0) is just a conjunction of memberships in
+            # disguise — the InGroup clues already say that — and reads as a fake
+            # set-counting puzzle ("at least two of [two things]"). So K stays
+            # strictly inside 1..size-1 for every mode; true K must also respect the
+            # actual count (>= for atmost, <= for atleast).
+            choices = []
+            if 1 <= actual <= size - 1:                  # exactly K (not all / none)
+                choices.append(("exactly", actual))
+            hi = min(actual, size - 1)                    # at least K: K <= actual, < size
+            if hi >= 1:
+                choices.append(("atleast", rng.randint(1, hi)))
+            lo = max(actual, 1)                           # at most K: K >= actual, >= 1
+            if lo <= size - 1:
+                choices.append(("atmost", rng.randint(lo, size - 1)))
+            if not choices:                               # all-in / all-out subset -> skip
+                continue
             mode, kk = rng.choice(choices)
             groups.append(GroupCount(anchors, cat, labels[gi], parts[gi], kk, mode))
 

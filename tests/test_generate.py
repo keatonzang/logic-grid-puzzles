@@ -142,6 +142,37 @@ def test_group_instances_need_a_grouping():
     assert not any(isinstance(c, Compound) for c in pool)
 
 
+def test_group_count_never_degenerate():
+    # A GroupCount must carry genuine "which ones?" ambiguity: a bound that forces
+    # every anchor IN (K == size) or OUT (K == 0) is just a conjunction of InGroup
+    # facts dressed up as set-counting ("at least two of [two things]"). K must stay
+    # strictly inside 1..size-1 for every mode.
+    from logicgrid.clues import GroupCount
+    from logicgrid.model import Category, Theme
+
+    grouped = Theme("G", "", [
+        Category("Owner", ["Ann", "Bo", "Cy", "Di"]),
+        Category("Pet", ["Cat", "Dog", "Eel", "Fox"], group_noun="kind",
+                 groups=(("Furred", ("Cat", "Dog", "Fox")), ("Finned", ("Eel",)))),
+        Category("Toy", ["Ball", "Cube", "Disc", "Rope"]),
+    ], entity_noun="home")
+
+    seen = 0
+    for seed in range(40):
+        rng = random.Random(seed)
+        X = random_solution(grouped, rng)
+        pool = build_clue_pool(grouped, X, rng, enable_groups=True)
+        for c in pool:
+            if isinstance(c, GroupCount):
+                seen += 1
+                size = len(c.anchors)
+                assert 1 <= c.k <= size - 1, (c.mode, c.k, size)
+                assert not (c.mode in ("exactly", "atleast") and c.k == size)
+                assert not (c.mode in ("exactly", "atmost") and c.k == 0)
+                assert c.holds(X)
+    assert seen, "expected some GroupCount clues to be generated"
+
+
 def test_group_clues_absent_without_a_grouping(plain_theme):
     # A theme with no grouping never yields group clues even with the flag on.
     from logicgrid.clues import DiffGroup, InGroup, SameGroup
