@@ -761,7 +761,26 @@ def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0) -> None:
 # A `depth`-d hypothetical assumes a cell value and propagates with tiers up to
 # (d-1) hypotheticals inside. depth 1 == tier 5 (single what-if); depth 2 ==
 # tier 6 (a what-if whose inner reasoning may itself need a what-if).
+def _ndet(board) -> int:
+    """How many cells are determined — the size of a propagation's closure."""
+    return sum(v != U for m in board.cell.values() for row in m for v in row)
+
+
+# A what-if whose contradiction needs no more than this many forced cells is
+# "easy enough" — take it without scanning further. Cheap stalls (the common case)
+# stop almost immediately; only a stall with no quick refutation pays for the full
+# scan. Tuned so the chosen what-if's proof is short without tripling grade cost.
 def _sweep_hypothetical(board, clues, depth: int) -> int:
+    """Apply the *easiest* what-if: of every assumption that propagates to a
+    contradiction, take the one whose contradiction needs the fewest forced cells.
+    A person picks the assumption that blows up quickly, not the first one in
+    reading order — and the closure size is a faithful stand-in for the length of
+    the proof a hint will show, so the hint that narrates this step is the shortest
+    available rather than an arbitrary deep one. The full scan (every open cell,
+    no early stop) makes the choice exact and deterministic; it costs more per
+    solve, a deliberate trade for always surfacing the minimum refutation."""
+    base = _ndet(board)
+    best = None  # (closure_size, i, a, j, b, other)
     for (i, j), m in board.cell.items():
         for a in range(board.n):
             for b in range(board.n):
@@ -773,9 +792,14 @@ def _sweep_hypothetical(board, clues, depth: int) -> int:
                     try:
                         _propagate_to_fixpoint(test, clues, depth - 1)
                     except Contradiction:
-                        board.set(i, a, j, b, other)
-                        return 1
-    return 0
+                        size = _ndet(test) - base  # cells forced before the clash
+                        if best is None or size < best[0]:
+                            best = (size, i, a, j, b, other)
+                        break  # this cell is settled; don't test its other trial
+    if best is None:
+        return 0
+    board.set(best[1], best[2], best[3], best[4], best[5])
+    return 1
 
 
 def _hypothetical_at(board, clues, max_depth: int) -> int:
@@ -857,7 +881,7 @@ DIFFICULTY_ORDER = ("normal", "hard", "mega", "giga", "tera")
 #   * cluecost — mean clue cognitive weight (how sophisticated the clues are)
 # Each is centred/scaled by its measured median and spread so it contributes
 # comparably; the sum is the index, which alone names the band. (median, scale):
-_INDEX_NORM = {"whatif": (1.0, 3.24), "lognodes": (3.32, 0.96), "cluecost": (3.2, 0.66)}
+_INDEX_NORM = {"whatif": (1.0, 2.85), "lognodes": (3.32, 0.96), "cluecost": (3.2, 0.68)}
 # The whole ladder is one index, split into FIVE equal-frequency bands. The four
 # cuts are the measured quintiles of a representative rich-pool sample (~240
 # puzzles), recomputed after the tier-4 set-logic addition shifted the what-if
@@ -866,7 +890,7 @@ _INDEX_NORM = {"whatif": (1.0, 3.24), "lognodes": (3.32, 0.96), "cluecost": (3.2
 # progressively harder proof-by-contradiction), with the index resolving hardness
 # *within* a ceiling. Difficulty deliberately does NOT scale linearly — the cuts
 # are wherever the population splits into fifths. One band per cut, low to high:
-_BAND_CUTS = (-1.08, 0.08, 1.1, 2.47)  # normal · hard · mega · giga · tera quintiles
+_BAND_CUTS = (-1.17, -0.04, 1.02, 2.31)  # normal · hard · mega · giga · tera quintiles
 
 
 def difficulty_index(report: dict) -> float:
