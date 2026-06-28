@@ -135,8 +135,10 @@ THEME_SPECS: tuple = (
             ("Patron", ("Baron", "Bishop", "Countess", "Duke", "Earl", "Knight", "Prince", "Sheriff")),
         ),
         numeric=NumericSpec("Dues", unit_suffix=" coins", min_start=2, start_max=12, steps=(1, 2)),
-        # Two two-level hierarchies. Each Trade belongs to a guild, and each
-        # Quarter sits in a ward of the city. Surface only via group clues
+        # Two two-level hierarchies: Trades group into guilds, Quarters into wards.
+        # Only the labels (and group_noun) are fixed — membership is randomised per
+        # puzzle by _random_groups (>=2 groups, >=2 members each), so the listed
+        # members below just seed the label pool. Surface only via group clues
         # ("Aldric belongs to the Ironmongers' Guild", "Aldric and Beatrix are in
         # the same guild") and only when rolled in. With both present, cross-group
         # clues become possible ("exactly two Ironmongers live in the Hill Ward").
@@ -292,14 +294,34 @@ def max_items_for(categories: int) -> int:
     return _MAX_ITEMS_BY_K.get(clamp_categories(categories), MAX_ITEMS)
 
 
-def _restrict_groups(full_groups: tuple, items: list) -> tuple:
-    """Keep only sampled items in each group and drop groups left empty."""
-    iset = set(items)
-    out = []
-    for label, members in full_groups:
-        keep = tuple(m for m in members if m in iset)
-        if keep:
-            out.append((label, keep))
+def _random_groups(partition: tuple, items: list, rng: random.Random,
+                   min_size: int = 2, min_groups: int = 2) -> tuple:
+    """Randomly partition the sampled ``items`` into the *labels* drawn from
+    ``partition`` (the theme's named guilds/wards), for per-puzzle variety.
+
+    Every formed group gets at least ``min_size`` members, and we form at least
+    ``min_groups`` groups when the item count allows. If there are too few items
+    to do that (n < min_size * min_groups), no hierarchy is formed (``()``), so
+    the category carries no groups and no group clues are generated. Randomised
+    membership, but fully deterministic in ``rng``; groups come back in the
+    theme's canonical label order so the display stays stable."""
+    labels = [label for label, _members in partition]
+    n = len(items)
+    max_groups = min(len(labels), n // min_size)
+    if max_groups < min_groups:
+        return ()
+    g = rng.randint(min_groups, max_groups)
+    sizes = [min_size] * g
+    for _ in range(n - g * min_size):  # scatter the leftovers across the groups
+        sizes[rng.randrange(g)] += 1
+    pool = list(items)
+    rng.shuffle(pool)
+    chosen = rng.sample(labels, g)
+    out, pos = [], 0
+    for label, size in zip(chosen, sizes):
+        out.append((label, tuple(sorted(pool[pos:pos + size]))))
+        pos += size
+    out.sort(key=lambda lm: labels.index(lm[0]))  # canonical label order
     return tuple(out)
 
 
@@ -342,8 +364,10 @@ def build_theme(
         pool_items = sorted(rng.sample(pools[name], items))
         kwargs = {"referent": refs.get(name, "")}
         if name in forced and name in gdefs:
-            kwargs["group_noun"] = gdefs[name][1]
-            kwargs["groups"] = _restrict_groups(gdefs[name][2], pool_items)
+            grps = _random_groups(gdefs[name][2], pool_items, rng)
+            if grps:  # empty when too few items to form a real hierarchy
+                kwargs["group_noun"] = gdefs[name][1]
+                kwargs["groups"] = grps
         cats.append(Category(name, pool_items, **kwargs))
 
     for ns in numerics:

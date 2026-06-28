@@ -287,6 +287,38 @@ table.staircase td.void { border: none; background: transparent; cursor: default
 table.staircase .blk-left { border-left: 2px solid var(--muted); }
 table.staircase .blk-top { border-top: 2px solid var(--muted); }
 
+/* Thin sub-dividers between the groups of a hierarchical category */
+table.staircase .grp-left, table.grid .grp-left { border-left: 1px dashed var(--muted); }
+table.staircase .grp-top, table.grid .grp-top { border-top: 1px dashed var(--muted); }
+
+/* Labelled guild band layered over a grouped category's items */
+col.sc-rowguild-col { width: 1.4rem; }
+col.rowguild-col { width: 1.4rem; }
+th.sc-guild, th.g-band {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--gcolor) 22%, var(--panel-2));
+}
+th.sc-guild:not(.sc-rowguild), th.g-band:not(.g-rowband) {
+  padding: .2rem .15rem;
+  border-bottom: 2px solid var(--gcolor);
+}
+th.sc-rowguild, th.g-rowband {
+  padding: 0;
+  vertical-align: middle;
+  border-right: 2px solid var(--gcolor);
+}
+th.sc-rowguild span, th.g-rowband span {
+  display: inline-block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .grid-block {
   display: flex;
   flex-direction: column;
@@ -538,8 +570,11 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
   table.grid th, table.grid td,
   table.staircase th, table.staircase td { border-color: #000; }
   th.col span, th.row, .grid-block h4, .grid-block h4 b,
-  th.sc-colcat, th.sc-rowcat span { color: #000 !important; }
-  table.staircase .blk-left, table.staircase .blk-top { border-color: #000 !important; }
+  th.sc-colcat, th.sc-rowcat span,
+  th.sc-guild, th.g-band, th.sc-rowguild span, th.g-rowband span { color: #000 !important; }
+  table.staircase .blk-left, table.staircase .blk-top,
+  .grp-left, .grp-top { border-color: #000 !important; }
+  th.sc-guild, th.g-band { background: #eee !important; border-color: #000 !important; }
   td.cell { background: #fff !important; color: transparent !important; }
 
   /* answer key starts a fresh page so it can be torn off */
