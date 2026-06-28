@@ -140,7 +140,7 @@ THEME_SPECS: tuple = (
             ("Quarter", ("Bridgegate", "Eastcheap", "Highrow", "Kingsford", "Millpond", "Oldwall", "Riverside", "Southgate")),
             ("Patron", ("Baron", "Bishop", "Countess", "Duke", "Earl", "Knight", "Prince", "Sheriff")),
         ),
-        numeric=NumericSpec("Dues", unit_suffix=" coins", min_start=2, start_max=12, steps=(1, 2)),
+        numeric=NumericSpec("Levy", unit_suffix=" coins", min_start=2, start_max=12, steps=(1, 2)),
         referents=(
             ("Trade", "the {}"),                     # the Tanner (a trade names the artisan)
             ("Tool", "the artisan with the {}"),     # the artisan with the Anvil

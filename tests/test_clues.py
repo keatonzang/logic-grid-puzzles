@@ -211,7 +211,7 @@ def test_multi_compare_holds_and_text(ordered_theme, identity_solution):
     assert above.holds(identity_solution)
     assert below.holds(identity_solution)
     assert not MultiCompare(2, (0, 1), [(0, 0), (0, 2)], greater=True).holds(identity_solution)
-    assert above.text(ordered_theme) == "Zu's year was more than both Xi and Yo."
+    assert above.text(ordered_theme) == "Zu's year is more than both Xi and Yo."
 
 
 def test_at_most_holds_and_text(plain_theme, identity_solution):
@@ -329,10 +329,11 @@ def test_group_count_text():
     g = _group_theme()
     c = GroupCount([(0, 0), (0, 1), (0, 2)], 1, "Furred", _FURRED, 2, "exactly")
     assert c.text(g) == "Exactly two of Ann, Bo, and Cy belong to the Furred."
+    # k == 1: the count word is singular ("one"), so the verb agrees ("belongs")
     al = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 1, "atleast")
-    assert al.text(g) == "At least one of Ann and Bo belong to the Furred."
+    assert al.text(g) == "At least one of Ann and Bo belongs to the Furred."
     am = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 1, "atmost")
-    assert am.text(g) == "At most one of Ann and Bo belong to the Furred."
+    assert am.text(g) == "At most one of Ann and Bo belongs to the Furred."
     # k == 0 reads as "None of ..." rather than "Exactly 0 of ..."
     z_ex = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 0, "exactly")
     z_am = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 0, "atmost")

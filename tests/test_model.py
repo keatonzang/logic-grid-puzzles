@@ -69,3 +69,23 @@ def test_labels_must_be_globally_unique():
     theme = Theme("t", "", [Category("A", ["x", "b"]), Category("B", ["x", "d"])])
     with pytest.raises(ValueError, match="unique across ALL"):
         theme.validate()
+
+
+def test_plural_ordered_category_name_warns():
+    # comparison clues assume a singular name; "Earnings" reads with disagreement
+    theme = Theme("t", "", [
+        Category("A", ["p", "q"]),
+        Category("Earnings", ["lo", "hi"], ordered=True, values=[10, 20]),
+    ])
+    with pytest.warns(UserWarning, match="looks like a plural"):
+        theme.validate()
+
+
+def test_singular_s_name_does_not_warn(recwarn):
+    # '-s' singulars (Status/Bonus/Class/Axis) must NOT trip the heuristic
+    for name in ("Status", "Bonus", "Class", "Axis"):
+        Theme("t", "", [
+            Category("A", ["p", "q"]),
+            Category(name, ["lo", "hi"], ordered=True, values=[10, 20]),
+        ]).validate()
+    assert len(recwarn) == 0

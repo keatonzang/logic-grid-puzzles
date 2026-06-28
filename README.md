@@ -79,7 +79,7 @@ medium/hard); a puzzle can always roll with no hierarchy at all.
 - **group cardinality** (`GroupCount`) — `Exactly two of Aldric, Beatrix, and Cedric belong to the Joiners' Guild.`
   Of the named entities, the number in the guild is `== / >= / <= K` (`mode`). A genuine set-counting clue —
   the one kind the per-pair bijection can't otherwise express.
-- **group ordering** (`GroupOrder`) — `Everyone in the Ironmongers' Guild ranks higher in dues than everyone in the Clothiers' Guild.`
+- **group ordering** (`GroupOrder`) — `Everyone in the Ironmongers' Guild ranks higher in levy than everyone in the Clothiers' Guild.`
   Couples the hierarchy to an ordered category: every entity in one guild outranks every entity in another.
   Rare — only generated when two guilds happen to be fully rank-separated, and needs an ordered category present.
 
@@ -247,7 +247,7 @@ drop-down, served from `GET /api/puzzle?themes=1`:
 | Key | Name | Numeric category |
 |-----|------|------------------|
 | `cafe` | The Morning Rush | Price (`$`) |
-| `kings_guild` | The King's Guild | Dues (` coins`) |
+| `kings_guild` | The King's Guild | Levy (` coins`) |
 | `dnd` | The Adventuring Party | Gold (` gp`) |
 | `mystery` | Murder at the Manor | — |
 | `space` | The Mars Colony | Distance (` ly`) |

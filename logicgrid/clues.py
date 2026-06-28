@@ -292,7 +292,7 @@ class MultiCompare(Clue):
         labels = [_ref(theme, o) for o in self.others]
         rel = "more" if self.greater else "less"
         joiner = "both " if len(labels) == 2 else "all of "
-        return f"{_cap(_poss(theme, self.c))} {cn} was {rel} than {joiner}{_join(labels, 'and')}."
+        return f"{_cap(_poss(theme, self.c))} {cn} is {rel} than {joiner}{_join(labels, 'and')}."
 
 
 def _join(labels: list[str], conj: str) -> str:
@@ -749,7 +749,8 @@ class GroupCount(Clue):
         if self.k == 0:  # "exactly 0" / "at most 0" read better as "none"
             return f"None of {refs} belong to the {self.label}."
         prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
-        return f"{prefix} {_count_word(self.k)} of {refs} belong to the {self.label}."
+        verb = "belongs" if self.k == 1 else "belong"
+        return f"{prefix} {_count_word(self.k)} of {refs} {verb} to the {self.label}."
 
 
 class GroupOrder(Clue):

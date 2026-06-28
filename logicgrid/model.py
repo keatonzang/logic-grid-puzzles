@@ -13,7 +13,16 @@ X[*][c] is a permutation of range(N).
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
+
+
+def _looks_plural(name: str) -> bool:
+    """Heuristic: does this category name read as a plural noun? Naive but enough
+    to flag 'Earnings'/'Dues'/'Winnings' while sparing singular '-s' words like
+    'Status', 'Bonus', 'Class', 'Axis'."""
+    low = name.lower()
+    return low.endswith("s") and not low.endswith(("ss", "us", "is"))
 
 
 @dataclass
@@ -120,3 +129,17 @@ class Theme:
             raise ValueError(
                 "item labels must be unique across ALL categories so clues read unambiguously"
             )
+        # Comparison clues read an ordered category's name as a SINGULAR common
+        # noun ("a higher price", "the order's price is..."). A plural name
+        # ("Earnings", "Dues") then disagrees ("a higher earnings", "earnings
+        # is"). We can't fix the grammar without knowing the noun, so warn the
+        # author rather than emit broken prose.
+        for c in self.categories:
+            if c.ordered and _looks_plural(c.name):
+                warnings.warn(
+                    f"ordered category '{c.name}' looks like a plural noun; comparison "
+                    f"clues assume a singular name and will read with disagreement "
+                    f"(e.g. 'a higher {c.name.lower()}', '{c.name.lower()} is') — "
+                    "consider a singular name.",
+                    stacklevel=2,
+                )
