@@ -153,38 +153,71 @@ def _plain3():
     )
 
 
-def test_implies_propagator():
-    from logicgrid.clues import Implies
-    from logicgrid.deduce import _prop_implies
+def test_conditional_implication_propagator():
+    from logicgrid.clues import Conditional, Link
+    from logicgrid.deduce import _prop_conditional
 
     theme = _plain3()
-    clue = Implies(((0, 0), (1, 0)), ((0, 0), (2, 0)))  # if (0,0)-(1,0) then (0,0)-(2,0)
+    clue = Conditional(Link((0, 0), (1, 0)), Link((0, 0), (2, 0)))  # if (0,0)-(1,0) then (0,0)-(2,0)
 
     bd = Board(theme); bd.set(0, 0, 1, 0, Y)             # modus ponens
-    _prop_implies(bd, clue); assert bd.get(0, 0, 2, 0) == Y
+    _prop_conditional(bd, clue); assert bd.get(0, 0, 2, 0) == Y
 
     bd = Board(theme); bd.set(0, 0, 2, 0, N)             # modus tollens (contrapositive)
-    _prop_implies(bd, clue); assert bd.get(0, 0, 1, 0) == N
+    _prop_conditional(bd, clue); assert bd.get(0, 0, 1, 0) == N
 
     bd = Board(theme); bd.set(0, 0, 1, 0, N)             # antecedent false -> no move
-    _prop_implies(bd, clue); assert bd.get(0, 0, 2, 0) == U
+    _prop_conditional(bd, clue); assert bd.get(0, 0, 2, 0) == U
 
 
-def test_iff_propagator():
-    from logicgrid.clues import Iff
-    from logicgrid.deduce import _prop_iff
+def test_conditional_biconditional_propagator():
+    from logicgrid.clues import Conditional, Link
+    from logicgrid.deduce import _prop_conditional
 
     theme = _plain3()
-    clue = Iff(((0, 0), (1, 0)), ((0, 0), (2, 0)))
+    clue = Conditional(Link((0, 0), (1, 0)), Link((0, 0), (2, 0)), biconditional=True)
 
     bd = Board(theme); bd.set(0, 0, 1, 0, Y)             # left true -> right true
-    _prop_iff(bd, clue); assert bd.get(0, 0, 2, 0) == Y
+    _prop_conditional(bd, clue); assert bd.get(0, 0, 2, 0) == Y
 
     bd = Board(theme); bd.set(0, 0, 1, 0, N)             # left false -> right false
-    _prop_iff(bd, clue); assert bd.get(0, 0, 2, 0) == N
+    _prop_conditional(bd, clue); assert bd.get(0, 0, 2, 0) == N
 
     bd = Board(theme); bd.set(0, 0, 2, 0, Y)             # right true -> left true (both ways)
-    _prop_iff(bd, clue); assert bd.get(0, 0, 1, 0) == Y
+    _prop_conditional(bd, clue); assert bd.get(0, 0, 1, 0) == Y
+
+
+def test_conditional_compound_propagator():
+    # if (0,0)-(1,0) then EITHER (0,0)-(2,0) or (0,1)-(2,0): modus ponens makes
+    # the consequent disjunction fire, then unit-propagation forces the last open
+    # disjunct once the other is ruled out.
+    from logicgrid.clues import Conditional, Link, Or
+    from logicgrid.deduce import _prop_conditional, _propagate_to_fixpoint, Contradiction
+
+    theme = _plain3()
+    cons = Or([Link((0, 0), (2, 0)), Link((0, 1), (2, 0))])
+    clue = Conditional(Link((0, 0), (1, 0)), cons)
+
+    bd = Board(theme)
+    bd.set(0, 0, 1, 0, Y)          # antecedent holds
+    bd.set(0, 0, 2, 0, N)          # first disjunct ruled out
+    _prop_conditional(bd, clue)
+    assert bd.get(0, 1, 2, 0) == Y  # so the other disjunct must hold
+
+    # contrapositive: every consequent disjunct false -> antecedent broken
+    bd = Board(theme)
+    bd.set(0, 0, 2, 0, N); bd.set(0, 1, 2, 0, N)
+    _prop_conditional(bd, clue)
+    assert bd.get(0, 0, 1, 0) == N
+
+    # a true antecedent with an impossible consequent is refuted
+    bd = Board(theme)
+    bd.set(0, 0, 1, 0, Y); bd.set(0, 0, 2, 0, N); bd.set(0, 1, 2, 0, N)
+    try:
+        _prop_conditional(bd, clue)
+        assert False, "expected Contradiction"
+    except Contradiction:
+        pass
 
 
 def _grouped_theme():
@@ -403,7 +436,7 @@ def test_group_clues_stay_sound_and_no_guessing():
 
 
 def test_conditional_clues_stay_sound_and_no_guessing():
-    # Hard puzzles that keep an Implies/Iff must remain logic-solvable with the
+    # Hard puzzles that keep a Conditional must remain logic-solvable with the
     # solver reaching the true solution (an unsound propagator would diverge).
     theme = Theme(
         name="t", description="d", entity_noun="order",
@@ -416,11 +449,11 @@ def test_conditional_clues_stay_sound_and_no_guessing():
     )
     n, k = theme.n, theme.k
     seen = 0
-    for seed in range(8):  # small sample; conditional propagators are unit-tested too
+    for seed in range(20):  # conditionals are rarer now; sample enough to catch one
         rng = random.Random(seed)
         _th, puzzle, _rep = generate_rated(lambda r: theme, rng, "hard")
         names = {type(c).__name__ for c in puzzle.clues}
-        if not (names & {"Implies", "Iff"}):
+        if "Conditional" not in names:
             continue
         seen += 1
         rep = solve(theme, puzzle.clues)

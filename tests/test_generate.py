@@ -7,7 +7,7 @@ import random
 
 import pytest
 
-from logicgrid.clues import Iff, Implies, Positive
+from logicgrid.clues import Conditional, Positive
 from logicgrid.generate import (
     build_clue_pool,
     generate_puzzle,
@@ -52,18 +52,13 @@ def test_conditional_clues_gated_off_by_default(plain_theme):
     rng = random.Random(3)
     X = random_solution(plain_theme, rng)
     off = build_clue_pool(plain_theme, X, rng)  # default: enable_conditional False
-    assert not any(isinstance(c, (Implies, Iff)) for c in off)
+    assert not any(isinstance(c, Conditional) for c in off)
     on = build_clue_pool(plain_theme, X, rng, enable_conditional=True)
-    assert any(isinstance(c, Implies) for c in on)
-    assert any(isinstance(c, Iff) for c in on)
-    assert all(c.holds(X) for c in on)
-    # never the parallel 2x2 shape (the GroupMatch echo we dedup)
-    cats = lambda link: frozenset({link[0][0], link[1][0]})
-    for c in on:
-        if isinstance(c, Implies):
-            assert cats(c.ante) != cats(c.cons)
-        if isinstance(c, Iff):
-            assert cats(c.left) != cats(c.right)
+    conds = [c for c in on if isinstance(c, Conditional)]
+    assert conds
+    assert any(not c.biconditional for c in conds)  # if-then present
+    assert any(c.biconditional for c in conds)       # if-and-only-if present
+    assert all(c.holds(X) for c in on)               # every generated clue true under X
 
 
 def test_group_clues_need_a_grouping_and_the_flag():
@@ -106,15 +101,15 @@ def test_groups_enabled_for_medium_and_hard_only():
 
 
 def test_conditionals_are_hard_only(plain_theme):
-    # Easy/medium never surface if-then / iff; hard does (over several seeds).
+    # Easy/medium never surface conditionals; hard does (over several seeds).
     palette = {d: set() for d in ("easy", "medium", "hard")}
     for d in palette:
         for s in range(20):
             p = generate_puzzle(plain_theme, random.Random(s), difficulty=d)
             palette[d].update(type(c).__name__ for c in p.clues)
-    assert not ({"Implies", "Iff"} & palette["easy"])
-    assert not ({"Implies", "Iff"} & palette["medium"])
-    assert {"Implies", "Iff"} & palette["hard"]
+    assert "Conditional" not in palette["easy"]
+    assert "Conditional" not in palette["medium"]
+    assert "Conditional" in palette["hard"]
 
 
 def test_difficulty_controls_clue_palette_and_size(plain_theme):

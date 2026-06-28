@@ -21,14 +21,11 @@ from __future__ import annotations
 
 from itertools import combinations
 
-from .model import Theme
+from .model import Contradiction, Theme
 
 U, Y, N = 0, 1, 2  # unknown, linked (same entity), not linked
 
-
-class Contradiction(Exception):
-    """Raised if a deduction conflicts with a known fact (should never happen on
-    a sound solver + valid puzzle)."""
+__all__ = ["Contradiction"]  # re-exported: defined in model, caught/raised here
 
 
 class Board:
@@ -341,27 +338,11 @@ def _prop_exactly_anchor(board, clue) -> int:  # exactly k options match the anc
     return changed
 
 
-def _prop_implies(board, clue) -> int:  # if ante link holds, so does cons link
-    a = _g(board, *clue.ante)
-    c = _g(board, *clue.cons)
-    changed = 0
-    if a == Y:  # modus ponens
-        changed += _s(board, *clue.cons, Y)
-    if c == N:  # modus tollens (contrapositive)
-        changed += _s(board, *clue.ante, N)
-    return changed
-
-
-def _prop_iff(board, clue) -> int:  # left link holds <=> right link holds
-    left, right = clue.left, clue.right
-    l = _g(board, *left)
-    r = _g(board, *right)
-    changed = 0
-    if l != U:  # carry left's known truth to right (raises Contradiction on conflict)
-        changed += _s(board, *right, l)
-    if r != U:  # and vice versa
-        changed += _s(board, *left, r)
-    return changed
+def _prop_conditional(board, clue) -> int:  # general if-then / iff over Statements
+    # The whole three-valued evaluation + constraint push lives on the embedded
+    # Statement tree (clues.py), so this stays a thin, structure-agnostic shim and
+    # arbitrarily nested antecedents/consequents propagate by the same rules.
+    return clue.propagate(board)
 
 
 # --- Hierarchy / group clues (resolve on the grouped category's column) ------
@@ -553,8 +534,7 @@ _PROPAGATORS = {
     "EitherOr": _prop_either,
     "Exactly": _prop_exactly_anchor,
     "ExactlyKLinks": _prop_exactly,
-    "Implies": _prop_implies,
-    "Iff": _prop_iff,
+    "Conditional": _prop_conditional,
     "InGroup": _prop_in_group,
     "SameGroup": _prop_same_group,
     "DiffGroup": _prop_diff_group,

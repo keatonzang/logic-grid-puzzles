@@ -17,6 +17,14 @@ import warnings
 from dataclasses import dataclass
 
 
+class Contradiction(Exception):
+    """A deduction conflicts with a known fact. Raised by the board when a cell is
+    set against an existing value, and by statement/clue propagation when a forced
+    truth value is impossible — the signal the hypothetical solver refutes on.
+    Lives here (not in ``deduce``) so the clue/statement algebra can raise the same
+    type the solver catches, without importing the solver."""
+
+
 def _looks_plural(name: str) -> bool:
     """Heuristic: does this category name read as a plural noun? Naive but enough
     to flag 'Earnings'/'Dues'/'Winnings' while sparing singular '-s' words like

@@ -58,12 +58,17 @@ Ivory-mug order). Each sequential clue has a sound deductive propagator
   (`match_sizes`). For N ≥ 3: `… go with …, in some order.`
 - **exactly K of N** (`Exactly`) — `Ava goes with exactly two of Bagel, Latte, and the Jade mug.`
   Precisely K options match — `Among` (≥ K) and `AtMost` (≤ K) at once (`enable_exactly`).
-- **if–then** (`Implies`) — `If Ava goes with Latte, then Ben goes with the Bagel.`
-  A one-way conditional: when the antecedent link holds the consequent must too. Fires
-  forward (modus ponens) and backward (contrapositive). Hard puzzles only (`enable_conditional`).
-- **if and only if** (`Iff`) — `Ava goes with Latte if and only if Ben goes with the Bagel.`
-  Both links are true together or false together (degenerate 2-entity cases are deduped
-  against `GroupMatch`, which subsumes them). Hard only.
+- **conditional** (`Conditional`) — a general *if–then* / *if-and-only-if* whose two sides
+  are embedded boolean **statements** over links: `If Ava goes with Latte, then Ben goes
+  with the Bagel.` · `If both Ava goes with Latte and Cara goes with the Scone, then Ben
+  does not go with the Bagel.` · `Ava goes with Latte if and only if either Ben goes with
+  the Bagel or Cara goes with the Mocha.` A statement is a `Link` atom combined with
+  `Not` / `And` / `Or` / `Xor`; propagation is delegated to each statement's three-valued
+  evaluate/constrain, so antecedent and consequent can be arbitrarily nested and the
+  implication still fires forward (modus ponens) and backward (contrapositive). The
+  generator biases toward simple atom⇒atom conditionals and surfaces compound ones more
+  rarely, so the *measured* difficulty tracks the reasoning each actually needs. Hard
+  puzzles only (`enable_conditional`).
 
 These **group / hierarchy** clues need a theme whose grouped category defines `groups`
 (e.g. King's Guild files each *trade* into a *guild*). They compile down to facts on that

@@ -16,7 +16,7 @@ full permutation for `entity_of` to resolve a term.
 
 from __future__ import annotations
 
-from .model import Theme
+from .model import Contradiction, Theme
 
 Term = tuple[int, int]  # (category_index, item_index)
 
@@ -557,62 +557,240 @@ class GroupMatch(Clue):
         return f"{_join(left, 'and')} go with {_join(right, 'and')}, in some order."
 
 
+# --- Conditionals over embedded boolean statements ---------------------------
 # A *link* is a pair of terms in distinct categories, asserting they share an
-# entity. Implies/Iff are conditionals *between* two links — the one reasoning
-# mode (modus ponens / tollens) the other clue types don't exercise.
+# entity — the atom of the statement algebra below. A `Statement` is a boolean
+# expression over links (Link / Not / And / Or / Xor) that knows three things:
+#   * value(X)        -- its truth under a full solution
+#   * eval(board)     -- its Kleene three-valued state (Y/N/U) on a partial board
+#   * constrain(board, target) -- force it to `target` (Y/N), pushing the
+#                        consequences down to its atoms; returns cells changed
+# `Conditional` then wires two statements together as if-then / if-and-only-if,
+# delegating all propagation to eval/constrain so arbitrarily nested antecedents
+# and consequents stay sound. `board` is any object exposing deduce.Board's
+# get/set (so the algebra needs no import of the solver).
 
-class Implies(Clue):
-    """One-directional conditional: if `ante`'s two terms share an entity, then
-    `cons`'s do too — "if A goes with B, then C goes with D".
+_U, _Y, _N = 0, 1, 2  # mirror deduce.Board's unknown / linked / not-linked codes
 
-    Unlocks modus ponens (antecedent true => consequent true) and its
-    contrapositive (consequent false => antecedent false); it says nothing when
-    the antecedent is false. The weakest of the conditional family — see Iff, and
-    GroupMatch (which is a still-stronger "if/else" over a 2x2 of terms)."""
+
+def _flip(v: int) -> int:
+    """Negate a three-valued cell (unknown stays unknown)."""
+    return _U if v == _U else (_N if v == _Y else _Y)
+
+
+class Statement:
+    """Base class for the embeddable boolean expressions (see module comment)."""
+
+    cats: frozenset
+
+    def value(self, X) -> bool:  # pragma: no cover - interface
+        raise NotImplementedError
+
+    def eval(self, board) -> int:  # pragma: no cover - interface
+        raise NotImplementedError
+
+    def constrain(self, board, target: int) -> int:  # pragma: no cover - interface
+        raise NotImplementedError
+
+    def text(self, theme: Theme) -> str:  # pragma: no cover - interface
+        raise NotImplementedError
+
+
+class Link(Statement):
+    """Atom: terms `a` and `b` (distinct categories) share an entity."""
+
+    def __init__(self, a: Term, b: Term):
+        self.a, self.b = a, b
+        self.cats = frozenset({a[0], b[0]})
+
+    def value(self, X) -> bool:
+        return entity_of(X, self.a) == entity_of(X, self.b)
+
+    def eval(self, board) -> int:
+        return board.get(self.a[0], self.a[1], self.b[0], self.b[1])
+
+    def constrain(self, board, target: int) -> int:
+        return board.set(self.a[0], self.a[1], self.b[0], self.b[1], target)
+
+    def text(self, theme: Theme) -> str:
+        return f"{_label(theme, self.a)} goes with {_label(theme, self.b)}"
+
+
+class Not(Statement):
+    """Negation of a sub-statement."""
+
+    def __init__(self, s: Statement):
+        self.s = s
+        self.cats = s.cats
+
+    def value(self, X) -> bool:
+        return not self.s.value(X)
+
+    def eval(self, board) -> int:
+        return _flip(self.s.eval(board))
+
+    def constrain(self, board, target: int) -> int:
+        return self.s.constrain(board, _flip(target))
+
+    def text(self, theme: Theme) -> str:
+        if isinstance(self.s, Link):  # read a negated link inline
+            return f"{_label(theme, self.s.a)} does not go with {_label(theme, self.s.b)}"
+        return f"it is not the case that {self.s.text(theme)}"
+
+
+class And(Statement):
+    """Conjunction: every part holds."""
+
+    def __init__(self, parts):
+        self.parts = tuple(parts)
+        self.cats = frozenset().union(*(p.cats for p in self.parts))
+
+    def value(self, X) -> bool:
+        return all(p.value(X) for p in self.parts)
+
+    def eval(self, board) -> int:
+        vs = [p.eval(board) for p in self.parts]
+        if _N in vs:
+            return _N
+        return _Y if all(v == _Y for v in vs) else _U
+
+    def constrain(self, board, target: int) -> int:
+        changed = 0
+        if target == _Y:  # all parts must hold
+            for p in self.parts:
+                changed += p.constrain(board, _Y)
+        else:  # whole conj must be false: only forced once all but one are true
+            vs = [p.eval(board) for p in self.parts]
+            unknown = [p for p, v in zip(self.parts, vs) if v == _U]
+            if _N not in vs and len(unknown) == 1:
+                changed += unknown[0].constrain(board, _N)
+        return changed
+
+    def text(self, theme: Theme) -> str:
+        # bracket the conjunction so it reads as one unit inside a conditional
+        parts = [p.text(theme) for p in self.parts]
+        if len(parts) == 2:
+            return f"both {parts[0]} and {parts[1]}"
+        return "all of " + _join(parts, "and")
+
+
+class Or(Statement):
+    """Inclusive disjunction: at least one part holds."""
+
+    def __init__(self, parts):
+        self.parts = tuple(parts)
+        self.cats = frozenset().union(*(p.cats for p in self.parts))
+
+    def value(self, X) -> bool:
+        return any(p.value(X) for p in self.parts)
+
+    def eval(self, board) -> int:
+        vs = [p.eval(board) for p in self.parts]
+        if _Y in vs:
+            return _Y
+        return _N if all(v == _N for v in vs) else _U
+
+    def constrain(self, board, target: int) -> int:
+        changed = 0
+        if target == _N:  # every part must fail
+            for p in self.parts:
+                changed += p.constrain(board, _N)
+        else:  # need at least one: forced once all but one are false
+            vs = [p.eval(board) for p in self.parts]
+            unknown = [p for p, v in zip(self.parts, vs) if v == _U]
+            if _Y not in vs and len(unknown) == 1:
+                changed += unknown[0].constrain(board, _Y)
+        return changed
+
+    def text(self, theme: Theme) -> str:
+        # "either … or …" brackets the (inclusive) disjunction as one unit; the
+        # explicit Xor carries "(but not both)", so plain or reads as inclusive.
+        parts = [p.text(theme) for p in self.parts]
+        if len(parts) == 2:
+            return f"either {parts[0]} or {parts[1]}"
+        return "at least one of " + _join_or(parts)
+
+
+class Xor(Statement):
+    """Exclusive or of two sub-statements: exactly one holds."""
+
+    def __init__(self, p: Statement, q: Statement):
+        self.p, self.q = p, q
+        self.cats = p.cats | q.cats
+
+    def value(self, X) -> bool:
+        return self.p.value(X) != self.q.value(X)
+
+    def eval(self, board) -> int:
+        vp, vq = self.p.eval(board), self.q.eval(board)
+        if vp == _U or vq == _U:
+            return _U
+        return _Y if vp != vq else _N
+
+    def constrain(self, board, target: int) -> int:
+        vp, vq = self.p.eval(board), self.q.eval(board)
+        # target Y => the two differ; target N => they match. Pin the unknown side
+        # off the known one (no move until exactly one side is known).
+        want_same = target == _N
+        if vp != _U and vq == _U:
+            return self.q.constrain(board, vp if want_same else _flip(vp))
+        if vq != _U and vp == _U:
+            return self.p.constrain(board, vq if want_same else _flip(vq))
+        return 0
+
+    def text(self, theme: Theme) -> str:
+        return f"either {self.p.text(theme)} or {self.q.text(theme)} (but not both)"
+
+
+class Conditional(Clue):
+    """A general if-then / if-and-only-if over two embedded `Statement`s.
+
+    ``biconditional=False`` reads "if {ante}, then {cons}" and fires modus ponens
+    (antecedent true => consequent true) plus its contrapositive (consequent false
+    => antecedent false). ``True`` reads "{ante} if and only if {cons}" and carries
+    each side's known truth to the other, both polarities. All narrowing is
+    delegated to the statements' three-valued eval/constrain, so the antecedent and
+    consequent may be arbitrarily nested boolean expressions (Not/And/Or/Xor over
+    links) and propagation stays sound. The atom-only case (Link => Link, Link iff
+    Link) is the classic implication/biconditional."""
 
     removal_class = 2
 
-    def __init__(self, ante, cons):
-        self.ante = tuple(sorted(ante))   # (term, term), distinct categories
-        self.cons = tuple(sorted(cons))
-        self.involved = frozenset(t[0] for t in (*self.ante, *self.cons))
+    def __init__(self, ante: Statement, cons: Statement, biconditional: bool = False):
+        self.ante = ante
+        self.cons = cons
+        self.biconditional = biconditional
+        self.involved = ante.cats | cons.cats
 
     def holds(self, X) -> bool:
-        a = entity_of(X, self.ante[0]) == entity_of(X, self.ante[1])
-        c = entity_of(X, self.cons[0]) == entity_of(X, self.cons[1])
-        return (not a) or c
+        a, c = self.ante.value(X), self.cons.value(X)
+        return (a == c) if self.biconditional else ((not a) or c)
+
+    def propagate(self, board) -> int:
+        a = self.ante.eval(board)
+        c = self.cons.eval(board)
+        changed = 0
+        if self.biconditional:
+            if a != _U and c != _U and a != c:
+                raise Contradiction("biconditional sides disagree")
+            if a != _U:
+                changed += self.cons.constrain(board, a)
+            if c != _U:
+                changed += self.ante.constrain(board, c)
+        else:
+            if a == _Y and c == _N:  # implication violated
+                raise Contradiction("antecedent holds but consequent fails")
+            if a == _Y:  # modus ponens
+                changed += self.cons.constrain(board, _Y)
+            if c == _N:  # contrapositive
+                changed += self.ante.constrain(board, _N)
+        return changed
 
     def text(self, theme: Theme) -> str:
-        a0, a1 = [_label(theme, t) for t in self.ante]
-        c0, c1 = [_label(theme, t) for t in self.cons]
-        return f"If {a0} goes with {a1}, then {c0} goes with {c1}."
-
-
-class Iff(Clue):
-    """Biconditional: `left`'s two terms share an entity if and only if `right`'s
-    do — "A goes with B if and only if C goes with D". Both links hold together or
-    fail together, in both directions.
-
-    Stronger than Implies (fires both ways, both polarities); weaker than a
-    GroupMatch over the same terms (which also pins the else-branch to specific
-    items). Each side is a link between two terms in distinct categories."""
-
-    removal_class = 2
-
-    def __init__(self, left, right):
-        self.left = tuple(sorted(left))
-        self.right = tuple(sorted(right))
-        self.involved = frozenset(t[0] for t in (*self.left, *self.right))
-
-    def holds(self, X) -> bool:
-        l = entity_of(X, self.left[0]) == entity_of(X, self.left[1])
-        r = entity_of(X, self.right[0]) == entity_of(X, self.right[1])
-        return l == r
-
-    def text(self, theme: Theme) -> str:
-        l0, l1 = [_label(theme, t) for t in self.left]
-        r0, r1 = [_label(theme, t) for t in self.right]
-        return f"{l0} goes with {l1} if and only if {r0} goes with {r1}."
+        at, ct = self.ante.text(theme), self.cons.text(theme)
+        if self.biconditional:
+            return f"{_cap(at)} if and only if {ct}."
+        return f"If {at}, then {ct}."
 
 
 # --- Hierarchy / groups ------------------------------------------------------

@@ -264,23 +264,38 @@
         <article class="rule">
           <h3>If–then <span class="tag logic">conditional</span></h3>
           <p class="eg">“If Ava goes with Latte, then Ben goes with the Bagel.”</p>
-          <p><b>Parameters:</b> two links — an antecedent and a consequent (each: two items that go together).</p>
-          <p><b>Means:</b> whenever the first link holds, the second must too. It says <em>nothing</em> when
-            the first is false — a one-way conditional.</p>
-          <p><b>On the grid:</b> two moves. <i>Forward</i> (modus ponens): confirm the antecedent ✓ and the
-            consequent becomes ✓. <i>Backward</i> (contrapositive): cross the consequent ✗ and the
-            antecedent must be ✗.</p>
+          <p><b>Parameters:</b> an antecedent and a consequent. Each is a <em>statement</em> — a single
+            link, or a compound built with <em>and</em> / <em>either…or</em> / <em>not</em> (see below).</p>
+          <p><b>Means:</b> whenever the antecedent holds, the consequent must too. It says <em>nothing</em> when
+            the antecedent is false — a one-way conditional.</p>
+          <p><b>On the grid:</b> two moves. <i>Forward</i> (modus ponens): once the antecedent is fully ✓, the
+            consequent must hold. <i>Backward</i> (contrapositive): once the consequent is ruled out, the
+            antecedent must be ✗. With a compound side, work it part by part — e.g. an <em>either…or</em>
+            consequent forces its last option once the others are crossed.</p>
         </article>
 
         <article class="rule">
           <h3>If and only if <span class="tag logic">conditional</span></h3>
-          <p class="eg">“Ava goes with Latte if and only if Ben goes with the Bagel.”</p>
-          <p><b>Parameters:</b> two links.</p>
-          <p><b>Means:</b> the two links are <em>both</em> true or <em>both</em> false — a two-way conditional.
-            (Stronger than if–then, which only runs one way; weaker than a group match, which also pins the
-            “else” case to specific items.)</p>
-          <p><b>On the grid:</b> the two links mirror each other — confirm or cross off <em>either</em> one and
-            the other follows the same way.</p>
+          <p class="eg">“Ava goes with Latte if and only if either Ben goes with the Bagel or Cara goes with the Mocha.”</p>
+          <p><b>Parameters:</b> two statements (same building blocks as if–then).</p>
+          <p><b>Means:</b> the two sides are <em>both</em> true or <em>both</em> false — a two-way conditional.
+            (Stronger than if–then, which only runs one way.)</p>
+          <p><b>On the grid:</b> the two sides mirror each other — settle <em>either</em> one and the other
+            follows the same way.</p>
+        </article>
+
+        <article class="rule">
+          <h3>Statements inside a conditional <span class="tag logic">conditional</span></h3>
+          <p class="eg">“If both Ava goes with Latte and Cara goes with the Scone, then Ben does not go with the Bagel.”</p>
+          <p><b>The building blocks</b> either side of a conditional can use:</p>
+          <ul>
+            <li><b>both … and …</b> / <b>all of …</b> — every part must hold.</li>
+            <li><b>either … or …</b> — at least one part holds (<em>inclusive</em>: both is fine).</li>
+            <li><b>either … or … (but not both)</b> — exactly one part holds.</li>
+            <li><b>… does not go with …</b> — a negated link.</li>
+          </ul>
+          <p>These nest one level deep, so a clue stays readable. The harder a puzzle, the more likely a
+            conditional uses a compound side.</p>
         </article>
       </div>
     </section>

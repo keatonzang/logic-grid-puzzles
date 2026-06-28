@@ -24,16 +24,20 @@ from .clues import (
     GroupMatch,
     GroupOrder,
     Greater,
-    Iff,
-    Implies,
+    And,
+    Conditional,
     InGroup,
+    Link,
+    Not,
     NotInGroup,
+    Or,
     SameGroup,
     MultiCompare,
     Negative,
     Neither,
     NextTo,
     Positive,
+    Xor,
 )
 from .model import Theme
 from .solver import count_solutions, is_unique
@@ -130,8 +134,7 @@ def build_clue_pool(
     match: list = []
     atmost: list = []
     exactly: list = []
-    implies: list = []
-    iff: list = []
+    conditional: list = []
     groups: list = []
     cross: list = []  # cross-group clues (need two grouped categories)
 
@@ -362,39 +365,92 @@ def build_clue_pool(
                 right.append((cr, X[e][cr]))
             match.append(GroupMatch(left, right))
 
-    # Conditional clues over two *links* (each a pair of terms in distinct
-    # categories): "if A then B" (Implies) and "A iff B" (Iff). Both are built
-    # from two links of *equal* truth under X — so the implication always has a
-    # live trigger (modus ponens when both true, contrapositive when both false)
-    # and the biconditional holds. Hard only, and n >= 3 so they don't collapse to
-    # a 2-item equivalent. We skip the parallel 2x2 shape (both links over the same
-    # category pair) — that's the cross-entity swap GroupMatch covers more strongly.
+    # Conditional clues: "if {ante}, then {cons}" / "{ante} if and only if {cons}",
+    # where ante and cons are embedded boolean *statements* over links (Link with
+    # Not/And/Or/Xor). Both sides are built to the SAME truth under X, which keeps
+    # every clue true and gives it a live trigger (both-true => modus ponens,
+    # both-false => contrapositive; the biconditional holds either way). The
+    # statement's nesting depth (`budget`) is sampled so most conditionals stay
+    # simple (atom => atom, the classic implication/iff) and compound ones are
+    # rarer — the grader then sorts puzzles by the reasoning each actually needs,
+    # so complexity tracks measured difficulty. Hard only, n >= 3 so links don't
+    # collapse to a 2-item equivalent.
     if enable_conditional and n >= 3 and k >= 3:
-        def a_link(same_entity):
-            c1, c2 = rng.sample(range(k), 2)
-            if same_entity:
-                e = rng.randrange(n)
-                return ((c1, X[e][c1]), (c2, X[e][c2]))
-            e1, e2 = rng.sample(range(n), 2)
-            return ((c1, X[e1][c1]), (c2, X[e2][c2]))
+        def fresh_link(truth: bool, used: set):
+            """A Link of the given truth under X whose cell isn't already used in
+            this statement (so a clue never repeats or negates its own atom)."""
+            for _ in range(16):
+                c1, c2 = rng.sample(range(k), 2)
+                if truth:
+                    e = rng.randrange(n)
+                    a, b = (c1, X[e][c1]), (c2, X[e][c2])
+                else:
+                    e1, e2 = rng.sample(range(n), 2)
+                    a, b = (c1, X[e1][c1]), (c2, X[e2][c2])
+                key = tuple(sorted((a, b)))
+                if key not in used:
+                    used.add(key)
+                    return Link(a, b)
+            return None
 
-        def cats_of(link):
-            return frozenset({link[0][0], link[1][0]})
+        def part_truths(op: str, target: bool, size: int):
+            """Per-part truths so an `op` of `size` parts evaluates to `target`."""
+            if op == "and":  # true iff all true; else exactly one part flips
+                base = [True] * size if target else [False] + [True] * (size - 1)
+            else:            # or: false iff all false; else exactly one part true
+                base = [True] + [False] * (size - 1) if target else [False] * size
+            rng.shuffle(base)
+            return base
 
-        seen = set()
-        for _ in range(6 * n):
-            same = rng.random() < 0.5  # both-true vs both-false pair
-            l1, l2 = a_link(same), a_link(same)
-            l1, l2 = tuple(sorted(l1)), tuple(sorted(l2))
-            if l1 == l2 or cats_of(l1) == cats_of(l2):  # trivial / GroupMatch echo
+        def atom(target: bool, used: set):
+            """A leaf: a link, or a negated link (~30%), of the given truth."""
+            if rng.random() < 0.7:
+                return fresh_link(target, used)
+            inner = fresh_link(not target, used)
+            return Not(inner) if inner is not None else None
+
+        def build_stmt(target: bool, compound: bool, used: set):
+            """A Statement with value(X) == target. When `compound`, one boolean
+            operator over atom/negated-atom leaves (nesting capped at that for
+            readability); otherwise a bare atom. None if atoms run out."""
+            if not compound:
+                return atom(target, used)
+            op = rng.choice(("and", "or", "xor"))
+            if op == "xor":  # true iff the two leaves differ
+                if target:
+                    pair = [True, False]
+                    rng.shuffle(pair)
+                else:
+                    same = rng.random() < 0.5
+                    pair = [same, same]
+                p, q = atom(pair[0], used), atom(pair[1], used)
+                return Xor(p, q) if p is not None and q is not None else None
+            size = rng.choice((2, 2, 3))
+            parts = [atom(t, used) for t in part_truths(op, target, size)]
+            return (And if op == "and" else Or)(parts) if all(parts) else None
+
+        seen_text: set = set()
+        for _ in range(16 * n):
+            # Bias hard toward simple atom=>atom conditionals (these are the strong,
+            # minimization-surviving ones, so they keep conditionals common); a
+            # compound side is the rarer, harder layer the grader can price in.
+            ante_compound = rng.random() < 0.28
+            cons_compound = rng.random() < 0.28
+            biconditional = rng.random() < 0.35
+            same_truth = rng.random() < 0.5  # both-true vs both-false (both are valid)
+            used: set = set()
+            ante = build_stmt(same_truth, ante_compound, used)
+            cons = build_stmt(same_truth, cons_compound, used)
+            if ante is None or cons is None:
                 continue
-            key = tuple(sorted((l1, l2)))
-            if key in seen:
+            clue = Conditional(ante, cons, biconditional)
+            if not clue.holds(X):  # construction guarantees this; guard anyway
                 continue
-            seen.add(key)
-            # implication: random orientation (either link can be the trigger)
-            implies.append(Implies(l1, l2) if rng.random() < 0.5 else Implies(l2, l1))
-            iff.append(Iff(l1, l2))
+            txt = clue.text(theme)
+            if txt in seen_text:
+                continue
+            seen_text.add(txt)
+            conditional.append(clue)
 
     # Hierarchy / group clues over a grouped category (e.g. Trade -> Guild). The
     # group is just a partition of that column's items, so these resolve on the
@@ -541,8 +597,7 @@ def build_clue_pool(
     rng.shuffle(match)
     rng.shuffle(atmost)
     rng.shuffle(exactly)
-    rng.shuffle(implies)
-    rng.shuffle(iff)
+    rng.shuffle(conditional)
     rng.shuffle(groups)
     rng.shuffle(cross)
     return (
@@ -557,8 +612,7 @@ def build_clue_pool(
         + match[:max_match]
         + atmost[:max_atmost]
         + exactly[:max_exactly]
-        + implies[:max_conditional]
-        + iff[:max_conditional]
+        + conditional[: 2 * max_conditional]
         + groups[:max_groups]
         + cross[:max_cross]
     )

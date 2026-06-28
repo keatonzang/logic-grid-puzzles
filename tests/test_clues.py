@@ -21,8 +21,12 @@ from logicgrid.clues import (
     GroupGroupCompare,
     GroupGroupCount,
     GroupOrder,
-    Iff,
-    Implies,
+    And,
+    Conditional,
+    Link,
+    Not,
+    Or,
+    Xor,
     InGroup,
     NotInGroup,
     SameGroup,
@@ -253,32 +257,66 @@ def test_exactly_holds_and_text(plain_theme, identity_solution):
         "Ann goes with exactly two of Dog and Hop."
 
 
-# --- Conditionals: links A–B and C–D (entity 0 = Ann/Dog/Gin) ----------------
+# --- Statement algebra + general Conditional (entity 0 = Ann/Dog/Gin) --------
+# plain_theme: cat0 Person[Ann,Bo,Cy], cat1 Pet[Dog,Eel,Fox], cat2 Drink[Gin,Hop,Ice]
 
-def test_implies_holds_and_text(plain_theme, identity_solution):
-    A_D = ((0, 0), (1, 0))    # Ann–Dog: true (both entity 0)
-    A_G = ((0, 0), (2, 0))    # Ann–Gin: true (both entity 0)
-    A_Hop = ((0, 0), (2, 1))  # Ann–Hop: false
-    Eel_Ice = ((1, 1), (2, 2))  # false (different entities)
-    assert Implies(A_D, A_G).holds(identity_solution)        # T -> T
-    assert not Implies(A_D, A_Hop).holds(identity_solution)  # T -> F  (violated)
-    assert Implies(Eel_Ice, A_Hop).holds(identity_solution)  # F -> _  (vacuous)
-    assert Implies(A_D, A_G).removal_class == 2
-    assert Implies(((0, 0), (1, 0)), ((1, 1), (2, 2))).text(plain_theme) == \
+def test_statement_value_and_text(plain_theme, identity_solution):
+    AnnDog = Link((0, 0), (1, 0))   # true under identity (both entity 0)
+    AnnHop = Link((0, 0), (2, 1))   # false (Ann's drink is Gin, not Hop)
+    assert AnnDog.value(identity_solution) and not AnnHop.value(identity_solution)
+    assert AnnDog.text(plain_theme) == "Ann goes with Dog"
+    assert Not(AnnHop).value(identity_solution)            # not-false == true
+    assert Not(AnnHop).text(plain_theme) == "Ann does not go with Hop"
+    assert And([AnnDog, Not(AnnHop)]).value(identity_solution)
+    assert And([AnnDog, AnnHop]).value(identity_solution) is False
+    assert Or([AnnHop, AnnDog]).value(identity_solution)
+    assert not Or([AnnHop, Link((1, 1), (2, 2))]).value(identity_solution)  # both false
+    assert Xor(AnnDog, AnnHop).value(identity_solution)  # exactly one true
+    assert not Xor(AnnDog, Link((0, 0), (2, 0))).value(identity_solution)  # both true
+
+
+def test_statement_compound_text(plain_theme):
+    AnnDog, AnnHop = Link((0, 0), (1, 0)), Link((0, 0), (2, 1))
+    BoEel = Link((0, 1), (1, 1))
+    assert And([AnnDog, AnnHop]).text(plain_theme) == "both Ann goes with Dog and Ann goes with Hop"
+    assert And([AnnDog, AnnHop, BoEel]).text(plain_theme) == \
+        "all of Ann goes with Dog, Ann goes with Hop, and Bo goes with Eel"
+    assert Or([AnnDog, AnnHop]).text(plain_theme) == "either Ann goes with Dog or Ann goes with Hop"
+    assert Or([AnnDog, AnnHop, BoEel]).text(plain_theme) == \
+        "at least one of Ann goes with Dog, Ann goes with Hop, or Bo goes with Eel"
+    assert Xor(AnnDog, AnnHop).text(plain_theme) == \
+        "either Ann goes with Dog or Ann goes with Hop (but not both)"
+
+
+def test_conditional_implication_holds_and_text(plain_theme, identity_solution):
+    A_D = Link((0, 0), (1, 0))    # Ann–Dog: true
+    A_G = Link((0, 0), (2, 0))    # Ann–Gin: true
+    A_Hop = Link((0, 0), (2, 1))  # false
+    EelIce = Link((1, 1), (2, 2))  # false
+    assert Conditional(A_D, A_G).holds(identity_solution)        # T -> T
+    assert not Conditional(A_D, A_Hop).holds(identity_solution)  # T -> F  (violated)
+    assert Conditional(EelIce, A_Hop).holds(identity_solution)   # F -> _  (vacuous)
+    assert Conditional(A_D, A_G).removal_class == 2
+    assert Conditional(Link((0, 0), (1, 0)), EelIce).text(plain_theme) == \
         "If Ann goes with Dog, then Eel goes with Ice."
+    # a compound consequent reads as one bracketed unit
+    assert Conditional(A_D, Or([A_Hop, EelIce])).text(plain_theme) == \
+        "If Ann goes with Dog, then either Ann goes with Hop or Eel goes with Ice."
 
 
-def test_iff_holds_and_text(plain_theme, identity_solution):
-    A_D = ((0, 0), (1, 0))    # true
-    A_G = ((0, 0), (2, 0))    # true
-    A_Hop = ((0, 0), (2, 1))  # false
-    Eel_Ice = ((1, 1), (2, 2))  # false
-    assert Iff(A_D, A_G).holds(identity_solution)        # T <-> T
-    assert Iff(A_Hop, Eel_Ice).holds(identity_solution)  # F <-> F
-    assert not Iff(A_D, A_Hop).holds(identity_solution)  # T <-> F
-    assert Iff(A_D, A_G).removal_class == 2
-    assert Iff(((0, 0), (1, 0)), ((1, 1), (2, 2))).text(plain_theme) == \
+def test_conditional_biconditional_holds_and_text(plain_theme, identity_solution):
+    A_D = Link((0, 0), (1, 0))    # true
+    A_G = Link((0, 0), (2, 0))    # true
+    A_Hop = Link((0, 0), (2, 1))  # false
+    EelIce = Link((1, 1), (2, 2))  # false
+    assert Conditional(A_D, A_G, biconditional=True).holds(identity_solution)       # T <-> T
+    assert Conditional(A_Hop, EelIce, biconditional=True).holds(identity_solution)  # F <-> F
+    assert not Conditional(A_D, A_Hop, biconditional=True).holds(identity_solution)  # T <-> F
+    assert Conditional(Link((0, 0), (1, 0)), EelIce, biconditional=True).text(plain_theme) == \
         "Ann goes with Dog if and only if Eel goes with Ice."
+    # compound antecedent gets sentence-initial capital from its bracket word
+    assert Conditional(And([A_D, A_G]), A_Hop, biconditional=True).text(plain_theme) == \
+        "Both Ann goes with Dog and Ann goes with Gin if and only if Ann goes with Hop."
 
 
 # --- Hierarchy / groups ------------------------------------------------------
