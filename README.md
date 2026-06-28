@@ -79,6 +79,9 @@ medium/hard); a puzzle can always roll with no hierarchy at all.
 - **group cardinality** (`GroupCount`) — `Exactly two of Aldric, Beatrix, and Cedric belong to the Joiners' Guild.`
   Of the named entities, the number in the guild is `== / >= / <= K` (`mode`). A genuine set-counting clue —
   the one kind the per-pair bijection can't otherwise express.
+- **group ordering** (`GroupOrder`) — `Everyone in the Ironmongers' Guild ranks higher in dues than everyone in the Clothiers' Guild.`
+  Couples the hierarchy to an ordered category: every entity in one guild outranks every entity in another.
+  Rare — only generated when two guilds happen to be fully rank-separated, and needs an ordered category present.
 
 The "one of N" disjunctions default to N ∈ {2, 3} via `build_clue_pool(among_sizes=…)`.
 

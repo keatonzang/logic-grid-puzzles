@@ -20,6 +20,7 @@ from .clues import (
     ExactlyKLinks,
     GroupCount,
     GroupMatch,
+    GroupOrder,
     Greater,
     Iff,
     Implies,
@@ -452,6 +453,22 @@ def build_clue_pool(
             mode, kk = rng.choice(choices)
             groups.append(GroupCount(anchors, cat, labels[gi], parts[gi], kk, mode))
 
+        # Rare: couple the hierarchy to an ordered category. Only emit when two
+        # guilds happen to be fully rank-separated under the true solution, so it
+        # surfaces seldom — but when it does it's a genuine cross-group ordering.
+        ocats = [c for c in range(k) if c != cat and theme.categories[c].ordered]
+        order_cands = []
+        for ocat in ocats:
+            for g1 in range(len(parts)):
+                for g2 in range(len(parts)):
+                    if g1 == g2:
+                        continue
+                    clue = GroupOrder(cat, ocat, parts[g1], parts[g2], labels[g1], labels[g2])
+                    if clue.holds(X):  # true (fully separated) under this solution
+                        order_cands.append(clue)
+        rng.shuffle(order_cands)
+        groups.extend(order_cands[:2])  # keep it sparse
+
     rng.shuffle(negatives)
     rng.shuffle(comparisons)
     rng.shuffle(among)
@@ -525,7 +542,7 @@ _MINIMIZE_NODE_BUDGET = 20000
 
 # Clue types that name a hierarchy/group; minimize keeps these to the end of the
 # removal order so they survive into the minimal set more often (see minimize).
-_GROUP_CLUES = {"InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount"}
+_GROUP_CLUES = {"InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount", "GroupOrder"}
 
 
 def minimize(theme: Theme, clues: list, rng: random.Random) -> list:

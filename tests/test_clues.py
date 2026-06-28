@@ -18,6 +18,7 @@ from logicgrid.clues import (
     Exactly,
     ExactlyKLinks,
     GroupCount,
+    GroupOrder,
     Iff,
     Implies,
     InGroup,
@@ -330,6 +331,30 @@ def test_group_count_text():
     assert al.text(g) == "At least one of Ann and Bo belong to the Furred."
     am = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 1, "atmost")
     assert am.text(g) == "At most one of Ann and Bo belong to the Furred."
+
+
+def _ordered_group_theme():
+    # Pet grouped (Furred={Dog,Fox}, Finned={Eel}); Score ordered (ranks 0,1,2)
+    from logicgrid.model import Category, Theme
+
+    return Theme("G", "", [
+        Category("Owner", ["Ann", "Bo", "Cy"]),
+        Category("Pet", ["Dog", "Eel", "Fox"], group_noun="kind",
+                 groups=(("Furred", ("Dog", "Fox")), ("Finned", ("Eel",)))),
+        Category("Score", ["Lo", "Mid", "Hi"], ordered=True, values=[1, 2, 3]),
+    ], entity_noun="home")
+
+
+def test_group_order_holds_and_text():
+    g = _ordered_group_theme()
+    # X: entity0 Ann-Dog(Furred)-Mid, entity1 Bo-Eel(Finned)-Lo, entity2 Cy-Fox(Furred)-Hi
+    # Furred ranks {1,2} (Mid,Hi); Finned rank {0} (Lo) -> Furred all above Finned.
+    X = [[0, 0, 1], [1, 1, 0], [2, 2, 2]]
+    assert GroupOrder(1, 2, (0, 2), (1,), "Furred", "Finned").holds(X)
+    assert not GroupOrder(1, 2, (1,), (0, 2), "Finned", "Furred").holds(X)  # reverse false
+    assert GroupOrder(1, 2, (0, 2), (1,), "Furred", "Finned").removal_class == 2
+    assert GroupOrder(1, 2, (0, 2), (1,), "Furred", "Finned").text(g) == \
+        "Everyone in the Furred ranks higher in score than everyone in the Finned."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------

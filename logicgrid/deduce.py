@@ -453,6 +453,37 @@ def _prop_group_count(board, clue) -> int:  # how many anchors fall in the group
     return changed
 
 
+def _prop_group_order(board, clue) -> int:  # every `higher`-guild entity outranks every `lower` one
+    g, o = clue.gcat, clue.ocat
+    hi, lo = clue.higher, clue.lower
+    n = board.n
+    changed = 0
+    # Count bound: all |lo| lower-guild entities rank below all higher-guild ones,
+    # so every higher trade sits at rank >= |lo|, and every lower trade at <= n-1-|hi|.
+    floor, ceil = len(lo), n - 1 - len(hi)
+    for t in hi:
+        for r in range(floor):
+            changed += _s(board, (g, t), (o, r), N)
+    for t in lo:
+        for r in range(ceil + 1, n):
+            changed += _s(board, (g, t), (o, r), N)
+    # Tighten off any pinned rank: a lower trade fixed at rank r pushes every
+    # higher trade above r, and a higher trade fixed at r pushes every lower below r.
+    for t2 in lo:
+        for r in range(n):
+            if _g(board, (g, t2), (o, r)) == Y:
+                for t1 in hi:
+                    for rr in range(r + 1):
+                        changed += _s(board, (g, t1), (o, rr), N)
+    for t1 in hi:
+        for r in range(n):
+            if _g(board, (g, t1), (o, r)) == Y:
+                for t2 in lo:
+                    for rr in range(r, n):
+                        changed += _s(board, (g, t2), (o, rr), N)
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
@@ -465,6 +496,7 @@ _PROPAGATORS = {
     "DiffGroup": _prop_diff_group,
     "NotInGroup": _prop_not_in_group,
     "GroupCount": _prop_group_count,
+    "GroupOrder": _prop_group_order,
     "GroupMatch": _prop_group_match,
     "Greater": _prop_greater,
     "Diff": _prop_diff,

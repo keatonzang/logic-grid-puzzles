@@ -282,6 +282,33 @@ def test_group_count_impossible_raises():
         pass
 
 
+def _ordered_grouped_theme():
+    # Pet grouped (Furred={Dog0,Fox2}, Finned={Eel1}); Score ordered (ranks 0..2)
+    return Theme(
+        name="g", description="d", entity_noun="home",
+        categories=[
+            Category("Owner", ["Ann", "Bo", "Cy"]),
+            Category("Pet", ["Dog", "Eel", "Fox"], group_noun="kind",
+                     groups=(("Furred", ("Dog", "Fox")), ("Finned", ("Eel",)))),
+            Category("Score", ["Lo", "Mid", "Hi"], ordered=True, values=[1, 2, 3]),
+        ],
+    )
+
+
+def test_group_order_propagator_bounds_ranks():
+    from logicgrid.clues import GroupOrder
+    from logicgrid.deduce import _prop_group_order
+
+    bd = Board(_ordered_grouped_theme())
+    # Furred {Dog0, Fox2} all outrank Finned {Eel1} on Score (cat 2).
+    # floor = |lower| = 1 -> Furred trades can't be rank 0; ceil = n-1-|higher| = 0
+    # -> Finned trade can't be rank 1 or 2.
+    _prop_group_order(bd, GroupOrder(1, 2, (0, 2), (1,), "Furred", "Finned"))
+    assert bd.get(1, 0, 2, 0) == N and bd.get(1, 2, 2, 0) == N  # Dog, Fox not lowest
+    assert bd.get(1, 1, 2, 1) == N and bd.get(1, 1, 2, 2) == N  # Eel not Mid/Hi
+    assert bd.get(1, 1, 2, 0) != N  # Eel still allowed at Lo
+
+
 def test_group_clues_stay_sound_and_no_guessing():
     # King's Guild hard puzzles that keep a group clue must stay logic-solvable
     # and the solver must reach the true solution (catches an unsound propagator).

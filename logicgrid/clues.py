@@ -748,3 +748,35 @@ class GroupCount(Clue):
         prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
         refs = _join([_ref(theme, a) for a in self.anchors], "and")
         return f"{prefix} {_count_word(self.k)} of {refs} belong to the {self.label}."
+
+
+class GroupOrder(Clue):
+    """Every entity in group `higher` outranks every entity in group `lower` on the
+    ordered category `ocat` — "everyone in the Ironmongers' Guild ranks higher in
+    dues than everyone in the Clothiers' Guild". Couples the hierarchy to an
+    ordered scale; only true (and generated) when the two guilds happen to be
+    fully rank-separated, which makes it rare."""
+
+    removal_class = 2
+
+    def __init__(self, gcat: int, ocat: int, higher, lower, higher_label: str, lower_label: str):
+        self.gcat = gcat          # the grouped category (e.g. Trade)
+        self.ocat = ocat          # the ordered category (e.g. Dues)
+        self.higher = tuple(sorted(higher))  # item indices of the top guild in gcat
+        self.lower = tuple(sorted(lower))    # item indices of the bottom guild
+        self.higher_label = higher_label
+        self.lower_label = lower_label
+        self.involved = frozenset({gcat, ocat})
+
+    def _rank(self, X, t: int) -> int:
+        return X[entity_of(X, (self.gcat, t))][self.ocat]  # ordered items are rank-sorted
+
+    def holds(self, X) -> bool:
+        return min(self._rank(X, t) for t in self.higher) > max(self._rank(X, t) for t in self.lower)
+
+    def text(self, theme: Theme) -> str:
+        oname = _low(theme.categories[self.ocat].name)
+        return (
+            f"Everyone in the {self.higher_label} ranks higher in {oname} than "
+            f"everyone in the {self.lower_label}."
+        )
