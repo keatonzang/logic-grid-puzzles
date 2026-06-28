@@ -338,6 +338,13 @@ col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit 
   color: var(--ink);
 }
 th.sc-rowguild .gl-i { writing-mode: vertical-rl; transform: rotate(180deg); }  /* match the row-category label */
+/* No divider between adjacent group tags within a band — the colour change marks
+   the split. Overrides both the base cell border and grp-left/grp-top (same
+   specificity, later in source). Category dividers (blk-left/blk-top) and each
+   band's coloured edge (bottom for top, right for left) still show. */
+th.sc-guild, th.g-band,
+th.sc-guild.grp-left, th.g-band.grp-left { border-left-width: 0; border-right-width: 0; }
+th.sc-rowguild, th.sc-rowguild.grp-top { border-top-width: 0; border-bottom-width: 0; }
 
 .grid-block {
   display: flex;
