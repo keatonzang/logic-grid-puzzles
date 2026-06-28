@@ -326,11 +326,16 @@ col.sc-rowguild-col { width: 1.75rem; }
   font-weight: 600;
   color: var(--ink);
 }
+th.sc-rowguild > .gl { padding: 5px 1px; }  /* breathing room along the rotated text */
 th.sc-rowguild > .gl > span {   /* left band: rotated to match the row-category label */
   writing-mode: vertical-rl;
   transform: rotate(180deg);
+  max-height: 100%;             /* cap the inline (vertical) size so it wraps at words */
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
   text-align: center;
-  line-height: 1.05;
+  line-height: 1.15;
   font-size: var(--glfs, .68rem);
   font-weight: 600;
   color: var(--ink);
