@@ -55,7 +55,10 @@ class Board:
         if cur == v:
             return 0
         if cur != U:
-            raise Contradiction(f"({ci},{a})~({cj},{b}) is {cur}, cannot set {v}")
+            raise Contradiction(
+                f"({ci},{a})~({cj},{b}) is {cur}, cannot set {v}",
+                conflict=(ci, a, cj, b, cur, v),
+            )
         if ci < cj:
             self.cell[(ci, cj)][a][b] = v
         else:

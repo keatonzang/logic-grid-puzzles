@@ -210,6 +210,25 @@ button.primary:hover { filter: brightness(1.08); }
 }
 .hint-cta { color: var(--muted); }
 .hint-placed { color: var(--good); font-weight: 600; }
+.hint-chain { margin-top: .5rem; }
+.hint-chain > summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: .85rem;
+  list-style: none;
+}
+.hint-chain > summary::before { content: "▸ "; }
+.hint-chain[open] > summary::before { content: "▾ "; }
+.hint-chain ol {
+  margin: .4rem 0 .2rem;
+  padding-left: 1.4rem;
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.45;
+}
+.hint-chain ol li { margin: .12rem 0; }
+.hint-chain ol li:last-child { color: var(--text); font-weight: 600; }
 
 /* the cell a pending hint points at: a soft pulse until revealed */
 td.cell.hint-target { outline: 2px solid var(--accent); outline-offset: -2px; animation: hint-pulse 1s ease-in-out infinite; }

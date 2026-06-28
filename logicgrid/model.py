@@ -22,7 +22,15 @@ class Contradiction(Exception):
     set against an existing value, and by statement/clue propagation when a forced
     truth value is impossible — the signal the hypothetical solver refutes on.
     Lives here (not in ``deduce``) so the clue/statement algebra can raise the same
-    type the solver catches, without importing the solver."""
+    type the solver catches, without importing the solver.
+
+    ``conflict`` optionally carries the clashing cell ``(ci, a, cj, b, existing,
+    attempted)`` so the hint engine can name *why* a what-if fails; it is ``None``
+    for count-style clue contradictions that aren't about one cell."""
+
+    def __init__(self, message: str = "", conflict=None):
+        super().__init__(message)
+        self.conflict = conflict
 
 
 def _looks_plural(name: str) -> bool:

@@ -162,3 +162,34 @@ def test_build_hint_done_when_board_complete():
     theme, puzzle, _r, _s = build_puzzle(11, "hard", 4, 3)
     known = _known_from_solution(theme, puzzle.solution)
     assert build_hint(11, "hard", 4, 3, known) == {"done": True}
+
+
+def test_whatif_hint_carries_a_reasoning_chain():
+    # A what-if hint expands into a chain: an assumption, intermediate deductions,
+    # and the contradiction that refutes it. Built lazily, only for the returned
+    # step, and the internal board context is stripped before returning.
+    theme = puzzle = steps = idx = None
+    for seed in range(8):
+        theme, puzzle, _r = generate_rated(
+            lambda r: build_cafe_theme(r, 4), random.Random(seed), "mega"
+        )
+        steps = trace(theme, puzzle.clues)
+        idx = next((n for n, st in enumerate(steps) if st["tier"] == 4), None)
+        if idx is not None:
+            break
+    assert idx is not None, "expected a tera/mega puzzle that needs a what-if"
+
+    # player board = every deduction strictly before the first what-if
+    known: dict = {}
+    for st in steps[:idx]:
+        known.setdefault(st["key"], [[0] * theme.n for _ in range(theme.n)])
+        known[st["key"]][st["a"]][st["b"]] = st["value"]
+
+    step = next_hint(theme, puzzle.clues, known)
+    assert step["tier"] == 4
+    chain = step.get("chain")
+    assert isinstance(chain, list) and len(chain) >= 3
+    assert chain[0].startswith("Start by assuming")
+    assert "contradiction" in chain[-2]      # the clash line
+    assert chain[-1].startswith("So ")        # the conclusion
+    assert "_ctx" not in step                 # internal context not leaked

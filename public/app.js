@@ -925,9 +925,16 @@ function hintHtml(step, placed) {
   const tail = placed
     ? `<span class="hint-placed">— placed ✓</span>`
     : `<span class="hint-cta">Tap the glowing cell or “Reveal tile” to fill it in.</span>`;
+  let chain = "";
+  if (Array.isArray(step.chain) && step.chain.length) {
+    const items = step.chain.map((s) => `<li>${escapeHtml(s)}</li>`).join("");
+    chain =
+      `<details class="hint-chain"><summary>Show the steps to the contradiction</summary>` +
+      `<ol>${items}</ol></details>`;
+  }
   return (
     `<span class="hint-tier">${step.tier_name}</span>` +
-    `<span class="hint-text">${escapeHtml(step.text)}</span> ${tail}`
+    `<span class="hint-text">${escapeHtml(step.text)}</span> ${tail}${chain}`
   );
 }
 
