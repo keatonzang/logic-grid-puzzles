@@ -423,7 +423,7 @@ def _whatif_chain(theme, clues, base: Board, i, a, j, b, forced) -> list:
         res = _explain(theme, clues, rb, cell, v)
         ci, ca, cj, cb = cell
         if res is None:  # no single rule pinned it (very rare) — name the fact plainly
-            rel = "goes with" if v == Y else "doesn't go with"
+            rel = "go with" if v == Y else "not go with"
             res = (f"the clues force {_label(theme,(ci,ca))} to {rel} "
                    f"{_label(theme,(cj,cb))}.", [])
         reason, ante = res
