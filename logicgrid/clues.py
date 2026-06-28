@@ -1255,16 +1255,18 @@ class SetCount(Clue):
         prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
         kw = _count_word(self.k)
         single_group = len(self.subjects) == 1 and self.subjects[0][0] == "group"
-        if single_group:  # "Exactly two members of the Hill Ward ..."
+        if single_group:  # "Exactly two members of the Hill Ward ..." (no ambiguity)
             noun = "member" if self.k == 1 else "members"
             head = f"{prefix} {kw} {noun} of the {self.subjects[0][3]}"
-        else:             # "Exactly two of the Hill Ward members and the tanner ..."
-            head = f"{prefix} {kw} of {self._subject_phrase(theme)}"
-        if self.target_is_group:
+        else:  # a union of instances/groups -> bracket so the set boundary is clear
+            head = f"{prefix} {kw} of ({self._subject_phrase(theme)})"
+        if self.target_is_group:  # a single named group reads unambiguously as-is
             verb = "belongs to" if self.k == 1 else "belong to"
             return f"{head} {verb} the {self.target_label}."
         verb = "goes with" if self.k == 1 else "go with"
-        return f"{head} {verb} {self.target_label}."
+        # a multi-item target set carries an internal "or" -> bracket it too
+        tgt = f"({self.target_label})" if len(self.target_cells) > 1 else self.target_label
+        return f"{head} {verb} {tgt}."
 
 
 # --- Cognitive complexity --------------------------------------------------

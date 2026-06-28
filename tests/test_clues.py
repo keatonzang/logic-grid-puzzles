@@ -509,10 +509,10 @@ def test_set_count_holds_and_text():
     # single-group phrasing ("N members of group M")
     assert SetCount([hill], joiner, "Joiners' Guild", True, 2, "exactly").text(g) == \
         "Exactly two members of the Hill Ward belong to the Joiners' Guild."
-    # mixed-union phrasing + item-set target (singular verb for K==1)
+    # mixed-union phrasing brackets the set; multi-item target is bracketed too
     union = SetCount([hill, ("entity", (0, 3))], [(1, 0), (1, 2)], "g0 or g2", False, 1, "atleast")
     assert union.text(g) == \
-        "At least one of the members of the Hill Ward and D goes with g0 or g2."
+        "At least one of (the members of the Hill Ward and D) goes with (g0 or g2)."
     assert union.holds(_TWO_X)  # only entity 0 (g0) qualifies -> at least one ✓
 
 
