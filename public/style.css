@@ -287,9 +287,11 @@ table.staircase td.void { border: none; background: transparent; cursor: default
 table.staircase .blk-left { border-left: 2px solid var(--muted); }
 table.staircase .blk-top { border-top: 2px solid var(--muted); }
 
-/* Thin sub-dividers between the groups of a hierarchical category */
-table.staircase .grp-left, table.grid .grp-left { border-left: 1px dashed var(--muted); }
-table.staircase .grp-top, table.grid .grp-top { border-top: 1px dashed var(--muted); }
+/* Thin (1px) solid sub-dividers between the groups of a hierarchical category —
+   thinner than the 2px category dividers, and solid so the dashes don't read as
+   gaps in the colour-coded band. */
+table.staircase .grp-left, table.grid .grp-left { border-left: 1px solid var(--muted); }
+table.staircase .grp-top, table.grid .grp-top { border-top: 1px solid var(--muted); }
 
 /* Labelled, colour-coded guild band over a grouped category's items, on the top
    (horizontal) and left (vertical) axes. The label is ABSOLUTELY placed inside an
@@ -336,6 +338,9 @@ col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit 
   color: var(--ink);
 }
 th.sc-rowguild .gl-i { writing-mode: vertical-rl; transform: rotate(180deg); }  /* match the row-category label */
+/* Top band: a touch more breathing room, especially below the text (tail side),
+   so wrapped names don't crowd the coloured bottom border. */
+th.sc-guild > .gl, th.g-band > .gl { padding: 2px 3px 5px; }
 
 .grid-block {
   display: flex;
