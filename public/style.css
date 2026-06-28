@@ -338,10 +338,6 @@ col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit 
   color: var(--ink);
 }
 th.sc-rowguild .gl-i { writing-mode: vertical-rl; transform: rotate(180deg); }  /* match the row-category label */
-/* Top band: ~16px above the text and ~6px below it. The band is auto-sized
-   (fitGuildBands), and its height buffer is set wider than this padding so the
-   space actually lands here instead of being absorbed. */
-th.sc-guild > .gl, th.g-band > .gl { padding: 16px 3px 6px; }
 
 .grid-block {
   display: flex;
@@ -371,7 +367,7 @@ table.grid th, table.grid td {
 
 th.col {
   height: var(--header-h);
-  padding: 0;
+  padding: 0 0 6px;       /* ~6px below the label, between it and the data cells */
   vertical-align: bottom;
 }
 th.col span {            /* column label rotated to a vertical band */
@@ -380,7 +376,7 @@ th.col span {            /* column label rotated to a vertical band */
   transform: rotate(180deg);
   white-space: nowrap;
   line-height: var(--cell);
-  max-height: calc(var(--header-h) - .35rem);
+  max-height: calc(var(--header-h) - 6px - .35rem);
   text-overflow: ellipsis;
   font-size: .68rem;
   font-weight: 500;

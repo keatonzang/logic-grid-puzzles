@@ -443,7 +443,9 @@ function fitItemLabelBoxes() {
     // its true length regardless of the current band height.
     let h = 0;
     table.querySelectorAll("th.col span").forEach((sp) => { h = Math.max(h, sp.scrollHeight); });
-    if (h) table.style.setProperty("--header-h", Math.min(HEADER, Math.ceil(h) + 8) + "px");
+    // + ~16px above the label and ~6px below it (the th's bottom padding), so the
+    // rotated instance labels aren't cramped against the band's edges.
+    if (h) table.style.setProperty("--header-h", Math.min(HEADER, Math.ceil(h) + 22) + "px");
   });
 }
 
@@ -514,10 +516,8 @@ function fitGuildBands() {
     top.forEach((el) => shrink(el, "width"));
     let need = 0;
     top.forEach((el) => { need = Math.max(need, el.scrollHeight); });
-    // + room for the .gl's top/bottom padding (16 + 6) plus a little safety, so the
-    // padding produces real slack (≈16px above / ≈6px below) instead of being absorbed.
-    const MINH = 1.8 * rem, MAXH = 5.2 * rem;
-    table.style.setProperty("--gband-h", Math.min(MAXH, Math.max(MINH, Math.ceil(need) + 24)) + "px");
+    const MINH = 1.6 * rem, MAXH = 4.5 * rem;
+    table.style.setProperty("--gband-h", Math.min(MAXH, Math.max(MINH, Math.ceil(need) + 6)) + "px");
   });
 }
 
