@@ -72,8 +72,13 @@ medium/hard); a puzzle can always roll with no hierarchy at all.
 
 - **belongs to a group** (`InGroup`) — `The artisan with the Millpond workshop belongs to the Ironmongers' Guild.`
   The entity's trade is one of that guild's members.
+- **does not belong** (`NotInGroup`) — `… does not belong to the Clothiers' Guild.` The negative of `InGroup`
+  (and, under bijective categories, the same fact as a universal-negative "no member of that guild has …").
 - **same group** (`SameGroup`) — `… and … are in the same guild.` Both entities' trades share a guild.
 - **different groups** (`DiffGroup`) — `… and … are in different guilds.` Their trades lie in separate guilds.
+- **group cardinality** (`GroupCount`) — `Exactly two of Aldric, Beatrix, and Cedric belong to the Joiners' Guild.`
+  Of the named entities, the number in the guild is `== / >= / <= K` (`mode`). A genuine set-counting clue —
+  the one kind the per-pair bijection can't otherwise express.
 
 The "one of N" disjunctions default to N ∈ {2, 3} via `build_clue_pool(among_sizes=…)`.
 

@@ -690,3 +690,61 @@ class DiffGroup(Clue):
             f"{_cap(_ref(theme, self.a))} and {_ref(theme, self.b)} are in "
             f"different {_plural(self.group_noun)}."
         )
+
+
+class NotInGroup(Clue):
+    """The entity of `anchor` does NOT belong to group `label` of category `cat`
+    — "the artisan with the Riverside workshop does not belong to the Clothiers'
+    Guild". The negative of InGroup; equivalently a universal-negative ("no
+    member of that guild has the Riverside workshop")."""
+
+    removal_class = 2
+
+    def __init__(self, anchor: Term, cat: int, label: str, members):
+        self.anchor = anchor
+        self.cat = cat
+        self.label = label
+        self.members = tuple(sorted(members))
+        self.involved = frozenset({anchor[0], cat})
+
+    def holds(self, X) -> bool:
+        return X[entity_of(X, self.anchor)][self.cat] not in self.members
+
+    def text(self, theme: Theme) -> str:
+        return f"{_cap(_ref(theme, self.anchor))} does not belong to the {self.label}."
+
+
+class GroupCount(Clue):
+    """A cardinality clue over group membership: among `anchors`, the number whose
+    entity falls in group `label` of category `cat` is `>= / <= / == k` (per
+    `mode`). The set-counting clue the bijection alone can't express — e.g.
+    "exactly two of Aldric, Beatrix, and Cedric belong to the Joiners' Guild"."""
+
+    removal_class = 2
+
+    def __init__(self, anchors, cat: int, label: str, members, k: int, mode: str):
+        assert mode in ("atleast", "atmost", "exactly")
+        self.anchors = tuple(sorted(anchors))
+        self.cat = cat
+        self.label = label
+        self.members = tuple(sorted(members))
+        self.k = k
+        self.mode = mode
+        self.involved = frozenset({cat, *(a[0] for a in self.anchors)})
+
+    def _count(self, X) -> int:
+        ms = set(self.members)
+        return sum(1 for a in self.anchors if X[entity_of(X, a)][self.cat] in ms)
+
+    def holds(self, X) -> bool:
+        c = self._count(X)
+        if self.mode == "atleast":
+            return c >= self.k
+        if self.mode == "atmost":
+            return c <= self.k
+        return c == self.k
+
+    def text(self, theme: Theme) -> str:
+        prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
+        refs = _join([_ref(theme, a) for a in self.anchors], "and")
+        return f"{prefix} {_count_word(self.k)} of {refs} belong to the {self.label}."

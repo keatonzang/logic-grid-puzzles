@@ -236,6 +236,52 @@ def test_diff_group_propagator_excludes_pinned_group():
     assert bd.get(0, 1, 1, 1) == N  # Bo can't be Finned (Eel)
 
 
+def test_not_in_group_propagator_crosses_off_members():
+    from logicgrid.clues import NotInGroup
+    from logicgrid.deduce import _prop_not_in_group
+
+    bd = Board(_grouped_theme())
+    _prop_not_in_group(bd, NotInGroup((0, 0), 1, "Furred", (0, 2)))  # Ann not Furred
+    assert bd.get(0, 0, 1, 0) == N and bd.get(0, 0, 1, 2) == N  # not Dog, not Fox
+    assert bd.get(0, 0, 1, 1) == U  # Eel still open
+
+
+def test_group_count_atleast_forces_undecided_in():
+    from logicgrid.clues import GroupCount
+    from logicgrid.deduce import _prop_group_count
+
+    # "at least 2 of {Ann, Bo} are Furred" with both undecided -> both forced Furred
+    bd = Board(_grouped_theme())
+    _prop_group_count(bd, GroupCount([(0, 0), (0, 1)], 1, "Furred", (0, 2), 2, "atleast"))
+    for e in (0, 1):  # each must be Furred -> not Eel(1)
+        assert bd.get(0, e, 1, 1) == N
+
+
+def test_group_count_atmost_forces_quota_out():
+    from logicgrid.clues import GroupCount
+    from logicgrid.deduce import _prop_group_count
+
+    # "at most 1 Furred among {Ann, Bo}"; pin Ann Furred (Dog) -> Bo forced out (Finned)
+    bd = Board(_grouped_theme())
+    bd.set(0, 0, 1, 0, Y)  # Ann = Dog (Furred), definitely in
+    _prop_group_count(bd, GroupCount([(0, 0), (0, 1)], 1, "Furred", (0, 2), 1, "atmost"))
+    assert bd.get(0, 1, 1, 0) == N and bd.get(0, 1, 1, 2) == N  # Bo not Dog/Fox
+
+
+def test_group_count_impossible_raises():
+    from logicgrid.clues import GroupCount
+    from logicgrid.deduce import _prop_group_count, Contradiction
+
+    bd = Board(_grouped_theme())
+    bd.set(0, 0, 1, 0, N)  # Ann can't be Dog
+    bd.set(0, 0, 1, 2, N)  # ...or Fox -> Ann is definitely NOT Furred
+    try:
+        _prop_group_count(bd, GroupCount([(0, 0)], 1, "Furred", (0, 2), 1, "atleast"))
+        assert False, "expected Contradiction"
+    except Contradiction:
+        pass
+
+
 def test_group_clues_stay_sound_and_no_guessing():
     # King's Guild hard puzzles that keep a group clue must stay logic-solvable
     # and the solver must reach the true solution (catches an unsound propagator).
@@ -245,7 +291,7 @@ def test_group_clues_stay_sound_and_no_guessing():
     for seed in range(40):
         th, puzzle, _rep, _ = build_puzzle(seed, "hard", items=4, categories=5, theme="kings_guild")
         names = {type(c).__name__ for c in puzzle.clues}
-        if not (names & {"InGroup", "SameGroup", "DiffGroup"}):
+        if not (names & {"InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount"}):
             continue
         seen += 1
         rep = solve(th, puzzle.clues)

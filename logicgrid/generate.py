@@ -18,11 +18,13 @@ from .clues import (
     EitherOr,
     Exactly,
     ExactlyKLinks,
+    GroupCount,
     GroupMatch,
     Greater,
     Iff,
     Implies,
     InGroup,
+    NotInGroup,
     SameGroup,
     MultiCompare,
     Negative,
@@ -75,7 +77,7 @@ def build_clue_pool(
     max_atmost: int = 20,
     max_exactly: int = 20,
     max_conditional: int = 14,
-    max_groups: int = 12,
+    max_groups: int = 24,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -409,10 +411,16 @@ def build_clue_pool(
             co = rng.choice(non_cat)
             return (co, X[e][co])
 
-        for e in range(n):  # "X belongs to the <guild>"
+        for e in range(n):  # "X belongs to the <guild>" / "X does not belong to <guild>"
             gi = group_of.get(X[e][cat])
-            if gi is not None:
-                groups.append(InGroup(anchor_for(e), cat, labels[gi], parts[gi]))
+            if gi is None:
+                continue
+            groups.append(InGroup(anchor_for(e), cat, labels[gi], parts[gi]))
+            # a guild this entity is NOT in (negative membership)
+            others = [gj for gj in range(len(parts)) if gj != gi]
+            if others:
+                gj = rng.choice(others)
+                groups.append(NotInGroup(anchor_for(e), cat, labels[gj], parts[gj]))
 
         for e1 in range(n):  # same- / different-group over entity pairs
             for e2 in range(e1 + 1, n):
@@ -424,6 +432,25 @@ def build_clue_pool(
                     groups.append(SameGroup(a, b, cat, noun, parts))
                 else:
                     groups.append(DiffGroup(a, b, cat, noun, parts))
+
+        # Cardinality clues: pick a subset of entities and a guild, count how many
+        # of them are in it, and state it as exactly / at least / at most K. These
+        # are the genuinely new "set" clues a bijection can't otherwise express.
+        ents = list(range(n))
+        for _ in range(2 * n):  # a handful of candidates; minimize keeps the useful ones
+            size = rng.randint(2, min(4, n))
+            subset = rng.sample(ents, size)
+            gi = rng.randrange(len(parts))
+            actual = sum(1 for e in subset if group_of.get(X[e][cat]) == gi)
+            anchors = [anchor_for(e) for e in subset]
+            # a true statement about this subset; vary the relation we phrase it as
+            choices = [("exactly", actual)]
+            if actual >= 1:
+                choices.append(("atleast", rng.randint(1, actual)))
+            if actual <= size - 1:
+                choices.append(("atmost", rng.randint(actual, size - 1)))
+            mode, kk = rng.choice(choices)
+            groups.append(GroupCount(anchors, cat, labels[gi], parts[gi], kk, mode))
 
     rng.shuffle(negatives)
     rng.shuffle(comparisons)
@@ -498,7 +525,7 @@ _MINIMIZE_NODE_BUDGET = 20000
 
 # Clue types that name a hierarchy/group; minimize keeps these to the end of the
 # removal order so they survive into the minimal set more often (see minimize).
-_GROUP_CLUES = {"InGroup", "SameGroup", "DiffGroup"}
+_GROUP_CLUES = {"InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount"}
 
 
 def minimize(theme: Theme, clues: list, rng: random.Random) -> list:

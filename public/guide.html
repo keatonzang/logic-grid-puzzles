@@ -308,6 +308,27 @@
         </article>
 
         <article class="rule">
+          <h3>Does not belong to a group <span class="tag group">hierarchy</span></h3>
+          <p class="eg">“The artisan with the Millpond workshop does not belong to the Clothiers' Guild.”</p>
+          <p><b>Parameters:</b> an item (the anchor) and one group.</p>
+          <p><b>Means:</b> that entity's trade is <em>not</em> among the named guild's members.</p>
+          <p><b>On the grid:</b> ✗ every trade <em>inside</em> that guild for the entity — the mirror image of
+            “belongs to a group”.</p>
+        </article>
+
+        <article class="rule">
+          <h3>How many in a group <span class="tag group">hierarchy</span></h3>
+          <p class="eg">“Exactly two of Aldric, Beatrix, and Cedric belong to the Joiners' Guild.” ·
+            “At least one of … belong to …” · “At most one of … belong to …”</p>
+          <p><b>Parameters:</b> a list of entities, a group, a count K, and a relation (exactly / at least / at most).</p>
+          <p><b>Means:</b> of those named entities, the number whose trade falls in the guild is exactly /
+            at least / at most K. A counting clue across the hierarchy — it doesn't say <em>which</em> of them.</p>
+          <p><b>On the grid:</b> like the other counting clues. Once enough of the listed entities are known to
+            be in the guild (or out of it), the quota forces the rest the other way — cross off that guild's
+            trades for the ones that must be out, or every other trade for the ones that must be in.</p>
+        </article>
+
+        <article class="rule">
           <h3>Same group <span class="tag group">hierarchy</span></h3>
           <p class="eg">“The artisan with the Millpond workshop and the artisan with the Bishop patron are in the same guild.”</p>
           <p><b>Parameters:</b> two items from outside the grouped category.</p>

@@ -408,6 +408,51 @@ def _prop_diff_group(board, clue) -> int:  # a and b fall in different groups
     return changed
 
 
+def _prop_not_in_group(board, clue) -> int:  # entity's grouped item is NOT in the group
+    return sum(_s(board, clue.anchor, (clue.cat, x), N) for x in clue.members)
+
+
+def _anchor_group_status(board, anchor, cat, members):
+    """Whether `anchor`'s entity is definitely in the group, definitely out, or
+    still unknown — read off the grouped column. "In" if a member item is already
+    linked (Y) or every non-member is ruled out; "out" symmetrically."""
+    mset = set(members)
+    items = range(board.n)
+    member_y = any(_g(board, anchor, (cat, x)) == Y for x in items if x in mset)
+    member_poss = any(_g(board, anchor, (cat, x)) != N for x in items if x in mset)
+    non_y = any(_g(board, anchor, (cat, x)) == Y for x in items if x not in mset)
+    non_poss = any(_g(board, anchor, (cat, x)) != N for x in items if x not in mset)
+    if member_y or not non_poss:
+        return "in"
+    if non_y or not member_poss:
+        return "out"
+    return "unknown"
+
+
+def _prop_group_count(board, clue) -> int:  # how many anchors fall in the group: >=/<=/== k
+    cat, members = clue.cat, set(clue.members)
+    nonmembers = [x for x in range(board.n) if x not in members]
+    status = [_anchor_group_status(board, a, cat, members) for a in clue.anchors]
+    lo = status.count("in")  # definitely in
+    unknown = [i for i, s in enumerate(status) if s == "unknown"]
+    hi = lo + len(unknown)  # most that could be in
+    k, mode = clue.k, clue.mode
+    if mode in ("atleast", "exactly") and hi < k:
+        raise Contradiction("group-count can't reach the minimum")
+    if mode in ("atmost", "exactly") and lo > k:
+        raise Contradiction("group-count exceeds the maximum")
+    changed = 0
+    if mode in ("atleast", "exactly") and hi == k:  # every undecided anchor must be IN
+        for i in unknown:
+            for x in nonmembers:
+                changed += _s(board, clue.anchors[i], (cat, x), N)
+    if mode in ("atmost", "exactly") and lo == k:  # quota met -> undecided anchors are OUT
+        for i in unknown:
+            for x in members:
+                changed += _s(board, clue.anchors[i], (cat, x), N)
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
@@ -418,6 +463,8 @@ _PROPAGATORS = {
     "InGroup": _prop_in_group,
     "SameGroup": _prop_same_group,
     "DiffGroup": _prop_diff_group,
+    "NotInGroup": _prop_not_in_group,
+    "GroupCount": _prop_group_count,
     "GroupMatch": _prop_group_match,
     "Greater": _prop_greater,
     "Diff": _prop_diff,

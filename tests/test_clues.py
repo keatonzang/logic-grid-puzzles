@@ -17,9 +17,11 @@ from logicgrid.clues import (
     EitherOr,
     Exactly,
     ExactlyKLinks,
+    GroupCount,
     Iff,
     Implies,
     InGroup,
+    NotInGroup,
     SameGroup,
     GroupMatch,
     Greater,
@@ -295,6 +297,39 @@ def test_diff_group_holds_and_text():
     assert not DiffGroup((0, 0), (0, 2), 1, "kind", _PART).holds(_GROUP_X)  # both Furred
     assert DiffGroup((0, 0), (0, 1), 1, "kind", _PART).text(g) == \
         "Ann and Bo are in different kinds."
+
+
+def test_not_in_group_holds_and_text():
+    g = _group_theme()
+    # Bo -> Eel (Finned), so Bo is NOT in Furred -> holds; Ann -> Dog IS Furred -> fails
+    assert NotInGroup((0, 1), 1, "Furred", _FURRED).holds(_GROUP_X)
+    assert not NotInGroup((0, 0), 1, "Furred", _FURRED).holds(_GROUP_X)
+    assert NotInGroup((0, 1), 1, "Furred", _FURRED).removal_class == 2
+    assert NotInGroup((0, 1), 1, "Furred", _FURRED).text(g) == \
+        "Bo does not belong to the Furred."
+
+
+def test_group_count_holds_modes():
+    # _GROUP_X: Ann->Dog(Furred), Bo->Eel(Finned), Cy->Fox(Furred). Furred has 2 of 3.
+    anchors = [(0, 0), (0, 1), (0, 2)]
+    assert GroupCount(anchors, 1, "Furred", _FURRED, 2, "exactly").holds(_GROUP_X)
+    assert not GroupCount(anchors, 1, "Furred", _FURRED, 3, "exactly").holds(_GROUP_X)
+    assert GroupCount(anchors, 1, "Furred", _FURRED, 2, "atleast").holds(_GROUP_X)
+    assert GroupCount(anchors, 1, "Furred", _FURRED, 1, "atleast").holds(_GROUP_X)
+    assert not GroupCount(anchors, 1, "Furred", _FURRED, 3, "atleast").holds(_GROUP_X)
+    assert GroupCount(anchors, 1, "Furred", _FURRED, 2, "atmost").holds(_GROUP_X)
+    assert not GroupCount(anchors, 1, "Furred", _FURRED, 1, "atmost").holds(_GROUP_X)
+    assert GroupCount(anchors, 1, "Furred", _FURRED, 2, "exactly").removal_class == 2
+
+
+def test_group_count_text():
+    g = _group_theme()
+    c = GroupCount([(0, 0), (0, 1), (0, 2)], 1, "Furred", _FURRED, 2, "exactly")
+    assert c.text(g) == "Exactly two of Ann, Bo, and Cy belong to the Furred."
+    al = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 1, "atleast")
+    assert al.text(g) == "At least one of Ann and Bo belong to the Furred."
+    am = GroupCount([(0, 0), (0, 1)], 1, "Furred", _FURRED, 1, "atmost")
+    assert am.text(g) == "At most one of Ann and Bo belong to the Furred."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------
