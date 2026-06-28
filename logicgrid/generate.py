@@ -723,9 +723,12 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
     return Puzzle(theme=theme, solution=X, clues=clues)
 
 
-# Sampling budget per target: the top tiers are rarer in the minimal-puzzle
-# distribution, so they get more attempts before falling back to the closest band.
-_RATED_ATTEMPTS = {"normal": 9, "hard": 9, "mega": 10, "giga": 18, "tera": 28}
+# Sampling budget per target. With the composite index split into equal tertiles,
+# giga/tera are now hit in a few attempts; the laggard is mega — the *easiest*
+# third of the contradiction tier, which the rich clue pool produces least often —
+# so it gets the largest budget while the once-rare top tiers are trimmed back
+# (which also caps their worst-case generation latency).
+_RATED_ATTEMPTS = {"normal": 8, "hard": 9, "mega": 16, "giga": 14, "tera": 14}
 
 
 def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int | None = None):

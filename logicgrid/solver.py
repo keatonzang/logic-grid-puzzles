@@ -18,10 +18,30 @@ from .model import Theme
 
 
 def count_solutions(theme: Theme, clues: list, cap: int = 2, max_nodes: int | None = None) -> int:
-    """Count solutions up to `cap`. With `max_nodes`, abort once that many search
-    nodes are visited and report `cap` ("saturated") — so callers that only want
-    to know "exactly one?" treat an unresolved search as not-unique (conservative
-    and fast). A barely-unique loose clue set can otherwise explode the tree."""
+    """Count solutions up to `cap` (see ``_search``)."""
+    return _search(theme, clues, cap, max_nodes)[0]
+
+
+def search_effort(theme: Theme, clues: list, max_nodes: int = 200_000) -> int:
+    """Backtracking search-tree size for the (unique) solution — how many column
+    assignments the brute-force solver tries before the clues pin the answer.
+
+    A *propagation-independent* difficulty signal: it measures how poorly the clue
+    set prunes the column-by-column search (more nodes = more blind search left
+    over after the clues bite = harder), which is orthogonal to *which* deduction
+    technique a human needs. Capped (and the cap returned) so a pathologically
+    loose set can't blow up — saturation is itself a "very hard" signal."""
+    return _search(theme, clues, cap=2, max_nodes=max_nodes)[1]
+
+
+def _search(theme: Theme, clues: list, cap: int, max_nodes: int | None) -> tuple[int, int]:
+    """Backtracking core shared by ``count_solutions`` / ``search_effort``.
+
+    Returns ``(count, nodes)``: solutions found up to ``cap`` and search nodes
+    visited. With ``max_nodes``, abort once that many nodes are visited and report
+    ``cap`` ("saturated") — so callers that only want "exactly one?" treat an
+    unresolved search as not-unique (conservative and fast). A barely-unique loose
+    clue set can otherwise explode the tree."""
     n, k = theme.n, theme.k
     cols = list(range(1, k))  # column 0 is the fixed anchor (entity i -> item i)
 
@@ -73,7 +93,7 @@ def count_solutions(theme: Theme, clues: list, cap: int = 2, max_nodes: int | No
                     return
 
     rec(0)
-    return count
+    return count, nodes
 
 
 def is_unique(theme: Theme, clues: list, max_nodes: int | None = None) -> bool:

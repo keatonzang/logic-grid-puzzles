@@ -13,6 +13,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
+from .deduce import difficulty_index
 from .generate import DIFFICULTIES, generate_rated
 from .hint import next_hint
 from .model import Category, Theme
@@ -596,6 +597,11 @@ def build_payload(
             "ceiling": report["ceiling"],
             "steps": report["steps"],
             "total_steps": report["total_steps"],
+            # advanced difficulty signals behind the measured band
+            "whatif": report["steps"][4] + report["steps"][5],
+            "search_nodes": report.get("nodes"),
+            "clue_load": round(report.get("clue_cost", {}).get("mean", 0.0), 2),
+            "difficulty_index": round(difficulty_index(report), 2),
         },
         "categories": [_category_payload(c) for c in theme_obj.categories],
         "clues": [clue.text(theme_obj) for clue in puzzle.clues],

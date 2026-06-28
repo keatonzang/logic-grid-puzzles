@@ -19,6 +19,7 @@ The board state is the set of pairwise ✓/✗ facts a solver actually sees.
 
 from __future__ import annotations
 
+import math
 from itertools import combinations
 
 from .model import Contradiction, Theme
@@ -658,16 +659,43 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
 # Difficulty bands by the hardest technique a solve forces (its *ceiling*):
 #   normal  ceiling <=2   givens / line-elimination / transitivity only
 #   hard    ceiling ==3   clue-logic propagation, no proof-by-contradiction
-#   mega    ceiling ==4   needs what-ifs, but few
-#   giga    ceiling ==4   needs many what-ifs
-#   tera    ceiling ==4   needs very many what-ifs, or a nested one (ceiling >=5)
-# Ceiling 4 (proof-by-contradiction) is by far the most common hard outcome and
-# nested what-ifs (ceiling 5+) are rare, so the top three tiers are separated by
-# HOW MANY contradiction steps the solve needs — a reliably-generatable, finely
-# spread signal (see the measured distribution behind these cut points).
+#   mega    ceiling ==4   needs what-ifs — low composite difficulty
+#   giga    ceiling ==4   medium composite difficulty
+#   tera    ceiling ==4   high composite difficulty, or a nested what-if (ceiling >=5)
+# The ceiling fixes the *kind* of reasoning; ceiling 4 (proof-by-contradiction) is
+# by far the most common hard outcome, so the top three tiers split it by a
+# composite difficulty INDEX rather than a single (flimsy) what-if count.
 DIFFICULTY_ORDER = ("normal", "hard", "mega", "giga", "tera")
-_MEGA_MAX_WHATIF = 4    # ceiling-4 with <= this many contradiction steps -> mega
-_GIGA_MAX_WHATIF = 14   # ... up to this many -> giga; beyond (or nested) -> tera
+
+# The index blends three signals that are largely independent within ceiling 4
+# (measured |corr| <= 0.3), so they corroborate difficulty from different angles
+# rather than restating one number:
+#   * whatif   — volume of proof-by-contradiction steps (reasoning effort)
+#   * lognodes — log2 of the backtracking search-tree size (how much blind search
+#                the clues leave after propagation — see solver.search_effort)
+#   * cluecost — mean clue cognitive weight (how sophisticated the clues are)
+# Each is centred/scaled by its measured median and spread so it contributes
+# comparably; the sum is the index, cut into mega/giga/tera. (median, scale):
+_INDEX_NORM = {"whatif": (8.0, 8.0), "lognodes": (7.1, 1.6), "cluecost": (3.0, 0.5)}
+# Cuts at the measured tertiles of the ceiling-4 index, so mega/giga/tera each
+# cover ~a third of the contradiction-difficulty range — fat, equal targets that
+# generate-and-grade hits in a few attempts (and a meaningful third apiece).
+_MEGA_GIGA = -1.8   # index below this -> mega
+_GIGA_TERA = 0.4    # index at/above this -> tera
+
+
+def difficulty_index(report: dict) -> float:
+    """Composite contradiction-tier difficulty (see _INDEX_NORM). Robust to any
+    one signal being noisy because three near-independent signals must agree."""
+    whatif = report["steps"][4] + report["steps"][5]
+    lognodes = math.log2(max(1, report.get("nodes", 1)))
+    cluecost = report.get("clue_cost", {}).get("mean", _INDEX_NORM["cluecost"][0])
+
+    def z(name, x):
+        m, s = _INDEX_NORM[name]
+        return (x - m) / s
+
+    return z("whatif", whatif) + z("lognodes", lognodes) + z("cluecost", cluecost)
 
 
 def band_of(report: dict) -> str:
@@ -679,10 +707,10 @@ def band_of(report: dict) -> str:
         return "hard"
     if c >= 5:
         return "tera"  # a nested what-if was required — the deepest reasoning
-    whatif = report["steps"][4] + report["steps"][5]  # proof-by-contradiction steps
-    if whatif <= _MEGA_MAX_WHATIF:
+    d = difficulty_index(report)
+    if d < _MEGA_GIGA:
         return "mega"
-    if whatif <= _GIGA_MAX_WHATIF:
+    if d < _GIGA_TERA:
         return "giga"
     return "tera"
 
@@ -706,9 +734,26 @@ def grade(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
     offline analysis.)
     """
     r = solve(theme, clues, max_hyp_depth=max_hyp_depth)
+    r.update(_advanced_metrics(theme, clues))
     r["band"] = band_of(r) if r["solved"] else "ambiguous"
     r["score"] = _score(r)
     return r
+
+
+def _advanced_metrics(theme: Theme, clues: list) -> dict:
+    """Difficulty signals beyond the technique ceiling: the backtracking
+    search-tree size (how much blind search the clues leave — propagation-
+    independent) and the clue set's cognitive load (mean/max/total reading
+    weight). Reported on every grade so they can corroborate the band."""
+    from .clues import clueset_metrics
+    from .solver import search_effort
+
+    return {
+        # capped low enough to stay cheap on every grade; a saturated (very loose)
+        # search just reports the cap, which is already a strong "hard" signal
+        "nodes": search_effort(theme, clues, max_nodes=60_000),
+        "clue_cost": clueset_metrics(clues),
+    }
 
 
 def is_logic_solvable(theme: Theme, clues: list) -> bool:

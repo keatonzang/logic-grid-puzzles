@@ -1035,3 +1035,75 @@ class GroupGroupCompare(Clue):
             f"More members of the {self.labelA} are in the {self.labelC} than "
             f"members of the {self.labelB}."
         )
+
+
+# --- Cognitive complexity --------------------------------------------------
+# A *structural* read of how much work a clue is to parse and apply — independent
+# of where it lands in a solve. It rises with case analysis (disjunction /
+# conditional / xor), negation, arithmetic, the number of entities a clue ties
+# together, and nesting depth. This is the "hard to read" axis the technique-tier
+# grade can't see (two same-tier puzzles differ a lot if one is all "is/is-not"
+# and the other is nested conditionals). Weights are deliberately gentle and
+# relative; they feed the difficulty grader, not the solver.
+
+def statement_cost(s: Statement) -> float:
+    """Cognitive weight of an embedded boolean statement (recursive)."""
+    if isinstance(s, Link):
+        return 1.0
+    if isinstance(s, Not):
+        return 0.6 + statement_cost(s.s)
+    if isinstance(s, (And, Or)):  # case analysis grows with the operands
+        return 0.8 * len(s.parts) + sum(statement_cost(p) for p in s.parts)
+    if isinstance(s, Xor):
+        return 1.2 + statement_cost(s.p) + statement_cost(s.q)
+    return 1.0
+
+
+def clue_cost(clue: Clue) -> float:
+    """Cognitive weight of a single clue (see module section comment)."""
+    if isinstance(clue, Positive):
+        return 1.0
+    if isinstance(clue, Negative):
+        return 1.3
+    if isinstance(clue, Greater):
+        return 2.0
+    if isinstance(clue, (Adjacent, NextTo)):
+        return 2.2
+    if isinstance(clue, Between):
+        return 2.8
+    if isinstance(clue, (Diff, AtLeastApart, AbsApart)):
+        return 2.6
+    if isinstance(clue, MultiCompare):
+        return 2.4 + 0.5 * len(clue.others)
+    if isinstance(clue, (Among, EitherOr, Neither, AtMost, Exactly)):
+        return 1.6 + 0.6 * len(clue.options)  # disjunction over N options
+    if isinstance(clue, AllDifferent):
+        return 1.2 + 0.4 * len(clue.terms)
+    if isinstance(clue, ExactlyKLinks):
+        return 2.2 + 0.5 * len(clue.links)
+    if isinstance(clue, GroupMatch):
+        return 2.8 + 0.4 * len(clue.left)
+    if isinstance(clue, Conditional):
+        base = 3.0 if clue.biconditional else 2.5  # the case analysis itself
+        return base + statement_cost(clue.ante) + statement_cost(clue.cons)
+    if isinstance(clue, InGroup):
+        return 1.6
+    if isinstance(clue, NotInGroup):
+        return 1.9
+    if isinstance(clue, (SameGroup, DiffGroup)):
+        return 2.2
+    if isinstance(clue, GroupCount):
+        return 2.6 + 0.3 * len(clue.anchors)
+    if isinstance(clue, GroupOrder):
+        return 3.0
+    if isinstance(clue, (GroupGroupCount, GroupGroupCompare)):
+        return 3.4
+    return 1.5  # unknown clue type — a neutral middle weight
+
+
+def clueset_metrics(clues: list) -> dict:
+    """Aggregate cognitive load of a whole clue set: ``mean`` (typical
+    sophistication), ``max`` (the single gnarliest clue), and ``total`` (overall
+    reading burden)."""
+    costs = [clue_cost(c) for c in clues] or [0.0]
+    return {"mean": sum(costs) / len(costs), "max": max(costs), "total": sum(costs)}
