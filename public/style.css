@@ -403,7 +403,10 @@ th.row {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-th.corner { border: none; }
+/* The top-left blank should read as empty space, not a boxed cell. Scoped to
+   table.grid so it beats the `table.grid th` border rule (higher specificity);
+   transparent so a guild band's tint/divider never bleeds across it. */
+table.grid th.corner, th.corner { border: none; background: transparent; }
 
 td.cell {
   width: var(--cell);

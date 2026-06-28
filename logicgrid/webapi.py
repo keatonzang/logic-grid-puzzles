@@ -116,6 +116,12 @@ THEME_SPECS: tuple = (
             ("Mug", ("Amber", "Cobalt", "Crimson", "Ivory", "Jade", "Onyx", "Rose", "Slate")),
         ),
         numeric=NumericSpec("Price", unit_prefix="$", min_start=2, start_max=12, steps=(1, 2)),
+        referents=(
+            ("Drink", "the {} order"),               # the Latte order
+            ("Pastry", "the order with the {}"),     # the order with the Croissant
+            ("Syrup", "the order with {} syrup"),    # the order with Vanilla syrup
+            ("Mug", "the order in the {} mug"),      # the order in the Onyx mug
+        ),
     ),
     ThemeSpec(
         key="kings_guild",
@@ -135,6 +141,13 @@ THEME_SPECS: tuple = (
             ("Patron", ("Baron", "Bishop", "Countess", "Duke", "Earl", "Knight", "Prince", "Sheriff")),
         ),
         numeric=NumericSpec("Dues", unit_suffix=" coins", min_start=2, start_max=12, steps=(1, 2)),
+        referents=(
+            ("Trade", "the {}"),                     # the Tanner (a trade names the artisan)
+            ("Tool", "the artisan with the {}"),     # the artisan with the Anvil
+            ("Wares", "the artisan who makes {}"),   # the artisan who makes Barrels
+            ("Quarter", "the artisan in {}"),        # the artisan in Eastcheap
+            ("Patron", "the artisan serving the {}"),# the artisan serving the Baron
+        ),
         # Two two-level hierarchies: Trades group into guilds, Quarters into wards.
         # Only the labels (and group_noun) are fixed — membership is randomised per
         # puzzle by _random_groups (>=2 groups, >=2 members each), so the listed
@@ -181,6 +194,13 @@ THEME_SPECS: tuple = (
             ("Familiar", ("Cat", "Hawk", "Owl", "Rat", "Raven", "Toad", "Viper", "Wolf")),
         ),
         numeric=NumericSpec("Gold", unit_suffix=" gp", min_start=10, start_max=60, steps=(5, 10)),
+        referents=(
+            ("Race", "the {}"),                          # the Elf
+            ("Class", "the {}"),                         # the Wizard
+            ("Weapon", "the adventurer with the {}"),    # the adventurer with the Longbow
+            ("School", "the {} mage"),                   # the Evocation mage
+            ("Familiar", "the adventurer with the {} familiar"),  # …with the Owl familiar
+        ),
     ),
     ThemeSpec(
         key="mystery",
@@ -200,6 +220,13 @@ THEME_SPECS: tuple = (
             ("Alibi", ("Bathing", "Cooking", "Gardening", "Painting", "Reading", "Sleeping", "Walking", "Writing")),
         ),
         numeric=None,
+        referents=(
+            ("Room", "the suspect in the {}"),       # the suspect in the Library
+            ("Weapon", "the suspect with the {}"),   # the suspect with the Candlestick
+            ("Motive", "the suspect driven by {}"),  # the suspect driven by Greed
+            ("Occupation", "the {}"),                # the Butler
+            ("Alibi", "the suspect who was {}"),     # the suspect who was Reading
+        ),
     ),
     ThemeSpec(
         key="space",
@@ -218,6 +245,12 @@ THEME_SPECS: tuple = (
             ("Specimen", ("Algae", "Basalt", "Diatoms", "Fungus", "Geode", "Lichen", "Plankton", "Regolith")),
         ),
         numeric=NumericSpec("Distance", unit_suffix=" ly", min_start=4, start_max=16, steps=(1, 2)),
+        referents=(
+            ("Role", "the {}"),                          # the Captain
+            ("Module", "the colonist in the {} module"), # the colonist in the Aurora module
+            ("Homeworld", "the colonist from {}"),       # the colonist from Europa
+            ("Specimen", "the colonist studying {}"),    # the colonist studying Algae
+        ),
     ),
     ThemeSpec(
         key="engineer",
@@ -236,6 +269,12 @@ THEME_SPECS: tuple = (
             ("Tool", ("Blowtorch", "Caliper", "Drill", "Laser", "Multimeter", "Oscilloscope", "Welder", "Wrench")),
         ),
         numeric=NumericSpec("Budget", unit_prefix="$", unit_suffix="k", min_start=10, start_max=40, steps=(5, 10)),
+        referents=(
+            ("Discipline", "the {} engineer"),       # the Civil engineer
+            ("Project", "the engineer on the {}"),   # the engineer on the Bridge
+            ("Material", "the engineer using {}"),   # the engineer using Steel
+            ("Tool", "the engineer with the {}"),    # the engineer with the Wrench
+        ),
     ),
     ThemeSpec(
         key="school",
@@ -258,10 +297,11 @@ THEME_SPECS: tuple = (
         # an ordinal ("Period 1".."Period N"), so higher/next-to but no "2 more".
         extra_numerics=(NumericSpec("Period", unit_prefix="Period ", valued=False),),
         referents=(
-            ("Subject", "the {} class"),          # the Biology class
-            ("Room", "the class in the {}"),       # the class in the Annex
-            ("Club", "the person studying {}"),    # the person studying Debate
-            ("Period", "the class in {}"),         # the class in Period 3
+            ("Subject", "the {} class"),               # the Biology class
+            ("Room", "the class in the {}"),           # the class in the Annex
+            ("Student", "the class with {}"),          # the class with Iris
+            ("Club", "the member of the {} club"),     # the member of the Debate club
+            ("Period", "the class in {}"),             # the class in Period 3
         ),
     ),
 )
