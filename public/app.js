@@ -407,11 +407,15 @@ function renderBoard() {
   fitBoard();
 }
 
-// Fit the board to the viewport: size the cells (desktop), then shrink any guild
-// labels that don't fit their now-known boxes. Both run on render and resize.
+// Fit the board to the viewport. Order matters: an initial cell fit gives the
+// guild bands real dimensions; widening the left guild column changes the table
+// width, so re-fit the cells around it; then shrink any label whose longest word
+// still overflows its cell-bound dimension.
 function fitBoard() {
   fitCells();
-  fitGuildLabels();
+  sizeGuildColumns();
+  fitCells();
+  shrinkGuildLabels();
 }
 
 // Shrink the desktop staircase's cells so the whole grid fits the available
@@ -437,24 +441,42 @@ function fitCells() {
   table.style.setProperty("--cell", cell + "px");
 }
 
-// Shrink each guild-band label until it fits inside its padded box — long names
-// wrap at word boundaries and only then scale down, so the text never clips or
-// stretches the cell. Measured on the inner .gl-i (capped to the content box),
-// which detects overflow reliably even when the label is flex-centred. Shrinks
-// only, never enlarges, so type stays even across tabs.
-function fitGuildLabels() {
+// Step 1 of the guild-label fit: widen each table's (shared) left guild column to
+// fit the widest rotated label at base font — the left band's non-disruptive
+// dimension. Measured on .gl-i.scrollWidth, which is the full content width even
+// while the column is still narrow (the rotated text wraps by row height, not
+// column width). The top band needs nothing here: its height auto-grows in CSS.
+function sizeGuildColumns() {
+  document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
+    const left = table.querySelectorAll("th.sc-rowguild .gl-i");
+    if (!left.length) return;
+    let need = 0;
+    left.forEach((el) => { el.style.removeProperty("--glfs"); need = Math.max(need, el.scrollWidth); });
+    const colEl = table.querySelector("col.sc-rowguild-col");
+    if (colEl && need) colEl.style.width = Math.ceil(need + 8) + "px"; // + padding + border
+  });
+}
+
+// Step 2: last resort — shrink a label's font only when its longest single word
+// still overflows the cell-bound dimension (top: wider than its columns; left:
+// taller than its rows), since that can't be solved by growing the free dimension
+// or wrapping. Never enlarges, so type stays even across tabs.
+function shrinkGuildLabels() {
   const MIN = 7; // px floor; smaller is unreadable and the full name is on hover
-  document.querySelectorAll(".gl-i").forEach((el) => {
+  const shrink = (el, axis) => {
     el.style.removeProperty("--glfs");                       // reset to CSS base
     let size = parseFloat(getComputedStyle(el).fontSize);
     let guard = 28;
-    const overflows = () =>
-      el.scrollHeight > el.clientHeight + 0.5 || el.scrollWidth > el.clientWidth + 0.5;
-    while (overflows() && size > MIN && guard-- > 0) {
+    const over = axis === "width"
+      ? () => el.scrollWidth > el.clientWidth + 0.5
+      : () => el.scrollHeight > el.clientHeight + 0.5;
+    while (over() && size > MIN && guard-- > 0) {
       size -= 0.5;
       el.style.setProperty("--glfs", size + "px");
     }
-  });
+  };
+  document.querySelectorAll("th.sc-rowguild .gl-i").forEach((el) => shrink(el, "height"));
+  document.querySelectorAll("th.sc-guild .gl-i, th.g-band .gl-i").forEach((el) => shrink(el, "width"));
 }
 
 function cell(tag, text, cls) {
@@ -478,11 +500,10 @@ function vlabel(th, text) {
   return th;
 }
 
-// A guild-band label cell. The label lives in an absolutely-positioned `.gl` box,
-// inside which a `.gl-i` element is capped to the padded content box and wraps (at
-// word boundaries only) + shrink-to-fits (see fitGuildLabels). So the label never
-// sizes the cell — the data tiles stay square. The left band rotates `.gl-i` via
-// CSS to match the row-category label. Full text stays available on hover.
+// A guild-band label cell. The label lives in a `.gl` box with an inner `.gl-i`
+// that wraps at word boundaries and is fitted by sizeGuildColumns/shrinkGuildLabels
+// so it never makes a data tile non-square. The left band rotates `.gl-i` via CSS
+// to match the row-category label. Full text stays available on hover.
 function guildCell(cls, label, color) {
   const th = cell("th", "", cls);
   th.style.setProperty("--gcolor", color);
@@ -595,8 +616,8 @@ function renderStaircase(cats) {
   // row-label column / first row already separates it). Grouped categories get a
   // labelled, colour-coded guild band over their (now contiguous) items plus thin
   // sub-dividers between groups — on BOTH axes (top band + left band). Labels are
-  // clipped/shrink-to-fit (see guildCell + fitGuildLabels), so they never push a
-  // cell out of square.
+  // fitted (see guildCell + sizeGuildColumns/shrinkGuildLabels) so they never push
+  // a cell out of square.
   const firstCol = colCats[0];
   const anyColGrouped = colCats.some((j) => catGroups(j));
   const anyRowGrouped = rowCats.some((i) => catGroups(i));
