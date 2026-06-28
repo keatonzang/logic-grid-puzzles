@@ -129,8 +129,9 @@ class Greater(Clue):
         return X[ea][self.cat] > X[eb][self.cat]
 
     def text(self, theme: Theme) -> str:
-        cn = _low(theme.categories[self.cat].name)
-        return f"{_cap(_ref(theme, self.a))} has a higher {cn} than {_ref(theme, self.b)}."
+        cat = theme.categories[self.cat]
+        cn = _low(cat.name)
+        return f"{_cap(_ref(theme, self.a))} has {cat.article}higher {cn} than {_ref(theme, self.b)}."
 
 
 class Diff(Clue):
@@ -150,7 +151,7 @@ class Diff(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         return (
-            f"{_cap(_poss(theme, self.a))} {_low(cat.name)} is exactly {cat.amount(self.delta)} more "
+            f"{_cap(_poss(theme, self.a))} {_low(cat.name)} {cat.verb} exactly {cat.amount(self.delta)} more "
             f"than {_ref(theme, self.b)}."
         )
 
@@ -172,9 +173,10 @@ class Between(Clue):
         return min(ra, rb) < rc < max(ra, rb)
 
     def text(self, theme: Theme) -> str:
-        cn = _low(theme.categories[self.cat].name)
+        cat = theme.categories[self.cat]
+        cn = _low(cat.name)
         return (
-            f"{_cap(_poss(theme, self.c))} {cn} is between {_ref(theme, self.a)} "
+            f"{_cap(_poss(theme, self.c))} {cn} {cat.verb} between {_ref(theme, self.a)} "
             f"and {_ref(theme, self.b)}."
         )
 
@@ -193,8 +195,9 @@ class Adjacent(Clue):
         return X[entity_of(X, self.b)][self.cat] == X[entity_of(X, self.a)][self.cat] + 1
 
     def text(self, theme: Theme) -> str:
-        cn = _low(theme.categories[self.cat].name)
-        return f"{_cap(_poss(theme, self.a))} {cn} is immediately below {_ref(theme, self.b)}."
+        cat = theme.categories[self.cat]
+        cn = _low(cat.name)
+        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately below {_ref(theme, self.b)}."
 
 
 class NextTo(Clue):
@@ -214,8 +217,9 @@ class NextTo(Clue):
         return abs(ra - rb) == 1
 
     def text(self, theme: Theme) -> str:
-        cn = _low(theme.categories[self.cat].name)
-        return f"{_cap(_poss(theme, self.a))} {cn} is immediately next to {_ref(theme, self.b)}."
+        cat = theme.categories[self.cat]
+        cn = _low(cat.name)
+        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately next to {_ref(theme, self.b)}."
 
 
 class AtLeastApart(Clue):
@@ -237,7 +241,7 @@ class AtLeastApart(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         return (
-            f"{_cap(_poss(theme, self.a))} {_low(cat.name)} is at least {cat.amount(self.delta)} more "
+            f"{_cap(_poss(theme, self.a))} {_low(cat.name)} {cat.verb} at least {cat.amount(self.delta)} more "
             f"than {_ref(theme, self.b)}."
         )
 
@@ -266,7 +270,7 @@ class AbsApart(Clue):
         cat = theme.categories[self.cat]
         rel = "at least" if self.at_least else "at most"
         return (
-            f"{_cap(_poss(theme, self.a))} {_low(cat.name)} is {rel} {cat.amount(self.delta)} away "
+            f"{_cap(_poss(theme, self.a))} {_low(cat.name)} {cat.verb} {rel} {cat.amount(self.delta)} away "
             f"from {_ref(theme, self.b)}."
         )
 
@@ -288,11 +292,12 @@ class MultiCompare(Clue):
         return all(rc > r for r in ro) if self.greater else all(rc < r for r in ro)
 
     def text(self, theme: Theme) -> str:
-        cn = _low(theme.categories[self.cat].name)
+        cat = theme.categories[self.cat]
+        cn = _low(cat.name)
         labels = [_ref(theme, o) for o in self.others]
         rel = "more" if self.greater else "less"
         joiner = "both " if len(labels) == 2 else "all of "
-        return f"{_cap(_poss(theme, self.c))} {cn} is {rel} than {joiner}{_join(labels, 'and')}."
+        return f"{_cap(_poss(theme, self.c))} {cn} {cat.verb} {rel} than {joiner}{_join(labels, 'and')}."
 
 
 def _join(labels: list[str], conj: str) -> str:

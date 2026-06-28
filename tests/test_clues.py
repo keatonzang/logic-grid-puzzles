@@ -173,6 +173,27 @@ def test_abs_apart_text(ordered_theme):
         "Xi's year is at most 1 away from Yo."
 
 
+def test_plural_category_name_agrees_in_comparison_clues():
+    # plural=True switches "is"->"are" and drops the comparative's article.
+    from logicgrid.model import Category, Theme
+
+    v = [20, 35, 50]
+    theme = Theme("Guild", "", [
+        Category("Artisan", ["Aldric", "Beatrix", "Cedric"]),
+        Category("Trade", ["Smith", "Mason", "Weaver"]),
+        Category("Dues", ["20 gp", "35 gp", "50 gp"], ordered=True, values=v,
+                 unit_suffix=" gp", plural=True),
+    ], entity_noun="artisan")
+    assert Greater(2, (0, 2), (0, 0)).text(theme) == \
+        "Cedric has higher dues than Aldric."
+    assert Diff(2, (0, 2), (0, 0), 30, v).text(theme) == \
+        "Cedric's dues are exactly 30 gp more than Aldric."
+    assert NextTo(2, (0, 0), (0, 1)).text(theme) == \
+        "Aldric's dues are immediately next to Beatrix."
+    assert MultiCompare(2, (0, 2), [(0, 0), (0, 1)], greater=True).text(theme) == \
+        "Cedric's dues are more than both Aldric and Beatrix."
+
+
 def test_unit_prefixes_amounts_in_numeric_clues():
     # a category with a unit ("$") formats clue *amounts*, e.g. "exactly $3 more"
     from logicgrid.model import Category, Theme

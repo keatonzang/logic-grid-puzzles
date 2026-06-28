@@ -93,7 +93,7 @@ def test_shipped_yaml_themes_load_and_validate(path: Path):
 # --- single-file representation: a theme round-trips through JSON --------------
 
 def _rich_theme():
-    # exercises every serialisable field (ordered, values, unit, suffix, referent)
+    # exercises every serialisable field (ordered, values, unit, suffix, referent, plural)
     data = {
         "name": "Rich",
         "description": "every field",
@@ -101,8 +101,8 @@ def _rich_theme():
         "categories": [
             {"name": "Teacher", "items": ["Ames", "Boyd"]},
             {"name": "Club", "items": ["Chess", "Debate"], "referent": "the person studying {}"},
-            {"name": "Grade", "items": ["80%", "85%"], "ordered": True,
-             "values": [80, 85], "unit_suffix": "%"},
+            {"name": "Earnings", "items": ["80", "85"], "ordered": True,
+             "values": [80, 85], "unit_suffix": " gp", "plural": True},
         ],
     }
     return theme_from_dict(data)
@@ -113,9 +113,11 @@ def test_theme_to_dict_omits_defaults_keeps_set_fields():
     assert "ordered" not in d["categories"][0]      # plain category stays minimal
     assert "referent" not in d["categories"][0]
     assert d["categories"][1]["referent"] == "the person studying {}"
-    grade = d["categories"][2]
-    assert grade["ordered"] is True and grade["values"] == [80, 85]
-    assert grade["unit_suffix"] == "%"
+    assert "plural" not in d["categories"][0]       # default False stays omitted
+    earn = d["categories"][2]
+    assert earn["ordered"] is True and earn["values"] == [80, 85]
+    assert earn["unit_suffix"] == " gp"
+    assert earn["plural"] is True                    # explicit plural is preserved
 
 
 def test_theme_json_round_trips_exactly():

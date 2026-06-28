@@ -46,6 +46,12 @@ class Category:
     # subject category (index 0) is the entity's identity and always reads as the
     # bare item (a name), so its referent is ignored.
     referent: str = ""
+    # `plural` marks a category whose *name* is a plural or mass noun ("Dues",
+    # "Earnings", "Winnings"). Comparison clue text agrees with it: the verb
+    # becomes "are" not "is" ("the order's dues are exactly $3 more") and the
+    # comparative drops its article ("higher dues" not "a higher dues"). Default
+    # False keeps the usual singular agreement ("a higher price", "price is").
+    plural: bool = False
     # A two-level *hierarchy*: this category's items are partitioned into named
     # groups (e.g. Trades -> Guilds). `group_noun` is the collective noun
     # ("guild"); `groups` is ((label, (item, ...)), ...). Groups are a clue layer
@@ -57,6 +63,17 @@ class Category:
     def amount(self, n: int) -> str:
         """Format a numeric amount with this category's unit, e.g. '$3' or '20 gp'."""
         return f"{self.unit}{n}{self.unit_suffix}"
+
+    @property
+    def verb(self) -> str:
+        """Present-tense 'to be' agreeing with the category name in clue text."""
+        return "are" if self.plural else "is"
+
+    @property
+    def article(self) -> str:
+        """Indefinite article before a comparative adjective ('a higher price');
+        empty for a plural/mass name ('higher dues')."""
+        return "" if self.plural else "a "
 
     def value(self, item_index: int) -> int:
         """Rank (or numeric value) used by comparison clues."""
@@ -132,14 +149,15 @@ class Theme:
         # Comparison clues read an ordered category's name as a SINGULAR common
         # noun ("a higher price", "the order's price is..."). A plural name
         # ("Earnings", "Dues") then disagrees ("a higher earnings", "earnings
-        # is"). We can't fix the grammar without knowing the noun, so warn the
-        # author rather than emit broken prose.
+        # is") — UNLESS the author sets `plural=True`, which switches the
+        # templates to plural agreement. So warn only when the name looks plural
+        # but the flag wasn't set, rather than emit broken prose.
         for c in self.categories:
-            if c.ordered and _looks_plural(c.name):
+            if c.ordered and not c.plural and _looks_plural(c.name):
                 warnings.warn(
                     f"ordered category '{c.name}' looks like a plural noun; comparison "
                     f"clues assume a singular name and will read with disagreement "
                     f"(e.g. 'a higher {c.name.lower()}', '{c.name.lower()} is') — "
-                    "consider a singular name.",
+                    "set plural=True or use a singular name.",
                     stacklevel=2,
                 )

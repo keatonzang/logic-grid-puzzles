@@ -89,3 +89,19 @@ def test_singular_s_name_does_not_warn(recwarn):
             Category(name, ["lo", "hi"], ordered=True, values=[10, 20]),
         ]).validate()
     assert len(recwarn) == 0
+
+
+def test_plural_flag_suppresses_warning(recwarn):
+    # setting plural=True opts into plural agreement, so no warning is emitted
+    Theme("t", "", [
+        Category("A", ["p", "q"]),
+        Category("Earnings", ["lo", "hi"], ordered=True, values=[10, 20], plural=True),
+    ]).validate()
+    assert len(recwarn) == 0
+
+
+def test_category_verb_and_article_agree_with_plural():
+    sing = Category("Price", ["a", "b"], ordered=True)
+    plur = Category("Dues", ["a", "b"], ordered=True, plural=True)
+    assert (sing.verb, sing.article) == ("is", "a ")
+    assert (plur.verb, plur.article) == ("are", "")
