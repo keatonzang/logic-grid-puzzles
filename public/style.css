@@ -338,9 +338,9 @@ col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit 
   color: var(--ink);
 }
 th.sc-rowguild .gl-i { writing-mode: vertical-rl; transform: rotate(180deg); }  /* match the row-category label */
-/* Top band: a touch more breathing room, especially below the text (tail side),
-   so wrapped names don't crowd the coloured bottom border. */
-th.sc-guild > .gl, th.g-band > .gl { padding: 2px 3px 5px; }
+/* Top band: breathing room around the text — more above it, since the band is
+   auto-sized and the text would otherwise sit flush against the top edge. */
+th.sc-guild > .gl, th.g-band > .gl { padding: 5px 3px 4px; }
 
 .grid-block {
   display: flex;
