@@ -25,6 +25,7 @@ from .deduce import (
     _sweep_hypothetical,
     _sweep_lines,
     _sweep_transitivity,
+    _propagate_to_fixpoint,
     _PROPAGATORS,
 )
 from .model import Contradiction, Theme
@@ -154,101 +155,241 @@ def _reason_hyp(theme, i, a, j, b, v) -> str:
     )
 
 
-# --- What-if chain: replay the refuted assumption, step by step --------------
-_CHAIN_CAP = 16  # keep the narration readable on the trickiest tera puzzles
+# --- What-if chain: a relevance-pruned proof of the contradiction ------------
+# Replays the refuted branch one deduction at a time, recording each deduction's
+# *antecedents* (the facts it followed from). When the branch clashes, it walks
+# back from the contradiction through those antecedents and keeps ONLY the steps
+# on a path to it — so the narration is the actual proof, not the full forward
+# closure (which is mostly true-but-irrelevant side deductions).
+
+def _cell(p, q):
+    """A normalised cell key (lower category index first) for two nodes."""
+    return (p[0], p[1], q[0], q[1]) if p[0] < q[0] else (q[0], q[1], p[0], p[1])
 
 
-def _chain_clash(theme, exc, clue=None) -> str:
-    """The punch line: why the assumption is impossible."""
-    if clue is not None:
-        return (
-            f"…but now the clue “{clue.text(theme).rstrip('.')}” can no longer hold — "
-            f"a contradiction."
-        )
-    conflict = getattr(exc, "conflict", None)
-    if conflict:
-        ci, a, cj, b, cur, _att = conflict
-        already = "goes with" if cur == Y else "doesn't go with"
-        forced = "can't go with" if cur == Y else "would have to go with"
-        return (
-            f"…but now {_label(theme, (ci, a))} {forced} {_label(theme, (cj, b))}, "
-            f"even though it already {already} it — a contradiction."
-        )
-    return "…which forces a contradiction."
+def _explain_trans_ante(S, ci, a, cj, b, v):
+    """Antecedent pair for a transitivity deduction of (ci,a)~(cj,b)=v, or None.
+    A pivot in a third category linked to both nodes forces their relation."""
+    for c in range(S.k):
+        if c == ci or c == cj:
+            continue
+        for it in range(S.n):
+            rp = S.get(ci, a, c, it)
+            rq = S.get(cj, b, c, it)
+            if v == Y and rp == Y and rq == Y:
+                return [_cell((ci, a), (c, it)), _cell((cj, b), (c, it))]
+            if v == N and ((rp == Y and rq == N) or (rp == N and rq == Y)):
+                return [_cell((ci, a), (c, it)), _cell((cj, b), (c, it))]
+    return None
+
+
+def _explain(theme, clues, S, cell, v):
+    """Why is ``cell`` forced to ``v`` given board state ``S`` (in which the cell
+    is still unknown)? Returns ``(reason_text, antecedent_cells)`` — the simplest
+    justification found, trying line elimination, then transitivity, then clues —
+    or ``None`` if no single rule accounts for it. Antecedent cells are
+    normalised (lower category first)."""
+    ci, a, cj, b = cell  # cell is normalised, so (ci, cj) is a real block
+    n = S.n
+    m = S.cell[(ci, cj)]
+    if v == N:  # an established link in the same row or column rules this out
+        for b2 in range(n):
+            if b2 != b and m[a][b2] == Y:
+                return _reason_line(theme, S, ci, a, cj, b, N), [(ci, a, cj, b2)]
+        for a2 in range(n):
+            if a2 != a and m[a2][b] == Y:
+                return _reason_line(theme, S, ci, a, cj, b, N), [(ci, a2, cj, b)]
+    else:  # v == Y: forced because every other cell in a row/column is ruled out
+        if m[a].count(N) == n - 1 and m[a][b] == U:
+            return (_reason_line(theme, S, ci, a, cj, b, Y),
+                    [(ci, a, cj, bb) for bb in range(n) if bb != b])
+        col = [m[aa][b] for aa in range(n)]
+        if col.count(N) == n - 1 and m[a][b] == U:
+            return (_reason_line(theme, S, ci, a, cj, b, Y),
+                    [(ci, aa, cj, b) for aa in range(n) if aa != a])
+    tr = _explain_trans_ante(S, ci, a, cj, b, v)
+    if tr is not None:
+        return _reason_trans(theme, S, ci, a, cj, b, v), tr
+    for clue in clues:  # a clue whose propagation forces this cell to v
+        name = type(clue).__name__
+        if name not in _PROPAGATORS:
+            continue
+        cp = S.copy()
+        try:
+            _PROPAGATORS[name](cp, clue)
+        except Contradiction:
+            continue
+        if cp.get(ci, a, cj, b) == v:
+            return _reason_clue(theme, clue, ci, a, cj, b, v), _clue_ante(S, clue, cell, v)
+    return None  # no single rule accounts for it (caller falls back)
+
+
+def _ablate_cells(board, clue):
+    """Determined cells the clue could read — candidate antecedents to test."""
+    inv = sorted(clue.involved)
+    out = []
+    for x in range(len(inv)):
+        for y in range(x + 1, len(inv)):
+            m = board.cell.get((inv[x], inv[y]))
+            if m is None:
+                continue
+            out += [(inv[x], a, inv[y], b) for a in range(board.n)
+                    for b in range(board.n) if m[a][b] != U]
+    return out
+
+
+def _clear(board, cell):
+    cp = board.copy()
+    ci, a, cj, b = cell
+    cp.cell[(ci, cj)][a][b] = U
+    return cp
+
+
+def _clue_ante(board, clue, cell, v):
+    """Which determined cells the clue *needed* to derive `cell` — found by
+    ablation: drop a fact, see if the deduction survives."""
+    prop = _PROPAGATORS[type(clue).__name__]
+    ci, a, cj, b = cell
+    ante = []
+    for d in _ablate_cells(board, clue):
+        if d == cell:
+            continue
+        cp = _clear(board, d)
+        try:
+            prop(cp, clue)
+        except Contradiction:
+            ante.append(d)
+            continue
+        if cp.get(ci, a, cj, b) != v:
+            ante.append(d)
+    return ante
+
+
+def _clue_fail_ante(board, clue):
+    """Which determined cells the clue *needed* to become unsatisfiable."""
+    prop = _PROPAGATORS[type(clue).__name__]
+    ante = []
+    for d in _ablate_cells(board, clue):
+        cp = _clear(board, d)
+        try:
+            prop(cp, clue)
+            ante.append(d)  # removing d clears the clash -> d was a cause
+        except Contradiction:
+            pass
+    return ante or _ablate_cells(board, clue)  # fall back to the full read set
+
+
+def _clue_clash(theme, clues, board):
+    """A count-style clue that can no longer be satisfied at ``board`` (the kind
+    that raises without a single clashing cell). Returns (text, antecedents)."""
+    for clue in clues:
+        name = type(clue).__name__
+        if name not in _PROPAGATORS:
+            continue
+        cp = board.copy()
+        try:
+            _PROPAGATORS[name](cp, clue)
+        except Contradiction:
+            return (f"…but now the clue “{clue.text(theme).rstrip('.')}” can no longer "
+                    f"hold — a contradiction.", _clue_fail_ante(board, clue))
+    return ("…which forces a contradiction.", [])
 
 
 def _whatif_chain(theme, clues, base: Board, i, a, j, b, forced) -> list:
-    """Narrate the refuted branch: assume the opposite of the forced value and
-    replay tiers 1-3 (the same proven sweeps), listing each deduction up to the
-    clash. Returns plain-English lines — the assumption, the deductions, and the
-    contradiction. A long middle is compressed so the punch line always shows."""
+    """The relevance-pruned proof that the refuted assumption is impossible.
+
+    Assume the opposite of what the solver forced, then run the *real* tier-1-3
+    propagation (the tested ``deduce`` sweeps) and journal every cell it forces,
+    in order, until it hits the contradiction. Replaying that exact journal — the
+    one path that actually reaches the clash — gives each step a plain-English
+    reason and its antecedents; a backward slice from the clash then keeps only
+    the steps on a path to it, so the narration is the proof, not the full
+    forward closure of true-but-irrelevant side deductions."""
     trial = N if forced == Y else Y
-    test = base.copy()
+    jb = base.copy()
     try:
-        test.set(i, a, j, b, trial)
+        jb.set(i, a, j, b, trial)
     except Contradiction:
-        return []  # the cell was already decided — no real branch to narrate
+        return []
+
+    # Journal every newly-forced cell, in the solver's own propagation order.
+    journal: list = []
+    base_set = jb.set
+
+    def journaling_set(ci, ca, cj, cb, v):
+        changed = base_set(ci, ca, cj, cb, v)  # raises (with .conflict) on a clash
+        if changed:
+            journal.append((_cell((ci, ca), (cj, cb)), v))
+        return changed
+
+    jb.set = journaling_set
+    conflict = None
+    try:
+        _propagate_to_fixpoint(jb, clues, 0)
+    except Contradiction as exc:
+        conflict = exc.conflict
+    # No depth-0 contradiction (shouldn't happen for a real what-if) -> generic.
+    if conflict is None and not journal:
+        return _whatif_frame(theme, i, a, j, b, trial, forced, [], "…which forces a contradiction.")
+
+    # Replay the journal, explaining each forced cell against the state the solver
+    # actually saw when it forced it.
+    rb = base.copy()
+    rb.set(i, a, j, b, trial)
+    records: list = []
+    writer: dict = {}
+    for cell, v in journal:
+        res = _explain(theme, clues, rb, cell, v)
+        ci, ca, cj, cb = cell
+        if res is None:  # no single rule pinned it (very rare) — name the fact plainly
+            rel = "goes with" if v == Y else "doesn't go with"
+            res = (f"the clues force {_label(theme,(ci,ca))} to {rel} "
+                   f"{_label(theme,(cj,cb))}.", [])
+        reason, ante = res
+        rb.set(ci, ca, cj, cb, v)
+        writer[cell] = len(records)
+        records.append({"cell": cell, "v": v, "ante": ante, "reason": reason})
+
+    # The clash: a propagation tried to set a cell against an existing fact.
+    clash_text = clash_ante = None
+    if conflict is not None:
+        cci, ca, ccj, cb, cur, v = conflict
+        cell = _cell((cci, ca), (ccj, cb))
+        nci, na, ncj, nb = cell
+        sb = rb.copy()                       # explain the *attempted* force...
+        sb.cell[(nci, ncj)][na][nb] = U
+        res = _explain(theme, clues, sb, cell, v)
+        if res is not None:
+            reason, ante = res
+            had = "go with" if cur == Y else "not go with"
+            clash_text = (f"{reason[:1].upper()}{reason[1:]} But {_label(theme,(nci,na))} was "
+                          f"already shown to {had} {_label(theme,(ncj,nb))} — a contradiction.")
+            clash_ante = list(ante) + [cell]  # ...and the fact it contradicts
+    if clash_text is None:  # count-style clue, or a force no single rule names
+        clash_text, clash_ante = _clue_clash(theme, clues, rb)
+
+    # Backward slice: keep only deductions reachable from the contradiction.
+    keep: set = set()
+    queue = list(clash_ante)
+    while queue:
+        cell = queue.pop()
+        idx = writer.get(cell)
+        if idx is None or idx in keep:  # an already-known fact / the assumption -> leaf
+            continue
+        keep.add(idx)
+        queue.extend(records[idx]["ante"])
+    proof = [records[k]["reason"][:1].upper() + records[k]["reason"][1:] for k in sorted(keep)]
+    return _whatif_frame(theme, i, a, j, b, trial, forced, proof, clash_text)
+
+
+def _whatif_frame(theme, i, a, j, b, trial, forced, proof, clash_text) -> list:
+    """Wrap a proof body in the assumption opener and the conclusion closer."""
     verb = "goes with" if trial == Y else "does not go with"
-    header = f"Start by assuming {_label(theme, (i, a))} {verb} {_label(theme, (j, b))}."
-    body: list = []
-
-    def emit(before, reasoner, clue=None):
-        for (ci, cj, ia, ib, v) in _changes(before, test):
-            body.append(
-                _reason_clue(theme, clue, ci, ia, cj, ib, v) if clue is not None
-                else reasoner(theme, before, ci, ia, cj, ib, v)
-            )
-
-    clash = None
-    guard = 0  # the branch is finite, but never spin on a pathological clue set
-    while clash is None and guard < 400:
-        guard += 1
-        before = test.copy()
-        try:
-            if _sweep_lines(test):
-                emit(before, _reason_line)
-                continue
-        except Contradiction as exc:
-            emit(before, _reason_line)
-            clash = _chain_clash(theme, exc)
-            break
-        before = test.copy()
-        try:
-            if _sweep_transitivity(test):
-                emit(before, _reason_trans)
-                continue
-        except Contradiction as exc:
-            emit(before, _reason_trans)
-            clash = _chain_clash(theme, exc)
-            break
-        progressed = False
-        for clue in clues:  # one clue at a time so each step names its clue
-            name = type(clue).__name__
-            if name not in _PROPAGATORS:
-                continue
-            before = test.copy()
-            try:
-                changed = _PROPAGATORS[name](test, clue)
-            except Contradiction as exc:
-                clash = _chain_clash(theme, exc, clue)
-                progressed = True
-                break
-            if changed:
-                emit(before, None, clue)
-                progressed = True
-                break
-        if not progressed:
-            break  # fixpoint with no clash (shouldn't happen for a real what-if)
-
-    # keep the chain readable: head + tail of the body, eliding a long middle
-    if len(body) > _CHAIN_CAP:
-        head, tail = _CHAIN_CAP - 4, 3
-        body = body[:head] + [f"…({len(body) - head - tail} more deductions)…"] + body[-tail:]
     concl = "does not go with" if forced == N else "goes with"
     return (
-        [header] + body
-        + [clash or "…which forces a contradiction."]
-        + [f"So {_label(theme, (i, a))} {concl} {_label(theme, (j, b))}."]
+        [f"Start by assuming {_label(theme,(i,a))} {verb} {_label(theme,(j,b))}."]
+        + proof + [clash_text]
+        + [f"So {_label(theme,(i,a))} {concl} {_label(theme,(j,b))}."]
     )
 
 

@@ -8,7 +8,7 @@ import pytest
 
 from logicgrid.deduce import N, U, Y, Board, board_solution
 from logicgrid.generate import generate_puzzle, generate_rated
-from logicgrid.hint import TIER_NAMES, next_hint, trace
+from logicgrid.hint import TIER_NAMES, next_hint, trace, _whatif_chain
 from logicgrid.webapi import build_cafe_theme, build_hint, build_puzzle
 
 
@@ -190,6 +190,38 @@ def test_whatif_hint_carries_a_reasoning_chain():
     chain = step.get("chain")
     assert isinstance(chain, list) and len(chain) >= 3
     assert chain[0].startswith("Start by assuming")
-    assert "contradiction" in chain[-2]      # the clash line
+    # The clash line names a *specific* contradiction — never the generic
+    # "…which forces a contradiction." fallback (that only fired when the old
+    # finder-based replay diverged from the solver and stalled).
+    assert chain[-2] != "…which forces a contradiction."
+    assert "contradiction" in chain[-2] or "impossible" in chain[-2]
     assert chain[-1].startswith("So ")        # the conclusion
+    # The chain is the FULL relevant proof: every intermediate line is a real
+    # deduction, shown in order, with nothing elided.
+    assert "more deduction" not in " ".join(chain)
+    assert all(line.strip() for line in chain)
     assert "_ctx" not in step                 # internal context not leaked
+
+
+def test_whatif_chains_never_fall_back_to_the_generic_clash():
+    # Regression: the journal-driven replay follows the solver's exact propagation
+    # order, so it always reaches the real contradiction. Previously a finer-grained
+    # finder replay could dodge the clash and emit a generic 3-line stub for ~30%
+    # of what-ifs. Sweep a batch of harder puzzles and assert that never recurs.
+    seen = 0
+    for seed in range(20):
+        theme, puzzle, _r = generate_rated(
+            lambda r: build_cafe_theme(r, 4), random.Random(1000 + seed), "tera"
+        )
+        for st in trace(theme, puzzle.clues):
+            ctx = st.get("_ctx")
+            if ctx is None:
+                continue
+            before, i, a, j, b, v = ctx
+            chain = _whatif_chain(theme, puzzle.clues, before, i, a, j, b, v)
+            seen += 1
+            assert chain[0].startswith("Start by assuming")
+            assert chain[-2] != "…which forces a contradiction.", (
+                f"generic fallback at seed {1000 + seed}, cell {(i, a, j, b)}"
+            )
+    assert seen, "expected the sweep to exercise some what-if chains"
