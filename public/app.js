@@ -54,13 +54,7 @@ function recordMutation(mutate, coalesceKey) {
 
 function repaintCells(cells) {
   const keys = new Set(cells.map((c) => c.key));
-  for (const key of keys) paintAny(key);
-}
-
-// Repaint a grid by key, dispatching pairwise ("i-j") vs group ("grp:ci") grids.
-function paintAny(key) {
-  if (key.startsWith("grp:")) paintGroupGrid(+key.slice(4));
-  else paintGrid(key);
+  for (const key of keys) paintGrid(key);
 }
 
 // Shared tail for every board edit: a change invalidates a prior check and any
@@ -207,28 +201,6 @@ function pairs() {
   return out;
 }
 
-// Grouped categories (those carrying a partition), as {ci, noun, groups, sizes}
-// where each group is {label, members: [item indices], items: [labels]}. Group
-// grids live in `manual` under a "grp:<ci>" key so they ride the same undo /
-// clear / snapshot machinery as the pairwise grids.
-function groupedCats() {
-  const out = [];
-  puzzle.categories.forEach((c, ci) => {
-    if (!c.groups || !c.groups.length) return;
-    const groups = c.groups.map((g) => ({
-      label: g.label,
-      items: g.items,
-      members: g.items.map((it) => c.items.indexOf(it)),
-    }));
-    out.push({ ci, noun: c.group_noun || "group", groups, sizes: groups.map((g) => g.members.length) });
-  });
-  return out;
-}
-
-function groupKey(ci) {
-  return `grp:${ci}`;
-}
-
 // --- Group display helpers --------------------------------------------------
 // A grouped category's items are reordered for display so each group's members
 // sit contiguously, which lets us draw a labelled group band with sub-dividers.
@@ -287,10 +259,6 @@ function buildState() {
     }
     linked[key] = set;
   }
-  const n = cats[0].items.length;
-  for (const g of groupedCats()) {  // subject × group scratch grids
-    manual[groupKey(g.ci)] = Array.from({ length: n }, () => g.groups.map(() => 0));
-  }
 }
 
 function render() {
@@ -320,7 +288,6 @@ function render() {
 
   renderAnswerKey();
   renderBoard();
-  renderGroups();
   resetHintButton();
   setFeedback("");
   renderProgress();
@@ -501,16 +468,16 @@ function renderGrid(i, j, cats) {
   title.innerHTML = `<b>${cats[i].name}</b> × <b>${cats[j].name}</b>`;
   block.appendChild(title);
 
+  // Items reorder so each group is contiguous; sub-dividers mark the splits on
+  // both axes. Guild labels show on the column band only (a rotated row label
+  // would stretch cells out of square).
   const colCells = axisCells(j);
   const rowCells = axisCells(i);
   const colSegs = groupSegments(j);
-  const rowSegs = groupSegments(i);
-  const leftCols = rowSegs ? 2 : 1;  // row-label (+ guild-label) column(s)
 
   const table = document.createElement("table");
   table.className = "grid";
   const colgroup = document.createElement("colgroup");
-  if (rowSegs) colgroup.appendChild(col("rowguild-col"));
   colgroup.appendChild(col("rowlab-col"));
   colCells.forEach(() => colgroup.appendChild(col("cell-col")));
   table.appendChild(colgroup);
@@ -518,9 +485,7 @@ function renderGrid(i, j, cats) {
   // guild band over the column category (its members are now contiguous)
   if (colSegs) {
     const gh = document.createElement("tr");
-    const c0 = cell("th", "", "corner");
-    c0.colSpan = leftCols;
-    gh.appendChild(c0);
+    gh.appendChild(cell("th", "", "corner"));
     colSegs.forEach((seg, gi) => {
       const th = cell("th", seg.label, "g-band" + (gi > 0 ? " grp-left" : ""));
       th.colSpan = seg.size;
@@ -531,25 +496,14 @@ function renderGrid(i, j, cats) {
   }
 
   const head = document.createElement("tr");
-  const c1 = cell("th", "", "corner");
-  c1.colSpan = leftCols;
-  head.appendChild(c1);
+  head.appendChild(cell("th", "", "corner"));
   colCells.forEach(({ b, grpEdge }) =>
     head.appendChild(vlabel(cell("th", "", "col" + (grpEdge ? " grp-left" : "")), cats[j].items[b]))
   );
   table.appendChild(head);
 
-  rowCells.forEach(({ b: a, pos: posI, grpEdge: grpEdgeI }) => {
+  rowCells.forEach(({ b: a, grpEdge: grpEdgeI }) => {
     const tr = document.createElement("tr");
-    if (rowSegs) {  // guild label column on the row axis
-      const seg = rowSegs.find((s) => s.start === posI);
-      if (seg) {
-        const gth = vlabel(cell("th", "", "g-band g-rowband" + (seg.start > 0 ? " grp-top" : "")), seg.label);
-        gth.rowSpan = seg.size;
-        gth.style.setProperty("--gcolor", seg.color);
-        tr.appendChild(gth);
-      }
-    }
     const rh = cell("th", cats[i].items[a], "row" + (grpEdgeI ? " grp-top" : ""));
     rh.title = cats[i].items[a];
     tr.appendChild(rh);
@@ -577,46 +531,51 @@ function renderStaircase(cats) {
   for (let i = 0; i < K - 1; i++) rowCats.push(i);
 
   // Thick category dividers sit BETWEEN blocks, not before the first one (the
-  // row-label column / first row already separates it). Grouped categories also
-  // get a labelled guild band and thinner sub-dividers between their groups.
+  // row-label column / first row already separates it). Grouped categories get a
+  // labelled guild band over their (now contiguous) items and thin sub-dividers
+  // between groups on both axes. Guild *labels* show on the column band only —
+  // every grouped category appears as a column here, and a rotated row-axis label
+  // would stretch cells out of square — the row axis just gets the sub-dividers.
   const firstCol = colCats[0];
   const anyColGrouped = colCats.some((j) => catGroups(j));
-  const anyRowGrouped = rowCats.some((i) => catGroups(i));
-  const leftCols = anyRowGrouped ? 3 : 2;  // cat-label (+ guild) + row-label
 
   const table = document.createElement("table");
   table.className = "staircase";
 
   const cg = document.createElement("colgroup");
   cg.appendChild(col("sc-catcol"));
-  if (anyRowGrouped) cg.appendChild(col("sc-rowguild-col"));
   cg.appendChild(col("sc-rowlab-col"));
   colCats.forEach(() => cats[0].items.forEach(() => cg.appendChild(col("cell-col"))));
   table.appendChild(cg);
 
-  // header row 1: column-category names (drop into the guild band when ungrouped)
+  // header row 1: column-category names
   const h1 = document.createElement("tr");
   const corner = cell("th", "", "sc-corner");
-  corner.colSpan = leftCols;
+  corner.colSpan = 2;
   corner.rowSpan = anyColGrouped ? 3 : 2;
   h1.appendChild(corner);
   for (const j of colCats) {
     const th = cell("th", cats[j].name, "sc-colcat" + (j !== firstCol ? " blk-left" : ""));
     th.colSpan = N;
-    if (anyColGrouped && !catGroups(j)) th.rowSpan = 2;
     h1.appendChild(th);
   }
   table.appendChild(h1);
 
-  // header row 1b: guild band — only the grouped column categories fill it
+  // header row 1b: guild band — a labelled tinted cell per group, plain filler
+  // (no colour) for ungrouped categories so nothing bleeds under them.
   if (anyColGrouped) {
     const hg = document.createElement("tr");
     for (const j of colCats) {
       const segs = groupSegments(j);
-      if (!segs) continue;  // ungrouped: its name cell rowspans down into this row
+      const catEdge = j !== firstCol ? " blk-left" : "";
+      if (!segs) {
+        const fill = cell("th", "", "sc-colcat sc-guildfill" + catEdge);
+        fill.colSpan = N;
+        hg.appendChild(fill);
+        continue;
+      }
       segs.forEach((seg, gi) => {
-        const edge = gi === 0 ? (j !== firstCol ? " blk-left" : "") : " grp-left";
-        const th = cell("th", seg.label, "sc-guild" + edge);
+        const th = cell("th", seg.label, "sc-guild" + (gi === 0 ? catEdge : " grp-left"));
         th.colSpan = seg.size;
         th.style.setProperty("--gcolor", seg.color);
         hg.appendChild(th);
@@ -637,25 +596,13 @@ function renderStaircase(cats) {
 
   // body
   for (const i of rowCats) {
-    const rowSegs = groupSegments(i);
     axisCells(i).forEach(({ b: a, pos: posI, grpEdge: grpEdgeI }) => {
       const tr = document.createElement("tr");
       const horizTop = posI === 0 ? (i > 0 ? " blk-top" : "") : (grpEdgeI ? " grp-top" : "");
       if (posI === 0) {
         const catTh = vlabel(cell("th", "", "sc-rowcat" + (i > 0 ? " blk-top" : "")), cats[i].name);
         catTh.rowSpan = N;
-        if (anyRowGrouped && !rowSegs) catTh.colSpan = 2;  // span the empty guild slot
         tr.appendChild(catTh);
-      }
-      if (rowSegs) {  // guild label column: one rotated cell per group, spanning members
-        const seg = rowSegs.find((s) => s.start === posI);
-        if (seg) {
-          const gEdge = seg.start === 0 ? (i > 0 ? " blk-top" : "") : " grp-top";
-          const gth = vlabel(cell("th", "", "sc-guild sc-rowguild" + gEdge), seg.label);
-          gth.rowSpan = seg.size;
-          gth.style.setProperty("--gcolor", seg.color);
-          tr.appendChild(gth);
-        }
       }
       const rh = cell("th", cats[i].items[a], "row" + horizTop);
       rh.title = cats[i].items[a];
@@ -716,133 +663,6 @@ function onCellClick(e) {
   );
   paintGrid(key);
   afterEdit();
-}
-
-// --- Group (subject × group) grids ------------------------------------------
-function paintGroupGrid(ci) {
-  const key = groupKey(ci);
-  const sizes = groupedCats().find((g) => g.ci === ci).sizes;
-  const { display, lit } = LG.deriveGroup(manual[key], sizes);
-  const placed = sizes.map(() => 0);
-  for (let a = 0; a < display.length; a++) {
-    for (let b = 0; b < display[a].length; b++) {
-      const td = cellEl(key, a, b);
-      if (!td) continue;
-      td.textContent = STATES[display[a][b]];
-      td.classList.toggle("yes", display[a][b] === 1);
-      td.classList.toggle("no", display[a][b] === 2);
-      td.classList.toggle("lit", lit[a][b]);
-      if (display[a][b] === 1) placed[b]++;
-    }
-  }
-  // live "placed / size" tally per group column
-  document.querySelectorAll(`th.group-col[data-key="${key}"]`).forEach((th) => {
-    const g = +th.dataset.col;
-    const badge = th.querySelector(".group-size");
-    if (badge) badge.textContent = `${placed[g]}/${sizes[g]}`;
-    th.classList.toggle("full", placed[g] === sizes[g]);
-  });
-}
-
-function onGroupCellClick(e) {
-  const td = e.currentTarget;
-  const ci = +td.dataset.ci;
-  const key = groupKey(ci);
-  const s = +td.dataset.a;
-  const g = +td.dataset.b;
-  const sizes = groupedCats().find((gc) => gc.ci === ci).sizes;
-  recordMutation(
-    () => { manual[key][s][g] = LG.nextStateGroup(manual[key], sizes, s, g); },
-    `${key}-${s}-${g}`,
-  );
-  paintGroupGrid(ci);
-  afterEdit();
-}
-
-// A distinct panel of subject × group scratch grids — one per partition — so the
-// player can record group facts the clues state (and read the membership legend).
-function renderGroups() {
-  const host = $("groups-body");
-  host.innerHTML = "";
-  const gcats = groupedCats();
-  $("groups-panel").hidden = gcats.length === 0;
-  if (!gcats.length) return;
-
-  const subject = puzzle.categories[0];
-  const intro = document.createElement("p");
-  intro.className = "groups-intro";
-  intro.innerHTML =
-    "Track which <b>" + subject.name.toLowerCase() + "</b> belongs to each group. " +
-    "One group per row; each group's size is fixed (shown in its header).";
-  host.appendChild(intro);
-
-  for (const gc of gcats) {
-    const block = document.createElement("div");
-    block.className = "grid-block group-block";
-    const title = document.createElement("h4");
-    title.innerHTML = `<b>${subject.name}</b> × <b>${_cap(gc.noun)}</b>`;
-    block.appendChild(title);
-
-    const table = document.createElement("table");
-    table.className = "grid group-grid";
-    const colgroup = document.createElement("colgroup");
-    colgroup.appendChild(col("rowlab-col"));
-    gc.groups.forEach(() => colgroup.appendChild(col("cell-col")));
-    table.appendChild(colgroup);
-
-    const head = document.createElement("tr");
-    head.appendChild(cell("th", "", "corner"));
-    gc.groups.forEach((grp, g) => {
-      // horizontal header (group names are longer than item labels), colour-coded
-      // to its column, with a live "placed / size" tally that completes when full.
-      const th = cell("th", grp.label, "group-col");
-      th.dataset.key = groupKey(gc.ci);
-      th.dataset.col = g;
-      th.style.setProperty("--gcolor", GROUP_COLORS[g % GROUP_COLORS.length]);
-      const sz = document.createElement("span");
-      sz.className = "group-size";
-      sz.textContent = `0/${grp.members.length}`;
-      th.appendChild(sz);
-      th.title = `${grp.label}: ${grp.items.join(", ")}`;  // membership legend on hover
-      head.appendChild(th);
-    });
-    table.appendChild(head);
-
-    subject.items.forEach((rowLabel, s) => {
-      const tr = document.createElement("tr");
-      const rh = cell("th", rowLabel, "row");
-      rh.title = rowLabel;
-      tr.appendChild(rh);
-      gc.groups.forEach((_, g) => {
-        const td = cell("td", "", "cell");
-        td.dataset.key = groupKey(gc.ci);
-        td.dataset.ci = gc.ci;
-        td.dataset.a = s;
-        td.dataset.b = g;
-        td.addEventListener("click", onGroupCellClick);
-        tr.appendChild(td);
-      });
-      table.appendChild(tr);
-    });
-    block.appendChild(table);
-
-    const legend = document.createElement("ul");  // visible membership legend
-    legend.className = "group-legend";
-    gc.groups.forEach((grp, g) => {
-      const li = document.createElement("li");
-      const dot = GROUP_COLORS[g % GROUP_COLORS.length];
-      li.innerHTML =
-        `<span class="group-dot" style="background:${dot}"></span>` +
-        `<b>${grp.label}</b> — ${grp.items.join(", ")}`;
-      legend.appendChild(li);
-    });
-    block.appendChild(legend);
-    host.appendChild(block);
-  }
-}
-
-function _cap(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function clearHighlights() {
@@ -910,26 +730,11 @@ function reveal() {
     }
     paintGrid(key);
   }
-  revealGroups();
   stopTimer(false); // revealing the answer ends the run (no solve time earned)
   history.reset();  // the run is over — nothing left to undo back into
   updateUndoUI();
   setFeedback("Solution revealed.", "");
   renderProgress();
-}
-
-// Fill the group scratch grids with the true membership (used by Reveal).
-function revealGroups() {
-  const cats = puzzle.categories;
-  for (const gc of groupedCats()) {
-    const M = manual[groupKey(gc.ci)];
-    for (const row of puzzle.solution) {
-      const s = cats[0].items.indexOf(row[0]);
-      const trueG = gc.groups.findIndex((g) => g.items.includes(row[gc.ci]));
-      for (let g = 0; g < gc.groups.length; g++) M[s][g] = g === trueG ? 1 : 2;
-    }
-    paintGroupGrid(gc.ci);
-  }
 }
 
 function clearGrids() {
@@ -942,7 +747,7 @@ function clearGrids() {
       for (let a = 0; a < M.length; a++) M[a].fill(0);
     }
   });
-  for (const key of Object.keys(manual)) paintAny(key);
+  for (const key of Object.keys(manual)) paintGrid(key);
   setFeedback("");
   renderProgress();
 }

@@ -291,32 +291,16 @@ table.staircase .blk-top { border-top: 2px solid var(--muted); }
 table.staircase .grp-left, table.grid .grp-left { border-left: 1px dashed var(--muted); }
 table.staircase .grp-top, table.grid .grp-top { border-top: 1px dashed var(--muted); }
 
-/* Labelled guild band layered over a grouped category's items */
-col.sc-rowguild-col { width: 1.4rem; }
-col.rowguild-col { width: 1.4rem; }
+/* Labelled, colour-coded guild band over a grouped category's items (column
+   axis only). Ungrouped categories get a plain filler so no colour bleeds. */
 th.sc-guild, th.g-band {
   font-size: .72rem;
   font-weight: 600;
+  line-height: 1.1;
   color: var(--ink);
-  background: color-mix(in srgb, var(--gcolor) 22%, var(--panel-2));
-}
-th.sc-guild:not(.sc-rowguild), th.g-band:not(.g-rowband) {
   padding: .2rem .15rem;
+  background: color-mix(in srgb, var(--gcolor) 22%, var(--panel-2));
   border-bottom: 2px solid var(--gcolor);
-}
-th.sc-rowguild, th.g-rowband {
-  padding: 0;
-  vertical-align: middle;
-  border-right: 2px solid var(--gcolor);
-}
-th.sc-rowguild span, th.g-rowband span {
-  display: inline-block;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  white-space: nowrap;
-  font-size: .72rem;
-  font-weight: 600;
-  color: var(--ink);
 }
 
 .grid-block {
@@ -334,50 +318,6 @@ th.sc-rowguild span, th.g-rowband span {
 .grid-block h4 b { color: var(--ink); }
 
 /* --- Groups panel: distinct scratch grids for hierarchy membership --- */
-.groups-panel {
-  margin-top: 1.5rem;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-left: 3px solid #ffc46e;  /* the "group" accent, matching the guide tag */
-  border-radius: var(--radius);
-  padding: 1.1rem 1.25rem;
-}
-.groups-panel > h3 { margin: 0 0 .25rem; font-size: 1rem; }
-.groups-intro { margin: 0 0 1rem; font-size: .82rem; color: var(--muted); }
-#groups-body { display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; align-items: flex-start; }
-.group-block { max-width: 100%; }
-/* group grids have few, longer-named columns -> auto layout + horizontal headers */
-table.group-grid { table-layout: auto; }
-.group-grid col.cell-col { width: auto; }
-.group-grid th.group-col {
-  font-size: .74rem; font-weight: 600; color: var(--ink);
-  padding: .35rem .55rem; white-space: nowrap; vertical-align: bottom; height: auto;
-  border-bottom: 3px solid var(--gcolor, var(--line));  /* colour-codes the column */
-}
-.group-grid th.group-col .group-size {
-  display: block; font-size: .68rem; font-weight: 700;
-  color: var(--muted); letter-spacing: .03em;
-}
-.group-grid th.group-col.full { color: var(--gcolor); }
-.group-grid th.group-col.full .group-size { color: var(--gcolor); }
-.group-grid td.cell { cursor: pointer; min-width: 2.4rem; }
-.group-dot {
-  display: inline-block; width: .7rem; height: .7rem; border-radius: 50%;
-  margin-right: .45rem; vertical-align: middle;
-}
-.group-legend li { display: flex; align-items: center; }
-.group-legend {
-  list-style: none;
-  margin: .6rem 0 0;
-  padding: 0;
-  font-size: .76rem;
-  color: var(--muted);
-  max-width: 22rem;
-}
-.group-legend li { margin: .15rem 0; }
-.group-legend b { color: var(--ink); font-weight: 600; }
-.group-legend span { color: #ffc46e; }
-
 /* table-layout:fixed + colgroup => identical dimensions regardless of text */
 table.grid { table-layout: fixed; border-collapse: collapse; }
 col.rowlab-col { width: var(--rowlab); }
@@ -571,7 +511,7 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
   table.staircase th, table.staircase td { border-color: #000; }
   th.col span, th.row, .grid-block h4, .grid-block h4 b,
   th.sc-colcat, th.sc-rowcat span,
-  th.sc-guild, th.g-band, th.sc-rowguild span, th.g-rowband span { color: #000 !important; }
+  th.sc-guild, th.g-band { color: #000 !important; }
   table.staircase .blk-left, table.staircase .blk-top,
   .grp-left, .grp-top { border-color: #000 !important; }
   th.sc-guild, th.g-band { background: #eee !important; border-color: #000 !important; }
