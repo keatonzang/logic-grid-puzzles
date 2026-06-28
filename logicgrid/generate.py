@@ -40,7 +40,9 @@ from .clues import (
     Neither,
     NextTo,
     Positive,
+    SetCount,
     Xor,
+    entity_of,
 )
 from .model import Theme
 from .solver import count_solutions, is_unique
@@ -109,6 +111,7 @@ def build_clue_pool(
     max_groups: int = 24,
     max_cross: int = 6,
     max_compounds: int = 16,
+    max_set_count: int = 14,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -121,6 +124,7 @@ def build_clue_pool(
     enable_conditional: bool = False,
     enable_groups: bool = False,
     enable_group_instances: bool = False,
+    enable_set_count: bool = False,
     include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
@@ -162,6 +166,7 @@ def build_clue_pool(
     groups: list = []
     cross: list = []  # cross-group clues (need two grouped categories)
     compounds: list = []  # bare statement clues mixing a named instance + a group
+    set_counts: list = []  # cardinality over a union of set instances (SetCount)
 
     for c1 in range(k):
         for c2 in range(c1 + 1, k):
@@ -740,6 +745,74 @@ def build_clue_pool(
                 rng.shuffle(cmp)
                 cross.extend(cmp[:2])
 
+    # General set-composition cardinality: "exactly/at least/at most K of <union of
+    # named entities and whole groups> are associated with <a group or an item set>"
+    # — a group, or "N members of a group", standing in wherever an instance can.
+    # Subjects always include >= 1 group; K is non-degenerate (strictly interior, so
+    # it never collapses to all/none) and true under X.
+    if enable_set_count and n >= 3:
+        grouped = _grouped_categories(theme)
+        seen_sc: set = set()
+        for _ in (range(6 * n) if grouped else ()):
+            gc, glabels, gparts, _gof = rng.choice(grouped)
+            ga = rng.randrange(len(gparts))
+            subjects = [("group", gc, gparts[ga], glabels[ga])]
+            if rng.random() < 0.5:  # mix in 1-2 named entities -> the union form
+                for _ in range(rng.randint(1, 2)):
+                    ec = rng.choice([c for c in range(k) if c != gc])
+                    term = (ec, X[rng.randrange(n)][ec])
+                    if ("entity", term) not in subjects:
+                        subjects.append(("entity", term))
+            # target: another group (60%) or a small item set in some other category
+            other = [g for g in grouped if g[0] != gc]
+            if other and rng.random() < 0.6:
+                tc, tlabels, tparts, _ = rng.choice(other)
+                ti = rng.randrange(len(tparts))
+                target_cells = [(tc, m) for m in tparts[ti]]
+                tlabel, tgrp = tlabels[ti], True
+            else:
+                tcands = [c for c in range(1, k) if c != gc]
+                if not tcands:
+                    continue
+                tc = rng.choice(tcands)
+                its = rng.sample(range(n), 2)
+                names = [theme.categories[tc].items[i] for i in its]
+                target_cells = [(tc, i) for i in its]
+                tlabel, tgrp = f"{names[0]} or {names[1]}", False
+            # distinct subject entities under X, then a true & non-degenerate K
+            ents: set = set()
+            for sub in subjects:
+                if sub[0] == "entity":
+                    ents.add(entity_of(X, sub[1]))
+                else:
+                    ms = set(sub[2])
+                    ents.update(e for e in range(n) if X[e][sub[1]] in ms)
+            size = len(ents)
+            if size < 2:
+                continue
+            tset = set(target_cells)
+            actual = sum(1 for e in ents if any(X[e][c] == i for c, i in tset))
+            choices = []
+            if 1 <= actual <= size - 1:
+                choices.append(("exactly", actual))
+            hi = min(actual, size - 1)
+            if hi >= 1:
+                choices.append(("atleast", rng.randint(1, hi)))
+            lo = max(actual, 1)
+            if lo <= size - 1:
+                choices.append(("atmost", rng.randint(lo, size - 1)))
+            if not choices:
+                continue
+            mode, kk = rng.choice(choices)
+            clue = SetCount(subjects, target_cells, tlabel, tgrp, kk, mode)
+            if not clue.holds(X):
+                continue
+            txt = clue.text(theme)
+            if txt in seen_sc:
+                continue
+            seen_sc.add(txt)
+            set_counts.append(clue)
+
     rng.shuffle(negatives)
     rng.shuffle(comparisons)
     rng.shuffle(among)
@@ -754,6 +827,7 @@ def build_clue_pool(
     rng.shuffle(groups)
     rng.shuffle(cross)
     rng.shuffle(compounds)
+    rng.shuffle(set_counts)
     return (
         positives
         + negatives[:max_negatives]
@@ -770,6 +844,7 @@ def build_clue_pool(
         + groups[:max_groups]
         + cross[:max_cross]
         + compounds[:max_compounds]
+        + set_counts[:max_set_count]
     )
 
 
@@ -803,6 +878,7 @@ _RICH_POOL = dict(
     enable_conditional=True,  # if-then / iff (conditional reasoning)
     enable_groups=True,
     enable_group_instances=True,  # groups as instances inside disjunctions / conditionals
+    enable_set_count=True,  # cardinality over unions of set instances
     include_sequential=True,
 )
 _DIFFICULTY_POOL = {
@@ -830,6 +906,7 @@ _GROUP_CLUES = {
     "InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount", "GroupOrder",
     "GroupGroupCount", "GroupGroupCompare",
     "Compound",  # group-instance disjunctions ("either X or someone in G ...")
+    "SetCount",  # set-composition cardinality ("two members of the Hill Ward ...")
 }
 
 

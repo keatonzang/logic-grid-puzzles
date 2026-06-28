@@ -1181,6 +1181,92 @@ class GroupGroupCompare(Clue):
         )
 
 
+# --- General set composition -------------------------------------------------
+# The "instance OR group OR N-members-of-a-group, anywhere" clue: a cardinality
+# over a UNION of subjects (named entities and whole groups), counted as distinct
+# entities, each tested against a target (a group, or a set of items). Subsumes
+# "two members of the Hill Ward pay 5 or 6 coins" and "exactly two of (the River
+# Ward members and the tanner) belong to the Joiners' Guild".
+
+class SetCount(Clue):
+    """Exactly / at least / at most K of a union of `subjects` are associated with
+    a `target`. Subjects mix named entities and whole groups; the count is over the
+    DISTINCT entities in the union. The target is a set of (category, item) cells (a
+    group contributes its whole block); an entity is "associated" iff it is linked
+    to at least one target cell.
+
+    Subjects: a tuple of ``("entity", term)`` and ``("group", cat, members,
+    label)``. Counting over uncertain & possibly-overlapping subject sets makes
+    propagation sound but PARTIAL (`deduce._prop_set_count`): it bound-checks the
+    count and unit-propagates the determinate side of each entity's
+    (in-subject AND hits-target) once the other side is pinned."""
+
+    removal_class = 2
+
+    def __init__(self, subjects, target_cells, target_label, target_is_group, k, mode):
+        assert mode in ("exactly", "atleast", "atmost")
+        self.subjects = tuple(subjects)
+        self.target_cells = tuple(sorted(set(target_cells)))
+        self.target_label = target_label
+        self.target_is_group = target_is_group
+        self.k = k
+        self.mode = mode
+        cats = {0}  # entities are addressed through the subject column
+        for sub in self.subjects:
+            cats.add(sub[1][0] if sub[0] == "entity" else sub[1])
+        cats.update(c for c, _ in self.target_cells)
+        self.involved = frozenset(cats)
+
+    def subject_entities(self, X) -> set:
+        ents = set()
+        for sub in self.subjects:
+            if sub[0] == "entity":
+                ents.add(entity_of(X, sub[1]))
+            else:
+                _, cat, members, _label = sub
+                ms = set(members)
+                ents.update(e for e in range(len(X)) if X[e][cat] in ms)
+        return ents
+
+    def _associated(self, X, e) -> bool:
+        return any(X[e][c] == i for c, i in self.target_cells)
+
+    def _count(self, X) -> int:
+        return sum(1 for e in self.subject_entities(X) if self._associated(X, e))
+
+    def holds(self, X) -> bool:
+        c = self._count(X)
+        if self.mode == "atleast":
+            return c >= self.k
+        if self.mode == "atmost":
+            return c <= self.k
+        return c == self.k
+
+    def _subject_phrase(self, theme: Theme) -> str:
+        parts = []
+        for sub in self.subjects:
+            if sub[0] == "entity":
+                parts.append(_ref(theme, sub[1]))
+            else:
+                parts.append(f"the members of the {sub[3]}")
+        return _join(parts, "and")
+
+    def text(self, theme: Theme) -> str:
+        prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
+        kw = _count_word(self.k)
+        single_group = len(self.subjects) == 1 and self.subjects[0][0] == "group"
+        if single_group:  # "Exactly two members of the Hill Ward ..."
+            noun = "member" if self.k == 1 else "members"
+            head = f"{prefix} {kw} {noun} of the {self.subjects[0][3]}"
+        else:             # "Exactly two of the Hill Ward members and the tanner ..."
+            head = f"{prefix} {kw} of {self._subject_phrase(theme)}"
+        if self.target_is_group:
+            verb = "belongs to" if self.k == 1 else "belong to"
+            return f"{head} {verb} the {self.target_label}."
+        verb = "goes with" if self.k == 1 else "go with"
+        return f"{head} {verb} {self.target_label}."
+
+
 # --- Cognitive complexity --------------------------------------------------
 # A *structural* read of how much work a clue is to parse and apply — independent
 # of where it lands in a solve. It rises with case analysis (disjunction /
@@ -1244,6 +1330,8 @@ def clue_cost(clue: Clue) -> float:
         return 2.2
     if isinstance(clue, GroupCount):
         return 2.6 + 0.3 * len(clue.anchors)
+    if isinstance(clue, SetCount):  # cardinality over a union of set instances
+        return 3.0 + 0.4 * len(clue.subjects) + (0.0 if clue.target_is_group else 0.4)
     if isinstance(clue, GroupOrder):
         return 3.0
     if isinstance(clue, (GroupGroupCount, GroupGroupCompare)):

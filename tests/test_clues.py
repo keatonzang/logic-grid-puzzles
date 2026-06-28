@@ -492,6 +492,48 @@ def test_group_subset_propagation_sound_and_three_valued():
     bd2 = Board(g)
     bd2.set(2, 0, 1, 2, Y)          # a Hill ward member IS a Smith
     assert gs.eval(bd2) == N
+
+
+# --- SetCount: general cardinality over a union of set instances --------------
+
+def test_set_count_holds_and_text():
+    from logicgrid.clues import SetCount
+
+    g = _two_partition_theme()
+    hill = ("group", 2, _HILL, "Hill Ward")   # ward items w0,w1 -> entities 0,1
+    joiner = [(1, 0), (1, 1)]                  # both are Joiners under _TWO_X
+    assert SetCount([hill], joiner, "Joiners' Guild", True, 2, "exactly").holds(_TWO_X)
+    assert not SetCount([hill], joiner, "Joiners' Guild", True, 1, "exactly").holds(_TWO_X)
+    assert SetCount([hill], joiner, "Joiners' Guild", True, 2, "atleast").holds(_TWO_X)
+    assert not SetCount([hill], joiner, "Joiners' Guild", True, 1, "atmost").holds(_TWO_X)
+    # single-group phrasing ("N members of group M")
+    assert SetCount([hill], joiner, "Joiners' Guild", True, 2, "exactly").text(g) == \
+        "Exactly two members of the Hill Ward belong to the Joiners' Guild."
+    # mixed-union phrasing + item-set target (singular verb for K==1)
+    union = SetCount([hill, ("entity", (0, 3))], [(1, 0), (1, 2)], "g0 or g2", False, 1, "atleast")
+    assert union.text(g) == \
+        "At least one of the members of the Hill Ward and D goes with g0 or g2."
+    assert union.holds(_TWO_X)  # only entity 0 (g0) qualifies -> at least one ✓
+
+
+def test_set_count_propagation_forces_and_bounds():
+    from logicgrid.clues import SetCount
+    from logicgrid.deduce import _prop_set_count, Board, Y, N
+    from logicgrid.model import Contradiction
+
+    g = _two_partition_theme()
+    subs = [("entity", (0, 0)), ("entity", (0, 1))]  # named -> in-subject is determinate
+    # At most ONE of {entity0, entity1} is g0; entity0 IS g0 -> entity1 forced out.
+    bd = Board(g)
+    bd.set(0, 0, 1, 0, Y)
+    _prop_set_count(bd, SetCount(subs, [(1, 0)], "g0", False, 1, "atmost"))
+    assert bd.get(0, 1, 1, 0) == N
+    # Impossible count -> Contradiction (need >=2 in g0, but neither can be).
+    bd2 = Board(g)
+    bd2.set(0, 0, 1, 0, N)
+    bd2.set(0, 1, 1, 0, N)
+    with pytest.raises(Contradiction):
+        _prop_set_count(bd2, SetCount(subs, [(1, 0)], "g0", False, 2, "atleast"))
     # _GROUP_X: Ann->Dog(Furred), Bo->Eel(Finned), Cy->Fox(Furred). Furred has 2 of 3.
     anchors = [(0, 0), (0, 1), (0, 2)]
     assert GroupCount(anchors, 1, "Furred", _FURRED, 2, "exactly").holds(_GROUP_X)

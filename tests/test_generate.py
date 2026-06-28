@@ -155,6 +155,52 @@ def test_group_universal_disjunctions_generate():
     assert all(c.holds(X) for c in pool)
 
 
+def test_set_count_clues_generate_unions_and_subsets():
+    # SetCount: cardinality over a union of set instances. Every generated one is
+    # true under X, includes >= 1 group subject, and has a strictly-interior K.
+    from logicgrid.clues import SetCount
+    from logicgrid.model import Category, Theme
+
+    two = Theme("KG", "", [
+        Category("Owner", ["A", "B", "C", "D"]),
+        Category("Guild", ["g0", "g1", "g2", "g3"], group_noun="guild",
+                 groups=(("Joiner", ("g0", "g1")), ("Smith", ("g2", "g3")))),
+        Category("Ward", ["w0", "w1", "w2", "w3"], group_noun="ward",
+                 groups=(("Hill", ("w0", "w1")), ("Vale", ("w2", "w3")))),
+    ], entity_noun="home")
+
+    seen = 0
+    saw_union = False
+    for seed in range(40):
+        rng = random.Random(seed)
+        X = random_solution(two, rng)
+        pool = build_clue_pool(two, X, rng, enable_groups=True, enable_set_count=True)
+        for c in pool:
+            if not isinstance(c, SetCount):
+                continue
+            seen += 1
+            assert c.holds(X)
+            assert any(s[0] == "group" for s in c.subjects)  # always >= 1 group
+            size = len(c.subject_entities(X))
+            assert 1 <= c.k <= size - 1                       # strictly interior
+            if len(c.subjects) > 1:
+                saw_union = True
+    assert seen, "expected SetCount clues to be generated"
+    assert saw_union, "expected at least one mixed-union SetCount"
+
+
+def test_set_count_needs_the_flag_and_a_grouping(plain_theme):
+    from logicgrid.clues import SetCount
+
+    rng = random.Random(2)
+    X = random_solution(plain_theme, rng)
+    off = build_clue_pool(plain_theme, X, rng)  # flag default off
+    assert not any(isinstance(c, SetCount) for c in off)
+    # flag on but no grouping in the theme -> still none
+    on = build_clue_pool(plain_theme, X, rng, enable_set_count=True)
+    assert not any(isinstance(c, SetCount) for c in on)
+
+
 def test_group_instances_need_a_grouping():
     # No grouping -> no group-instance clues even with the flag on.
     from logicgrid.clues import Compound

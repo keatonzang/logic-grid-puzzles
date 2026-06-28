@@ -435,6 +435,84 @@ def _prop_group_count(board, clue) -> int:  # how many anchors fall in the group
     return changed
 
 
+# --- General set-composition cardinality (SetCount) -------------------------
+def _set_subject_cells(clue):
+    """The (cat, item) cells whose link to an entity's subject row witnesses that
+    the entity is in the subject union (flattened across selectors)."""
+    cells = []
+    for sub in clue.subjects:
+        if sub[0] == "entity":
+            cells.append(sub[1])
+        else:  # ("group", cat, members, label)
+            cells.extend((sub[1], m) for m in sub[2])
+    return cells
+
+
+def _row_or(board, e, cells):
+    """Three-valued OR over `cells` read from subject row `e`: is entity `e` linked
+    to at least one of them? Y if any link, N if all ruled out, else U."""
+    vals = [board.get(0, e, c, i) for c, i in cells]
+    if Y in vals:
+        return Y
+    return N if all(v == N for v in vals) else U
+
+
+def _row_or_force_true(board, e, cells):  # the OR must hold: unit-propagate the last open disjunct
+    vals = [board.get(0, e, c, i) for c, i in cells]
+    if Y in vals:
+        return 0
+    open_ = [(c, i) for (c, i), v in zip(cells, vals) if v == U]
+    if len(open_) == 1:
+        c, i = open_[0]
+        return _s(board, (0, e), (c, i), Y)
+    return 0
+
+
+def _row_or_force_false(board, e, cells):  # the OR must fail: every disjunct ruled out
+    return sum(_s(board, (0, e), (c, i), N) for c, i in cells if board.get(0, e, c, i) != N)
+
+
+def _prop_set_count(board, clue) -> int:
+    """Cardinality over a union of set instances (see clues.SetCount). Sound but
+    partial: bound-check the count of contributing entities, and once the count is
+    forced to its limit, push the determinate side of each undecided entity's
+    (in-subject AND hits-target) conjunction."""
+    subj_cells = _set_subject_cells(clue)
+    tgt_cells = list(clue.target_cells)
+    k, mode = clue.k, clue.mode
+
+    in_s = [_row_or(board, e, subj_cells) for e in range(board.n)]
+    sat = [_row_or(board, e, tgt_cells) for e in range(board.n)]
+    contrib = [
+        N if (in_s[e] == N or sat[e] == N) else (Y if in_s[e] == Y and sat[e] == Y else U)
+        for e in range(board.n)
+    ]
+    must = contrib.count(Y)
+    can = must + contrib.count(U)
+    if mode in ("atleast", "exactly") and can < k:
+        raise Contradiction("set-count can't reach the minimum")
+    if mode in ("atmost", "exactly") and must > k:
+        raise Contradiction("set-count exceeds the maximum")
+
+    force_true = mode in ("atleast", "exactly") and can == k   # every maybe must contribute
+    force_false = mode in ("atmost", "exactly") and must == k   # quota met -> no more may
+    if not (force_true or force_false):
+        return 0
+    changed = 0
+    for e in range(board.n):
+        if contrib[e] != U:
+            continue
+        if force_true:  # need in-subject AND hits-target -> drive both ORs true
+            changed += _row_or_force_true(board, e, subj_cells)
+            changed += _row_or_force_true(board, e, tgt_cells)
+        else:  # force_false: kill the conjunction via whichever side the other pins
+            if in_s[e] == Y:
+                changed += _row_or_force_false(board, e, tgt_cells)
+            elif sat[e] == Y:
+                changed += _row_or_force_false(board, e, subj_cells)
+    return changed
+
+
 def _prop_group_order(board, clue) -> int:  # every `higher`-guild entity outranks every `lower` one
     g, o = clue.gcat, clue.ocat
     hi, lo = clue.higher, clue.lower
@@ -542,6 +620,7 @@ _PROPAGATORS = {
     "DiffGroup": _prop_diff_group,
     "NotInGroup": _prop_not_in_group,
     "GroupCount": _prop_group_count,
+    "SetCount": _prop_set_count,
     "GroupOrder": _prop_group_order,
     "GroupGroupCount": _prop_group_group_count,
     "GroupGroupCompare": _prop_group_group_compare,
