@@ -443,9 +443,9 @@ function fitItemLabelBoxes() {
     // its true length regardless of the current band height.
     let h = 0;
     table.querySelectorAll("th.col span").forEach((sp) => { h = Math.max(h, sp.scrollHeight); });
-    // + ~16px above the label and ~6px below it (the th's bottom padding), so the
-    // rotated instance labels aren't cramped against the band's edges.
-    if (h) table.style.setProperty("--header-h", Math.min(HEADER, Math.ceil(h) + 22) + "px");
+    // + ~24px above the label and ~4px below it (the th's bottom padding), so the
+    // rotated instance labels sit lower in the band rather than looking centred.
+    if (h) table.style.setProperty("--header-h", Math.min(HEADER, Math.ceil(h) + 28) + "px");
   });
 }
 
