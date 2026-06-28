@@ -321,7 +321,7 @@ def _random_groups(partition: tuple, items: list, rng: random.Random,
     for label, size in zip(chosen, sizes):
         out.append((label, tuple(sorted(pool[pos:pos + size]))))
         pos += size
-    out.sort(key=lambda lm: labels.index(lm[0]))  # canonical label order
+    out.sort(key=lambda lm: lm[0])  # alphabetical by group label (stable display)
     return tuple(out)
 
 

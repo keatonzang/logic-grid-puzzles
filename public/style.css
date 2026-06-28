@@ -291,16 +291,38 @@ table.staircase .blk-top { border-top: 2px solid var(--muted); }
 table.staircase .grp-left, table.grid .grp-left { border-left: 1px dashed var(--muted); }
 table.staircase .grp-top, table.grid .grp-top { border-top: 1px dashed var(--muted); }
 
-/* Labelled, colour-coded guild band over a grouped category's items (column
-   axis only). Ungrouped categories get a plain filler so no colour bleeds. */
-th.sc-guild, th.g-band {
-  font-size: .72rem;
-  font-weight: 600;
-  line-height: 1.1;
-  color: var(--ink);
-  padding: .2rem .15rem;
+/* Labelled, colour-coded guild band over a grouped category's items, on both the
+   top (horizontal) and left (vertical) axes. The label lives in an absolutely
+   positioned .gl box and is wrapped + shrink-to-fit (--glfs set by JS), so its
+   length never sizes the cell — the data tiles stay square. Ungrouped categories
+   get a plain filler so no colour bleeds under them. */
+th.sc-guild, th.g-band, th.sc-rowguild {
+  position: relative;
+  padding: 0;
   background: color-mix(in srgb, var(--gcolor) 22%, var(--panel-2));
+}
+th.sc-guild, th.g-band {        /* top band: short, wide; coloured line below */
+  height: 1.7rem;
   border-bottom: 2px solid var(--gcolor);
+}
+th.sc-rowguild {                /* left band: tall; coloured line beside the items */
+  border-right: 2px solid var(--gcolor);
+}
+col.sc-rowguild-col { width: 2.9rem; }
+.gl {                           /* same wrap + shrink-to-fit box on both axes */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  text-align: center;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  font-size: var(--glfs, .68rem);
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .grid-block {
@@ -510,11 +532,10 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
   table.grid th, table.grid td,
   table.staircase th, table.staircase td { border-color: #000; }
   th.col span, th.row, .grid-block h4, .grid-block h4 b,
-  th.sc-colcat, th.sc-rowcat span,
-  th.sc-guild, th.g-band { color: #000 !important; }
+  th.sc-colcat, th.sc-rowcat span, .gl { color: #000 !important; }
   table.staircase .blk-left, table.staircase .blk-top,
   .grp-left, .grp-top { border-color: #000 !important; }
-  th.sc-guild, th.g-band { background: #eee !important; border-color: #000 !important; }
+  th.sc-guild, th.g-band, th.sc-rowguild { background: #eee !important; border-color: #000 !important; }
   td.cell { background: #fff !important; color: transparent !important; }
 
   /* answer key starts a fresh page so it can be torn off */

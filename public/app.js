@@ -2,8 +2,9 @@
 
 const $ = (id) => document.getElementById(id);
 const STATES = ["", "=", "×"]; // 0 blank, 1 link (=), 2 no-link (×)
-// Per-group accent colours for the Groups panel (column headers + legend dots).
-const GROUP_COLORS = ["#ffc46e", "#6ea8fe", "#51cf66", "#c9a7ff", "#ff8fab"];
+// Per-group accent colours, ordered by hue (amber → green → blue → violet →
+// pink) so alphabetically-sorted groups pick up an even spread across the wheel.
+const GROUP_COLORS = ["#ffc46e", "#51cf66", "#6ea8fe", "#c9a7ff", "#ff8fab"];
 const DESKTOP = window.matchMedia("(min-width: 821px)"); // staircase vs pairwise
 
 let puzzle = null;        // current payload
@@ -406,12 +407,19 @@ function renderBoard() {
   fitBoard();
 }
 
+// Fit the board to the viewport: size the cells (desktop), then shrink any guild
+// labels that don't fit their now-known boxes. Both run on render and resize.
+function fitBoard() {
+  fitCells();
+  fitGuildLabels();
+}
+
 // Shrink the desktop staircase's cells so the whole grid fits the available
 // width — the full grid is always visible, no horizontal scrollbar. Cells are
 // capped at the default size (never enlarged) and floored so they stay tappable.
 // Overhead (row labels, category labels, borders) is measured rather than
 // estimated, so the fit is exact.
-function fitBoard() {
+function fitCells() {
   if (!puzzle || !DESKTOP.matches) return;
   const host = $("grids");
   const table = host.querySelector("table.staircase");
@@ -427,6 +435,24 @@ function fitBoard() {
   const overhead = natural - cols * DEFAULT; // labels + all borders (constant)
   const cell = Math.max(MIN, Math.min(DEFAULT, (avail - overhead) / cols));
   table.style.setProperty("--cell", cell + "px");
+}
+
+// Shrink each guild-band label until it fits its (fixed) box — long names wrap
+// (top band) or scale down (left band) instead of stretching the cell. Shrinks
+// only, never enlarges, so type stays even across tabs.
+function fitGuildLabels() {
+  const MIN = 7; // px floor; smaller is unreadable and the full name is on hover
+  document.querySelectorAll(".gl").forEach((gl) => {
+    gl.style.removeProperty("--glfs");                       // reset to CSS base
+    let size = parseFloat(getComputedStyle(gl).fontSize);
+    let guard = 24;
+    const overflows = () =>
+      gl.scrollHeight > gl.clientHeight + 0.5 || gl.scrollWidth > gl.clientWidth + 0.5;
+    while (overflows() && size > MIN && guard-- > 0) {
+      size -= 0.5;
+      gl.style.setProperty("--glfs", size + "px");
+    }
+  });
 }
 
 function cell(tag, text, cls) {
@@ -450,6 +476,21 @@ function vlabel(th, text) {
   return th;
 }
 
+// A guild-band label cell. The label lives in an absolutely-positioned `.gl` box
+// that wraps and shrink-to-fits (see fitGuildLabels), so its length never sizes
+// the cell — the data tiles stay square on both the top and left bands. Same
+// treatment on either axis; full text stays available via the title tooltip.
+function guildCell(cls, label, color) {
+  const th = cell("th", "", cls);
+  th.style.setProperty("--gcolor", color);
+  th.title = label;
+  const gl = document.createElement("span");
+  gl.className = "gl";
+  gl.textContent = label;
+  th.appendChild(gl);
+  return th;
+}
+
 function dataCell(key, a, b, extra) {
   const td = cell("td", "", "cell" + (extra ? " " + extra : ""));
   td.dataset.key = key;
@@ -468,16 +509,19 @@ function renderGrid(i, j, cats) {
   title.innerHTML = `<b>${cats[i].name}</b> × <b>${cats[j].name}</b>`;
   block.appendChild(title);
 
-  // Items reorder so each group is contiguous; sub-dividers mark the splits on
-  // both axes. Guild labels show on the column band only (a rotated row label
-  // would stretch cells out of square).
+  // Items reorder so each group is contiguous; sub-dividers mark the splits and
+  // a labelled guild band sits over each grouped axis (top + left). Labels are
+  // clipped/shrink-to-fit so they never stretch a tile out of square.
   const colCells = axisCells(j);
   const rowCells = axisCells(i);
   const colSegs = groupSegments(j);
+  const rowSegs = groupSegments(i);
+  const leftCols = rowSegs ? 2 : 1;  // row-label (+ guild-label) column(s)
 
   const table = document.createElement("table");
   table.className = "grid";
   const colgroup = document.createElement("colgroup");
+  if (rowSegs) colgroup.appendChild(col("sc-rowguild-col"));
   colgroup.appendChild(col("rowlab-col"));
   colCells.forEach(() => colgroup.appendChild(col("cell-col")));
   table.appendChild(colgroup);
@@ -485,25 +529,36 @@ function renderGrid(i, j, cats) {
   // guild band over the column category (its members are now contiguous)
   if (colSegs) {
     const gh = document.createElement("tr");
-    gh.appendChild(cell("th", "", "corner"));
+    const c0 = cell("th", "", "corner");
+    c0.colSpan = leftCols;
+    gh.appendChild(c0);
     colSegs.forEach((seg, gi) => {
-      const th = cell("th", seg.label, "g-band" + (gi > 0 ? " grp-left" : ""));
+      const th = guildCell("g-band" + (gi > 0 ? " grp-left" : ""), seg.label, seg.color);
       th.colSpan = seg.size;
-      th.style.setProperty("--gcolor", seg.color);
       gh.appendChild(th);
     });
     table.appendChild(gh);
   }
 
   const head = document.createElement("tr");
-  head.appendChild(cell("th", "", "corner"));
+  const c1 = cell("th", "", "corner");
+  c1.colSpan = leftCols;
+  head.appendChild(c1);
   colCells.forEach(({ b, grpEdge }) =>
     head.appendChild(vlabel(cell("th", "", "col" + (grpEdge ? " grp-left" : "")), cats[j].items[b]))
   );
   table.appendChild(head);
 
-  rowCells.forEach(({ b: a, grpEdge: grpEdgeI }) => {
+  rowCells.forEach(({ b: a, pos: posI, grpEdge: grpEdgeI }) => {
     const tr = document.createElement("tr");
+    if (rowSegs) {  // left-axis guild band
+      const seg = rowSegs.find((s) => s.start === posI);
+      if (seg) {
+        const gth = guildCell("sc-rowguild" + (seg.start > 0 ? " grp-top" : ""), seg.label, seg.color);
+        gth.rowSpan = seg.size;
+        tr.appendChild(gth);
+      }
+    }
     const rh = cell("th", cats[i].items[a], "row" + (grpEdgeI ? " grp-top" : ""));
     rh.title = cats[i].items[a];
     tr.appendChild(rh);
@@ -532,18 +587,21 @@ function renderStaircase(cats) {
 
   // Thick category dividers sit BETWEEN blocks, not before the first one (the
   // row-label column / first row already separates it). Grouped categories get a
-  // labelled guild band over their (now contiguous) items and thin sub-dividers
-  // between groups on both axes. Guild *labels* show on the column band only —
-  // every grouped category appears as a column here, and a rotated row-axis label
-  // would stretch cells out of square — the row axis just gets the sub-dividers.
+  // labelled, colour-coded guild band over their (now contiguous) items plus thin
+  // sub-dividers between groups — on BOTH axes (top band + left band). Labels are
+  // clipped/shrink-to-fit (see guildCell + fitGuildLabels), so they never push a
+  // cell out of square.
   const firstCol = colCats[0];
   const anyColGrouped = colCats.some((j) => catGroups(j));
+  const anyRowGrouped = rowCats.some((i) => catGroups(i));
+  const leftCols = anyRowGrouped ? 3 : 2;  // cat-label (+ guild) + row-label
 
   const table = document.createElement("table");
   table.className = "staircase";
 
   const cg = document.createElement("colgroup");
   cg.appendChild(col("sc-catcol"));
+  if (anyRowGrouped) cg.appendChild(col("sc-rowguild-col"));
   cg.appendChild(col("sc-rowlab-col"));
   colCats.forEach(() => cats[0].items.forEach(() => cg.appendChild(col("cell-col"))));
   table.appendChild(cg);
@@ -551,7 +609,7 @@ function renderStaircase(cats) {
   // header row 1: column-category names
   const h1 = document.createElement("tr");
   const corner = cell("th", "", "sc-corner");
-  corner.colSpan = 2;
+  corner.colSpan = leftCols;
   corner.rowSpan = anyColGrouped ? 3 : 2;
   h1.appendChild(corner);
   for (const j of colCats) {
@@ -575,9 +633,8 @@ function renderStaircase(cats) {
         continue;
       }
       segs.forEach((seg, gi) => {
-        const th = cell("th", seg.label, "sc-guild" + (gi === 0 ? catEdge : " grp-left"));
+        const th = guildCell("sc-guild" + (gi === 0 ? catEdge : " grp-left"), seg.label, seg.color);
         th.colSpan = seg.size;
-        th.style.setProperty("--gcolor", seg.color);
         hg.appendChild(th);
       });
     }
@@ -596,13 +653,24 @@ function renderStaircase(cats) {
 
   // body
   for (const i of rowCats) {
+    const rowSegs = groupSegments(i);
     axisCells(i).forEach(({ b: a, pos: posI, grpEdge: grpEdgeI }) => {
       const tr = document.createElement("tr");
       const horizTop = posI === 0 ? (i > 0 ? " blk-top" : "") : (grpEdgeI ? " grp-top" : "");
       if (posI === 0) {
         const catTh = vlabel(cell("th", "", "sc-rowcat" + (i > 0 ? " blk-top" : "")), cats[i].name);
         catTh.rowSpan = N;
+        if (anyRowGrouped && !rowSegs) catTh.colSpan = 2;  // span the empty guild slot
         tr.appendChild(catTh);
+      }
+      if (rowSegs) {  // left-axis guild band: a rotated label per group
+        const seg = rowSegs.find((s) => s.start === posI);
+        if (seg) {
+          const gEdge = seg.start === 0 ? (i > 0 ? " blk-top" : "") : " grp-top";
+          const gth = guildCell("sc-rowguild" + gEdge, seg.label, seg.color);
+          gth.rowSpan = seg.size;
+          tr.appendChild(gth);
+        }
       }
       const rh = cell("th", cats[i].items[a], "row" + horizTop);
       rh.title = cats[i].items[a];
