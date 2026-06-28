@@ -477,16 +477,23 @@ function vlabel(th, text) {
 }
 
 // A guild-band label cell. The label lives in an absolutely-positioned `.gl` box
-// that wraps and shrink-to-fits (see fitGuildLabels), so its length never sizes
-// the cell — the data tiles stay square on both the top and left bands. Same
-// treatment on either axis; full text stays available via the title tooltip.
-function guildCell(cls, label, color) {
+// that wraps (at word boundaries only) and shrink-to-fits (see fitGuildLabels),
+// so its length never sizes the cell — the data tiles stay square. `vertical`
+// rotates the text for the left band so it matches the rotated row-category
+// label; the top band stays horizontal. Full text stays available on hover.
+function guildCell(cls, label, color, vertical) {
   const th = cell("th", "", cls);
   th.style.setProperty("--gcolor", color);
   th.title = label;
   const gl = document.createElement("span");
   gl.className = "gl";
-  gl.textContent = label;
+  if (vertical) {
+    const inner = document.createElement("span");
+    inner.textContent = label;
+    gl.appendChild(inner);
+  } else {
+    gl.textContent = label;
+  }
   th.appendChild(gl);
   return th;
 }
@@ -554,7 +561,7 @@ function renderGrid(i, j, cats) {
     if (rowSegs) {  // left-axis guild band
       const seg = rowSegs.find((s) => s.start === posI);
       if (seg) {
-        const gth = guildCell("sc-rowguild" + (seg.start > 0 ? " grp-top" : ""), seg.label, seg.color);
+        const gth = guildCell("sc-rowguild" + (seg.start > 0 ? " grp-top" : ""), seg.label, seg.color, true);
         gth.rowSpan = seg.size;
         tr.appendChild(gth);
       }
@@ -615,23 +622,20 @@ function renderStaircase(cats) {
   for (const j of colCats) {
     const th = cell("th", cats[j].name, "sc-colcat" + (j !== firstCol ? " blk-left" : ""));
     th.colSpan = N;
+    if (anyColGrouped && !catGroups(j)) th.rowSpan = 2;  // centre over the (absent) band row
     h1.appendChild(th);
   }
   table.appendChild(h1);
 
-  // header row 1b: guild band — a labelled tinted cell per group, plain filler
-  // (no colour) for ungrouped categories so nothing bleeds under them.
+  // header row 1b: guild band — a labelled tinted cell per group. Ungrouped
+  // categories skip it (their name cell rowspans down into this row instead), so
+  // there's no empty filler and no colour bleeds under them.
   if (anyColGrouped) {
     const hg = document.createElement("tr");
     for (const j of colCats) {
       const segs = groupSegments(j);
+      if (!segs) continue;
       const catEdge = j !== firstCol ? " blk-left" : "";
-      if (!segs) {
-        const fill = cell("th", "", "sc-colcat sc-guildfill" + catEdge);
-        fill.colSpan = N;
-        hg.appendChild(fill);
-        continue;
-      }
       segs.forEach((seg, gi) => {
         const th = guildCell("sc-guild" + (gi === 0 ? catEdge : " grp-left"), seg.label, seg.color);
         th.colSpan = seg.size;
@@ -667,7 +671,7 @@ function renderStaircase(cats) {
         const seg = rowSegs.find((s) => s.start === posI);
         if (seg) {
           const gEdge = seg.start === 0 ? (i > 0 ? " blk-top" : "") : " grp-top";
-          const gth = guildCell("sc-rowguild" + gEdge, seg.label, seg.color);
+          const gth = guildCell("sc-rowguild" + gEdge, seg.label, seg.color, true);
           gth.rowSpan = seg.size;
           tr.appendChild(gth);
         }

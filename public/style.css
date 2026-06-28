@@ -308,8 +308,8 @@ th.sc-guild, th.g-band {        /* top band: short, wide; coloured line below */
 th.sc-rowguild {                /* left band: tall; coloured line beside the items */
   border-right: 2px solid var(--gcolor);
 }
-col.sc-rowguild-col { width: 2.9rem; }
-.gl {                           /* same wrap + shrink-to-fit box on both axes */
+col.sc-rowguild-col { width: 1.75rem; }
+.gl {                           /* clipped, centred, shrink-to-fit label box */
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -319,7 +319,18 @@ col.sc-rowguild-col { width: 2.9rem; }
   padding: 0 2px;
   text-align: center;
   line-height: 1.05;
-  overflow-wrap: anywhere;
+  white-space: normal;
+  overflow-wrap: normal;        /* wrap only at word boundaries — never mid-word */
+  word-break: normal;
+  font-size: var(--glfs, .68rem);
+  font-weight: 600;
+  color: var(--ink);
+}
+th.sc-rowguild > .gl > span {   /* left band: rotated to match the row-category label */
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-align: center;
+  line-height: 1.05;
   font-size: var(--glfs, .68rem);
   font-weight: 600;
   color: var(--ink);
@@ -532,7 +543,7 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
   table.grid th, table.grid td,
   table.staircase th, table.staircase td { border-color: #000; }
   th.col span, th.row, .grid-block h4, .grid-block h4 b,
-  th.sc-colcat, th.sc-rowcat span, .gl { color: #000 !important; }
+  th.sc-colcat, th.sc-rowcat span, .gl, .gl > span { color: #000 !important; }
   table.staircase .blk-left, table.staircase .blk-top,
   .grp-left, .grp-top { border-color: #000 !important; }
   th.sc-guild, th.g-band, th.sc-rowguild { background: #eee !important; border-color: #000 !important; }
