@@ -243,13 +243,15 @@ def test_two_numerics_payload_reproducible():
 
 # --- Hierarchy / groups ------------------------------------------------------
 
-def test_kings_guild_has_a_group_def():
+def test_kings_guild_has_group_defs():
     spec = THEMES["kings_guild"]
-    cat_name, noun, groups = spec.group_def
-    assert cat_name == "Trade" and noun == "guild"
-    # every trade is in exactly one guild
-    grouped = [it for _, items in groups for it in items]
-    assert sorted(grouped) == sorted(dict(spec.attributes)["Trade"])
+    by_cat = {gd[0]: gd for gd in spec.group_defs}
+    assert set(by_cat) == {"Trade", "Quarter"}  # two partitions
+    for cat_name, (_, noun, groups) in by_cat.items():
+        # every item of the grouped category is in exactly one group
+        grouped = [it for _, items in groups for it in items]
+        assert sorted(grouped) == sorted(dict(spec.attributes)[cat_name])
+    assert by_cat["Trade"][1] == "guild" and by_cat["Quarter"][1] == "ward"
 
 
 def test_groups_roll_is_optional_and_gated():

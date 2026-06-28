@@ -19,6 +19,8 @@ from .clues import (
     Exactly,
     ExactlyKLinks,
     GroupCount,
+    GroupGroupCompare,
+    GroupGroupCount,
     GroupMatch,
     GroupOrder,
     Greater,
@@ -79,6 +81,7 @@ def build_clue_pool(
     max_exactly: int = 20,
     max_conditional: int = 14,
     max_groups: int = 24,
+    max_cross: int = 6,
     enable_negatives: bool = True,
     enable_among: bool = True,
     enable_either: bool = True,
@@ -130,6 +133,7 @@ def build_clue_pool(
     implies: list = []
     iff: list = []
     groups: list = []
+    cross: list = []  # cross-group clues (need two grouped categories)
 
     for c1 in range(k):
         for c2 in range(c1 + 1, k):
@@ -469,6 +473,64 @@ def build_clue_pool(
         rng.shuffle(order_cands)
         groups.extend(order_cands[:2])  # keep it sparse
 
+    # Cross-group clues: when two categories are both grouped, relate the two
+    # hierarchies — counts and comparisons over the cross-tabulation that a single
+    # partition can't express. Only possible when a second partition is present.
+    if enable_groups:
+        ginfo = {}
+        for cat in range(k):
+            co = theme.categories[cat]
+            if co.has_groups:
+                labs = [lab for lab, _ in co.groups]
+                prts = [tuple(co.items.index(m) for m in mem) for _, mem in co.groups]
+                if len(prts) >= 2:
+                    ginfo[cat] = (labs, prts)
+        gcats = sorted(ginfo)
+        gidx = {c: {x: gi for gi, mem in enumerate(ginfo[c][1]) for x in mem} for c in gcats}
+
+        def grp(cat, e):  # which group of `cat` entity e is in (or None)
+            return gidx[cat].get(X[e][cat])
+
+        for ci in range(len(gcats)):
+            for cj in range(ci + 1, len(gcats)):
+                c1, c2 = gcats[ci], gcats[cj]
+                labs1, prts1 = ginfo[c1]
+                labs2, prts2 = ginfo[c2]
+                # "exactly/at least/at most K members of group A are in group B"
+                cc = []
+                for ga in range(len(prts1)):
+                    for gb in range(len(prts2)):
+                        actual = sum(1 for e in range(n) if grp(c1, e) == ga and grp(c2, e) == gb)
+                        cap = min(len(prts1[ga]), len(prts2[gb]))  # most that could overlap
+                        opts = [("exactly", actual)]
+                        if actual >= 1:
+                            opts.append(("atleast", rng.randint(1, actual)))
+                        if actual <= cap - 1:
+                            opts.append(("atmost", rng.randint(actual, cap - 1)))
+                        mode, kk = rng.choice(opts)
+                        cc.append(GroupGroupCount(c1, prts1[ga], labs1[ga], c2, prts2[gb], labs2[gb], kk, mode))
+                rng.shuffle(cc)
+                cross.extend(cc[:3])
+                # "more members of A than B are in the shared group C" (both directions)
+                cmp = []
+                for (cs, labs_s, prts_s), (cg, labs_g, prts_g) in (
+                    ((c1, labs1, prts1), (c2, labs2, prts2)),
+                    ((c2, labs2, prts2), (c1, labs1, prts1)),
+                ):
+                    for gc in range(len(prts_g)):
+                        for ga in range(len(prts_s)):
+                            for gb in range(len(prts_s)):
+                                if ga == gb:
+                                    continue
+                                ca = sum(1 for e in range(n) if grp(cs, e) == ga and grp(cg, e) == gc)
+                                cb = sum(1 for e in range(n) if grp(cs, e) == gb and grp(cg, e) == gc)
+                                if ca > cb:
+                                    cmp.append(GroupGroupCompare(
+                                        cs, prts_s[ga], labs_s[ga], prts_s[gb], labs_s[gb],
+                                        cg, prts_g[gc], labs_g[gc]))
+                rng.shuffle(cmp)
+                cross.extend(cmp[:2])
+
     rng.shuffle(negatives)
     rng.shuffle(comparisons)
     rng.shuffle(among)
@@ -482,6 +544,7 @@ def build_clue_pool(
     rng.shuffle(implies)
     rng.shuffle(iff)
     rng.shuffle(groups)
+    rng.shuffle(cross)
     return (
         positives
         + negatives[:max_negatives]
@@ -497,6 +560,7 @@ def build_clue_pool(
         + implies[:max_conditional]
         + iff[:max_conditional]
         + groups[:max_groups]
+        + cross[:max_cross]
     )
 
 
@@ -542,7 +606,10 @@ _MINIMIZE_NODE_BUDGET = 20000
 
 # Clue types that name a hierarchy/group; minimize keeps these to the end of the
 # removal order so they survive into the minimal set more often (see minimize).
-_GROUP_CLUES = {"InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount", "GroupOrder"}
+_GROUP_CLUES = {
+    "InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount", "GroupOrder",
+    "GroupGroupCount", "GroupGroupCompare",
+}
 
 
 def minimize(theme: Theme, clues: list, rng: random.Random) -> list:

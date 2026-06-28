@@ -18,6 +18,8 @@ from logicgrid.clues import (
     Exactly,
     ExactlyKLinks,
     GroupCount,
+    GroupGroupCompare,
+    GroupGroupCount,
     GroupOrder,
     Iff,
     Implies,
@@ -355,6 +357,51 @@ def test_group_order_holds_and_text():
     assert GroupOrder(1, 2, (0, 2), (1,), "Furred", "Finned").removal_class == 2
     assert GroupOrder(1, 2, (0, 2), (1,), "Furred", "Finned").text(g) == \
         "Everyone in the Furred ranks higher in score than everyone in the Finned."
+
+
+def _two_partition_theme():
+    # Trade grouped (Guild G={t0,t1}/H={t2,t3}); Quarter grouped (Ward W={q0,q1}/E={q2,q3})
+    from logicgrid.model import Category, Theme
+
+    return Theme("T", "", [
+        Category("Owner", ["A", "B", "C", "D"]),
+        Category("Trade", ["t0", "t1", "t2", "t3"], group_noun="guild",
+                 groups=(("G", ("t0", "t1")), ("H", ("t2", "t3")))),
+        Category("Quarter", ["q0", "q1", "q2", "q3"], group_noun="ward",
+                 groups=(("W", ("q0", "q1")), ("E", ("q2", "q3")))),
+    ], entity_noun="artisan")
+
+
+# X: e0 t0/q0, e1 t1/q1, e2 t2/q2, e3 t3/q3  -> G={e0,e1} all in W; H={e2,e3} all in E
+_TWO_X = [[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3]]
+
+
+def test_group_group_count_holds_and_text():
+    g = _two_partition_theme()
+    G, H, W, E = (0, 1), (2, 3), (0, 1), (2, 3)
+    # G∩W = {e0,e1} = 2 ; G∩E = 0
+    assert GroupGroupCount(1, G, "G", 2, W, "W", 2, "exactly").holds(_TWO_X)
+    assert GroupGroupCount(1, G, "G", 2, E, "E", 0, "exactly").holds(_TWO_X)
+    assert GroupGroupCount(1, G, "G", 2, W, "W", 1, "atleast").holds(_TWO_X)
+    assert not GroupGroupCount(1, G, "G", 2, W, "W", 1, "atmost").holds(_TWO_X)
+    assert GroupGroupCount(1, G, "G", 2, W, "W", 2, "exactly").removal_class == 2
+    assert GroupGroupCount(1, G, "Guild G", 2, W, "Ward W", 2, "exactly").text(g) == \
+        "Exactly two members of the Guild G are in the Ward W."
+    assert GroupGroupCount(1, G, "Guild G", 2, W, "Ward W", 1, "atleast").text(g) == \
+        "At least one member of the Guild G is in the Ward W."
+    assert GroupGroupCount(1, G, "Guild G", 2, E, "Ward E", 0, "exactly").text(g) == \
+        "No members of the Guild G are in the Ward E."
+
+
+def test_group_group_compare_holds_and_text():
+    g = _two_partition_theme()
+    G, H, W = (0, 1), (2, 3), (0, 1)
+    # G∩W = 2, H∩W = 0  -> more G than H in W
+    assert GroupGroupCompare(1, G, "G", H, "H", 2, W, "W").holds(_TWO_X)
+    assert not GroupGroupCompare(1, H, "H", G, "G", 2, W, "W").holds(_TWO_X)  # reverse false
+    assert GroupGroupCompare(1, G, "G", H, "H", 2, W, "W").removal_class == 2
+    assert GroupGroupCompare(1, G, "Guild G", H, "Guild H", 2, W, "Ward W").text(g) == \
+        "More members of the Guild G are in the Ward W than members of the Guild H."
 
 
 # --- "one of N" disjunctions over option *terms* (may span categories) -------

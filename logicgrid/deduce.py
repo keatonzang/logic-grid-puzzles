@@ -484,6 +484,70 @@ def _prop_group_order(board, clue) -> int:  # every `higher`-guild entity outran
     return changed
 
 
+# --- Cross-group clues (two hierarchies) ------------------------------------
+# Entities are addressed through the subject column (category 0); membership in a
+# group is read with _anchor_group_status on the (0, e) anchor.
+def _force_into(board, e, cat, members) -> int:
+    return sum(_s(board, (0, e), (cat, x), N) for x in range(board.n) if x not in set(members))
+
+
+def _prop_group_group_count(board, clue) -> int:  # |A∩B| across the two hierarchies vs k
+    n = board.n
+    c1, c2 = clue.cat1, clue.cat2
+    A, B = clue.membersA, clue.membersB
+    sa = [_anchor_group_status(board, (0, e), c1, A) for e in range(n)]
+    sb = [_anchor_group_status(board, (0, e), c2, B) for e in range(n)]
+    both_in = [e for e in range(n) if sa[e] == "in" and sb[e] == "in"]
+    poss = [e for e in range(n) if sa[e] != "out" and sb[e] != "out"]  # could be in both
+    lo, hi = len(both_in), len(poss)
+    k, mode = clue.k, clue.mode
+    if mode in ("atleast", "exactly") and hi < k:
+        raise Contradiction("cross-group count can't reach the minimum")
+    if mode in ("atmost", "exactly") and lo > k:
+        raise Contradiction("cross-group count exceeds the maximum")
+    changed = 0
+    if mode in ("atleast", "exactly") and hi == k:  # every candidate must be in both
+        for e in poss:
+            changed += _force_into(board, e, c1, A) + _force_into(board, e, c2, B)
+    if mode in ("atmost", "exactly") and lo == k:  # quota met -> the rest out of A∩B
+        for e in range(n):
+            if e in both_in:
+                continue
+            if sa[e] == "in":  # in A -> must be out of B
+                changed += sum(_s(board, (0, e), (c2, x), N) for x in B)
+            elif sb[e] == "in":  # in B -> must be out of A
+                changed += sum(_s(board, (0, e), (c1, x), N) for x in A)
+    return changed
+
+
+def _prop_group_group_compare(board, clue) -> int:  # |A∩C| > |B∩C|
+    n = board.n
+    c1, c2 = clue.cat1, clue.cat2
+    A, B, C = clue.membersA, clue.membersB, clue.membersC
+    sc = [_anchor_group_status(board, (0, e), c2, C) for e in range(n)]
+    sa = [_anchor_group_status(board, (0, e), c1, A) for e in range(n)]
+    sb = [_anchor_group_status(board, (0, e), c1, B) for e in range(n)]
+    a_lo = sum(1 for e in range(n) if sa[e] == "in" and sc[e] == "in")
+    a_hi = sum(1 for e in range(n) if sa[e] != "out" and sc[e] != "out")
+    b_lo = sum(1 for e in range(n) if sb[e] == "in" and sc[e] == "in")
+    b_hi = sum(1 for e in range(n) if sb[e] != "out" and sc[e] != "out")
+    if a_hi <= b_lo:  # the most A can be still can't beat the least B
+        raise Contradiction("cross-group comparison impossible")
+    changed = 0
+    if a_hi == b_lo + 1:  # tight: A must hit its max and B its min
+        for e in range(n):  # force every candidate into A∩C
+            if sa[e] != "out" and sc[e] != "out" and not (sa[e] == "in" and sc[e] == "in"):
+                changed += _force_into(board, e, c1, A) + _force_into(board, e, c2, C)
+        for e in range(n):  # keep B∩C down to its definite members
+            if sb[e] == "in" and sc[e] == "in":
+                continue
+            if sb[e] == "in" and sc[e] != "out":  # in B -> must be out of C
+                changed += sum(_s(board, (0, e), (c2, x), N) for x in C)
+            elif sc[e] == "in" and sb[e] != "out":  # in C -> must be out of B
+                changed += sum(_s(board, (0, e), (c1, x), N) for x in B)
+    return changed
+
+
 _PROPAGATORS = {
     "Among": _prop_among,
     "EitherOr": _prop_either,
@@ -497,6 +561,8 @@ _PROPAGATORS = {
     "NotInGroup": _prop_not_in_group,
     "GroupCount": _prop_group_count,
     "GroupOrder": _prop_group_order,
+    "GroupGroupCount": _prop_group_group_count,
+    "GroupGroupCompare": _prop_group_group_compare,
     "GroupMatch": _prop_group_match,
     "Greater": _prop_greater,
     "Diff": _prop_diff,

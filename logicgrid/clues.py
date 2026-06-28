@@ -780,3 +780,72 @@ class GroupOrder(Clue):
             f"Everyone in the {self.higher_label} ranks higher in {oname} than "
             f"everyone in the {self.lower_label}."
         )
+
+
+class GroupGroupCount(Clue):
+    """Cross-tabulation count between two hierarchies: how many entities sit in
+    group A of category `cat1` *and* group B of category `cat2` is `== / >= / <= k`
+    — "exactly two members of the Ironmongers' Guild live in the Hill Ward".
+    Needs two grouped categories, so it's the payoff of a second partition."""
+
+    removal_class = 2
+
+    def __init__(self, cat1: int, membersA, labelA: str, cat2: int, membersB, labelB: str, k: int, mode: str):
+        assert mode in ("atleast", "atmost", "exactly")
+        self.cat1, self.cat2 = cat1, cat2
+        self.membersA = tuple(sorted(membersA))
+        self.membersB = tuple(sorted(membersB))
+        self.labelA, self.labelB = labelA, labelB
+        self.k, self.mode = k, mode
+        self.involved = frozenset({cat1, cat2})
+
+    def _count(self, X) -> int:
+        A, B = set(self.membersA), set(self.membersB)
+        return sum(1 for e in range(len(X)) if X[e][self.cat1] in A and X[e][self.cat2] in B)
+
+    def holds(self, X) -> bool:
+        c = self._count(X)
+        if self.mode == "atleast":
+            return c >= self.k
+        if self.mode == "atmost":
+            return c <= self.k
+        return c == self.k
+
+    def text(self, theme: Theme) -> str:
+        if self.k == 0:  # exactly/at-most zero
+            return f"No members of the {self.labelA} are in the {self.labelB}."
+        prefix = {"atleast": "At least", "atmost": "At most", "exactly": "Exactly"}[self.mode]
+        noun, verb = ("member", "is") if self.k == 1 else ("members", "are")
+        return (
+            f"{prefix} {_count_word(self.k)} {noun} of the {self.labelA} "
+            f"{verb} in the {self.labelB}."
+        )
+
+
+class GroupGroupCompare(Clue):
+    """More entities are in (group A of `cat1`) ∩ (group C of `cat2`) than are in
+    (group B of `cat1`) ∩ (the same group C) — "more members of the Ironmongers'
+    Guild live in the Hill Ward than members of the Clothiers' Guild"."""
+
+    removal_class = 2
+
+    def __init__(self, cat1: int, membersA, labelA: str, membersB, labelB: str, cat2: int, membersC, labelC: str):
+        self.cat1, self.cat2 = cat1, cat2
+        self.membersA = tuple(sorted(membersA))
+        self.membersB = tuple(sorted(membersB))
+        self.membersC = tuple(sorted(membersC))
+        self.labelA, self.labelB, self.labelC = labelA, labelB, labelC
+        self.involved = frozenset({cat1, cat2})
+
+    def _count(self, X, members) -> int:
+        m, C = set(members), set(self.membersC)
+        return sum(1 for e in range(len(X)) if X[e][self.cat1] in m and X[e][self.cat2] in C)
+
+    def holds(self, X) -> bool:
+        return self._count(X, self.membersA) > self._count(X, self.membersB)
+
+    def text(self, theme: Theme) -> str:
+        return (
+            f"More members of the {self.labelA} are in the {self.labelC} than "
+            f"members of the {self.labelB}."
+        )

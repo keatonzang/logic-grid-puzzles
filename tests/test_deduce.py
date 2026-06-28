@@ -309,6 +309,73 @@ def test_group_order_propagator_bounds_ranks():
     assert bd.get(1, 1, 2, 0) != N  # Eel still allowed at Lo
 
 
+def _two_partition_theme():
+    # Trade grouped (G={t0,t1}/H={t2,t3}); Quarter grouped (W={q0,q1}/E={q2,q3})
+    return Theme(
+        name="t", description="d", entity_noun="artisan",
+        categories=[
+            Category("Owner", ["A", "B", "C", "D"]),
+            Category("Trade", ["t0", "t1", "t2", "t3"], group_noun="guild",
+                     groups=(("G", ("t0", "t1")), ("H", ("t2", "t3")))),
+            Category("Quarter", ["q0", "q1", "q2", "q3"], group_noun="ward",
+                     groups=(("W", ("q0", "q1")), ("E", ("q2", "q3")))),
+        ],
+    )
+
+
+def test_group_group_count_forces_into_both():
+    from logicgrid.clues import GroupGroupCount
+    from logicgrid.deduce import _prop_group_group_count
+
+    bd = Board(_two_partition_theme())
+    # Pin entities 0,1 into G (Trade) and 2,3 into H, so G = {e0,e1} exactly.
+    for e in (0, 1):
+        bd.set(0, e, 1, 2, N); bd.set(0, e, 1, 3, N)
+    for e in (2, 3):
+        bd.set(0, e, 1, 0, N); bd.set(0, e, 1, 1, N)
+    # "at least 2 members of G are in W"; |G|=2 -> both must be in W (Quarter ward W={0,1})
+    _prop_group_group_count(bd, GroupGroupCount(1, (0, 1), "G", 2, (0, 1), "W", 2, "atleast"))
+    for e in (0, 1):  # forced into W -> not q2, q3
+        assert bd.get(0, e, 2, 2) == N and bd.get(0, e, 2, 3) == N
+
+
+def test_group_group_count_impossible_raises():
+    from logicgrid.clues import GroupGroupCount
+    from logicgrid.deduce import _prop_group_group_count, Contradiction
+
+    bd = Board(_two_partition_theme())
+    for e in (0, 1):  # in G, and out of ward E (q2,q3)
+        bd.set(0, e, 1, 2, N); bd.set(0, e, 1, 3, N)
+        bd.set(0, e, 2, 2, N); bd.set(0, e, 2, 3, N)
+    for e in (2, 3):  # in H -> G is exactly {e0,e1}, none can be in E
+        bd.set(0, e, 1, 0, N); bd.set(0, e, 1, 1, N)
+    try:
+        _prop_group_group_count(bd, GroupGroupCount(1, (0, 1), "G", 2, (2, 3), "E", 1, "atleast"))
+        assert False, "expected Contradiction"
+    except Contradiction:
+        pass
+
+
+def test_group_group_compare_impossible_raises():
+    from logicgrid.clues import GroupGroupCompare
+    from logicgrid.deduce import _prop_group_group_compare, Contradiction
+
+    bd = Board(_two_partition_theme())
+    # Make G have nobody possible in W while H has someone: pin e0,e1 (only G candidates)
+    # out of W, and 2,3 into H. Then |G∩W| max 0, |H∩W| min ... force impossibility of G>H.
+    for e in (0, 1):
+        bd.set(0, e, 1, 2, N); bd.set(0, e, 1, 3, N)  # in G
+        bd.set(0, e, 2, 0, N); bd.set(0, e, 2, 1, N)  # out of W
+    for e in (2, 3):
+        bd.set(0, e, 1, 0, N); bd.set(0, e, 1, 1, N)  # in H
+        bd.set(0, e, 2, 2, N); bd.set(0, e, 2, 3, N)  # in W
+    try:
+        _prop_group_group_compare(bd, GroupGroupCompare(1, (0, 1), "G", (2, 3), "H", 2, (0, 1), "W"))
+        assert False, "expected Contradiction (G can't out-count H in W)"
+    except Contradiction:
+        pass
+
+
 def test_group_clues_stay_sound_and_no_guessing():
     # King's Guild hard puzzles that keep a group clue must stay logic-solvable
     # and the solver must reach the true solution (catches an unsound propagator).
@@ -318,7 +385,8 @@ def test_group_clues_stay_sound_and_no_guessing():
     for seed in range(40):
         th, puzzle, _rep, _ = build_puzzle(seed, "hard", items=4, categories=5, theme="kings_guild")
         names = {type(c).__name__ for c in puzzle.clues}
-        if not (names & {"InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount"}):
+        if not (names & {"InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount",
+                         "GroupOrder", "GroupGroupCount", "GroupGroupCompare"}):
             continue
         seen += 1
         rep = solve(th, puzzle.clues)

@@ -83,6 +83,15 @@ medium/hard); a puzzle can always roll with no hierarchy at all.
   Couples the hierarchy to an ordered category: every entity in one guild outranks every entity in another.
   Rare — only generated when two guilds happen to be fully rank-separated, and needs an ordered category present.
 
+A theme can declare **two** partitions (King's Guild groups both Trade→guild and Quarter→ward). When both
+are rolled in, *cross-group* clues relate the two hierarchies — the cross-tabulation a single partition can't
+express:
+
+- **cross-group count** (`GroupGroupCount`) — `Exactly two members of the Ironmongers' Guild live in the Hill Ward.`
+  Of the entities in guild A, how many are also in ward B is `== / >= / <= K`.
+- **cross-group comparison** (`GroupGroupCompare`) — `More members of the Ironmongers' Guild live in the Hill Ward than members of the Clothiers' Guild.`
+  Guild A has strictly more members in a shared ward than guild B does.
+
 The "one of N" disjunctions default to N ∈ {2, 3} via `build_clue_pool(among_sizes=…)`.
 
 ## How it works
@@ -203,8 +212,10 @@ list partitioning its items — every item must appear in exactly one group:
 Groups compile to facts on the `Trade` column — there is no extra grid — so a
 puzzle can always roll with no hierarchy clues at all, and the guilds are only
 ever mentioned when one survives into the clue set. See `themes/` for the King's
-Guild theme; in a web `ThemeSpec` the same is a `group_def=(category, group_noun,
-((label, (items…)), …))` tuple, restricted to the sampled items at build time.
+Guild theme; in a web `ThemeSpec` partitions are given as a `group_defs=((category,
+group_noun, ((label, (items…)), …)), …)` tuple, restricted to the sampled items at
+build time. **Declaring two partitions** (King's Guild groups both Trade→guild and
+Quarter→ward) additionally unlocks the cross-group count/comparison clues.
 
 ### Single-file representation (import / export)
 
