@@ -117,13 +117,18 @@ def test_next_hint_done_on_solved_board(plain_theme):
 
 
 def test_hard_trace_uses_a_contradiction_step():
-    theme, puzzle, report = generate_rated(
-        lambda r: build_cafe_theme(r, 4), random.Random(2), "mega"
-    )
-    assert report["ceiling"] == 4
+    # find a puzzle whose solve actually needs a what-if (tier 5; tier 4 is the
+    # grid set-logic tier, which doesn't always appear)
+    for seed in range(8):
+        theme, puzzle, report = generate_rated(
+            lambda r: build_cafe_theme(r, 4), random.Random(seed), "mega"
+        )
+        if report["ceiling"] >= 5:
+            break
+    assert report["ceiling"] >= 5
     steps = trace(theme, puzzle.clues)
-    whatif = [s for s in steps if s["tier"] == 4]
-    assert whatif, "a hard puzzle's trace should include a what-if step"
+    whatif = [s for s in steps if s["tier"] == 5]
+    assert whatif, "a what-if puzzle's trace should include a what-if step"
     assert all(s["tier_name"] == "What-if" for s in whatif)
     assert _apply(theme, steps).solved()
 
@@ -174,7 +179,7 @@ def test_whatif_hint_carries_a_reasoning_chain():
             lambda r: build_cafe_theme(r, 4), random.Random(seed), "mega"
         )
         steps = trace(theme, puzzle.clues)
-        idx = next((n for n, st in enumerate(steps) if st["tier"] == 4), None)
+        idx = next((n for n, st in enumerate(steps) if st["tier"] == 5), None)
         if idx is not None:
             break
     assert idx is not None, "expected a tera/mega puzzle that needs a what-if"
@@ -186,7 +191,7 @@ def test_whatif_hint_carries_a_reasoning_chain():
         known[st["key"]][st["a"]][st["b"]] = st["value"]
 
     step = next_hint(theme, puzzle.clues, known)
-    assert step["tier"] == 4
+    assert step["tier"] == 5
     chain = step.get("chain")
     assert isinstance(chain, list) and len(chain) >= 3
     assert chain[0].startswith("Start by assuming")

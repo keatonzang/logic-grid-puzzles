@@ -22,8 +22,10 @@ from .deduce import (
     Y,
     Board,
     _sweep_clues,
+    _sweep_cross_elim,
     _sweep_hypothetical,
     _sweep_lines,
+    _sweep_naked,
     _sweep_transitivity,
     _propagate_to_fixpoint,
     _PROPAGATORS,
@@ -31,13 +33,15 @@ from .deduce import (
 from .model import Contradiction, Theme
 
 # Friendly names for the deduction tiers, surfaced in the hint UI. The index is
-# the tier number deduce.py uses (0 givens … 4 contradiction).
+# the tier number deduce.py uses (0 givens … 6 nested what-if).
 TIER_NAMES = {
     0: "Given",
     1: "Elimination",
     2: "Cross-reference",
     3: "Clue logic",
-    4: "What-if",
+    4: "Set logic",
+    5: "What-if",
+    6: "What-if",
 }
 
 
@@ -167,6 +171,83 @@ def _cell(p, q):
     return (p[0], p[1], q[0], q[1]) if p[0] < q[0] else (q[0], q[1], p[0], p[1])
 
 
+def _join(items, conj="and"):
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} {conj} {items[1]}"
+    return ", ".join(items[:-1]) + f", {conj} {items[-1]}"
+
+
+# --- Set logic (tier 4): explaining cross-elimination & naked subsets ---------
+# Both produce only "not linked" (N) facts. Each explainer returns a reason plus
+# the determined cells it read, so the what-if chain can slice through them.
+def _explain_cross_elim(theme, S, ci, a, cj, b):
+    n = S.n
+    for m in range(S.k):
+        if m == ci or m == cj:
+            continue
+        ca = [t for t in range(n) if S.get(ci, a, m, t) != N]
+        if not ca or any(S.get(cj, b, m, t) != N for t in ca):
+            continue  # B can still share one of A's options here — no elimination
+        cands = _join([_label(theme, (m, t)) for t in ca], "or")
+        reason = (f"in {_cat(theme,m)}, {_label(theme,(ci,a))} must be {cands}, but "
+                  f"{_label(theme,(cj,b))} can be none of those, so they can't be the same.")
+        ante = [_cell((ci, a), (m, t)) for t in range(n) if S.get(ci, a, m, t) == N]
+        ante += [_cell((cj, b), (m, t)) for t in ca]  # B's exclusions of A's options (all N)
+        return reason, ante
+    return None
+
+
+def _naked_owners(S, ci, cj, a, b):
+    """The naked subset that rules out (ci,a)~(cj,b): a set of lines whose options
+    are confined to exactly themselves. Returns (orientation, owners, span)."""
+    n = S.n
+    rcand = {r: frozenset(t for t in range(n) if S.get(ci, r, cj, t) != N) for r in range(n)}
+    for size in (2, 3):
+        for combo in combinations([r for r in range(n) if r != a], size):
+            span = frozenset().union(*(rcand[r] for r in combo))
+            if len(span) == size and b in span:
+                return ("row", combo, span)
+    ccand = {t: frozenset(r for r in range(n) if S.get(ci, r, cj, t) != N) for t in range(n)}
+    for size in (2, 3):
+        for combo in combinations([t for t in range(n) if t != b], size):
+            span = frozenset().union(*(ccand[t] for t in combo))
+            if len(span) == size and a in span:
+                return ("col", combo, span)
+    return None
+
+
+def _explain_naked(theme, S, ci, a, cj, b):
+    res = _naked_owners(S, ci, cj, a, b)
+    if res is None:
+        return None
+    orient, owners, span = res
+    n = S.n
+    if orient == "row":
+        own = [_label(theme, (ci, r)) for r in owners]
+        cols = [_label(theme, (cj, t)) for t in span]
+        ante = [_cell((ci, r), (cj, t)) for r in owners for t in range(n)
+                if t not in span and S.get(ci, r, cj, t) == N]
+    else:
+        own = [_label(theme, (cj, t)) for t in owners]
+        cols = [_label(theme, (ci, r)) for r in span]
+        ante = [_cell((ci, r), (cj, t)) for t in owners for r in range(n)
+                if r not in span and S.get(ci, r, cj, t) == N]
+    reason = (f"{_join(own)} must take {_join(cols, 'or')} between them, so "
+              f"{_label(theme,(ci,a))} can't go with {_label(theme,(cj,b))}.")
+    return reason, ante
+
+
+def _explain_set(theme, S, cell, v):
+    """Why set logic forces ``cell`` to N (only N is ever produced). Returns
+    (reason, antecedent_cells) or None."""
+    if v != N:
+        return None
+    ci, a, cj, b = cell
+    return _explain_cross_elim(theme, S, ci, a, cj, b) or _explain_naked(theme, S, ci, a, cj, b)
+
+
 def _explain_trans_ante(S, ci, a, cj, b, v):
     """Antecedent pair for a transitivity deduction of (ci,a)~(cj,b)=v, or None.
     A pivot in a third category linked to both nodes forces their relation."""
@@ -221,7 +302,7 @@ def _explain(theme, clues, S, cell, v):
             continue
         if cp.get(ci, a, cj, b) == v:
             return _reason_clue(theme, clue, ci, a, cj, b, v), _clue_ante(S, clue, cell, v)
-    return None  # no single rule accounts for it (caller falls back)
+    return _explain_set(theme, S, cell, v)  # grid set-logic, else None (caller falls back)
 
 
 def _ablate_cells(board, clue):
@@ -450,12 +531,27 @@ def _round_clues(board, clues, theme, steps) -> bool:
     return False
 
 
+def _round_setlogic(board, clues, theme, steps) -> bool:
+    # cross-elimination first, then naked subsets (matches _sweep_set_logic order),
+    # so each deduction names the tactic that drove it.
+    for sweep in (_sweep_cross_elim, _sweep_naked):
+        before = board.copy()
+        if not sweep(board):
+            continue
+        for (i, j, a, b, v) in _changes(before, board):
+            res = _explain_set(theme, before, (i, a, j, b), v)
+            reason = res[0] if res else f"{_label(theme,(i,a))} can't go with {_label(theme,(j,b))}."
+            steps.append(_step(theme, i, j, a, b, v, 4, reason))
+        return True
+    return False
+
+
 def _round_hyp(board, clues, theme, steps) -> bool:
     before = board.copy()
     if not _sweep_hypothetical(board, clues, 1):
         return False
     for (i, j, a, b, v) in _changes(before, board):
-        step = _step(theme, i, j, a, b, v, 4, _reason_hyp(theme, i, a, j, b, v))
+        step = _step(theme, i, j, a, b, v, 5, _reason_hyp(theme, i, a, j, b, v))
         # Defer the (expensive) chain reconstruction: stash the pre-what-if board so
         # only the ONE step a hint actually returns pays for it (see next_hint).
         step["_ctx"] = (before, i, a, j, b, v)
@@ -468,12 +564,12 @@ def trace(theme: Theme, clues: list) -> list[dict]:
 
     Mirrors ``deduce.solve``'s cheapest-tier-first escalation, so the narration
     matches how the puzzle is graded. Stops if no tier makes progress (a puzzle
-    needing deeper nesting than tier 4 — skipped at generation anyway).
+    needing deeper nesting than tier 5 — skipped at generation anyway).
     """
     board = Board(theme)
     steps: list[dict] = []
     _givens(board, clues, theme, steps)
-    rounds = (_round_lines, _round_trans, _round_clues, _round_hyp)
+    rounds = (_round_lines, _round_trans, _round_clues, _round_setlogic, _round_hyp)
     while not board.solved():
         if not any(r(board, clues, theme, steps) for r in rounds):
             break

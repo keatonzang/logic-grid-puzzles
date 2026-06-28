@@ -27,6 +27,57 @@ def _agrees(board, X) -> bool:
     return True
 
 
+def test_cross_elimination_marks_disjoint_candidates_apart():
+    # Two items whose options in a bridge category are disjoint can't be the same
+    # entity. A=(cat0,item0) can only be cat1 {0,1}; B=(cat2,item0) excludes {0,1}.
+    from logicgrid.deduce import _sweep_cross_elim
+
+    th = Theme("t", "", [Category(f"C{c}", [f"{c}{i}" for i in range(4)]) for c in range(3)])
+    b = Board(th)
+    for t in (2, 3):
+        b.set(0, 0, 1, t, N)   # A's cat-1 options = {0, 1}
+    for t in (0, 1):
+        b.set(2, 0, 1, t, N)   # B's cat-1 options = {2, 3}  (disjoint from A's)
+    assert b.get(0, 0, 2, 0) == U
+    assert _sweep_cross_elim(b)
+    assert b.get(0, 0, 2, 0) == N
+
+
+def test_naked_subset_excludes_outsiders():
+    # Two items confined to the same two options use them up between them.
+    from logicgrid.deduce import _sweep_naked
+
+    th = Theme("t", "", [Category(f"C{c}", [f"{c}{i}" for i in range(4)]) for c in range(3)])
+    b = Board(th)
+    for row in (0, 1):         # rows 0,1 both confined to columns {0,1}
+        b.set(0, row, 1, 2, N)
+        b.set(0, row, 1, 3, N)
+    assert b.get(0, 2, 1, 0) == U
+    assert _sweep_naked(b)
+    assert b.get(0, 2, 1, 0) == N and b.get(0, 2, 1, 1) == N  # row 2 barred from {0,1}
+
+
+def test_set_logic_sweeps_are_sound():
+    # Cross-elimination and naked subsets must never derive a fact that disagrees
+    # with the true solution, across a range of generated puzzles.
+    from logicgrid.deduce import (
+        _apply_givens, _sweep_lines, _sweep_transitivity, _sweep_clues, _sweep_set_logic,
+    )
+
+    for d in ("normal", "hard", "mega"):
+        for s in range(12):
+            th = build_cafe_theme(random.Random(s), 4)
+            p = generate_puzzle(th, random.Random(s), difficulty=d)
+            b = Board(th)
+            _apply_givens(b, p.clues)
+            for _ in range(2000):
+                if _sweep_lines(b) or _sweep_transitivity(b) or _sweep_set_logic(b) \
+                        or _sweep_clues(b, p.clues):
+                    continue
+                break
+            assert _agrees(b, p.solution), f"set-logic unsound on {d} seed {s}"
+
+
 def test_board_same_category_relation():
     theme = Theme("t", "", [Category("A", ["a", "b"]), Category("B", ["c", "d"])])
     bd = Board(theme)

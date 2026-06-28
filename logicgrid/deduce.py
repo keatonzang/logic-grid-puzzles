@@ -13,6 +13,10 @@ Technique tiers (escalated only when cheaper ones are exhausted):
   2  transitivity    combine blocks through a shared entity (the core move)
   3  clue propagation counting/matching clues: among / either-or / exactly-K /
                      group-match narrowing as the board fills in
+  4  set logic       cross-elimination & naked subsets — grid-only set reasoning
+                     that needs no single pivot link (see _sweep_set_logic)
+  5  what-if         proof by contradiction (assume, propagate, refute)
+  6  nested what-if  a what-if whose inner reasoning itself needs a what-if
 
 The board state is the set of pairwise ✓/✗ facts a solver actually sees.
 """
@@ -155,6 +159,91 @@ def _sweep_transitivity(board) -> int:
                 if qy[0] != qn[0]:
                     changed += _s(board, qy, qn, N)
     return changed
+
+
+# --- Tier "set logic": cross-elimination & naked subsets --------------------
+# Intermediate grid-only tactics — reached before resorting to trial-and-error,
+# but which line completion and transitivity cannot express because there is no
+# single established link to pivot through:
+#   * cross-elimination: two items whose candidate item-sets in some bridge
+#     category are DISJOINT cannot be the same entity — they could never agree on
+#     that category, so mark them apart.
+#   * naked subsets: k items in one category that confine their candidates in a
+#     bridge category to the same k items use those items up between them, so
+#     every OTHER item is excluded from all k.
+# Both are sound entailments under the per-category bijection. Crucially they let
+# the solver make deductions it would otherwise reach only by a what-if, so
+# running them before tier 4 pulls many puzzles down out of the contradiction tier.
+def _cands(board, c, it, m):
+    """Items of category m that node (c, it) could still be linked to."""
+    return frozenset(t for t in range(board.n) if board.get(c, it, m, t) != N)
+
+
+def _sweep_cross_elim(board) -> int:
+    changed = 0
+    n, k = board.n, board.k
+    nodes = [(c, it) for c in range(k) for it in range(n)]
+    cand = {p: {m: _cands(board, p[0], p[1], m) for m in range(k) if m != p[0]} for p in nodes}
+    for x in range(len(nodes)):
+        i, a = nodes[x]
+        for y in range(x + 1, len(nodes)):
+            j, b = nodes[y]
+            if i == j or board.get(i, a, j, b) != U:
+                continue
+            for m in range(k):  # a bridge category where their options can't overlap
+                if m == i or m == j:
+                    continue
+                if cand[(i, a)][m].isdisjoint(cand[(j, b)][m]):
+                    changed += board.set(i, a, j, b, N)
+                    break
+    return changed
+
+
+def _naked_dir(board, i, m, cand, row) -> int:
+    """One direction of naked-subset elimination in block (i, m). ``cand`` maps
+    each line index to the cross indices it can still take. A set S of lines whose
+    candidate UNION is exactly |S| indices owns them — clear those from every
+    other line. ``row`` picks which axis the lines are (category i vs category m)."""
+    n = board.n
+    changed = 0
+    lines = [L for L, s in cand.items() if 1 < len(s) < n]  # singles=tier1, full=no info
+    for size in (2, 3):
+        if size > n - 2:
+            break
+        for combo in combinations(lines, size):
+            union = frozenset().union(*(cand[L] for L in combo))
+            if len(union) != size:
+                continue
+            owners = set(combo)
+            for other in range(n):
+                if other in owners:
+                    continue
+                for t in union:
+                    if row:
+                        changed += board.set(i, other, m, t, N)
+                    else:
+                        changed += board.set(i, t, m, other, N)
+    return changed
+
+
+def _sweep_naked(board) -> int:
+    changed = 0
+    n, k = board.n, board.k
+    for i in range(k):
+        for m in range(k):
+            if m == i:
+                continue
+            rcand = {a: _cands(board, i, a, m) for a in range(n)}
+            changed += _naked_dir(board, i, m, rcand, row=True)
+            ccand = {t: frozenset(a for a in range(n) if board.get(i, a, m, t) != N)
+                     for t in range(n)}
+            changed += _naked_dir(board, i, m, ccand, row=False)
+    return changed
+
+
+def _sweep_set_logic(board) -> int:
+    """Tier 4: the grid-only set tactics, cheapest-first within the tier."""
+    return _sweep_cross_elim(board) or _sweep_naked(board)
 
 
 # --- Tier 3: counting / matching clue propagation ---------------------------
@@ -650,7 +739,12 @@ def _sweep_clues(board, clues) -> int:
 
 def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0) -> None:
     """Tiers 1-3 to a fixpoint; with hyp_depth > 0, also apply hypotheticals
-    nested up to that depth. Raises Contradiction on conflict."""
+    nested up to that depth. Raises Contradiction on conflict.
+
+    Note: the grid set-logic sweeps (tier 4) are deliberately NOT run here. Inside
+    a what-if they almost never change which assumptions refute (a hypothetical
+    cascades to a line/transitivity clash first), so including them only multiplied
+    the per-trial cost — see solve(), which runs them at the top level instead."""
     while True:
         if _sweep_lines(board):
             continue
@@ -663,10 +757,10 @@ def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0) -> None:
         return
 
 
-# --- Tiers 4+: hypotheticals (proof by contradiction, nested lookahead) -------
+# --- Tiers 5+: hypotheticals (proof by contradiction, nested lookahead) -------
 # A `depth`-d hypothetical assumes a cell value and propagates with tiers up to
-# (d-1) hypotheticals inside. depth 1 == tier 4 (single what-if); depth 2 ==
-# tier 5 (a what-if whose inner reasoning may itself need a what-if).
+# (d-1) hypotheticals inside. depth 1 == tier 5 (single what-if); depth 2 ==
+# tier 6 (a what-if whose inner reasoning may itself need a what-if).
 def _sweep_hypothetical(board, clues, depth: int) -> int:
     for (i, j), m in board.cell.items():
         for a in range(board.n):
@@ -697,12 +791,12 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
       solved, needs_guessing, ceiling (highest tier used), steps (per tier),
       total_steps, board.
 
-    Hypotheticals (tier 4 = depth 1, tier 5 = depth 2, …) kick in when forward
+    Hypotheticals (tier 5 = depth 1, tier 6 = depth 2, …) kick in when forward
     propagation stalls, escalating depth only as needed — so unique puzzles solve
     with no guessing. max_hyp_depth caps the deepest nesting (0 = forward only).
     """
     board = Board(theme)
-    steps = {t: 0 for t in range(6)}
+    steps = {t: 0 for t in range(7)}
     steps[0] = _apply_givens(board, clues)
     while not board.solved():
         c = _sweep_lines(board)
@@ -717,11 +811,15 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
         if c:
             steps[3] += c
             continue
+        c = _sweep_set_logic(board)
+        if c:
+            steps[4] += c
+            continue
         progressed = False
         for depth in range(1, max_hyp_depth + 1):
             c = _sweep_hypothetical(board, clues, depth)
             if c:
-                steps[3 + depth] += c  # depth 1 -> tier 4, depth 2 -> tier 5
+                steps[4 + depth] += c  # depth 1 -> tier 5, depth 2 -> tier 6
                 progressed = True
                 break
         if progressed:
@@ -741,40 +839,41 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
 
 # Difficulty bands by the hardest technique a solve forces (its *ceiling*):
 #   normal  ceiling <=2   givens / line-elimination / transitivity only
-#   hard    ceiling ==3   clue-logic propagation, no proof-by-contradiction
-#   mega    ceiling ==4   needs what-ifs — low composite difficulty
-#   giga    ceiling ==4   medium composite difficulty
-#   tera    ceiling ==4   high composite difficulty, or a nested what-if (ceiling >=5)
-# The ceiling fixes the *kind* of reasoning; ceiling 4 (proof-by-contradiction) is
+#   hard    ceiling ==3-4  clue-logic propagation and grid set-logic, no what-ifs
+#   mega    ceiling ==5    needs what-ifs — low composite difficulty
+#   giga    ceiling ==5    medium composite difficulty
+#   tera    ceiling ==5    high composite difficulty, or a nested what-if (ceiling >=6)
+# The ceiling fixes the *kind* of reasoning; ceiling 5 (proof-by-contradiction) is
 # by far the most common hard outcome, so the top three tiers split it by a
 # composite difficulty INDEX rather than a single (flimsy) what-if count.
 DIFFICULTY_ORDER = ("normal", "hard", "mega", "giga", "tera")
 
-# The index blends three signals that are largely independent within ceiling 4
-# (measured |corr| <= 0.3), so they corroborate difficulty from different angles
-# rather than restating one number:
+# The index blends three signals that are largely independent within the
+# contradiction tier (measured |corr| <= 0.3), so they corroborate difficulty from
+# different angles rather than restating one number:
 #   * whatif   — volume of proof-by-contradiction steps (reasoning effort)
 #   * lognodes — log2 of the backtracking search-tree size (how much blind search
 #                the clues leave after propagation — see solver.search_effort)
 #   * cluecost — mean clue cognitive weight (how sophisticated the clues are)
 # Each is centred/scaled by its measured median and spread so it contributes
 # comparably; the sum is the index, which alone names the band. (median, scale):
-_INDEX_NORM = {"whatif": (8.0, 8.0), "lognodes": (7.1, 1.6), "cluecost": (3.0, 0.5)}
+_INDEX_NORM = {"whatif": (1.0, 3.24), "lognodes": (3.32, 0.96), "cluecost": (3.2, 0.66)}
 # The whole ladder is one index, split into FIVE equal-frequency bands. The four
-# cuts are the measured quintiles of a representative 200-puzzle sample (rounded):
-# sorting puzzles by the index reproduces the reasoning-ceiling ordering on its own
-# (Q1 is pure line/transitivity, Q2 mostly clue-logic, Q3-Q5 progressively harder
-# proof-by-contradiction), with the index resolving hardness *within* a ceiling. So
-# difficulty deliberately does NOT scale linearly — the cuts are wherever the
-# population splits into fifths. One band per cut, low to high:
-_BAND_CUTS = (-7.0, -3.0, -1.65, 0.0)  # < -7 normal · hard · mega · giga · >=0 tera
+# cuts are the measured quintiles of a representative rich-pool sample (~240
+# puzzles), recomputed after the tier-4 set-logic addition shifted the what-if
+# distribution. Sorting puzzles by the index reproduces the reasoning-ceiling
+# ordering on its own (low bands are line/transitivity/clue-logic, high bands
+# progressively harder proof-by-contradiction), with the index resolving hardness
+# *within* a ceiling. Difficulty deliberately does NOT scale linearly — the cuts
+# are wherever the population splits into fifths. One band per cut, low to high:
+_BAND_CUTS = (-1.08, 0.08, 1.1, 2.47)  # normal · hard · mega · giga · tera quintiles
 
 
 def difficulty_index(report: dict) -> float:
     """Composite difficulty score spanning the whole ladder (see _INDEX_NORM).
     Robust to any one signal being noisy because three near-independent signals
     must agree."""
-    whatif = report["steps"][4] + report["steps"][5]
+    whatif = report["steps"][5] + report["steps"][6]
     lognodes = math.log2(max(1, report.get("nodes", 1)))
     cluecost = report.get("clue_cost", {}).get("mean", _INDEX_NORM["cluecost"][0])
 
@@ -787,10 +886,10 @@ def difficulty_index(report: dict) -> float:
 
 def band_of(report: dict) -> str:
     """Name the difficulty band for a solved report by quintile of the composite
-    index (see _BAND_CUTS / DIFFICULTY_ORDER). A nested what-if (ceiling >= 5) is
+    index (see _BAND_CUTS / DIFFICULTY_ORDER). A nested what-if (ceiling >= 6) is
     unconditionally the top tier — its index lands there anyway, but the floor
     guards against an undersampled scale."""
-    if report["ceiling"] >= 5:
+    if report["ceiling"] >= 6:
         return DIFFICULTY_ORDER[-1]
     d = difficulty_index(report)
     band = sum(d >= cut for cut in _BAND_CUTS)  # 0..4 -> index into the order
@@ -799,7 +898,7 @@ def band_of(report: dict) -> str:
 
 def _score(r: dict) -> int:
     s = r["steps"]
-    return r["ceiling"] * 1000 + s[5] * 200 + s[4] * 50 + s[3] * 5 + s[2]
+    return r["ceiling"] * 1000 + s[6] * 200 + s[5] * 50 + s[4] * 15 + s[3] * 5 + s[2]
 
 
 def grade(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
