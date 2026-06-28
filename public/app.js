@@ -500,6 +500,14 @@ function vlabel(th, text) {
   return th;
 }
 
+// A six-digit #hex to an rgba() string. Used for the translucent guild tint so we
+// don't rely on CSS color-mix (unsupported on some mobile browsers, where the
+// band would otherwise render with no colour at all).
+function hexToRgba(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
 // A guild-band label cell. The label lives in a `.gl` box with an inner `.gl-i`
 // that wraps at word boundaries and is fitted by sizeGuildColumns/shrinkGuildLabels
 // so it never makes a data tile non-square. The left band rotates `.gl-i` via CSS
@@ -507,6 +515,7 @@ function vlabel(th, text) {
 function guildCell(cls, label, color) {
   const th = cell("th", "", cls);
   th.style.setProperty("--gcolor", color);
+  th.style.setProperty("--gcolor-soft", hexToRgba(color, 0.22));
   th.title = label;
   const gl = document.createElement("span");
   gl.className = "gl";

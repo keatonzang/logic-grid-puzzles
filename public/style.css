@@ -301,7 +301,9 @@ table.staircase .grp-top, table.grid .grp-top { border-top: 1px dashed var(--mut
 th.sc-guild, th.g-band, th.sc-rowguild {
   position: relative;
   padding: 0;
-  background: color-mix(in srgb, var(--gcolor) 22%, var(--panel-2));
+  background-color: var(--panel-2);  /* translucent guild tint over the panel — no
+     color-mix, so the colour also renders on older mobile browsers */
+  background-image: linear-gradient(var(--gcolor-soft, transparent), var(--gcolor-soft, transparent));
 }
 /* TOP band: width fixed by the group's columns; height auto-grows to fit the wrap. */
 th.sc-guild, th.g-band {
