@@ -329,7 +329,7 @@ THEME_SPECS: tuple = (
             ("Species", "the angler who landed the {}"),  # the angler who landed the Pike
             ("Pond", "the angler at {}"),                 # the angler at Stillwater
             ("Lure", "the angler using the {}"),          # the angler using the Popper
-            ("Bait", "the angler fishing {}"),            # the angler fishing Minnow
+            ("Bait", "the angler fishing with {}"),       # the angler fishing with Minnow
         ),
         # Two two-level hierarchies: Species group into families, Ponds into
         # watersheds. As with the other themes, membership is randomised per puzzle
