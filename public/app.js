@@ -166,22 +166,55 @@ async function postJSON(url, body) {
   );
 }
 
+// Difficulty bands, easiest→hardest (matches the <select> order and the server's
+// DIFFICULTIES). Used to pick the closest band when an exact re-roll match fails.
+const BANDS = ["normal", "hard", "mega", "giga", "tera"];
+// How many fresh seeds to try when enforcing the requested band. The server's
+// grade can land a band off the request (e.g. a "giga" ask overshooting to
+// "tera"); re-rolling almost always lands the exact band within a couple tries.
+// Bounded so an unreachable band (e.g. tera on a tiny grid) still returns the
+// closest we found instead of looping forever.
+const REROLL_CAP = 6;
+
 async function generate() {
-  const params = new URLSearchParams({
-    difficulty: $("difficulty").value,
-    items: $("items").value,
-    categories: $("categories").value,
-  });
-  const theme = $("theme").value;
-  if (theme) params.set("theme", theme);
+  const want = $("difficulty").value;
+  const baseParams = () => {
+    const p = new URLSearchParams({
+      difficulty: want,
+      items: $("items").value,
+      categories: $("categories").value,
+    });
+    const theme = $("theme").value;
+    if (theme) p.set("theme", theme);
+    return p;
+  };
   const seed = $("seed").value.trim();
-  if (seed !== "") params.set("seed", seed);
 
   $("error").hidden = true;
   $("loading").hidden = false;
+  $("loading").textContent = "Loading…";
   $("puzzle").hidden = true;
   try {
-    puzzle = await fetchJSON(`/api/puzzle?${params}`);
+    if (seed !== "") {
+      // Pinned seed: reproduce exactly that puzzle — never re-roll.
+      const p = baseParams();
+      p.set("seed", seed);
+      puzzle = await fetchJSON(`/api/puzzle?${p}`);
+    } else {
+      // No seed: re-roll fresh seeds until the *measured* band matches the
+      // request, so a "giga" request yields a giga-graded puzzle. Each fetch
+      // omits the seed, so the server randomises and echoes back a reproducible
+      // one. Keep the closest-by-band candidate as a fallback if no exact hit.
+      let best = null;
+      const dist = (b) => Math.abs(BANDS.indexOf(b) - BANDS.indexOf(want));
+      for (let attempt = 1; attempt <= REROLL_CAP; attempt++) {
+        if (attempt > 1) $("loading").textContent = `Finding a ${want} puzzle… (${attempt})`;
+        const cand = await fetchJSON(`/api/puzzle?${baseParams()}`);
+        if (cand.difficulty === want) { best = cand; break; }
+        if (best === null || dist(cand.difficulty) < dist(best.difficulty)) best = cand;
+      }
+      puzzle = best;
+    }
     buildState();
     render();
     $("puzzle").hidden = false;
