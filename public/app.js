@@ -888,13 +888,17 @@ function reveal() {
 function clearGrids() {
   clearHighlights();
   resetHintButton();
-  // One undoable action so an accidental Clear can be taken back in a single undo.
-  recordMutation(() => {
-    for (const key of Object.keys(manual)) {
-      const M = manual[key];
-      for (let a = 0; a < M.length; a++) M[a].fill(0);
-    }
-  });
+  // Clear is a "restart this puzzle's work": wipe the board and zero the step
+  // count (history.size()), so a solve after Clear reports only the moves made
+  // since. Because the step count *is* the undo-stack depth, this also empties
+  // undo/redo — Clear can't be taken back. The timer is left running: it measures
+  // time since the puzzle loaded, so clearing your marks doesn't stop the clock.
+  for (const key of Object.keys(manual)) {
+    const M = manual[key];
+    for (let a = 0; a < M.length; a++) M[a].fill(0);
+  }
+  history.reset();
+  updateUndoUI();
   for (const key of Object.keys(manual)) paintGrid(key);
   // Also un-cross any clues the player struck through on the left.
   document.querySelectorAll("#clues li.done").forEach((li) => li.classList.remove("done"));
