@@ -205,12 +205,21 @@ async function generate() {
       // request, so a "giga" request yields a giga-graded puzzle. Each fetch
       // omits the seed, so the server randomises and echoes back a reproducible
       // one. Keep the closest-by-band candidate as a fallback if no exact hit.
+      // The loading line reports each attempt and which band it rolled, so the
+      // re-rolling is visible rather than a silent wait.
       let best = null;
+      const rolled = [];
       const dist = (b) => Math.abs(BANDS.indexOf(b) - BANDS.indexOf(want));
+      const status = (attempt) => {
+        const sofar = rolled.length ? ` — rolled ${rolled.join(", ")}` : "";
+        $("loading").textContent =
+          `Finding a ${want} puzzle… attempt ${attempt}/${REROLL_CAP}${sofar}`;
+      };
       for (let attempt = 1; attempt <= REROLL_CAP; attempt++) {
-        if (attempt > 1) $("loading").textContent = `Finding a ${want} puzzle… (${attempt})`;
+        status(attempt);
         const cand = await fetchJSON(`/api/puzzle?${baseParams()}`);
         if (cand.difficulty === want) { best = cand; break; }
+        rolled.push(cand.difficulty);
         if (best === null || dist(cand.difficulty) < dist(best.difficulty)) best = cand;
       }
       puzzle = best;
