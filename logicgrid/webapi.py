@@ -308,6 +308,57 @@ THEME_SPECS: tuple = (
             ("Period", "the class in {}"),             # the class in Period 3
         ),
     ),
+    ThemeSpec(
+        key="fishing",
+        name="The Fishing Derby",
+        description=(
+            "Anglers at the lake-country derby each landed a different fish from a "
+            "different pond on a different lure. Work out who caught what, and where."
+        ),
+        entity_noun="catch",
+        subject_name="Angler",
+        subject_items=("Boone", "Cody", "Dale", "Esther", "Gus", "Mabel", "Royce", "Wade"),
+        attributes=(
+            ("Species", ("Bass", "Bluegill", "Carp", "Catfish", "Crappie", "Perch", "Pike", "Trout")),
+            ("Pond", ("Birchpool", "Cedarmere", "Foxglen", "Grayreach", "Mossbank", "Pinehollow", "Stillwater", "Willowmere")),
+            ("Lure", ("Buzzbait", "Crankbait", "Jig", "Popper", "Spinnerbait", "Spoon", "Swimbait", "Wobbler")),
+            ("Bait", ("Corn", "Cricket", "Dough", "Leech", "Maggot", "Minnow", "Nightcrawler", "Shrimp")),
+        ),
+        numeric=NumericSpec("Weight", unit_suffix=" lb", min_start=2, start_max=12, steps=(1, 2)),
+        referents=(
+            ("Species", "the angler who landed the {}"),  # the angler who landed the Pike
+            ("Pond", "the angler at {}"),                 # the angler at Stillwater
+            ("Lure", "the angler using the {}"),          # the angler using the Popper
+            ("Bait", "the angler fishing {}"),            # the angler fishing Minnow
+        ),
+        # Two two-level hierarchies: Species group into families, Ponds into
+        # watersheds. As with the other themes, membership is randomised per puzzle
+        # by _random_groups (>=2 groups, >=2 members each) — the listed members just
+        # seed the label pool — and these only surface via group clues ("Cody's
+        # catch is a Sunfish", "Cody and Dale fished the same watershed"). With both
+        # present, cross-group clues unlock ("exactly two Sunfish came from the
+        # North Watershed").
+        group_defs=(
+            (
+                "Species",
+                "family",
+                (
+                    ("Sunfish Family", ("Bass", "Bluegill", "Crappie", "Perch")),
+                    ("Pike Family", ("Pike", "Trout")),
+                    ("Catfish Family", ("Carp", "Catfish")),
+                ),
+            ),
+            (
+                "Pond",
+                "watershed",
+                (
+                    ("North Watershed", ("Birchpool", "Cedarmere", "Foxglen")),
+                    ("South Watershed", ("Grayreach", "Mossbank", "Pinehollow")),
+                    ("East Watershed", ("Stillwater", "Willowmere")),
+                ),
+            ),
+        ),
+    ),
 )
 
 THEMES: dict = {spec.key: spec for spec in THEME_SPECS}
