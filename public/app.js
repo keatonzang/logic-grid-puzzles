@@ -221,7 +221,7 @@ async function generate() {
       const status = (attempt) => {
         const sofar = rolled.length ? ` — rolled ${rolled.join(", ")}` : "";
         $("loading").textContent =
-          `Finding a ${want} puzzle… attempt ${attempt}/${REROLL_CAP}${sofar}`;
+          `Generating a ${want} puzzle… attempt ${attempt}/${REROLL_CAP}${sofar}`;
       };
       for (let attempt = 1; attempt <= REROLL_CAP; attempt++) {
         status(attempt);
