@@ -896,6 +896,8 @@ function clearGrids() {
     }
   });
   for (const key of Object.keys(manual)) paintGrid(key);
+  // Also un-cross any clues the player struck through on the left.
+  document.querySelectorAll("#clues li.done").forEach((li) => li.classList.remove("done"));
   setFeedback("");
   renderProgress();
 }

@@ -241,9 +241,65 @@ def _sweep_naked(board) -> int:
     return changed
 
 
-def _sweep_set_logic(board) -> int:
-    """Tier 4: the grid-only set tactics, cheapest-first within the tier."""
-    return _sweep_cross_elim(board) or _sweep_naked(board)
+def _diff_components(clues):
+    """Per ordered category, the exact-difference (Diff) clues form a graph whose
+    edges pin value gaps between entity terms. Returns, for each component, a dict
+    mapping each term to its value-offset within that component — so two terms with
+    equal offset share a value (same entity) and unequal offsets differ. Yields
+    (cat, offset_map) per connected component."""
+    from collections import defaultdict
+    by_cat = defaultdict(list)
+    for c in clues:
+        if type(c).__name__ == "Diff":
+            by_cat[c.cat].append(c)
+    for cat, diffs in by_cat.items():
+        adj = defaultdict(list)
+        for d in diffs:
+            adj[d.a].append((d.b, d.delta))   # value(a) = value(b) + delta
+            adj[d.b].append((d.a, -d.delta))
+        seen = set()
+        for start in list(adj):
+            if start in seen:
+                continue
+            off = {start: 0}
+            stack = [start]
+            while stack:
+                u = stack.pop()
+                for v, w in adj[u]:
+                    if v not in off:
+                        off[v] = off[u] - w   # value(v) = value(u) - w
+                        stack.append(v)
+            seen |= set(off)
+            yield cat, off
+
+
+def _sweep_comparative(board, clues) -> int:
+    """Combine exact-difference clues that share an entity: terms pinned to the
+    same value-offset from a shared reference must be the same entity (each value
+    is unique under the bijection), and terms at different offsets must differ.
+    The order-based comparative case (items on opposite sides of a shared item)
+    already falls out of cross-elimination once the comparison propagators narrow
+    the value ranges, so this layer adds the exact-difference equalities those
+    can't — the only tactic here that yields a positive ✓."""
+    changed = 0
+    for _cat, off in _diff_components(clues):
+        terms = list(off)
+        for x in range(len(terms)):
+            for y in range(x + 1, len(terms)):
+                ta, tb = terms[x], terms[y]
+                if ta[0] == tb[0]:
+                    continue  # same category: their relation is already fixed
+                want = Y if off[ta] == off[tb] else N
+                if board.get(ta[0], ta[1], tb[0], tb[1]) != want:
+                    changed += board.set(ta[0], ta[1], tb[0], tb[1], want)
+    return changed
+
+
+def _sweep_set_logic(board, clues) -> int:
+    """Tier 4: the intermediate tactics beyond clue propagation — grid set logic
+    (cross-elimination, naked subsets) plus exact-difference comparison chaining,
+    cheapest-first within the tier."""
+    return _sweep_cross_elim(board) or _sweep_naked(board) or _sweep_comparative(board, clues)
 
 
 # --- Tier 3: counting / matching clue propagation ---------------------------
@@ -835,7 +891,7 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
         if c:
             steps[3] += c
             continue
-        c = _sweep_set_logic(board)
+        c = _sweep_set_logic(board, clues)
         if c:
             steps[4] += c
             continue

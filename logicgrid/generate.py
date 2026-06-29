@@ -293,7 +293,11 @@ def build_clue_pool(
                     continue
                 if enable_among:
                     opts = make_options(size, True)
-                    if opts is not None:
+                    # "At least one of …" only says more than "either/or" when an
+                    # entity could match several options at once — i.e. the options
+                    # span >=2 categories. All-same-category options collapse to
+                    # "exactly one of" (a disguised either/or), so skip those.
+                    if opts is not None and len({o[0] for o in opts}) >= 2:
                         among.append(Among(anchor, opts))
                 if enable_either:
                     opts = make_options(size, True)

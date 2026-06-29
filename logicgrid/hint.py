@@ -22,11 +22,13 @@ from .deduce import (
     Y,
     Board,
     _sweep_clues,
+    _sweep_comparative,
     _sweep_cross_elim,
     _sweep_hypothetical,
     _sweep_lines,
     _sweep_naked,
     _sweep_transitivity,
+    _diff_components,
     _propagate_to_fixpoint,
     _PROPAGATORS,
 )
@@ -246,6 +248,36 @@ def _explain_set(theme, S, cell, v):
         return None
     ci, a, cj, b = cell
     return _explain_cross_elim(theme, S, ci, a, cj, b) or _explain_naked(theme, S, ci, a, cj, b)
+
+
+def _explain_comparative(theme, clues, ci, a, cj, b, v):
+    """Narrate an exact-difference comparison deduction: find the ordered category
+    whose Diff graph links the two terms and a shared reference both are pinned
+    to, then read off whether their value-offsets match (same entity) or differ."""
+    ta, tb = (ci, a), (cj, b)
+    for cat, off in _diff_components(clues):
+        if ta not in off or tb not in off:
+            continue
+        catname = _cat(theme, cat).lower()
+        refs = sorted((r for r in off if r not in (ta, tb)),
+                      key=lambda r: abs(off[ta] - off[r]) + abs(off[tb] - off[r]))
+        amt = theme.categories[cat].amount
+
+        def gap(t, r):
+            d = off[t] - off[r]
+            return f"exactly {amt(abs(d))} {'more' if d > 0 else 'less'} than {_label(theme, r)}"
+
+        if refs:
+            r = refs[0]
+            if v == Y:
+                return (f"{_label(theme,ta)} and {_label(theme,tb)} are both {gap(ta,r)} "
+                        f"in {catname}, so they're the same.")
+            return (f"{_label(theme,ta)} is {gap(ta,r)} in {catname} but {_label(theme,tb)} "
+                    f"is {gap(tb,r)}, so they can't be the same.")
+        rel = "the same" if v == Y else "a different"
+        return (f"the difference clues pin {_label(theme,ta)} and {_label(theme,tb)} to "
+                f"{rel} {catname}.")
+    return None
 
 
 def _explain_trans_ante(S, ci, a, cj, b, v):
@@ -532,8 +564,9 @@ def _round_clues(board, clues, theme, steps) -> bool:
 
 
 def _round_setlogic(board, clues, theme, steps) -> bool:
-    # cross-elimination first, then naked subsets (matches _sweep_set_logic order),
-    # so each deduction names the tactic that drove it.
+    # cross-elimination, then naked subsets, then exact-difference comparison
+    # (matches _sweep_set_logic order), so each deduction names the tactic that
+    # drove it.
     for sweep in (_sweep_cross_elim, _sweep_naked):
         before = board.copy()
         if not sweep(board):
@@ -541,6 +574,14 @@ def _round_setlogic(board, clues, theme, steps) -> bool:
         for (i, j, a, b, v) in _changes(before, board):
             res = _explain_set(theme, before, (i, a, j, b), v)
             reason = res[0] if res else f"{_label(theme,(i,a))} can't go with {_label(theme,(j,b))}."
+            steps.append(_step(theme, i, j, a, b, v, 4, reason))
+        return True
+    before = board.copy()
+    if _sweep_comparative(board, clues):
+        for (i, j, a, b, v) in _changes(before, board):
+            rel = "goes with" if v == Y else "can't go with"
+            reason = _explain_comparative(theme, clues, i, a, j, b, v) or (
+                f"comparing the difference clues, {_label(theme,(i,a))} {rel} {_label(theme,(j,b))}.")
             steps.append(_step(theme, i, j, a, b, v, 4, reason))
         return True
     return False
