@@ -176,7 +176,13 @@ const BANDS = ["normal", "hard", "mega", "giga", "tera"];
 // closest we found instead of looping forever.
 const REROLL_CAP = 6;
 
+// Bumped on every generate() call so a slower earlier request can detect that a
+// newer one has superseded it and bail out instead of clobbering its puzzle.
+let genToken = 0;
+
 async function generate() {
+  const myGen = ++genToken;
+  const stale = () => myGen !== genToken;
   const want = $("difficulty").value;
   const baseParams = () => {
     const p = new URLSearchParams({
@@ -199,7 +205,9 @@ async function generate() {
       // Pinned seed: reproduce exactly that puzzle — never re-roll.
       const p = baseParams();
       p.set("seed", seed);
-      puzzle = await fetchJSON(`/api/puzzle?${p}`);
+      const result = await fetchJSON(`/api/puzzle?${p}`);
+      if (stale()) return; // a newer generate() took over while we awaited
+      puzzle = result;
     } else {
       // No seed: re-roll fresh seeds until the *measured* band matches the
       // request, so a "giga" request yields a giga-graded puzzle. Each fetch
@@ -218,6 +226,7 @@ async function generate() {
       for (let attempt = 1; attempt <= REROLL_CAP; attempt++) {
         status(attempt);
         const cand = await fetchJSON(`/api/puzzle?${baseParams()}`);
+        if (stale()) return; // a newer generate() took over while we awaited
         if (cand.difficulty === want) { best = cand; break; }
         rolled.push(cand.difficulty);
         if (best === null || dist(cand.difficulty) < dist(best.difficulty)) best = cand;
@@ -230,10 +239,13 @@ async function generate() {
     fitBoard(); // now the grid has a real width to measure against
     startTimer(); // time the solve from the moment the puzzle is on screen
   } catch (err) {
+    if (stale()) return; // don't surface a superseded request's failure
     $("error").textContent = err.message;
     $("error").hidden = false;
   } finally {
-    $("loading").hidden = true;
+    // Only the latest request owns the loading line; a stale one leaving it
+    // alone keeps the newer request's spinner intact.
+    if (!stale()) $("loading").hidden = true;
   }
 }
 
