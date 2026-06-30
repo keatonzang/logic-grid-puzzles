@@ -99,11 +99,14 @@ class ThemeSpec:
     # unlisted falls back to "the {entity_noun} with {item}".
     referents: tuple = ()
     # Optional two-level hierarchies. Each entry is
-    #   (category_name, group_noun, ((label, (item, ...)), ...))
+    #   (category_name, group_noun, ((label, (item, ...)), ...)[, fixed])
     # partitioning that category's *full pool* into named groups (e.g. Trade ->
     # guilds, Quarter -> wards). Rolled in only sometimes (see build_puzzle) and
     # only surfaces via group clues, so a puzzle can have no hierarchy at all. Two
     # partitions on one theme additionally unlock cross-group clues.
+    # The optional 4th element ``fixed`` (default False) keeps the *declared*
+    # membership instead of randomising it — use it when the groups are factual
+    # (e.g. King's-Pawn vs Queen's-Pawn openings) and shuffling would print lies.
     group_defs: tuple = ()
 
     @property
@@ -403,6 +406,22 @@ THEME_SPECS: tuple = (
             ("Rating", "the {}-rated player"),                  # the 1500-rated player
             ("Placing", "the player who placed {}"),            # the player who placed 2nd
         ),
+        # FIXED hierarchy: the eight openings split by their first move into the
+        # King's-Pawn camp (1.e4) and the Queen's-Pawn camp (1.d4) — a real,
+        # textbook classification, so membership is declared (fixed=True) rather
+        # than reshuffled. Restricted to whatever openings a puzzle samples; if a
+        # draw lands entirely in one camp, no hierarchy that puzzle.
+        group_defs=(
+            (
+                "Opening",
+                "camp",
+                (
+                    ("King's-Pawn Camp", ("Caro-Kann", "French", "Italian", "Pirc", "Sicilian")),
+                    ("Queen's-Pawn Camp", ("Benoni", "London", "Slav")),
+                ),
+                True,
+            ),
+        ),
     ),
 )
 
@@ -465,6 +484,25 @@ def _random_groups(partition: tuple, items: list, rng: random.Random,
     return tuple(out)
 
 
+def _fixed_groups(partition: tuple, items: list, min_groups: int = 2) -> tuple:
+    """Restrict a DECLARED partition to the per-puzzle sampled ``items``, keeping
+    the real, factual membership (unlike _random_groups, which reshuffles for
+    flavour). Each group keeps only the items present in this draw; empty groups
+    drop out. Returns ``()`` if fewer than ``min_groups`` non-empty groups
+    survive, so a puzzle that happened to sample within a single group simply
+    carries no hierarchy (and no group clues) rather than a degenerate one."""
+    iset = set(items)
+    out = []
+    for label, members in partition:
+        present = tuple(sorted(m for m in members if m in iset))
+        if present:
+            out.append((label, present))
+    if len(out) < min_groups:
+        return ()
+    out.sort(key=lambda lm: lm[0])  # alphabetical by group label (stable display)
+    return tuple(out)
+
+
 def build_theme(
     spec: ThemeSpec,
     rng: random.Random,
@@ -504,9 +542,12 @@ def build_theme(
         pool_items = sorted(rng.sample(pools[name], items))
         kwargs = {"referent": refs.get(name, "")}
         if name in forced and name in gdefs:
-            grps = _random_groups(gdefs[name][2], pool_items, rng)
+            gd = gdefs[name]
+            fixed = len(gd) > 3 and gd[3]
+            grps = (_fixed_groups(gd[2], pool_items) if fixed
+                    else _random_groups(gd[2], pool_items, rng))
             if grps:  # empty when too few items to form a real hierarchy
-                kwargs["group_noun"] = gdefs[name][1]
+                kwargs["group_noun"] = gd[1]
                 kwargs["groups"] = grps
         cats.append(Category(name, pool_items, **kwargs))
 
