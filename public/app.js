@@ -321,7 +321,7 @@ function render() {
   $("p-desc").textContent = puzzle.description;
   const tier = puzzle.rating ? puzzle.rating.ceiling : null;
   const tierNote = tier != null
-    ? ` · <span title="hardest deduction technique needed (4 = proof by contradiction)">logic tier ${tier}</span>`
+    ? ` · <span title="hardest deduction technique needed (5 = proof by contradiction, 6 = nested what-if)">logic tier ${tier}</span>`
     : "";
   // measured band can differ from the request when a small grid can't reach the
   // asked-for tier — surface that honestly rather than silently downgrading.
@@ -1095,6 +1095,26 @@ async function loadThemes() {
   }
 }
 
+// --- Colour-blind palette toggle. A display-only preference (no re-generation),
+// persisted in localStorage and applied via a `body.cblind` class — see the
+// `body.cblind` block in style.css. Wrapped in try/catch so a blocked
+// localStorage (private mode) degrades to a non-persisted toggle, never a crash.
+const CBLIND_KEY = "lg.colorblind";
+function applyColorblind(on) {
+  document.body.classList.toggle("cblind", on);
+}
+function initColorblind() {
+  let on = false;
+  try { on = localStorage.getItem(CBLIND_KEY) === "1"; } catch (e) { /* no storage */ }
+  $("cblind").checked = on;
+  applyColorblind(on);
+}
+$("cblind").addEventListener("change", (e) => {
+  const on = e.target.checked;
+  applyColorblind(on);
+  try { localStorage.setItem(CBLIND_KEY, on ? "1" : "0"); } catch (e) { /* no storage */ }
+});
+
 $("generate").addEventListener("click", generate);
 $("hint").addEventListener("click", hint);
 $("print").addEventListener("click", () => window.print());
@@ -1124,6 +1144,7 @@ DESKTOP.addEventListener("change", () => { if (puzzle) renderBoard(); });
 window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
 
 (async function init() {
+  initColorblind();
   syncItemOptions();
   await loadThemes();
   try {

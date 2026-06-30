@@ -43,7 +43,7 @@ TIER_NAMES = {
     3: "Clue logic",
     4: "Set logic",
     5: "What-if",
-    6: "What-if",
+    6: "Nested what-if",
 }
 
 
@@ -588,16 +588,28 @@ def _round_setlogic(board, clues, theme, steps) -> bool:
 
 
 def _round_hyp(board, clues, theme, steps) -> bool:
-    before = board.copy()
-    if not _sweep_hypothetical(board, clues, 1):
-        return False
-    for (i, j, a, b, v) in _changes(before, board):
-        step = _step(theme, i, j, a, b, v, 5, _reason_hyp(theme, i, a, j, b, v))
-        # Defer the (expensive) chain reconstruction: stash the pre-what-if board so
-        # only the ONE step a hint actually returns pays for it (see next_hint).
-        step["_ctx"] = (before, i, a, j, b, v)
-        steps.append(step)
-    return True
+    # Mirror deduce.solve's escalation: a single what-if (depth 1, tier 5) first,
+    # then a nested one (depth 2, tier 6) only when the shallow pass can't progress
+    # — so the narrator can carry a puzzle whose stall needs a what-if *inside* a
+    # what-if (the Tera catch-all) instead of stopping short and reporting "done".
+    for depth in (1, 2):
+        before = board.copy()
+        # depth 1 stays exhaustive (minimal proof + step-by-step chain); the nested
+        # depth-2 pass uses early-exit (first=True) so a hint on a Tera nested
+        # what-if returns in a fraction of a second instead of ~a minute.
+        if not _sweep_hypothetical(board, clues, depth, first=(depth == 2)):
+            continue
+        for (i, j, a, b, v) in _changes(before, board):
+            step = _step(theme, i, j, a, b, v, 4 + depth, _reason_hyp(theme, i, a, j, b, v))
+            # Defer the (expensive) chain reconstruction to the ONE step a hint
+            # returns. Only the shallow what-if reconstructs a step-by-step proof —
+            # its refutation is forward propagation (see _whatif_chain); a nested
+            # what-if keeps the correct cell and the plain "suppose … contradiction".
+            if depth == 1:
+                step["_ctx"] = (before, i, a, j, b, v)
+            steps.append(step)
+        return True
+    return False
 
 
 def trace(theme: Theme, clues: list) -> list[dict]:

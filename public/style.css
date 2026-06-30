@@ -445,10 +445,39 @@ td.cell.no.lit { opacity: 1; color: #ffffff; }
 td.cell.wrong { background: rgba(255, 107, 107, .25); }
 td.cell.right { background: rgba(81, 207, 102, .18); }
 
+/* --- Colour-blind mode (body.cblind, toggled in the controls) --------------
+   The most common colour-vision deficiencies (deuter-/protanopia) make the
+   green "✓ / correct / good" and red "✗-mistake / bad" cues hard to tell apart.
+   The ✓(=) and ✗(×) glyphs already differ by *shape*, so the grid marks stay
+   legible regardless; this swap targets the places where colour is the only
+   signal — a correct vs mistaken cell, a good vs bad banner — repainting the
+   red/green pair as blue/orange, which stays distinct across all common types.
+   It only re-points the shared palette variables (plus the two hard-coded cell
+   tints), so every dependent element re-colours automatically. */
+body.cblind {
+  --good: #4dabf7;   /* links, correct marks, success banners → blue   */
+  --bad:  #f08c2e;   /* mistakes, error banners               → orange */
+  --yes:  #1c7ed6;
+}
+body.cblind td.cell.wrong { background: rgba(240, 140, 46, .30); }
+body.cblind td.cell.right { background: rgba(77, 171, 247, .22); }
+
 .loading { text-align: center; color: var(--muted); }
 .error { text-align: center; color: var(--bad); background: rgba(255,107,107,.1); border: 1px solid var(--bad); border-radius: 8px; padding: .75rem; max-width: 600px; margin: 1rem auto; }
 
 footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 2.5rem; }
+/* Subtle "Hire me" — its own centered line below the footer note, low-key until hover. */
+footer .hire {
+  display: block;
+  margin-top: .5rem;
+  font-size: .72rem;
+  letter-spacing: .03em;
+  color: var(--muted);
+  text-decoration: none;
+  opacity: .45;
+  transition: opacity .15s, color .15s;
+}
+footer .hire:hover { opacity: 1; color: var(--accent); }
 
 /* nav link to the guide from the solver header */
 .nav-links { text-align: center; margin: .25rem 0 0; }

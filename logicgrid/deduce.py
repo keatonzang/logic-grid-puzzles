@@ -24,6 +24,7 @@ The board state is the set of pairwise ✓/✗ facts a solver actually sees.
 from __future__ import annotations
 
 import math
+import time
 from itertools import combinations
 
 from .model import Contradiction, Theme
@@ -31,6 +32,14 @@ from .model import Contradiction, Theme
 U, Y, N = 0, 1, 2  # unknown, linked (same entity), not linked
 
 __all__ = ["Contradiction"]  # re-exported: defined in model, caught/raised here
+
+
+class SolveBudgetExceeded(Exception):
+    """A solve hit its wall-clock budget before finishing — distinct from
+    Contradiction (which means *refuted*). Used to bound the depth-2 Tera-recovery
+    solve: a puzzle that needs depth-3 reasoning makes the exhaustive depth-2 scan
+    churn for tens of seconds to prove no depth-2 refutation exists, so the
+    recovery passes a deadline and treats this as 'too deep to verify -> skip'."""
 
 
 class Board:
@@ -793,9 +802,15 @@ def _sweep_clues(board, clues) -> int:
     )
 
 
-def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0) -> None:
+def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0, first: bool = False, deadline=None) -> None:
     """Tiers 1-3 to a fixpoint; with hyp_depth > 0, also apply hypotheticals
     nested up to that depth. Raises Contradiction on conflict.
+
+    ``first`` forwards the early-exit mode into the nested hypotheticals (see
+    _sweep_hypothetical): take the first refuting assumption instead of the minimum
+    one. Cheaper, but the chosen what-if is no longer the minimal-proof one, so it
+    is used only for solvability/grading at depth 2 — never on the canonical
+    depth-1 grade or the hint narrator's minimal proofs.
 
     Note: the grid set-logic sweeps (tier 4) are deliberately NOT run here. Inside
     a what-if they almost never change which assumptions refute (a hypothetical
@@ -808,7 +823,7 @@ def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0) -> None:
             continue
         if _sweep_clues(board, clues):
             continue
-        if hyp_depth and _hypothetical_at(board, clues, hyp_depth):
+        if hyp_depth and _hypothetical_at(board, clues, hyp_depth, first=first, deadline=deadline):
             continue
         return
 
@@ -826,7 +841,7 @@ def _ndet(board) -> int:
 # "easy enough" — take it without scanning further. Cheap stalls (the common case)
 # stop almost immediately; only a stall with no quick refutation pays for the full
 # scan. Tuned so the chosen what-if's proof is short without tripling grade cost.
-def _sweep_hypothetical(board, clues, depth: int) -> int:
+def _sweep_hypothetical(board, clues, depth: int, first: bool = False, deadline=None) -> int:
     """Apply the *easiest* what-if: of every assumption that propagates to a
     contradiction, take the one whose contradiction needs the fewest forced cells.
     A person picks the assumption that blows up quickly, not the first one in
@@ -834,10 +849,21 @@ def _sweep_hypothetical(board, clues, depth: int) -> int:
     the proof a hint will show, so the hint that narrates this step is the shortest
     available rather than an arbitrary deep one. The full scan (every open cell,
     no early stop) makes the choice exact and deterministic; it costs more per
-    solve, a deliberate trade for always surfacing the minimum refutation."""
+    solve, a deliberate trade for always surfacing the minimum refutation.
+
+    ``first`` switches to early-exit: take the FIRST refuting assumption and return,
+    skipping the minimisation scan. A depth-2 scan with an exhaustive depth-1
+    refutation inside it costs ~100x a depth-1 scan (seconds → over a minute on a
+    4x4); early-exit collapses that back to a fraction of a second. The trade is
+    that the chosen what-if is no longer minimal, so this mode is reserved for
+    *solvability/grading* of the deep (Tera catch-all) tier and for picking a
+    nested-what-if hint cell — never the canonical depth-1 grade or a minimal proof.
+    The inner propagation inherits ``first`` so the whole nested scan stays cheap."""
     base = _ndet(board)
     best = None  # (closure_size, i, a, j, b, other)
     for (i, j), m in board.cell.items():
+        if deadline is not None and time.monotonic() > deadline:
+            raise SolveBudgetExceeded()  # bail before churning the rest of the scan
         for a in range(board.n):
             for b in range(board.n):
                 if m[a][b] != U:
@@ -846,8 +872,11 @@ def _sweep_hypothetical(board, clues, depth: int) -> int:
                     test = board.copy()
                     test.set(i, a, j, b, trial)
                     try:
-                        _propagate_to_fixpoint(test, clues, depth - 1)
+                        _propagate_to_fixpoint(test, clues, depth - 1, first=first, deadline=deadline)
                     except Contradiction:
+                        if first:  # solvability only — take the first refutation found
+                            board.set(i, a, j, b, other)
+                            return 1
                         size = _ndet(test) - base  # cells forced before the clash
                         if best is None or size < best[0]:
                             best = (size, i, a, j, b, other)
@@ -858,15 +887,15 @@ def _sweep_hypothetical(board, clues, depth: int) -> int:
     return 1
 
 
-def _hypothetical_at(board, clues, max_depth: int) -> int:
+def _hypothetical_at(board, clues, max_depth: int, first: bool = False, deadline=None) -> int:
     """Try shallow hypotheticals first, deepening only when needed."""
     for depth in range(1, max_depth + 1):
-        if _sweep_hypothetical(board, clues, depth):
+        if _sweep_hypothetical(board, clues, depth, first=first, deadline=deadline):
             return depth
     return 0
 
 
-def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
+def solve(theme: Theme, clues: list, max_hyp_depth: int = 1, first: bool = False, deadline=None) -> dict:
     """Solve by pure deduction, cheapest technique first. Returns a report:
       solved, needs_guessing, ceiling (highest tier used), steps (per tier),
       total_steps, board.
@@ -874,7 +903,12 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
     Hypotheticals (tier 5 = depth 1, tier 6 = depth 2, …) kick in when forward
     propagation stalls, escalating depth only as needed — so unique puzzles solve
     with no guessing. max_hyp_depth caps the deepest nesting (0 = forward only).
-    """
+
+    ``first`` switches the what-if scans to early-exit (see _sweep_hypothetical):
+    far cheaper at depth 2, but the per-tier step counts become path-dependent, so
+    it is for *solvability* checks (the Tera catch-all), not the canonical grade.
+    ``deadline`` (a time.monotonic() value) bounds the what-if scans: if exceeded,
+    SolveBudgetExceeded propagates out (the Tera recovery catches it and skips)."""
     board = Board(theme)
     steps = {t: 0 for t in range(7)}
     steps[0] = _apply_givens(board, clues)
@@ -897,7 +931,7 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
             continue
         progressed = False
         for depth in range(1, max_hyp_depth + 1):
-            c = _sweep_hypothetical(board, clues, depth)
+            c = _sweep_hypothetical(board, clues, depth, first=first, deadline=deadline)
             if c:
                 steps[4 + depth] += c  # depth 1 -> tier 5, depth 2 -> tier 6
                 progressed = True
@@ -917,51 +951,59 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
     }
 
 
-# Difficulty bands by the hardest technique a solve forces (its *ceiling*):
-#   normal  ceiling <=2   givens / line-elimination / transitivity only
-#   hard    ceiling ==3-4  clue-logic propagation and grid set-logic, no what-ifs
-#   mega    ceiling ==5    needs what-ifs — low composite difficulty
-#   giga    ceiling ==5    medium composite difficulty
-#   tera    ceiling ==5    high composite difficulty, or a nested what-if (ceiling >=6)
-# The ceiling fixes the *kind* of reasoning; ceiling 5 (proof-by-contradiction) is
-# by far the most common hard outcome, so the top three tiers split it by a
-# composite difficulty INDEX rather than a single (flimsy) what-if count.
+# Difficulty bands. The reasoning *ceiling* brackets which bands the composite
+# index may pick, so the ladder reads as depth-of-reasoning with the index
+# softening hardness *within* a depth (and blending the boundaries between the
+# lower tiers):
+#   normal/hard/mega/giga  ceiling <=4   forward solving (givens → set-logic); the
+#                          index splits these four smoothly, no hard gates between
+#   mega/giga/tera         ceiling ==5   a single what-if; floored to >= mega so a
+#                          what-if is never labelled normal/hard, index splits the rest
+#   tera                   ceiling >=6   a nested what-if (proof inside a proof) —
+#                          the catch-all top tier for the deepest reasoning we verify
+# So a forward-only solve tops out at giga (tera is reserved for genuine what-if
+# depth, not mere clue density), and a what-if floors at mega — between those
+# brackets the index decides. See band_of.
 DIFFICULTY_ORDER = ("normal", "hard", "mega", "giga", "tera")
 
-# The index blends three signals that are largely independent within the
-# contradiction tier (measured |corr| <= 0.3), so they corroborate difficulty from
-# different angles rather than restating one number:
-#   * whatif   — volume of proof-by-contradiction steps (reasoning effort)
-#   * lognodes — log2 of the backtracking search-tree size (how much blind search
-#                the clues leave after propagation — see solver.search_effort)
-#   * cluecost — mean clue cognitive weight (how sophisticated the clues are)
-# Each is centred/scaled by its measured median and spread so it contributes
-# comparably; the sum is the index, which alone names the band. (median, scale):
-_INDEX_NORM = {"whatif": (1.0, 2.85), "lognodes": (3.32, 0.96), "cluecost": (3.2, 0.68)}
-# The whole ladder is one index, split into FIVE equal-frequency bands. The four
-# cuts are the measured quintiles of a representative rich-pool sample (~240
-# puzzles), recomputed after the tier-4 set-logic addition shifted the what-if
-# distribution. Sorting puzzles by the index reproduces the reasoning-ceiling
-# ordering on its own (low bands are line/transitivity/clue-logic, high bands
-# progressively harder proof-by-contradiction), with the index resolving hardness
-# *within* a ceiling. Difficulty deliberately does NOT scale linearly — the cuts
-# are wherever the population splits into fifths. One band per cut, low to high:
-_BAND_CUTS = (-1.17, -0.04, 1.02, 2.31)  # normal · hard · mega · giga · tera quintiles
+# The index is a *human-effort* score, built on the deductive solve (our model of
+# a human solver) — NOT the backtracking search, which models work a person never
+# does. It resolves hardness *within* a ceiling bracket (see band_of), so it reads
+# as "how much work for a player who has these techniques". Two signals:
+#   * effort   — log1p of the deductive step count, each tier weighted by its human
+#                cost (_TIER_EFFORT): transitivity cheap … nested what-if dear. This
+#                is the dominant axis (more steps of harder techniques = harder).
+#   * cluecost — mean clue cognitive weight (reading / working-memory load).
+# Each is centred/scaled (centre, robust-spread) so the two contribute comparably;
+# the sum is the index. Re-based from a ~370-puzzle raw-signal sample; the old
+# blend was dominated by `lognodes` saturating the search cap (a search metric,
+# not a human one), so within-tier ordering tracked search size, not reasoning.
+_TIER_EFFORT = {2: 1, 3: 4, 4: 12, 5: 40, 6: 120}  # human-cost weight per deductive tier
+_INDEX_NORM = {"effort": (5.199, 1.137), "cluecost": (2.813, 1.189)}  # (centre, scale)
+# The four index cuts that split the ladder into five bands, applied *under* the
+# ceiling brackets in band_of. Re-derived (coordinate descent) on the re-based
+# index over the same sample, weighted to uniform difficulty demand (basic .2,
+# mid .2, rich .6). Demand-weighted result is near-even fifths:
+#   normal 20% · hard 18% · mega 20% · giga 20% · tera 23%
+# and within a fixed ceiling the index now correlates with human effort
+# (corr ~0.72 with what-if volume in the what-if tier) rather than search size.
+_BAND_CUTS = (-2.18, -0.065, 0.463, 1.412)  # normal · hard · mega · giga · tera
 
 
 def difficulty_index(report: dict) -> float:
-    """Composite difficulty score spanning the whole ladder (see _INDEX_NORM).
-    Robust to any one signal being noisy because three near-independent signals
-    must agree."""
-    whatif = report["steps"][5] + report["steps"][6]
-    lognodes = math.log2(max(1, report.get("nodes", 1)))
+    """Human-effort difficulty score (see _INDEX_NORM): weighted deductive step
+    effort plus clue cognitive load, each z-scored and summed. Built on the
+    deductive solve's per-tier step counts, so it measures the work a rank-matched
+    human does, not the backtracking search the clues leave behind."""
+    s = report["steps"]
+    effort = math.log1p(sum(w * s[t] for t, w in _TIER_EFFORT.items()))
     cluecost = report.get("clue_cost", {}).get("mean", _INDEX_NORM["cluecost"][0])
 
     def z(name, x):
-        m, s = _INDEX_NORM[name]
-        return (x - m) / s
+        c, sc = _INDEX_NORM[name]
+        return (x - c) / sc
 
-    return z("whatif", whatif) + z("lognodes", lognodes) + z("cluecost", cluecost)
+    return z("effort", effort) + z("cluecost", cluecost)
 
 
 def band_of(report: dict) -> str:
@@ -969,10 +1011,24 @@ def band_of(report: dict) -> str:
     index (see _BAND_CUTS / DIFFICULTY_ORDER). A nested what-if (ceiling >= 6) is
     unconditionally the top tier — its index lands there anyway, but the floor
     guards against an undersampled scale."""
+    # Nested what-if (a proof inside a proof) is the deepest reasoning we verify —
+    # unconditionally the top tier, the catch-all for "harder than giga".
     if report["ceiling"] >= 6:
         return DIFFICULTY_ORDER[-1]
     d = difficulty_index(report)
     band = sum(d >= cut for cut in _BAND_CUTS)  # 0..4 -> index into the order
+    # Bracket the soft index by the reasoning ceiling so the ladder tracks depth:
+    #   * a what-if (ceiling 5) is at least 'mega' — never normal/hard, so a mild-
+    #     index what-if can't slip into 'hard' (which must need no proof-by-
+    #     contradiction); without this a long but low-signal chain used to.
+    #   * a forward-only solve (ceiling <= 4) is at most 'giga' — 'tera' is reserved
+    #     for genuine what-if depth, so a merely clue-dense puzzle can't top out the
+    #     scale with zero contradiction reasoning (previously ~half of 'tera' grids
+    #     were ceiling-3, no what-if at all).
+    if report["ceiling"] >= 5:
+        band = max(band, DIFFICULTY_ORDER.index("mega"))
+    else:
+        band = min(band, DIFFICULTY_ORDER.index("giga"))
     return DIFFICULTY_ORDER[band]
 
 
@@ -981,20 +1037,20 @@ def _score(r: dict) -> int:
     return r["ceiling"] * 1000 + s[6] * 200 + s[5] * 50 + s[4] * 15 + s[3] * 5 + s[2]
 
 
-def grade(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
+def grade(theme: Theme, clues: list, max_hyp_depth: int = 1, first: bool = False, deadline=None) -> dict:
     """Difficulty report: band + ordinal score (ceiling dominates).
 
     A single escalating solve reports the *ceiling* (the hardest technique it
     actually used) and the per-tier step counts, which `band_of` turns into a
     band. Grading caps at one round of contradiction reasoning by default
-    (`max_hyp_depth=1`): the whole normal..tera ladder is reachable from there
-    because the top tiers are distinguished by the *number* of what-ifs, not by
-    nested ones. A puzzle that still won't solve is 'ambiguous' (needs deeper
-    nesting than we verify) and is skipped at generation, so we only ship puzzles
-    proven solvable by logic. (`solve(..., max_hyp_depth=2)` reasons deeper for
-    offline analysis.)
-    """
-    r = solve(theme, clues, max_hyp_depth=max_hyp_depth)
+    (`max_hyp_depth=1`): normal..giga are all reachable from there (they are
+    distinguished by the *number* of single what-ifs, not nested ones). A puzzle
+    that still won't solve at that depth is 'ambiguous'; Tera (the catch-all)
+    re-grades it at `max_hyp_depth=2, first=True` to recover nested what-ifs cheaply
+    (see generate.generate_rated), and anything still unsolved needs deeper nesting
+    than we verify and is skipped, so we only ship puzzles proven solvable by logic.
+    ``first`` forwards the early-exit what-if mode for that cheap deep check."""
+    r = solve(theme, clues, max_hyp_depth=max_hyp_depth, first=first, deadline=deadline)
     r.update(_advanced_metrics(theme, clues))
     r["band"] = band_of(r) if r["solved"] else "ambiguous"
     r["score"] = _score(r)
@@ -1002,17 +1058,17 @@ def grade(theme: Theme, clues: list, max_hyp_depth: int = 1) -> dict:
 
 
 def _advanced_metrics(theme: Theme, clues: list) -> dict:
-    """Difficulty signals beyond the technique ceiling: the backtracking
-    search-tree size (how much blind search the clues leave — propagation-
-    independent) and the clue set's cognitive load (mean/max/total reading
-    weight). Reported on every grade so they can corroborate the band."""
+    """Signals attached to every grade: the clue set's cognitive load (mean/max/
+    total reading weight — `clue_cost` feeds difficulty_index) and the backtracking
+    search-tree size (`nodes`). NOTE: `nodes` no longer feeds the index — it modelled
+    blind search a human never does and saturated the cap, dominating the old blend;
+    the index is now human-effort based (see difficulty_index). It is kept only as an
+    informational stat on the payload, and is cheap, so the search stays capped low."""
     from .clues import clueset_metrics
     from .solver import search_effort
 
     return {
-        # capped low enough to stay cheap on every grade; a saturated (very loose)
-        # search just reports the cap, which is already a strong "hard" signal
-        "nodes": search_effort(theme, clues, max_nodes=60_000),
+        "nodes": search_effort(theme, clues, max_nodes=60_000),  # informational only
         "clue_cost": clueset_metrics(clues),
     }
 

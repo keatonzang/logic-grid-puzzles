@@ -542,6 +542,15 @@ def build_clue_pool(
                 pc = rng.choice([c for c in range(k) if c != qc])
                 if rng.random() < 0.5:  # the GROUP branch is the true one
                     ep = rng.choice([e for e in range(n) if e != eq])
+                    # The named link must not be subsumed by the existential: if it
+                    # names the SAME grouped category and an item that sits in the
+                    # very group the existential covers, then "link holds" already
+                    # forces pred into that group — the disjunction collapses to its
+                    # group branch, reading as a redundant clue (e.g. "either Edmund
+                    # is in Oldwall, or someone in the River Ward is Edmund" when
+                    # Oldwall *is* in the River Ward). Skip those draws.
+                    if pc == gc and X[ep][gc] in set(parts[gi]):
+                        continue
                     link = Link((pc, X[ep][pc]), pred)  # false: a different entity
                     grp = GroupLink(pred, gc, labels[gi], parts[gi], subject=True)
                 else:  # the NAMED branch is the true one
@@ -968,18 +977,34 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
 # (which also caps their worst-case generation latency).
 _RATED_ATTEMPTS = {"normal": 8, "hard": 9, "mega": 16, "giga": 14, "tera": 14}
 
+# Wall-clock cap on the depth-2 Tera-recovery solve. A genuine nested what-if
+# refutes well within this (early-exit finds the first refutation fast); only a
+# depth-3 puzzle — which we don't ship — runs long, so blowing the budget means
+# "skip". Generous enough not to drop legitimate recoveries on a large grid.
+_TERA_RECOVERY_BUDGET_S = 3.0
+
 
 def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int | None = None):
     """Generate-and-grade: sample candidates until one's *measured* difficulty
     band matches `target`, guaranteeing a logic-solvable (no-guessing) puzzle.
 
     `make_theme(rng)` builds a (possibly randomized) theme per attempt. Returns
-    (theme, puzzle, report). Ambiguous puzzles (need deeper nesting than the grader
-    verifies) are skipped; if the exact band is never hit within the attempt budget
-    the closest solvable one is returned, so a tiny grid that simply can't reach
-    `tera` degrades gracefully to the hardest it can manage.
+    (theme, puzzle, report).
+
+    Grading runs at a single what-if (depth 1) by default — cheap, and enough to
+    place normal..giga. `tera` is the *catch-all* for anything harder: when a
+    candidate stalls at depth 1 (graded `ambiguous`) on a `tera` request, it is
+    re-graded at depth 2 to recover puzzles that need a nested what-if (a what-if
+    inside a what-if) rather than discarding them — so the deepest reasoning lands
+    in tera instead of the bin. The depth-2 pass is paid only on that stuck
+    minority, keeping latency bounded. A candidate still ambiguous at depth 2 needs
+    deeper nesting than we verify and is skipped; if the exact band is never hit
+    within the attempt budget the closest solvable one is returned, so a tiny grid
+    that simply can't reach `tera` degrades gracefully to the hardest it can manage.
     """
-    from .deduce import grade  # local import avoids a module cycle
+    import time
+
+    from .deduce import SolveBudgetExceeded, grade  # local import avoids a module cycle
 
     if target not in DIFFICULTIES:
         raise ValueError(f"unknown difficulty: {target!r}")
@@ -991,6 +1016,23 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
         theme = make_theme(rng)
         puzzle = generate_puzzle(theme, rng, difficulty=target)
         report = grade(theme, puzzle.clues)
+        if report["band"] == "ambiguous" and target == "tera":
+            # Tera catch-all: a puzzle that stalls at depth 1 but solves with a
+            # nested what-if is the *deepest* reasoning we ship — recover it instead
+            # of binning it. The early-exit (first=True) depth-2 solve is a cheap
+            # solvability check (~0.2s vs ~70s exhaustive); being ambiguous at depth
+            # 1 already proves it needs more than a single what-if, so it IS tera.
+            # A puzzle that needs depth-3, though, makes even the early-exit scan
+            # churn for tens of seconds proving no depth-2 refutation exists — so
+            # cap it with a wall-clock deadline and skip anything that blows it.
+            try:
+                deep = grade(theme, puzzle.clues, max_hyp_depth=2, first=True,
+                             deadline=time.monotonic() + _TERA_RECOVERY_BUDGET_S)
+                if deep["solved"]:
+                    deep["band"] = "tera"
+                    report = deep
+            except SolveBudgetExceeded:
+                continue  # too deep to verify cheaply -> not shipping it
         if report["band"] == "ambiguous":
             continue  # needs deeper nesting than we verify — not shipping it
         if report["band"] == target:

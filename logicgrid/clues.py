@@ -71,6 +71,25 @@ def _low(s: str) -> str:
     return s[:1].lower() + s[1:]
 
 
+def _multi_ordered(theme: Theme) -> bool:
+    """Whether the puzzle has more than one ordered category — the case where a
+    bare comparison partner ("…next to Dasari") is ambiguous about *which*
+    sequential scale is meant."""
+    return sum(1 for c in theme.categories if c.ordered) >= 2
+
+
+def _side(theme: Theme, term: Term, cat: int) -> str:
+    """The non-subject side of a sequential comparison on ordered category ``cat``.
+
+    Normally the bare entity reference ("Dasari", "the order with Latte") — the
+    scale is already named once on the leading side. But when the puzzle has more
+    than one ordered category, restate the dimension on the partner too
+    ("Dasari's distance") so it's unambiguous which ranking the comparison reads."""
+    if _multi_ordered(theme):
+        return f"{_poss(theme, term)} {_low(theme.categories[cat].name)}"
+    return _ref(theme, term)
+
+
 class Clue:
     removal_class = 1
     involved: frozenset
@@ -131,7 +150,7 @@ class Greater(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
-        return f"{_cap(_ref(theme, self.a))} has {cat.article}higher {cn} than {_ref(theme, self.b)}."
+        return f"{_cap(_ref(theme, self.a))} has {cat.article}higher {cn} than {_side(theme, self.b, self.cat)}."
 
 
 class Diff(Clue):
@@ -152,7 +171,7 @@ class Diff(Clue):
         cat = theme.categories[self.cat]
         return (
             f"{_cap(_poss(theme, self.a))} {_low(cat.name)} {cat.verb} exactly {cat.amount(self.delta)} more "
-            f"than {_ref(theme, self.b)}."
+            f"than {_side(theme, self.b, self.cat)}."
         )
 
 
@@ -176,8 +195,8 @@ class Between(Clue):
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
         return (
-            f"{_cap(_poss(theme, self.c))} {cn} {cat.verb} between {_ref(theme, self.a)} "
-            f"and {_ref(theme, self.b)}."
+            f"{_cap(_poss(theme, self.c))} {cn} {cat.verb} between {_side(theme, self.a, self.cat)} "
+            f"and {_side(theme, self.b, self.cat)}."
         )
 
 
@@ -197,7 +216,7 @@ class Adjacent(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
-        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately below {_ref(theme, self.b)}."
+        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately below {_side(theme, self.b, self.cat)}."
 
 
 class NextTo(Clue):
@@ -219,7 +238,7 @@ class NextTo(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
-        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately next to {_ref(theme, self.b)}."
+        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately next to {_side(theme, self.b, self.cat)}."
 
 
 class AtLeastApart(Clue):
@@ -242,7 +261,7 @@ class AtLeastApart(Clue):
         cat = theme.categories[self.cat]
         return (
             f"{_cap(_poss(theme, self.a))} {_low(cat.name)} {cat.verb} at least {cat.amount(self.delta)} more "
-            f"than {_ref(theme, self.b)}."
+            f"than {_side(theme, self.b, self.cat)}."
         )
 
 
@@ -271,7 +290,7 @@ class AbsApart(Clue):
         rel = "at least" if self.at_least else "at most"
         return (
             f"{_cap(_poss(theme, self.a))} {_low(cat.name)} {cat.verb} {rel} {cat.amount(self.delta)} away "
-            f"from {_ref(theme, self.b)}."
+            f"from {_side(theme, self.b, self.cat)}."
         )
 
 
@@ -294,7 +313,7 @@ class MultiCompare(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
-        labels = [_ref(theme, o) for o in self.others]
+        labels = [_side(theme, o, self.cat) for o in self.others]
         rel = "more" if self.greater else "less"
         joiner = "both " if len(labels) == 2 else "all of "
         return f"{_cap(_poss(theme, self.c))} {cn} {cat.verb} {rel} than {joiner}{_join(labels, 'and')}."
