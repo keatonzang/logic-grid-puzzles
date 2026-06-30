@@ -359,6 +359,33 @@ THEME_SPECS: tuple = (
             ),
         ),
     ),
+    ThemeSpec(
+        key="chess",
+        name="The Chess Club",
+        description=(
+            "Regulars at the chess club each swear by a different opening, a "
+            "favourite tactic, and a prized set. Work out who plays what."
+        ),
+        entity_noun="player",
+        subject_name="Player",
+        subject_items=("Anatoly", "Boris", "Garry", "Judit", "Magnus", "Mikhail", "Nadia", "Vera"),
+        attributes=(
+            ("Opening", ("Benoni", "Caro-Kann", "French", "Italian", "London", "Pirc", "Sicilian", "Slav")),
+            ("Tactic", ("Discovery", "Fork", "Gambit", "Pin", "Sacrifice", "Skewer", "Zugzwang", "Zwischenzug")),
+            ("Set", ("Boxwood", "Ebony", "Glass", "Maple", "Marble", "Pewter", "Rosewood", "Walnut")),
+            ("Checkmate", ("Anastasia's", "Arabian", "Back-rank", "Boden's", "Damiano's", "Hook", "Scholar's", "Smothered")),
+        ),
+        # Rating (Elo) is the ordered category — unlocks higher/lower, between,
+        # next-to and exact-difference ("100 more") clues. Evenly-spaced values.
+        numeric=NumericSpec("Rating", min_start=1200, start_max=2000, steps=(50, 100)),
+        referents=(
+            ("Opening", "the {} player"),                       # the Sicilian player
+            ("Tactic", "the player who loves the {}"),          # the player who loves the Fork
+            ("Set", "the player with the {} set"),              # the player with the Ebony set
+            ("Checkmate", "the player known for the {} mate"),  # ... the Smothered mate
+            ("Rating", "the {}-rated player"),                  # the 1500-rated player
+        ),
+    ),
 )
 
 THEMES: dict = {spec.key: spec for spec in THEME_SPECS}
