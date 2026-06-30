@@ -150,7 +150,12 @@ class Greater(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
-        return f"{_cap(_ref(theme, self.a))} has {cat.article}higher {cn} than {_side(theme, self.b, self.cat)}."
+        if _multi_ordered(theme):
+            # Parallel possessive form ("X's placing is higher than Y's placing"),
+            # matching the other sequential clues — avoids the doubled-noun read
+            # "a higher placing than Y's placing" when the partner restates the scale.
+            return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} higher than {_side(theme, self.b, self.cat)}."
+        return f"{_cap(_ref(theme, self.a))} has {cat.article}higher {cn} than {_ref(theme, self.b)}."
 
 
 class Diff(Clue):

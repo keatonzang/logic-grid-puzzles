@@ -18,6 +18,12 @@ from .generate import DIFFICULTIES, generate_rated
 from .hint import next_hint
 from .model import Category, Theme
 
+def _ordinal(n: int) -> str:
+    """1 -> '1st', 2 -> '2nd', 3 -> '3rd', 4 -> '4th', … (used for placing labels)."""
+    suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
 MIN_ITEMS = 3
 MAX_ITEMS = 5
 DEFAULT_ITEMS = 4
@@ -47,6 +53,10 @@ class NumericSpec:
     are 1..N rendered through the unit ("Period 1"), the category has rank order
     but no values, so it gets higher/lower / next-to / between clues but never the
     exact-difference ones ("2 more" makes no sense for an ordinal).
+
+    ``ordinal`` (implies not valued) renders *placing* words — "1st", "2nd", … —
+    with the BEST place at the top of the rank order, so the engine's "higher"
+    reads as "placed better" (1st outranks 5th). Use for finishing positions.
     """
 
     name: str
@@ -57,6 +67,7 @@ class NumericSpec:
     steps: tuple = (1, 2)
     prob: float = 0.5  # chance an eligible (medium/hard) puzzle includes it
     valued: bool = True  # False => ordinal only (no exact-difference clues)
+    ordinal: bool = False  # render placing words (1st, 2nd, …); 1st = highest rank
 
     def label(self, v: int) -> str:
         return f"{self.unit_prefix}{v}{self.unit_suffix}"
@@ -378,12 +389,19 @@ THEME_SPECS: tuple = (
         # Rating (Elo) is the ordered category — unlocks higher/lower, between,
         # next-to and exact-difference ("100 more") clues. Evenly-spaced values.
         numeric=NumericSpec("Rating", min_start=1200, start_max=2000, steps=(50, 100)),
+        # A second ordered dial (rich tiers, K>=4 only): the tournament Placing —
+        # an ordinal in placing words (1st = best = highest rank), so "higher
+        # placing" reads as "finished better". No values, so no "2 more" clues.
+        # When it appears alongside Rating, clue text names which scale each side
+        # is on ("…'s rating" vs "…'s placing").
+        extra_numerics=(NumericSpec("Placing", valued=False, ordinal=True),),
         referents=(
             ("Opening", "the {} player"),                       # the Sicilian player
             ("Tactic", "the player who loves the {}"),          # the player who loves the Fork
             ("Set", "the player with the {} set"),              # the player with the Ebony set
             ("Checkmate", "the player known for the {} mate"),  # ... the Smothered mate
             ("Rating", "the {}-rated player"),                  # the 1500-rated player
+            ("Placing", "the player who placed {}"),            # the player who placed 2nd
         ),
     ),
 )
@@ -498,7 +516,10 @@ def build_theme(
             start = rng.randint(ns.min_start, ns.start_max)
             values = [start + i * step for i in range(items)]  # evenly spaced = rank order
             labels = [ns.label(v) for v in values]
-        else:  # ordinal: 1..N in rank order, no values (no difference clues)
+        elif ns.ordinal:  # placing words; rank order puts 1st last (= highest rank),
+            values = None  # so the engine's "higher" reads as "placed better"
+            labels = [_ordinal(items - i) for i in range(items)]
+        else:  # plain ordinal: 1..N in rank order, no values (no difference clues)
             values = None
             labels = [ns.label(i + 1) for i in range(items)]
         cats.append(
