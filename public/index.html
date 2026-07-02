@@ -11,13 +11,14 @@
   <header>
     <h1>🧩 Logic Grid Puzzles</h1>
     <p class="tagline">Every puzzle has exactly one solution. Click a cell to cycle <b>blank → ✓ → ✗</b>, cross off clues as you use them, and hit <b>Hint</b> when stuck.</p>
-    <p class="nav-links"><a href="/guide">📖 How to solve &amp; clue reference</a></p>
+    <p class="nav-links"><a href="/guide">📖 How to solve &amp; clue reference</a> · <a href="/builder">🛠 Create your own theme</a></p>
   </header>
 
   <section class="controls">
     <label>Theme
       <select id="theme"></select>
     </label>
+    <input id="theme-file" type="file" accept=".json,application/json" hidden />
     <label>Difficulty
       <select id="difficulty">
         <option value="normal" selected>Normal</option>

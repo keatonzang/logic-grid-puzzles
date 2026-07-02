@@ -1,0 +1,137 @@
+"""Custom (user-authored) theme documents: determinism, round-trip, validation.
+
+The contract: a theme is one self-contained JSON document (the builder's
+export, `logicgrid.themes` format); the same (document, difficulty, seed)
+always rebuilds the identical puzzle, and /api/hint regenerates it from the
+same document the client generated with.
+"""
+
+from __future__ import annotations
+
+import json
+
+import pytest
+
+from logicgrid.themes import theme_from_dict, theme_to_dict, theme_to_json, theme_from_json
+from logicgrid.webapi import build_custom_puzzle, build_hint, build_payload
+
+
+def farm_doc(**overrides) -> dict:
+    doc = {
+        "name": "Test Farm",
+        "description": "Who grows what.",
+        "entity_noun": "plot",
+        "categories": [
+            {"name": "Farmer", "items": ["Ada", "Bram", "Cleo", "Dov"]},
+            {"name": "Crop", "items": ["Kale", "Maize", "Oats", "Rye"]},
+            {
+                "name": "Acreage",
+                "items": ["2 acres", "4 acres", "6 acres", "8 acres"],
+                "ordered": True,
+                "values": [2, 4, 6, 8],
+            },
+        ],
+    }
+    doc.update(overrides)
+    return doc
+
+
+def grouped_doc() -> dict:
+    doc = farm_doc()
+    doc["categories"][1]["group_noun"] = "field"
+    doc["categories"][1]["groups"] = [
+        {"label": "North Field", "items": ["Kale", "Maize"]},
+        {"label": "South Field", "items": ["Oats", "Rye"]},
+    ]
+    return doc
+
+
+def test_same_doc_settings_seed_is_byte_identical():
+    for difficulty in ("normal", "hard", "mega"):
+        a = build_payload(seed=7, difficulty=difficulty, theme_doc=farm_doc())
+        b = build_payload(seed=7, difficulty=difficulty, theme_doc=farm_doc())
+        assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+        assert a["theme"] == "custom"
+        assert a["seed"] == 7
+
+
+def test_doc_roundtrip_through_file_preserves_puzzle():
+    # download -> re-upload must be the SAME theme: the exported JSON round-trips
+    # and regenerates the identical puzzle for the same seed.
+    doc = grouped_doc()
+    theme = theme_from_dict(doc)
+    reexported = theme_to_dict(theme)
+    reimported = theme_from_json(theme_to_json(theme))
+    assert theme_to_dict(reimported) == reexported
+    a = build_payload(seed=11, difficulty="hard", theme_doc=doc)
+    b = build_payload(seed=11, difficulty="hard", theme_doc=reexported)
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+
+
+def test_hint_regenerates_custom_puzzle():
+    payload = build_payload(seed=5, difficulty="hard", theme_doc=farm_doc())
+    hint = build_hint(5, "hard", 0, 0, {}, theme_doc=farm_doc())
+    assert hint.get("text")
+    # the hint indexes real categories of the regenerated puzzle
+    i, j = (int(x) for x in hint["key"].split("-"))
+    assert 0 <= i < len(payload["categories"])
+    assert 0 <= j < len(payload["categories"])
+
+
+def test_grouped_custom_theme_generates():
+    payload = build_payload(seed=2, difficulty="mega", theme_doc=grouped_doc())
+    assert payload["difficulty"] in ("normal", "hard", "mega", "giga", "tera")
+    assert any(c.get("groups") for c in payload["categories"])
+
+
+@pytest.mark.parametrize(
+    "mutate, message",
+    [
+        (lambda d: d.pop("categories"), "malformed"),
+        (lambda d: d["categories"][0]["items"].append("Ada"), "duplicate"),
+        (lambda d: d["categories"][0]["items"].pop(), "items"),
+        (lambda d: d.update(categories=d["categories"][:1]), "categories"),
+    ],
+)
+def test_bad_docs_raise_value_error(mutate, message):
+    doc = farm_doc()
+    mutate(doc)
+    with pytest.raises(ValueError) as exc:
+        build_custom_puzzle(3, "normal", doc)
+    assert message.lower() in str(exc.value).lower()
+
+
+def test_non_dict_doc_rejected():
+    with pytest.raises(ValueError):
+        build_custom_puzzle(3, "normal", "not a dict")  # type: ignore[arg-type]
+    with pytest.raises(ValueError):
+        build_custom_puzzle(3, "bogus-difficulty", farm_doc())
+
+
+def test_api_puzzle_post_and_hint_roundtrip():
+    # Through the actual serverless handlers' response builders.
+    import importlib
+    import os
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api"))
+    puzzle_api = importlib.import_module("puzzle")
+    hint_api = importlib.import_module("hint")
+
+    status, payload = puzzle_api._build_custom_response(
+        {"theme_doc": farm_doc(), "difficulty": "hard", "seed": 9}
+    )
+    assert status == 200 and payload["theme"] == "custom" and payload["seed"] == 9
+
+    status2, hint = hint_api._build_response(
+        {"seed": 9, "difficulty": "hard", "theme_doc": farm_doc(), "known": {}}
+    )
+    assert status2 == 200 and hint.get("text")
+
+    status3, err = puzzle_api._build_custom_response({"theme_doc": "nope"})
+    assert status3 == 400 and "theme_doc" in err["error"]
+
+    status4, err4 = hint_api._build_response(
+        {"seed": 1, "theme_doc": ["not", "a", "dict"], "known": {}}
+    )
+    assert status4 == 400 and "theme_doc" in err4["error"]

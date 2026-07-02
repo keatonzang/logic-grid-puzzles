@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theme Builder · Logic Grid Puzzles</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🛠</text></svg>" />
+  <style>
+    /* Builder-page layout only — visual language comes from style.css. */
+    .builder-wrap { max-width: 980px; margin: 0 auto; padding: 0 1rem 3rem; }
+    .builder-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+    @media (max-width: 880px) { .builder-grid { grid-template-columns: 1fr; } }
+    .card { background: var(--panel, #141a2e); border: 1px solid var(--border, #2a3350); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1.1rem; }
+    .card h3 { margin: 0 0 .7rem; }
+    .field { display: block; margin: 0 0 .7rem; font-size: .92rem; }
+    .field > span { display: block; margin-bottom: .25rem; opacity: .85; }
+    .field input[type="text"], .field textarea, .field select {
+      width: 100%; box-sizing: border-box; background: var(--bg, #0b1020); color: inherit;
+      border: 1px solid var(--border, #2a3350); border-radius: 6px; padding: .45rem .55rem; font: inherit;
+    }
+    .field textarea { min-height: 5.5em; resize: vertical; }
+    .field small { display: block; opacity: .6; margin-top: .2rem; }
+    .row { display: flex; gap: .8rem; flex-wrap: wrap; }
+    .row > .field { flex: 1 1 10rem; }
+    .inline-check { display: inline-flex; align-items: center; gap: .4rem; margin-right: 1rem; font-size: .92rem; }
+    .cat-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+    .cat-head h4 { margin: 0; }
+    .cat-tools button { margin-left: .35rem; }
+    .builder-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1rem 0; }
+    .ordered-extra, .groups-extra { border-left: 3px solid var(--border, #2a3350); padding-left: .8rem; margin-top: .5rem; }
+    #b-error { white-space: pre-wrap; }
+    #preview-clues li { margin-bottom: .35rem; }
+    .ok { color: #7dd97d; }
+    .muted { opacity: .65; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛠 Theme Builder</h1>
+    <p class="tagline">Design your own logic-grid theme, download it as a single file, and play it — same file + same seed is always the <b>exact same puzzle</b>.</p>
+    <p class="nav-links"><a href="/">🧩 Back to the puzzles</a> · <a href="/guide">📖 How to solve &amp; clue reference</a></p>
+  </header>
+
+  <div class="builder-wrap">
+    <div class="builder-actions">
+      <button id="b-add-cat">＋ Add category</button>
+      <button id="b-upload">📂 Upload theme…</button>
+      <input id="b-file" type="file" accept=".json,application/json" hidden />
+      <button id="b-download" class="primary">⬇ Download theme file</button>
+      <button id="b-play">▶ Play this theme</button>
+    </div>
+
+    <div class="builder-grid">
+      <div>
+        <section class="card">
+          <h3>Theme</h3>
+          <label class="field"><span>Name</span>
+            <input id="b-name" type="text" placeholder="The Night Market" />
+          </label>
+          <label class="field"><span>Description (shown under the title)</span>
+            <textarea id="b-desc" placeholder="Five vendors set up stalls one evening…"></textarea>
+          </label>
+          <label class="field"><span>Entity noun — what one row of the solution is</span>
+            <input id="b-noun" type="text" placeholder="stall" />
+            <small>e.g. “order”, “artisan”, “stall”: clues read “…belong to different stalls”.</small>
+          </label>
+        </section>
+
+        <div id="b-cats"></div>
+      </div>
+
+      <div>
+        <section class="card">
+          <h3>Try it</h3>
+          <div class="row">
+            <label class="field"><span>Difficulty</span>
+              <select id="b-difficulty">
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+                <option value="mega">Mega</option>
+                <option value="giga">Giga</option>
+                <option value="tera">Tera</option>
+              </select>
+            </label>
+            <label class="field"><span>Seed (blank = random)</span>
+              <input id="b-seed" type="text" inputmode="numeric" placeholder="random" />
+            </label>
+          </div>
+          <div class="builder-actions">
+            <button id="b-generate" class="primary">Generate preview</button>
+          </div>
+          <p id="b-status" class="muted"></p>
+          <p id="b-error" class="error" hidden></p>
+          <div id="b-preview" hidden>
+            <p class="meta"><span id="preview-meta"></span></p>
+            <ol id="preview-clues"></ol>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>The file</h3>
+          <p class="muted">This JSON is the whole theme — download it, share it, re-upload it here or on the main page. It is exactly what the puzzle CLI and API consume.</p>
+          <label class="field"><textarea id="b-json" readonly style="min-height: 14em; font-family: ui-monospace, monospace; font-size: .8rem;"></textarea></label>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Themes are validated server-side · puzzles stay guaranteed-unique &amp; logic-solvable</span>
+  </footer>
+
+  <script src="/builder.js"></script>
+</body>
+</html>

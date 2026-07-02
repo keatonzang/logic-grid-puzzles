@@ -35,6 +35,13 @@ DEFAULT_DIFFICULTY = "normal"
 _NONTRIVIAL = ("hard", "mega", "giga", "tera")
 _RICH = ("mega", "giga", "tera")  # the conditional/pairing/match tiers
 DEFAULT_THEME = "cafe"
+# Payloads built from a user-supplied theme document echo this instead of a
+# registry key; the client must re-send the document itself to /api/hint.
+CUSTOM_THEME_KEY = "custom"
+# User themes are concrete (no sampling), so they may be a touch smaller or
+# larger than the registry clamps — bounded to keep serverless generation fast.
+MIN_CUSTOM_ITEMS, MAX_CUSTOM_ITEMS = 2, 6
+MIN_CUSTOM_CATEGORIES, MAX_CUSTOM_CATEGORIES = 2, 6
 
 _MAX_SEED = 1_000_000
 
@@ -679,6 +686,49 @@ def build_puzzle(
     return theme_obj, puzzle, report, seed
 
 
+def build_custom_puzzle(seed: int | None, difficulty: str, theme_doc: dict):
+    """Generate a puzzle from a user-supplied *concrete* theme document — the
+    single-file dict format that ``logicgrid.themes`` round-trips (see README
+    "Single-file representation").
+
+    Unlike registry themes there is no attribute sampling and no numeric/group
+    rolls: the document IS the theme, categories and items fixed, so the same
+    (document, difficulty, seed) always rebuilds the identical puzzle — the
+    determinism contract the hint endpoint relies on. Returns
+    ``(theme, puzzle, report, seed)`` like ``build_puzzle``.
+
+    Raises ``ValueError`` with a human-readable message on a malformed,
+    inconsistent, or out-of-bounds document.
+    """
+    from .themes import theme_from_dict
+
+    if difficulty not in DIFFICULTIES:
+        raise ValueError(f"unknown difficulty: {difficulty!r}")
+    if not isinstance(theme_doc, dict):
+        raise ValueError("theme_doc must be a JSON object (the exported theme file)")
+    try:
+        theme_obj = theme_from_dict(theme_doc)  # validates shape + consistency
+    except ValueError:
+        raise
+    except (KeyError, TypeError, AttributeError) as exc:
+        raise ValueError(f"malformed theme document: {exc}") from exc
+    if not MIN_CUSTOM_ITEMS <= theme_obj.n <= MAX_CUSTOM_ITEMS:
+        raise ValueError(
+            f"custom themes need {MIN_CUSTOM_ITEMS}-{MAX_CUSTOM_ITEMS} items per "
+            f"category, got {theme_obj.n}"
+        )
+    if not MIN_CUSTOM_CATEGORIES <= theme_obj.k <= MAX_CUSTOM_CATEGORIES:
+        raise ValueError(
+            f"custom themes need {MIN_CUSTOM_CATEGORIES}-{MAX_CUSTOM_CATEGORIES} "
+            f"categories, got {theme_obj.k}"
+        )
+    if seed is None:
+        seed = random.randrange(_MAX_SEED)
+    rng = random.Random(seed)
+    theme_obj, puzzle, report = generate_rated(lambda r: theme_obj, rng, difficulty)
+    return theme_obj, puzzle, report, seed
+
+
 def build_hint(
     seed: int,
     difficulty: str,
@@ -686,14 +736,21 @@ def build_hint(
     categories: int,
     known: dict | None,
     theme: str = DEFAULT_THEME,
+    theme_doc: dict | None = None,
 ) -> dict:
     """Next single explained deduction for the puzzle the inputs identify.
 
     Regenerates the exact puzzle and asks the hint engine for the first step the
     player (``known`` board) hasn't already made. ``known`` maps ``"i-j"`` to an
     n×n matrix of 0 blank / 1 link / 2 no-link, matching a hint's ``value``.
+    With ``theme_doc`` (a custom theme document) the puzzle regenerates from the
+    document instead of a registry key — the client re-sends the same file it
+    generated with, and seed-determinism does the rest.
     """
-    theme_obj, puzzle, _report, _seed = build_puzzle(seed, difficulty, items, categories, theme)
+    if theme_doc is not None:
+        theme_obj, puzzle, _report, _seed = build_custom_puzzle(seed, difficulty, theme_doc)
+    else:
+        theme_obj, puzzle, _report, _seed = build_puzzle(seed, difficulty, items, categories, theme)
     return next_hint(theme_obj, puzzle.clues, known)
 
 
@@ -713,14 +770,22 @@ def build_payload(
     items: int = DEFAULT_ITEMS,
     categories: int = DEFAULT_CATEGORIES,
     theme: str = DEFAULT_THEME,
+    theme_doc: dict | None = None,
 ) -> dict:
     """Generate a puzzle and return a JSON-serialisable description.
 
     A concrete ``seed`` (and the ``theme`` key) are echoed back so any puzzle can
     be reproduced from the response alone. Whether the ordered numeric category is
     included is rolled once up front (only for medium/hard themes that have one).
+    With ``theme_doc`` the puzzle is built from that custom theme document
+    instead (see build_custom_puzzle) and ``theme`` echoes ``"custom"`` — the
+    client keeps the document and re-sends it for hints.
     """
-    theme_obj, puzzle, report, seed = build_puzzle(seed, difficulty, items, categories, theme)
+    if theme_doc is not None:
+        theme_obj, puzzle, report, seed = build_custom_puzzle(seed, difficulty, theme_doc)
+        theme = CUSTOM_THEME_KEY
+    else:
+        theme_obj, puzzle, report, seed = build_puzzle(seed, difficulty, items, categories, theme)
 
     return {
         "theme": theme,

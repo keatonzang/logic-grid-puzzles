@@ -5,7 +5,8 @@
       "known": { "0-1": [[0,1,2,0], ...], ... } }
 
 ``seed`` + ``difficulty`` + ``items`` + ``categories`` regenerate the *exact*
-puzzle the player is looking at (generation is deterministic in the seed), and
+puzzle the player is looking at (generation is deterministic in the seed) — or,
+for a custom theme, the same ``theme_doc`` the puzzle was generated with — and
 ``known`` is their current board (0 blank / 1 link / 2 no-link). The response is a
 single hint step (cell, value, technique, plain-English reason), or
 ``{"done": true}`` once nothing new can be deduced.
@@ -54,9 +55,12 @@ def _build_response(body: dict) -> tuple[int, dict]:
         return 400, {"error": "known must be an object of i-j -> matrix"}
 
     theme = body.get("theme", DEFAULT_THEME)
+    theme_doc = body.get("theme_doc")
+    if theme_doc is not None and not isinstance(theme_doc, dict):
+        return 400, {"error": "theme_doc must be an object (the exported theme file)"}
 
     try:
-        return 200, build_hint(seed, difficulty, items, categories, known, theme)
+        return 200, build_hint(seed, difficulty, items, categories, known, theme, theme_doc)
     except ValueError as exc:
         return 400, {"error": str(exc)}
 

@@ -142,6 +142,12 @@ class Theme:
                 raise ValueError(f"category '{c.name}' has duplicate items")
             if c.values is not None and len(c.values) != n:
                 raise ValueError(f"category '{c.name}': `values` length must equal item count")
+            if c.referent and "{}" not in c.referent:
+                raise ValueError(
+                    f"category '{c.name}': referent must contain '{{}}' where the item "
+                    "goes (e.g. 'the seller of {}') — without it every item would read "
+                    "identically in clue text"
+                )
             if c.groups:
                 seen: set[str] = set()
                 for label, members in c.groups:

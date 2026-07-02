@@ -166,6 +166,44 @@ async function postJSON(url, body) {
   );
 }
 
+// --- Custom (user-authored) themes -------------------------------------------
+// A theme document is the single-file JSON the /builder page exports. The main
+// page plays it via POST /api/puzzle (the doc travels in the body), and every
+// hint request re-sends the SAME document the current puzzle was generated
+// from, so seed-determinism regenerates the identical puzzle server-side.
+const CUSTOM_KEY = "custom";
+const CUSTOM_STORE = "lgp-custom-theme"; // written by builder.js "Play this theme"
+let customDoc = null; // the currently loaded theme document
+let puzzleDoc = null; // the document the CURRENT puzzle was generated from
+
+function loadStoredCustom() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_STORE);
+    if (raw) customDoc = JSON.parse(raw);
+  } catch (e) { /* blocked storage or bad JSON — start without one */ }
+}
+
+function ensureCustomOption() {
+  const sel = $("theme");
+  let opt = sel.querySelector(`option[value="${CUSTOM_KEY}"]`);
+  if (!opt) {
+    opt = document.createElement("option");
+    opt.value = CUSTOM_KEY;
+    sel.appendChild(opt);
+  }
+  opt.textContent = customDoc ? `📁 ${customDoc.name || "My theme"}` : "📁 My theme (upload…)";
+}
+
+function isCustom() {
+  return $("theme").value === CUSTOM_KEY;
+}
+
+function syncCustomControls() {
+  // a custom document fixes its own grid, so the size dropdowns don't apply
+  $("items").disabled = isCustom();
+  $("categories").disabled = isCustom();
+}
+
 // Difficulty bands, easiest→hardest (matches the <select> order and the server's
 // DIFFICULTIES). Used to pick the closest band when an exact re-roll match fails.
 const BANDS = ["normal", "hard", "mega", "giga", "tera"];
@@ -195,6 +233,22 @@ async function generate() {
     return p;
   };
   const seed = $("seed").value.trim();
+  const doc = isCustom() ? customDoc : null;
+  if (isCustom() && !doc) {
+    $("theme-file").click(); // no document loaded yet — ask for the file first
+    return;
+  }
+  // GET for registry themes; POST with the document for custom ones.
+  const fetchCand = (seedVal) => {
+    if (doc) {
+      const body = { theme_doc: doc, difficulty: want };
+      if (seedVal !== undefined) body.seed = seedVal;
+      return postJSON("/api/puzzle", body);
+    }
+    const p = baseParams();
+    if (seedVal !== undefined) p.set("seed", seedVal);
+    return fetchJSON(`/api/puzzle?${p}`);
+  };
 
   $("error").hidden = true;
   $("loading").hidden = false;
@@ -203,9 +257,7 @@ async function generate() {
   try {
     if (seed !== "") {
       // Pinned seed: reproduce exactly that puzzle — never re-roll.
-      const p = baseParams();
-      p.set("seed", seed);
-      const result = await fetchJSON(`/api/puzzle?${p}`);
+      const result = await fetchCand(seed);
       if (stale()) return; // a newer generate() took over while we awaited
       puzzle = result;
     } else {
@@ -225,7 +277,7 @@ async function generate() {
       };
       for (let attempt = 1; attempt <= REROLL_CAP; attempt++) {
         status(attempt);
-        const cand = await fetchJSON(`/api/puzzle?${baseParams()}`);
+        const cand = await fetchCand();
         if (stale()) return; // a newer generate() took over while we awaited
         if (cand.difficulty === want) { best = cand; break; }
         rolled.push(cand.difficulty);
@@ -233,6 +285,7 @@ async function generate() {
       }
       puzzle = best;
     }
+    puzzleDoc = doc; // hints must re-send exactly what this puzzle was built from
     buildState();
     render();
     $("puzzle").hidden = false;
@@ -1048,6 +1101,7 @@ async function hint() {
       items: puzzle.items,
       categories: puzzle.n_categories,
       theme: puzzle.theme,
+      ...(puzzle.theme === CUSTOM_KEY && puzzleDoc ? { theme_doc: puzzleDoc } : {}),
       known: currentKnown(),
     });
     if (step.done) {
@@ -1093,6 +1147,7 @@ async function loadThemes() {
   } catch (err) {
     // leave the picker empty; generation falls back to the server default theme
   }
+  ensureCustomOption();
 }
 
 // --- Colour-blind palette toggle. A display-only preference (no re-generation),
@@ -1137,7 +1192,42 @@ document.addEventListener("keydown", (e) => {
 });
 $("categories").addEventListener("change", syncItemOptions);
 // Switching theme draws a fresh puzzle in that theme.
-$("theme").addEventListener("change", generate);
+$("theme").addEventListener("change", () => {
+  syncCustomControls();
+  if (isCustom() && !customDoc) { $("theme-file").click(); return; }
+  generate();
+});
+$("theme-file").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const doc = JSON.parse(reader.result);
+      if (!doc || typeof doc !== "object" || !Array.isArray(doc.categories)) {
+        throw new Error("not a theme file (expected a JSON object with a categories array)");
+      }
+      customDoc = doc;
+      try { localStorage.setItem(CUSTOM_STORE, JSON.stringify(doc)); } catch (err) { /* fine */ }
+      ensureCustomOption();
+      $("theme").value = CUSTOM_KEY;
+      syncCustomControls();
+      generate();
+    } catch (err) {
+      $("error").textContent = `Could not load ${file.name}: ${err.message}`;
+      $("error").hidden = false;
+      if (isCustom() && !customDoc) $("theme").selectedIndex = 0; // back to a registry theme
+      syncCustomControls();
+    }
+  };
+  reader.readAsText(file);
+});
+// If the file dialog is dismissed with nothing chosen, don't leave the picker
+// stuck on an empty custom slot ("cancel" is supported in modern browsers).
+$("theme-file").addEventListener("cancel", () => {
+  if (isCustom() && !customDoc) { $("theme").selectedIndex = 0; syncCustomControls(); }
+});
 // Swap layouts when crossing the breakpoint, preserving marks.
 DESKTOP.addEventListener("change", () => { if (puzzle) renderBoard(); });
 // Keep the desktop grid fitted to the window as it resizes.
@@ -1146,7 +1236,12 @@ window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
 (async function init() {
   initColorblind();
   syncItemOptions();
+  loadStoredCustom();
   await loadThemes();
+  if (location.hash === "#custom" && customDoc) {
+    $("theme").value = CUSTOM_KEY; // arrived from the builder's "Play this theme"
+  }
+  syncCustomControls();
   try {
     await generate();
   } catch (err) {
