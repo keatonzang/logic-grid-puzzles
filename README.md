@@ -170,6 +170,62 @@ small grid a request like `tera` degrades gracefully to the hardest band it can
 actually reach (the payload reports both the `requested` tier and the measured
 one). A puzzle needing nesting deeper than we verify is skipped.
 
+One soft preference on top: a `hard` request favours candidates that never touch
+tier 4 at all — `hard` should feel like everyday clue logic, and without the
+preference ~40% of hard-band boards would force one advanced forward move. A
+tier-4-touching hard ships only when no purer candidate appears in the attempt
+budget.
+
+### What's verified — and what's only modeled
+
+Every shipped puzzle carries two hard, per-puzzle guarantees:
+
+- **Uniqueness.** A backtracking counter proves exactly one solution exists (it
+  counts to 2, so this is exact, not sampled).
+- **Logic-solvability.** The deductive solver itself finishes the puzzle with
+  the shipped clue list before we ship it — a guess-free path always exists.
+
+Everything else is *measurement*, and measurement has edges. Known limits, in
+roughly descending order of importance:
+
+- **Difficulty is structural, not human-anchored.** Bands are decided by which
+  techniques the reference solver is forced to use. No solve-time data from
+  real players backs the cuts (a deliberate call — the player pool is small).
+  Grid size is an independent dial the band ignores: a 5-category `hard` takes
+  far longer than a 3-category one, even though the required *thinking* is the
+  same tier.
+- **The what-if count measures a policy, not a theoretical minimum.** At each
+  stall the solver applies the easiest refutation available (fewest forced
+  cells). A cleverer assumption order might need fewer what-ifs, and a human's
+  failed scans for the right cell to assume cost nothing in the grade. Counts
+  are comparable across puzzles, but they are not "the fewest assumptions
+  possible".
+- **Refutation-only reasoning.** The solver never uses "assume it and
+  everything works out" (which would exploit uniqueness as an oracle) — only
+  contradictions count. A solver comfortable with that shortcut may finish
+  top-band puzzles faster than the grade implies.
+- **Propagation is sound but not complete.** The counting/statement propagators
+  fire on bound checks, quota forcing, and unit propagation — not full
+  arc-consistency. Where a smarter forward inference exists that the rule set
+  misses, the solver escalates to a what-if instead, so measured difficulty can
+  *overstate* (never understate) and solvability is unaffected.
+- **Tera recovery is graded cheaply.** A candidate that stalls at one what-if is
+  re-solved allowing a nested what-if, in early-exit mode under a wall-clock
+  budget. Solvability *is* verified, but that path's step counts and refutation
+  lengths are path-dependent (approximate); the tera label itself is still
+  correct. Nesting deeper than two levels is never verified and never shipped,
+  and blowing the time budget means "skip" — load can make generation more
+  conservative, never unsound.
+- **Minimization is budgeted.** Each clue-drop's uniqueness re-check runs under
+  a node cap (`_MINIMIZE_NODE_BUDGET`); a check that can't finish keeps the
+  clue. The shipped set stays unique and solvable but may be slightly
+  non-minimal — an extra clue means a touch easier than that board's true
+  minimum.
+- **The supplemental numbers are heuristics.** `difficulty_index` (weighted
+  step effort + clue reading load) and `clue_load` are fitted, informational
+  orderings; `search_nodes` is a capped backtracking statistic. None of them
+  decide the band.
+
 ## Writing a theme
 
 Themes are plain YAML (or JSON — same shape, no PyYAML needed). All categories

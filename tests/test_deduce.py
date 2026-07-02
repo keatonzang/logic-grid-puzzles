@@ -261,6 +261,21 @@ def test_dead_line_is_a_refutation():
         _sweep_lines(b)
 
 
+def test_hard_requests_prefer_tier4_free_candidates():
+    # 'hard' promises everyday clue logic. ~40% of hard-band candidates force an
+    # advanced tier-4 move (naked pair / cross-elim / between pinch), so
+    # generate_rated hunts past them — a tier-4-touching hard ships only when no
+    # purer candidate appears in the budget (rare; allow one straggler).
+    results = [
+        generate_rated(lambda r: build_cafe_theme(r, 4), random.Random(s), "hard")[2]
+        for s in range(8)
+    ]
+    hard = [r for r in results if r["band"] == "hard"]
+    assert hard, "expected hard-band results"
+    impure = sum(1 for r in hard if r["steps"][4] > 0)
+    assert impure <= 1, f"{impure} of {len(hard)} hard puzzles forced tier 4"
+
+
 def test_solver_sound_across_cafe_sizes():
     for items in (3, 4):
         for d in ("normal", "hard", "mega"):

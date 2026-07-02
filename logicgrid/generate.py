@@ -1030,6 +1030,12 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
     deeper nesting than we verify and is skipped; if the exact band is never hit
     within the attempt budget the closest solvable one is returned, so a tiny grid
     that simply can't reach `tera` degrades gracefully to the hardest it can manage.
+
+    One soft preference: a `hard` request favours candidates that never touch
+    tier 4 (grid set logic / expert counting) — 'hard' promises everyday clue
+    logic, and ~40% of hard-band candidates would otherwise force one advanced
+    forward move. An exact-band match that does touch tier 4 is kept as a backup
+    and shipped only if no purer candidate appears within the budget.
     """
     import time
 
@@ -1041,12 +1047,13 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
         max_attempts = _RATED_ATTEMPTS.get(target, 9)
     order = DIFFICULTIES
     fallback = None
+    soft = None  # exact-band match that violates the soft (tier-4-free) preference
     # The attempt budget caps the search for an *exact* band match; the second
     # half of the range only runs in the pathological case where every single
     # candidate graded 'ambiguous' (nothing shippable at all), so we never
     # return None into callers that unpack (theme, puzzle, report).
     for attempt in range(2 * max_attempts):
-        if attempt >= max_attempts and fallback is not None:
+        if attempt >= max_attempts and (fallback is not None or soft is not None):
             break
         theme = make_theme(rng)
         puzzle = generate_puzzle(theme, rng, difficulty=target)
@@ -1071,12 +1078,20 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
         if report["band"] == "ambiguous":
             continue  # needs deeper nesting than we verify — not shipping it
         if report["band"] == target:
-            return theme, puzzle, report
+            if target != "hard" or not report["steps"][4]:
+                return theme, puzzle, report
+            # hard, but it forces an advanced tier-4 move — keep hunting for a
+            # persona-pure candidate; ship this one only if none appears.
+            if soft is None:
+                soft = (theme, puzzle, report)
+            continue
         # keep the closest-by-band candidate as a fallback
         if fallback is None or abs(order.index(report["band"]) - order.index(target)) < abs(
             order.index(fallback[2]["band"]) - order.index(target)
         ):
             fallback = (theme, puzzle, report)
+    if soft is not None:
+        return soft
     if fallback is None:
         raise RuntimeError(
             f"no logic-solvable puzzle found for {target!r}: every candidate "

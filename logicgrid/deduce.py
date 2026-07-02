@@ -21,6 +21,13 @@ Technique tiers (escalated only when cheaper ones are exhausted):
   6  nested what-if  a what-if whose inner reasoning itself needs a what-if
 
 The board state is the set of pairwise ✓/✗ facts a solver actually sees.
+
+What this module guarantees vs merely models: uniqueness and logic-solvability
+are verified per shipped puzzle; the difficulty numbers are structural
+measurements with known edges (policy-dependent what-if counts, refutation-only
+reasoning, sound-but-partial propagation, budgeted tera recovery and
+minimization, no human solve-time anchoring). The full list lives in README
+under "What's verified — and what's only modeled".
 """
 
 from __future__ import annotations
