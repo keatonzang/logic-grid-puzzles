@@ -100,10 +100,11 @@ def _big_groups(parts) -> list:
     return [gi for gi, members in enumerate(parts) if len(members) >= 2]
 
 
-# Chance an exclusive-pairing draw whose links overlap (share a value or chain
-# through a term) is kept anyway — a minority texture next to the fully
-# independent draws, which are always kept. See the pairing loop in
-# build_clue_pool.
+# Chance an exclusive-pairing draw whose links PARTIALLY overlap (some term
+# appears in some but not all links — 3-link chains and the like) is kept —
+# a minority texture next to the fully independent draws, which are always
+# kept. Draws where one term sits in EVERY link are rejected outright: they
+# collapse into the anchor family (see the pairing loop in build_clue_pool).
 _PAIRING_OVERLAP_PROB = 0.25
 
 
@@ -491,11 +492,19 @@ def build_clue_pool(
             canon = {tuple(sorted(link)) for link in links}
             if len(canon) < size:  # a repeated link: intra-clue redundancy
                 continue
+            # A term common to EVERY link collapses the pairing into the anchor
+            # family on that term — "exactly k of these links, all involving X"
+            # IS Neither/EitherOr/Exactly(anchor=X) in pairing clothes (proven
+            # equivalent exhaustively; same Count atoms, same window after
+            # unification). Reject those; partial overlap keeps its texture.
+            if set.intersection(*(set(link) for link in links)):
+                continue
             # Mostly independent alternatives ("A–X or B–Y"), plus a minority
-            # of overlapping draws (a shared value "A–X or B–X", or a chain
-            # "A–X or X–B") kept for texture. All-shared was the original
-            # monotony (and reads like EitherOr / the Compound disjunction);
-            # all-distinct was tried and is its own monotony.
+            # of partially-overlapping draws (3-link chains like "A–X or X–B or
+            # C–D") kept for texture. All-shared was the original monotony (and
+            # reads like EitherOr / the Compound disjunction); all-distinct was
+            # tried and is its own monotony. A 2-link draw can only overlap via
+            # a common term, so overlap texture survives only at 3+ links.
             terms = [t for link in links for t in link]
             if len(set(terms)) == 2 * size or rng.random() < _PAIRING_OVERLAP_PROB:
                 pairing.append(ExactlyKLinks(links, k_draw))
