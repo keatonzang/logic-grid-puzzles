@@ -501,9 +501,12 @@ def test_pairing_k_and_sizes_configurable(plain_theme):
 
 def test_exclusive_pairings_mix_independent_and_overlapping(plain_theme):
     # Exclusive pairings are mostly fully independent ("A-X or B-Y") with a
-    # minority of overlapping draws (shared value / chain) kept for texture
+    # minority of PARTIALLY overlapping draws (3-link chains) kept for texture
     # (_PAIRING_OVERLAP_PROB) — both flavors must appear, independent in the
-    # majority, and a repeated link never says anything so it never ships.
+    # majority. Never shipped: a repeated link (says nothing), and a term
+    # common to EVERY link — "exactly k of these links, all involving X" is
+    # the anchor family (Neither/EitherOr/Exactly) in pairing clothes, proven
+    # semantically identical (same Count atoms, same window).
     from logicgrid.clues import ExactlyKLinks
 
     distinct = overlapping = 0
@@ -515,6 +518,7 @@ def test_exclusive_pairings_mix_independent_and_overlapping(plain_theme):
             if not isinstance(c, ExactlyKLinks):
                 continue
             assert len(set(c.links)) == len(c.links)
+            assert not set.intersection(*(set(l) for l in c.links)), c.links
             terms = [t for link in c.links for t in link]
             if len(set(terms)) == 2 * len(c.links):
                 distinct += 1
