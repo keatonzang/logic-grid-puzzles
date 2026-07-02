@@ -80,10 +80,11 @@ class ThemeSpec:
     largest grid; a puzzle samples `items` from each and which attributes appear
     varies.
 
-    ``numeric`` is the primary ordered category (rolled in on medium/hard).
+    ``numeric`` is the primary ordered category (rolled in on hard and up).
     ``extra_numerics`` are additional ordered categories — only ever rolled in on
-    hard puzzles with enough categories (see ``build_puzzle``), so a theme can
-    offer two sequential dials (e.g. a class's Grade *and* its Period)."""
+    the rich tiers (mega and up) with enough categories (see ``build_puzzle``),
+    so a theme can offer two sequential dials (e.g. a class's Grade *and* its
+    Period)."""
 
     key: str
     name: str
@@ -93,7 +94,7 @@ class ThemeSpec:
     subject_items: tuple
     attributes: tuple  # ((name, (item, ...)), ...)
     numeric: NumericSpec | None = None
-    extra_numerics: tuple = ()  # further ordered categories, hard-only
+    extra_numerics: tuple = ()  # further ordered categories, rich tiers (mega+) only
     # ((category_name, "the person studying {}"), ...) — how a non-subject
     # category names an entity by its item in cross-category clue text. Anything
     # unlisted falls back to "the {entity_noun} with {item}".
@@ -311,7 +312,7 @@ THEME_SPECS: tuple = (
             ("Club", ("Chess", "Choir", "Debate", "Drama", "Robotics", "Rowing", "Scouts", "Yearbook")),
         ),
         numeric=NumericSpec("Grade", unit_suffix="%", min_start=70, start_max=80, steps=(2, 5)),
-        # A second ordered dial (hard, K>=4 only): which class period it meets —
+        # A second ordered dial (mega and up, K>=4 only): which class period it meets —
         # an ordinal ("Period 1".."Period N"), so higher/next-to but no "2 more".
         extra_numerics=(NumericSpec("Period", unit_prefix="Period ", valued=False),),
         referents=(
@@ -667,8 +668,8 @@ def build_puzzle(
         seed = random.randrange(_MAX_SEED)
 
     # How many ordered categories to roll in (decided up front so it's part of the
-    # deterministic puzzle). The primary numeric appears on medium/hard; a second
-    # ordered dial is gated to hard puzzles with enough categories to spare.
+    # deterministic puzzle). The primary numeric appears on hard and up; a second
+    # ordered dial is gated to the rich tiers (mega+) with enough categories to spare.
     rng = random.Random(seed)
     n_numeric = _roll_n_numeric(spec, difficulty, categories, rng)
     use_groups = _roll_use_groups(spec, difficulty, rng)  # only consumes rng if theme has a group_def
