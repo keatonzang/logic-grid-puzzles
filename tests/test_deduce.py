@@ -276,6 +276,26 @@ def test_hard_requests_prefer_tier4_free_candidates():
     assert impure <= 1, f"{impure} of {len(hard)} hard puzzles forced tier 4"
 
 
+def test_extreme_tiers_keep_showcase_clues():
+    # Exclusive pairings ("either A-X or B-Y, not both") and conditionals
+    # (if-then / iff) are the intricate clues the extreme tiers promise;
+    # minimize boosts a tier-scaled number of each to the end of the removal
+    # order (_SHOWCASE_BOOST), so most giga/tera puzzles ship with them
+    # (unboosted they survived in ~4/30 and ~3/30 puzzles respectively).
+    from logicgrid.clues import Conditional, ExactlyKLinks
+
+    for diff in ("giga", "tera"):
+        pairing = conditional = 0
+        for s in range(6):
+            rng = random.Random(s)
+            theme = build_cafe_theme(rng, 4)
+            puzzle = generate_puzzle(theme, rng, difficulty=diff)
+            pairing += any(isinstance(c, ExactlyKLinks) for c in puzzle.clues)
+            conditional += any(isinstance(c, Conditional) for c in puzzle.clues)
+        assert pairing >= 5, f"{pairing}/6 {diff} puzzles kept a pairing"
+        assert conditional >= 4, f"{conditional}/6 {diff} puzzles kept a conditional"
+
+
 def test_solver_sound_across_cafe_sizes():
     for items in (3, 4):
         for d in ("normal", "hard", "mega"):

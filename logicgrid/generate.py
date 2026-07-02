@@ -87,6 +87,13 @@ def _grouped_categories(theme: Theme):
     return out
 
 
+# Chance an exclusive-pairing draw whose links overlap (share a value or chain
+# through a term) is kept anyway — a minority texture next to the fully
+# independent draws, which are always kept. See the pairing loop in
+# build_clue_pool.
+_PAIRING_OVERLAP_PROB = 0.25
+
+
 def build_clue_pool(
     theme: Theme,
     X: list[list[int]],
@@ -375,7 +382,15 @@ def build_clue_pool(
                 e1, e2 = rng.sample(range(n), 2)
                 links.append(((c1, X[e1][c1]), (c2, X[e2][c2])))
             clue = ExactlyKLinks(links, pairing_k)
-            if len(set(clue.links)) == size:  # skip draws with a repeated link
+            if len(set(clue.links)) < size:  # a repeated link says nothing
+                continue
+            # Mostly independent alternatives ("A–X or B–Y"), plus a minority
+            # of overlapping draws (a shared value "A–X or B–X", or a chain
+            # "A–X or X–B") kept for texture. All-shared was the original
+            # monotony (and reads like EitherOr / the Compound disjunction);
+            # all-distinct was tried and is its own monotony.
+            terms = [t for link in clue.links for t in link]
+            if len(set(terms)) == 2 * size or rng.random() < _PAIRING_OVERLAP_PROB:
                 pairing.append(clue)
 
     # Group match: a left and right group cover the same N entities, paired in
@@ -951,23 +966,53 @@ _GROUP_CLUES = {
     "SetCount",  # set-composition cardinality ("two members of the Hill Ward ...")
 }
 
+# Showcase boost: per tier, how many clues of each *showcase* type minimize
+# keeps to the very END of the removal order — after even the group clues —
+# chosen at random per puzzle. These are the intricate clue types that
+# otherwise almost never survive greedy minimization (measured on 30-puzzle
+# King's Guild censuses: pairings ~4/30 puzzles unboosted, conditionals ~3/30),
+# because a cheaper clue can usually stand in for them. The counts scale with
+# tier so clue diversity and complexity peak at the top bands. Boosting ALL
+# pairings was tried and overshot: ~2 survived per puzzle and the ceiling-5
+# population slid from 18% mega / 51% giga / 31% tera to 6/29/65, starving the
+# mega attempt budget — small tier-scaled counts keep the drift pointed toward
+# the bands those requests want anyway.
+_SHOWCASE_BOOST = {
+    "normal": {},
+    "hard": {},
+    "mega": {"ExactlyKLinks": 1},
+    "giga": {"ExactlyKLinks": 2, "Conditional": 1},
+    "tera": {"ExactlyKLinks": 2, "Conditional": 2},
+}
 
-def minimize(theme: Theme, clues: list, rng: random.Random) -> list:
+
+def minimize(theme: Theme, clues: list, rng: random.Random, boost: dict | None = None) -> list:
     """Greedily remove clues while uniqueness is preserved.
 
     A clue set is locally minimal once no further single clue can be dropped.
     Removal order is randomised so the surviving minimal set varies between
     seeds; difficulty is then selected by ``generate_rated`` measuring the band,
-    which keeps calibration honest. The one deliberate skew: *group* clues are
-    considered for removal last, so a puzzle that can keep a hierarchy clue
-    tends to (guilds appear in ~half of hard King's Guild puzzles instead of
-    ~5%). This is safe because group clues carry real deductive weight, so
-    keeping them doesn't push the measured band down — a broader "keep all the
-    interesting clues" bias was tried and it skewed medium puzzles to easy.
+    which keeps calibration honest. The deliberate skew: *group* clues are
+    considered for removal late, and `boost` (a {clue class name: count} dict,
+    see _SHOWCASE_BOOST) randomly-chosen showcase clues last of all, so a
+    puzzle that can keep a hierarchy clue, a cross-pair either/or, or a
+    conditional tends to (guilds appear in ~half of hard King's Guild puzzles
+    instead of ~5%). This is safe because these clues carry real deductive
+    weight, so keeping them doesn't push the measured band down — a broader
+    "keep all the interesting clues" bias was tried and it skewed medium
+    puzzles to easy (and boosting every pairing slid the rich-tier population
+    heavily toward tera; see the _SHOWCASE_BOOST note).
     """
     removal_order = list(clues)
     rng.shuffle(removal_order)
-    removal_order.sort(key=lambda c: 1 if type(c).__name__ in _GROUP_CLUES else 0)
+    # post-shuffle first K of a type == K uniformly-random ones per puzzle
+    boosted = set()
+    for name, count in (boost or {}).items():
+        matches = [c for c in removal_order if type(c).__name__ == name]
+        boosted.update(id(c) for c in matches[:count])
+    removal_order.sort(
+        key=lambda c: 2 if id(c) in boosted else 1 if type(c).__name__ in _GROUP_CLUES else 0
+    )
 
     current = list(clues)
     for cl in removal_order:
@@ -987,7 +1032,7 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
     if count_solutions(theme, pool, cap=2) != 1:
         raise RuntimeError("clue pool failed to yield a unique solution (internal error)")
 
-    best = minimize(theme, pool, rng)
+    best = minimize(theme, pool, rng, boost=_SHOWCASE_BOOST[difficulty])
     clues = list(best)
     extra_frac = _DIFFICULTY_EXTRA[difficulty]
     if extra_frac > 0:  # easy: hand back extra true clues so less inference is needed
@@ -999,11 +1044,13 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
     return Puzzle(theme=theme, solution=X, clues=clues)
 
 
-# Sampling budget per target. The rich pool's ceiling-5 population splits about
-# 18% mega / 51% giga / 31% tera under the contradiction-effort cuts (see
-# deduce._MEGA_MAX_WHATIFS et al.), with another ~20% landing hard (no what-if
-# needed after minimization) — so mega, the narrowest slice, keeps the largest
-# budget and the common bands need only a few attempts.
+# Sampling budget per target. The ceiling-5 population split now depends on the
+# target's pairing boost (see _PAIRING_BOOST): under the contradiction-effort
+# cuts (deduce._MEGA_MAX_WHATIFS et al.) a mega request's pool runs ~21% mega /
+# 68% giga / 11% tera and a tera request's ~16% / 55% / 29% — the boost shifts
+# each pool toward the bands that target wants, so every band lands within a
+# few attempts. Tera also recovers ambiguous candidates via the nested-what-if
+# re-grade, widening its effective population further.
 _RATED_ATTEMPTS = {"normal": 8, "hard": 9, "mega": 16, "giga": 14, "tera": 14}
 
 # Wall-clock cap on the depth-2 Tera-recovery solve. A genuine nested what-if

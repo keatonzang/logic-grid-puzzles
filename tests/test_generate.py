@@ -480,6 +480,31 @@ def test_pairing_k_and_sizes_configurable(plain_theme):
         assert c.holds(X)
 
 
+def test_exclusive_pairings_mix_independent_and_overlapping(plain_theme):
+    # Exclusive pairings are mostly fully independent ("A-X or B-Y") with a
+    # minority of overlapping draws (shared value / chain) kept for texture
+    # (_PAIRING_OVERLAP_PROB) — both flavors must appear, independent in the
+    # majority, and a repeated link never says anything so it never ships.
+    from logicgrid.clues import ExactlyKLinks
+
+    distinct = overlapping = 0
+    for seed in range(10):
+        rng = random.Random(seed)
+        X = random_solution(plain_theme, rng)
+        pool = build_clue_pool(plain_theme, X, rng)
+        for c in pool:
+            if not isinstance(c, ExactlyKLinks):
+                continue
+            assert len(set(c.links)) == len(c.links)
+            terms = [t for link in c.links for t in link]
+            if len(set(terms)) == 2 * len(c.links):
+                distinct += 1
+            else:
+                overlapping += 1
+    assert distinct and overlapping, (distinct, overlapping)
+    assert distinct > overlapping, (distinct, overlapping)
+
+
 def test_all_different_respects_size_bound():
     # N caps at min(items, categories): terms need N distinct entities AND N
     # pairwise-distinct categories. space_colony (4 categories, 5 items) admits
