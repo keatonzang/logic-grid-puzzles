@@ -191,7 +191,7 @@ function ensureCustomOption() {
     opt.value = CUSTOM_KEY;
     sel.appendChild(opt);
   }
-  opt.textContent = customDoc ? `📁 ${customDoc.name || "My theme"}` : "📁 My theme (upload…)";
+  opt.textContent = customDoc ? `Custom: ${customDoc.name || "My theme"}` : "My theme (upload…)";
 }
 
 function isCustom() {
@@ -958,10 +958,10 @@ function check() {
         `<b>${fmtTime(performance.now() - timerStart)}</b>` +
         ` · <b>${steps}</b> step${steps === 1 ? "" : "s"}`;
       stopTimer(true);
-      setFeedback(`🎉 <b>Solved!</b> The whole table checks out — ${stats}.`, "good");
+      setFeedback(`<b>Solved!</b> The whole table checks out — ${stats}.`, "good");
     } else {
       stopTimer(true);
-      setFeedback("🎉 <b>Solved!</b> The whole table checks out.", "good");
+      setFeedback("<b>Solved!</b> The whole table checks out.", "good");
     }
   } else if (mistakes === 0) {
     setFeedback(`No mistakes so far — <b>${remaining}</b> more to work out.`, "warn");
@@ -1077,7 +1077,7 @@ function applyHint(step) {
 function resetHintButton() {
   pendingHint = null;
   document.querySelectorAll("td.cell.hint-target").forEach((td) => td.classList.remove("hint-target"));
-  $("hint").textContent = "💡 Hint";
+  $("hint").textContent = "Hint";
 }
 
 async function hint() {
@@ -1110,7 +1110,7 @@ async function hint() {
     }
     pendingHint = step;
     setFeedback(hintHtml(step, false), "hint");
-    btn.textContent = "Reveal tile ✨";
+    btn.textContent = "Reveal tile";
     const td = cellEl(step.key, step.a, step.b);
     if (td) { td.classList.add("hint-target"); td.scrollIntoView({ block: "nearest", inline: "nearest" }); }
   } catch (err) {
