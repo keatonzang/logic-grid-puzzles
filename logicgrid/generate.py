@@ -88,6 +88,18 @@ def _grouped_categories(theme: Theme):
     return out
 
 
+def _big_groups(parts) -> list:
+    """Indices of groups with >= 2 members. Clues that NAME a group draw only
+    from these: a singleton group makes the clue collapse into a plain link in
+    costume ("Vera belongs to the Queen's-Pawn Camp" when the camp holds one
+    opening IS "Vera goes with London"), hiding a direct fact behind a roster
+    lookup. Singletons occur in factual (fixed) partitions after sampling and
+    in uploaded custom themes. Partition-WIDE clues (SameGroup/DiffGroup) keep
+    the full partition: they never name one group, and a singleton group can't
+    host two entities, so no collapse arises there."""
+    return [gi for gi, members in enumerate(parts) if len(members) >= 2]
+
+
 # Chance an exclusive-pairing draw whose links overlap (share a value or chain
 # through a term) is kept anyway — a minority texture next to the fully
 # independent draws, which are always kept. See the pairing loop in
@@ -561,10 +573,10 @@ def build_clue_pool(
                 gc, labels, parts, group_of = rng.choice(cond_grouped)
                 e = rng.randrange(n)
                 gi = group_of.get(X[e][gc])
-                if gi is None:
+                if gi is None or len(parts[gi]) < 2:  # never name a singleton group
                     continue
                 if not truth:
-                    others = [j for j in range(len(parts)) if j != gi]
+                    others = [j for j in _big_groups(parts) if j != gi]
                     if not others:
                         continue
                     gi = rng.choice(others)
@@ -682,7 +694,7 @@ def build_clue_pool(
                 eq = rng.randrange(n)  # the entity holding the shared predicate Q
                 pred = (qc, X[eq][qc])
                 gi = group_of.get(X[eq][gc])
-                if gi is None:
+                if gi is None or len(parts[gi]) < 2:  # never name a singleton group
                     continue
                 pc = rng.choice([c for c in range(k) if c != qc])
                 if rng.random() < 0.5:  # the GROUP branch is the true one
@@ -693,7 +705,7 @@ def build_clue_pool(
                     link = Link((pc, X[ep][pc]), pred)  # false: a different entity
                     grp = GroupLink(pred, gc, labels[gi], parts[gi], subject=True)
                 else:  # the NAMED branch is the true one
-                    others = [j for j in range(len(parts)) if j != gi]
+                    others = [j for j in _big_groups(parts) if j != gi]
                     if not others:
                         continue
                     gj = rng.choice(others)
@@ -717,13 +729,13 @@ def build_clue_pool(
                 qc_g = rng.choice([c for c in range(k) if c != gc])
                 eg = rng.randrange(n)
                 gi = group_of.get(X[eg][gc])
-                if gi is None:
+                if gi is None or len(parts[gi]) < 2:  # never name a singleton group
                     continue
                 grp_true = rng.random() < 0.5
                 if grp_true:
                     grp = GroupLink((qc_g, X[eg][qc_g]), gc, labels[gi], parts[gi], subject=True)
                 else:
-                    others = [j for j in range(len(parts)) if j != gi]
+                    others = [j for j in _big_groups(parts) if j != gi]
                     if not others:
                         continue
                     gj = rng.choice(others)
@@ -756,10 +768,13 @@ def build_clue_pool(
                     continue
                 ca, labs_a, parts_a, _ = grouped[ia]
                 cb, labs_b, parts_b, _ = grouped[ib]
+                big_a, big_b = _big_groups(parts_a), _big_groups(parts_b)
+                if not big_a or not big_b:
+                    continue
                 for _ in range(3 * n):
-                    gb = rng.randrange(len(parts_b))
+                    gb = rng.choice(big_b)
                     B = parts_b[gb]
-                    ga = rng.randrange(len(parts_a))
+                    ga = rng.choice(big_a)
                     A = parts_a[ga]
                     a_ents = [e for e in range(n) if X[e][ca] in A]
                     if not a_ents:
@@ -810,9 +825,10 @@ def build_clue_pool(
             gi = group_of.get(X[e][cat])
             if gi is None:
                 continue
-            groups.append(InGroup(anchor_for(e), cat, labels[gi], parts[gi]))
+            if len(parts[gi]) >= 2:  # a singleton would be a Positive in costume
+                groups.append(InGroup(anchor_for(e), cat, labels[gi], parts[gi]))
             # a guild this entity is NOT in (negative membership)
-            others = [gj for gj in range(len(parts)) if gj != gi]
+            others = [gj for gj in _big_groups(parts) if gj != gi]
             if others:
                 gj = rng.choice(others)
                 groups.append(NotInGroup(anchor_for(e), cat, labels[gj], parts[gj]))
@@ -832,10 +848,11 @@ def build_clue_pool(
         # of them are in it, and state it as exactly / at least / at most K. These
         # are the genuinely new "set" clues a bijection can't otherwise express.
         ents = list(range(n))
-        for _ in range(2 * n):  # a handful of candidates; minimize keeps the useful ones
+        big = _big_groups(parts)
+        for _ in (range(2 * n) if big else ()):  # minimize keeps the useful ones
             size = rng.randint(2, min(4, n))
             subset = rng.sample(ents, size)
-            gi = rng.randrange(len(parts))
+            gi = rng.choice(big)
             actual = sum(1 for e in subset if group_of.get(X[e][cat]) == gi)
             anchors = [anchor_for(e) for e in subset]
             # A true statement about this subset, phrased so it carries genuine "which
@@ -865,8 +882,8 @@ def build_clue_pool(
         ocats = [c for c in range(k) if c != cat and theme.categories[c].ordered]
         order_cands = []
         for ocat in ocats:
-            for g1 in range(len(parts)):
-                for g2 in range(len(parts)):
+            for g1 in _big_groups(parts):
+                for g2 in _big_groups(parts):
                     if g1 == g2:
                         continue
                     clue = GroupOrder(cat, ocat, parts[g1], parts[g2], labels[g1], labels[g2])
@@ -900,8 +917,8 @@ def build_clue_pool(
                 labs2, prts2 = ginfo[c2]
                 # "exactly/at least/at most K members of group A are in group B"
                 cc = []
-                for ga in range(len(prts1)):
-                    for gb in range(len(prts2)):
+                for ga in _big_groups(prts1):
+                    for gb in _big_groups(prts2):
                         actual = sum(1 for e in range(n) if grp(c1, e) == ga and grp(c2, e) == gb)
                         cap = min(len(prts1[ga]), len(prts2[gb]))  # most that could overlap
                         opts = [("exactly", actual)]
@@ -919,9 +936,9 @@ def build_clue_pool(
                     ((c1, labs1, prts1), (c2, labs2, prts2)),
                     ((c2, labs2, prts2), (c1, labs1, prts1)),
                 ):
-                    for gc in range(len(prts_g)):
-                        for ga in range(len(prts_s)):
-                            for gb in range(len(prts_s)):
+                    for gc in _big_groups(prts_g):
+                        for ga in _big_groups(prts_s):
+                            for gb in _big_groups(prts_s):
                                 if ga == gb:
                                     continue
                                 ca = sum(1 for e in range(n) if grp(cs, e) == ga and grp(cg, e) == gc)
@@ -943,14 +960,20 @@ def build_clue_pool(
         seen_sc: set = set()
         for _ in (range(6 * n) if grouped else ()):
             gc, glabels, gparts, _gof = rng.choice(grouped)
-            ga = rng.randrange(len(gparts))
+            gbig = _big_groups(gparts)
+            if not gbig:
+                continue
+            ga = rng.choice(gbig)
             subjects = [("group", gc, gparts[ga], glabels[ga])]
             # target first: another group (60%) or a small item set in some other
             # category — named subjects below must avoid the target's category.
             other = [g for g in grouped if g[0] != gc]
             if other and rng.random() < 0.6:
                 tc, tlabels, tparts, _ = rng.choice(other)
-                ti = rng.randrange(len(tparts))
+                tbig = _big_groups(tparts)
+                if not tbig:
+                    continue
+                ti = rng.choice(tbig)
                 target_cells = [(tc, m) for m in tparts[ti]]
                 tlabel, tgrp = tlabels[ti], True
             else:
