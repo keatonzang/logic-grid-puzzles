@@ -16,6 +16,8 @@ full permutation for `entity_of` to resolve a term.
 
 from __future__ import annotations
 
+from itertools import combinations
+
 from .model import Contradiction, Theme
 
 Term = tuple[int, int]  # (category_index, item_index)
@@ -355,20 +357,51 @@ def _plural(noun: str) -> str:
     return noun + "s"
 
 
-class _Disjunction(Clue):
+class Count(Clue):
+    """The unifying cardinality engine: between `lo` and `hi` of the given term
+    pairs share an entity.
+
+    Every counting family is a thin phrasing over this one shape — Among is a
+    floor over anchor-shared pairs, EitherOr the window [1,1], Neither [0,0],
+    AtMost a ceiling, Exactly / ExactlyKLinks a two-sided window, AllDifferent
+    the window [0,0] over a term set's cross-category pairs — and one generic
+    propagator in deduce (`_prop_count`) serves them all. New window/atom
+    combinations become clues without new machinery.
+
+    Atoms must be pairwise distinct: a repeated atom ("A goes with X ... or A
+    goes with X") is intra-clue redundancy and is rejected outright.
+    """
+
+    def __init__(self, pairs, lo: int, hi: int):
+        canon = tuple(tuple(sorted(p)) for p in pairs)
+        if len(set(canon)) != len(canon):
+            raise ValueError("intra-clue redundancy: duplicate atom in Count")
+        self.pairs = canon
+        self.lo, self.hi = lo, hi
+        self.involved = frozenset(t[0] for p in canon for t in p)
+
+    def _true_count(self, X) -> int:
+        return sum(entity_of(X, a) == entity_of(X, b) for a, b in self.pairs)
+
+    def holds(self, X) -> bool:
+        return self.lo <= self._true_count(X) <= self.hi
+
+
+class _Disjunction(Count):
     """Shared machinery for "one of N" clues over option *terms*.
 
     `options` is a list of terms (category_index, item_index), each in a category
     other than the anchor's. The terms may span several categories — e.g. a
     Pastry and a Drink — so a clue can read "Ava goes with ... Bagel or Latte".
-    Subclasses differ only in how many options must match the anchor's entity.
+    Subclasses differ only in the Count window over the (anchor, option) pairs.
 
     `_matches(X)` counts how many option items belong to the anchor's entity.
     """
 
-    def __init__(self, anchor: Term, options):
+    def __init__(self, anchor: Term, options, lo: int, hi: int):
         self.anchor = anchor
         self.options = tuple(sorted(options))  # stable order; item labels unique
+        super().__init__([(anchor, o) for o in self.options], lo, hi)
         self.involved = frozenset({anchor[0], *(o[0] for o in self.options)})
 
     def _matches(self, X) -> int:
@@ -391,11 +424,8 @@ class Among(_Disjunction):
     removal_class = 1
 
     def __init__(self, anchor: Term, options, at_least: int = 1):
-        super().__init__(anchor, options)
+        super().__init__(anchor, options, at_least, len(options))
         self.at_least = at_least
-
-    def holds(self, X) -> bool:
-        return self._matches(X) >= self.at_least
 
     def text(self, theme: Theme) -> str:
         labels = self._labels(theme)
@@ -416,8 +446,8 @@ class EitherOr(_Disjunction):
 
     removal_class = 1
 
-    def holds(self, X) -> bool:
-        return self._matches(X) == 1
+    def __init__(self, anchor: Term, options):
+        super().__init__(anchor, options, 1, 1)
 
     def text(self, theme: Theme) -> str:
         labels = self._labels(theme)
@@ -443,8 +473,8 @@ class Neither(_Disjunction):
 
     removal_class = 2
 
-    def holds(self, X) -> bool:
-        return self._matches(X) == 0
+    def __init__(self, anchor: Term, options):
+        super().__init__(anchor, options, 0, 0)
 
     def text(self, theme: Theme) -> str:
         labels = self._labels(theme)
@@ -463,11 +493,8 @@ class AtMost(_Disjunction):
     removal_class = 2
 
     def __init__(self, anchor: Term, options, k: int):
-        super().__init__(anchor, options)
+        super().__init__(anchor, options, 0, k)
         self.k = k
-
-    def holds(self, X) -> bool:
-        return self._matches(X) <= self.k
 
     def text(self, theme: Theme) -> str:
         return (
@@ -489,11 +516,8 @@ class Exactly(_Disjunction):
     removal_class = 2
 
     def __init__(self, anchor: Term, options, k: int):
-        super().__init__(anchor, options)
+        super().__init__(anchor, options, k, k)
         self.k = k
-
-    def holds(self, X) -> bool:
-        return self._matches(X) == self.k
 
     def text(self, theme: Theme) -> str:
         return (
@@ -502,7 +526,7 @@ class Exactly(_Disjunction):
         )
 
 
-class AllDifferent(Clue):
+class AllDifferent(Count):
     """The listed terms all belong to distinct entities — "A, B, and C are all
     different".
 
@@ -510,19 +534,19 @@ class AllDifferent(Clue):
     different entities, so a single-category list would be trivial), and
     categories may repeat — "Ava, Ben, Chai, and Latte are all different" mixes
     two Customers and two Drinks. Logically it is the conjunction of the pairwise
-    "is not" facts among its terms; at N == 2 that is just a Negative, so it is
-    generated only for N >= 3.
+    "is not" facts among its terms — the Count window [0, 0] over the
+    cross-category pairs (same-category pairs are distinct by the bijection); at
+    N == 2 that is just a Negative, so it is generated only for N >= 3.
     """
 
     removal_class = 2
 
     def __init__(self, terms):
         self.terms = tuple(sorted(terms))
+        super().__init__(
+            [(p, q) for p, q in combinations(self.terms, 2) if p[0] != q[0]], 0, 0
+        )
         self.involved = frozenset(t[0] for t in self.terms)
-
-    def holds(self, X) -> bool:
-        ents = [entity_of(X, t) for t in self.terms]
-        return len(set(ents)) == len(ents)
 
     def text(self, theme: Theme) -> str:
         # "belong to different <entities>" reads correctly even when the listed
@@ -531,8 +555,9 @@ class AllDifferent(Clue):
         return f"{_join(labels, 'and')} belong to different {_plural(theme.entity_noun)}."
 
 
-class ExactlyKLinks(Clue):
-    """Exactly `k` of the given positive links hold.
+class ExactlyKLinks(Count):
+    """Exactly `k` of the given positive links hold — Count window [k, k] over
+    free-form links.
 
     Each link is a pair of terms asserting they share an entity. K == 1, N == 2
     is the classic exclusive pairing — "either A goes with X, or B goes with Y,
@@ -542,12 +567,9 @@ class ExactlyKLinks(Clue):
     removal_class = 1
 
     def __init__(self, links, k: int):
-        self.links = tuple(sorted(tuple(sorted(link)) for link in links))
+        super().__init__(sorted(tuple(sorted(link)) for link in links), k, k)
+        self.links = self.pairs  # legacy alias (sorted canonical form)
         self.k = k
-        self.involved = frozenset(t[0] for link in self.links for t in link)
-
-    def holds(self, X) -> bool:
-        return sum(entity_of(X, a) == entity_of(X, b) for a, b in self.links) == self.k
 
     def text(self, theme: Theme) -> str:
         parts = [f"{_label(theme, a)} goes with {_label(theme, b)}" for a, b in self.links]

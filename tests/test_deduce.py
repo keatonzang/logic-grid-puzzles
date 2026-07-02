@@ -209,7 +209,7 @@ def test_propagators_refute_unsatisfiable_clues():
     import pytest as _pytest
 
     from logicgrid.clues import Among, AtMost, Compound, EitherOr, Exactly, Link, Or
-    from logicgrid.deduce import _prop_among, _prop_at_most, _prop_either, _prop_exactly_anchor
+    from logicgrid.deduce import _prop_count
     from logicgrid.model import Category, Contradiction, Theme
 
     theme = Theme("T", "", [
@@ -227,16 +227,16 @@ def test_propagators_refute_unsatisfiable_clues():
 
     both_out = board_with([(anchor, o1, N), (anchor, o2, N)])
     with _pytest.raises(Contradiction):
-        _prop_among(both_out, Among(anchor, [o1, o2]))
+        _prop_count(both_out, Among(anchor, [o1, o2]))
     with _pytest.raises(Contradiction):
-        _prop_either(both_out, EitherOr(anchor, [o1, o2]))
+        _prop_count(both_out, EitherOr(anchor, [o1, o2]))
     with _pytest.raises(Contradiction):
-        _prop_exactly_anchor(both_out, Exactly(anchor, [o1, o2], 1))
+        _prop_count(both_out, Exactly(anchor, [o1, o2], 1))
     both_in = board_with([(anchor, o1, Y), (anchor, o2, Y)])
     with _pytest.raises(Contradiction):
-        _prop_either(both_in, EitherOr(anchor, [o1, o2]))
+        _prop_count(both_in, EitherOr(anchor, [o1, o2]))
     with _pytest.raises(Contradiction):
-        _prop_at_most(both_in, AtMost(anchor, [o1, o2], 1))
+        _prop_count(both_in, AtMost(anchor, [o1, o2], 1))
     # a Compound (asserted statement) that is provably false raises too
     with _pytest.raises(Contradiction):
         Compound(Or([Link(anchor, o1), Link(anchor, o2)])).propagate(both_out)
@@ -337,7 +337,7 @@ def test_abs_apart_at_most_propagator_narrows(ordered_theme):
 
 def test_exactly_anchor_propagator():
     from logicgrid.clues import Exactly
-    from logicgrid.deduce import _prop_exactly_anchor
+    from logicgrid.deduce import _prop_count
 
     theme = Theme(
         name="t", description="d", entity_noun="x",
@@ -348,12 +348,12 @@ def test_exactly_anchor_propagator():
     bd = Board(theme)  # two options Y -> quota met, third forced N
     bd.set(0, 0, 1, 0, Y)
     bd.set(0, 0, 2, 0, Y)
-    _prop_exactly_anchor(bd, clue)
+    _prop_count(bd, clue)
     assert bd.get(0, 0, 3, 0) == N
 
     bd = Board(theme)  # one option N -> only two left, both needed -> both Y
     bd.set(0, 0, 1, 0, N)
-    _prop_exactly_anchor(bd, clue)
+    _prop_count(bd, clue)
     assert bd.get(0, 0, 2, 0) == Y
     assert bd.get(0, 0, 3, 0) == Y
 

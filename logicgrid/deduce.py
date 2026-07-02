@@ -118,9 +118,8 @@ def _apply_givens(board, clues) -> int:
             for o in clue.options:
                 changed += _s(board, clue.anchor, o, N)
         elif name == "AllDifferent":
-            for p, q in combinations(clue.terms, 2):
-                if p[0] != q[0]:
-                    changed += _s(board, p, q, N)
+            for p, q in clue.pairs:  # the Count atoms: cross-category term pairs
+                changed += _s(board, p, q, N)
     return changed
 
 
@@ -327,48 +326,30 @@ def _sweep_set_logic(board, clues) -> int:
 
 
 # --- Tier 3: counting / matching clue propagation ---------------------------
-def _prop_among(board, clue) -> int:
-    # at least `at_least` of the options share the anchor's entity
-    not_n = [o for o in clue.options if _g(board, clue.anchor, o) != N]
-    if len(not_n) < clue.at_least:  # fewer live options than the minimum
-        raise Contradiction("among can't reach its minimum")
-    if len(not_n) == clue.at_least:  # only this many can be Y, and we need them
-        return sum(_s(board, clue.anchor, o, Y) for o in not_n)
-    return 0
-
-
-def _prop_either(board, clue) -> int:
-    states = [_g(board, clue.anchor, o) for o in clue.options]
+def _prop_count(board, clue) -> int:
+    """The one counting rule every cardinality family shares (see clues.Count):
+    the window [lo, hi] over the clue's term-pair atoms. If the confirmed count
+    tops the ceiling or the live count can't reach the floor, contradiction;
+    if the ceiling is met every open atom is out, and if every live atom is
+    needed for the floor they are all in. Among / EitherOr / AtMost / Exactly /
+    ExactlyKLinks are all this function with different windows."""
+    states = [_g(board, a, b) for a, b in clue.pairs]
+    y, u = states.count(Y), states.count(U)
+    if y > clue.hi:
+        raise Contradiction("count exceeds its window")
+    if y + u < clue.lo:
+        raise Contradiction("count can't reach its window")
+    if not u:
+        return 0
     changed = 0
-    if states.count(Y) > 1:  # exactly one may hold
-        raise Contradiction("either-or has two confirmed options")
-    if Y in states:  # exactly one — rule out the rest
-        for o, s in zip(clue.options, states):
-            if s != Y:
-                changed += _s(board, clue.anchor, o, N)
-    else:
-        not_n = [o for o, s in zip(clue.options, states) if s != N]
-        if not not_n:  # every option ruled out, but exactly one must hold
-            raise Contradiction("either-or has no live option left")
-        if len(not_n) == 1:
-            changed += _s(board, clue.anchor, not_n[0], Y)
-    return changed
-
-
-def _prop_exactly(board, clue) -> int:
-    states = [_g(board, p, q) for p, q in clue.links]
-    unknown = [i for i, s in enumerate(states) if s == U]
-    changed = 0
-    if states.count(Y) > clue.k:
-        raise Contradiction("exactly-K links exceed the quota")
-    if states.count(N) > len(clue.links) - clue.k:
-        raise Contradiction("exactly-K links can't reach the quota")
-    if states.count(Y) == clue.k:  # quota met — rest are N
-        for i in unknown:
-            changed += _s(board, *clue.links[i], N)
-    elif states.count(N) == len(clue.links) - clue.k:  # rest must be Y
-        for i in unknown:
-            changed += _s(board, *clue.links[i], Y)
+    if y == clue.hi:  # ceiling met — every open atom is out
+        for (a, b), s in zip(clue.pairs, states):
+            if s == U:
+                changed += _s(board, a, b, N)
+    elif y + u == clue.lo:  # every live atom is needed to reach the floor
+        for (a, b), s in zip(clue.pairs, states):
+            if s == U:
+                changed += _s(board, a, b, Y)
     return changed
 
 
@@ -495,37 +476,6 @@ def _prop_multi_compare(board, clue) -> int:  # rank(c) >/< every other
         else:  # c < o
             changed += _rule_out(board, clue.c, p, [q for q in pc if q >= max(po)])
             changed += _rule_out(board, o, p, [q for q in po if q <= min(pc)])
-    return changed
-
-
-def _prop_at_most(board, clue) -> int:  # at most k options match the anchor
-    states = [_g(board, clue.anchor, o) for o in clue.options]
-    if states.count(Y) > clue.k:
-        raise Contradiction("at-most quota exceeded")
-    if states.count(Y) != clue.k:
-        return 0
-    changed = 0  # quota reached -> the rest can't match
-    for o, s in zip(clue.options, states):
-        if s == U:
-            changed += _s(board, clue.anchor, o, N)
-    return changed
-
-
-def _prop_exactly_anchor(board, clue) -> int:  # exactly k options match the anchor
-    states = [_g(board, clue.anchor, o) for o in clue.options]
-    changed = 0
-    if states.count(Y) > clue.k:
-        raise Contradiction("exactly-K quota exceeded")
-    if states.count(Y) == clue.k:  # quota met -> the rest can't match
-        for o, s in zip(clue.options, states):
-            if s == U:
-                changed += _s(board, clue.anchor, o, N)
-    not_n = [o for o, s in zip(clue.options, states) if s != N]
-    if len(not_n) < clue.k:  # fewer live options than the quota needs
-        raise Contradiction("exactly-K can't reach the quota")
-    if len(not_n) == clue.k:  # only this many can match, and we need k -> all Y
-        for o in not_n:
-            changed += _s(board, clue.anchor, o, Y)
     return changed
 
 
@@ -799,10 +749,10 @@ def _prop_group_group_compare(board, clue) -> int:  # |A∩C| > |B∩C|
 
 
 _PROPAGATORS = {
-    "Among": _prop_among,
-    "EitherOr": _prop_either,
-    "Exactly": _prop_exactly_anchor,
-    "ExactlyKLinks": _prop_exactly,
+    "Among": _prop_count,
+    "EitherOr": _prop_count,
+    "Exactly": _prop_count,
+    "ExactlyKLinks": _prop_count,
     "Conditional": _prop_conditional,
     "Compound": _prop_conditional,  # both just delegate to the statement tree
     "InGroup": _prop_in_group,
@@ -823,7 +773,7 @@ _PROPAGATORS = {
     "AtLeastApart": _prop_at_least_apart,
     "AbsApart": _prop_abs_apart,
     "MultiCompare": _prop_multi_compare,
-    "AtMost": _prop_at_most,
+    "AtMost": _prop_count,
 }
 
 

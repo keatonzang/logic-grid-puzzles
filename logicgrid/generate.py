@@ -470,17 +470,17 @@ def build_clue_pool(
                 c1, c2 = rng.sample(range(k), 2)
                 e1, e2 = rng.sample(range(n), 2)
                 links.append(((c1, X[e1][c1]), (c2, X[e2][c2])))
-            clue = ExactlyKLinks(links, pairing_k)
-            if len(set(clue.links)) < size:  # a repeated link says nothing
+            canon = {tuple(sorted(link)) for link in links}
+            if len(canon) < size:  # a repeated link: intra-clue redundancy
                 continue
             # Mostly independent alternatives ("A–X or B–Y"), plus a minority
             # of overlapping draws (a shared value "A–X or B–X", or a chain
             # "A–X or X–B") kept for texture. All-shared was the original
             # monotony (and reads like EitherOr / the Compound disjunction);
             # all-distinct was tried and is its own monotony.
-            terms = [t for link in clue.links for t in link]
+            terms = [t for link in links for t in link]
             if len(set(terms)) == 2 * size or rng.random() < _PAIRING_OVERLAP_PROB:
-                pairing.append(clue)
+                pairing.append(ExactlyKLinks(links, pairing_k))
 
     # Group match: a left and right group cover the same N entities, paired in
     # unknown order ("between A and B, one is C..."). The categories are split

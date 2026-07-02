@@ -594,6 +594,17 @@ def test_among_sizes_configurable_for_larger_n(plain_theme):
     assert all(len(c.options) == 2 for c in disjunctions)
 
 
+def test_count_rejects_duplicate_atoms():
+    # Zero intra-clue redundancy is structural: the Count engine refuses a
+    # repeated atom outright, in either orientation.
+    from logicgrid.clues import Count, ExactlyKLinks
+
+    with pytest.raises(ValueError):
+        Count([((0, 0), (1, 0)), ((1, 0), (0, 0))], 1, 1)
+    with pytest.raises(ValueError):
+        ExactlyKLinks([((0, 0), (1, 0)), ((1, 0), (0, 0))], 1)
+
+
 def test_semantic_screen_rejects_tautologies(plain_theme):
     # "at most 2 of these 2 options" is vacuously true on every solution —
     # zero information, so the screen drops it with no per-family guard.
