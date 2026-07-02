@@ -241,8 +241,10 @@ def test_set_count_needs_the_flag_and_a_grouping(plain_theme):
 
 
 def test_group_instances_need_a_grouping():
-    # No grouping -> no group-instance clues even with the flag on.
-    from logicgrid.clues import Compound
+    # No grouping -> no GROUP-instance clues even with the flag on. (Bare
+    # two-link compounds are group-free and may appear; the invariant is that
+    # no compound smuggles in a group construct.)
+    from logicgrid.clues import Compound, GroupLink, GroupSubset, Not
 
     from logicgrid.model import Category, Theme
     plain = Theme("P", "", [
@@ -253,7 +255,24 @@ def test_group_instances_need_a_grouping():
     rng = random.Random(3)
     X = random_solution(plain, rng)
     pool = build_clue_pool(plain, X, rng, enable_group_instances=True, enable_conditional=True)
-    assert not any(isinstance(c, Compound) for c in pool)
+
+    def leaves(stmt):
+        todo, out = [stmt], []
+        while todo:
+            s = todo.pop()
+            if isinstance(s, Not):
+                todo.append(s.s)
+            elif hasattr(s, "parts"):
+                todo.extend(s.parts)
+            elif hasattr(s, "p"):
+                todo.extend([s.p, s.q])
+            else:
+                out.append(s)
+        return out
+
+    for c in pool:
+        if isinstance(c, Compound):
+            assert not any(isinstance(l, (GroupLink, GroupSubset)) for l in leaves(c.stmt))
 
 
 def test_group_count_never_degenerate():

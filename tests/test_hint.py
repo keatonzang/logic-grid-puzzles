@@ -146,13 +146,13 @@ def test_sequential_price_trace_is_sound():
 
 def test_build_hint_is_deterministic_and_grounded():
     # Same seed + params -> same puzzle -> same first hint.
-    a = build_hint(3, "hard", 4, 3, known={})
-    b = build_hint(3, "hard", 4, 3, known={})
+    a = build_hint(5, "hard", 4, 3, known={})
+    b = build_hint(5, "hard", 4, 3, known={})
     assert a == b
     assert a["tier"] == 0  # nothing known yet -> a given
 
     # The hint targets a real, correct cell of the regenerated puzzle.
-    theme, puzzle, _r, _s = build_puzzle(3, "hard", 4, 3)
+    theme, puzzle, _r, _s = build_puzzle(5, "hard", 4, 3)
     i, j = (int(x) for x in a["key"].split("-"))
     ent = {
         (c, puzzle.solution[e][c]): e

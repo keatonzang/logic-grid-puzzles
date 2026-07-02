@@ -198,6 +198,7 @@ def build_clue_pool(
     max_alldiff: int = 30,
     pairing_sizes: tuple[int, ...] = (2, 3),
     pairing_k: int = 1,
+    pairing_two_prob: float = 0.0,  # chance a 3-link draw rolls "exactly two"
     max_pairing: int = 25,
     match_sizes: tuple[int, ...] = (2, 3),
     max_match: int = 25,
@@ -455,18 +456,23 @@ def build_clue_pool(
                 AllDifferent([(cats[i], X[ents[i]][cats[i]]) for i in range(size)])
             )
 
-    # Exclusive pairing: exactly `pairing_k` of N positive links hold. A true
-    # link joins two terms on one entity; a false link joins two entities.
+    # Exclusive pairing: exactly K of N positive links hold. A true link joins
+    # two terms on one entity; a false link joins two entities. K defaults to
+    # `pairing_k`; with `pairing_two_prob` a 3-link draw can roll K == 2
+    # ("exactly two of these are true") — extreme-tier flavour.
     for size in pairing_sizes if enable_pairing else ():
         if not 1 <= pairing_k < size:  # keep it ambiguous (never all-true/all-false)
             continue
         for _ in range(3 * n):
+            k_draw = pairing_k
+            if 2 < size and rng.random() < pairing_two_prob:
+                k_draw = 2
             links = []
-            for _ in range(pairing_k):
+            for _ in range(k_draw):
                 c1, c2 = rng.sample(range(k), 2)
                 e = rng.randrange(n)
                 links.append(((c1, X[e][c1]), (c2, X[e][c2])))
-            for _ in range(size - pairing_k):
+            for _ in range(size - k_draw):
                 c1, c2 = rng.sample(range(k), 2)
                 e1, e2 = rng.sample(range(n), 2)
                 links.append(((c1, X[e1][c1]), (c2, X[e2][c2])))
@@ -480,7 +486,7 @@ def build_clue_pool(
             # all-distinct was tried and is its own monotony.
             terms = [t for link in links for t in link]
             if len(set(terms)) == 2 * size or rng.random() < _PAIRING_OVERLAP_PROB:
-                pairing.append(ExactlyKLinks(links, pairing_k))
+                pairing.append(ExactlyKLinks(links, k_draw))
 
     # Group match: a left and right group cover the same N entities, paired in
     # unknown order ("between A and B, one is C..."). The categories are split
@@ -644,6 +650,25 @@ def build_clue_pool(
             seen_text.add(txt)
             conditional.append(clue)
 
+    # Bare two-link disjunctions with independent predicates — "either A goes
+    # with X, or B goes with Y" read INCLUSIVELY (at least one holds; Or.text
+    # brackets it), the complement of the exclusive pairing. No groups needed;
+    # rides the conditional gate (rich tiers up). Triviality, duplicate sides,
+    # and cross-family restatements are all left to _semantic_screen.
+    if enable_conditional and k >= 2 and n >= 2:
+        for _ in range(3 * n):
+            c1, c2 = rng.sample(range(k), 2)
+            et = rng.randrange(n)
+            true_link = Link((c1, X[et][c1]), (c2, X[et][c2]))
+            c3, c4 = rng.sample(range(k), 2)
+            ea, eb = rng.sample(range(n), 2)
+            other = Link((c3, X[ea][c3]), (c4, X[eb][c4]))  # false under X
+            two = [true_link, other]
+            rng.shuffle(two)
+            clue = Compound(Or(two))
+            if clue.holds(X):
+                compounds.append(clue)
+
     # Group-instance disjunctions: a bare "either {named instance} or {someone in a
     # group}" clue — the group standing in as an alternative instance for the same
     # predicate. Built as Or/Xor over a Link and a GroupLink, with exactly one side
@@ -677,6 +702,42 @@ def build_clue_pool(
                 stmt = Xor(link, grp) if rng.random() < 0.5 else Or([link, grp])
                 clue = Compound(stmt)
                 if not clue.holds(X):  # exactly one side true -> guard anyway
+                    continue
+                txt = clue.text(theme)
+                if txt in seen_comp:
+                    continue
+                seen_comp.add(txt)
+                compounds.append(clue)
+
+            # Mixed-predicate variant: the named link and the group existential
+            # each constrain a DIFFERENT predicate ("either Beatrix goes with
+            # Rope, or someone in the Hill Ward pays 14 coins") — the two
+            # alternatives are fully independent facts.
+            for _ in range(4 * n):
+                qc_g = rng.choice([c for c in range(k) if c != gc])
+                eg = rng.randrange(n)
+                gi = group_of.get(X[eg][gc])
+                if gi is None:
+                    continue
+                grp_true = rng.random() < 0.5
+                if grp_true:
+                    grp = GroupLink((qc_g, X[eg][qc_g]), gc, labels[gi], parts[gi], subject=True)
+                else:
+                    others = [j for j in range(len(parts)) if j != gi]
+                    if not others:
+                        continue
+                    gj = rng.choice(others)
+                    grp = GroupLink((qc_g, X[eg][qc_g]), gc, labels[gj], parts[gj], subject=True)
+                c1 = rng.randrange(k)
+                c2 = rng.choice([c for c in range(k) if c != c1])
+                if grp_true:  # named side false: terms from two entities
+                    e1, e2 = rng.sample(range(n), 2)
+                else:  # named side true: one entity's own terms
+                    e1 = e2 = rng.randrange(n)
+                link = Link((c1, X[e1][c1]), (c2, X[e2][c2]))
+                stmt = Xor(link, grp) if rng.random() < 0.5 else Or([link, grp])
+                clue = Compound(stmt)
+                if not clue.holds(X):
                     continue
                 txt = clue.text(theme)
                 if txt in seen_comp:
@@ -1020,8 +1081,9 @@ _RICH_POOL = dict(
     include_sequential=True,
 )
 # giga/tera additionally roll compound conditional sides ("if both A and B, then
-# …") — the heaviest clue to read, reserved for the most extreme tiers.
-_EXTREME_POOL = {**_RICH_POOL, "conditional_compound_prob": 0.28}
+# …") — the heaviest clue to read — and "exactly two of these three" pairings,
+# reserved for the most extreme tiers.
+_EXTREME_POOL = {**_RICH_POOL, "conditional_compound_prob": 0.28, "pairing_two_prob": 0.3}
 _DIFFICULTY_POOL = {
     "normal": _NORMAL_POOL,
     "hard": _HARD_POOL,
@@ -1041,61 +1103,73 @@ _DIFFICULTY_EXTRA = {"normal": 0.6, "hard": 0.0, "mega": 0.0, "giga": 0.0, "tera
 # clue (the result stays unique, just slightly less minimal).
 _MINIMIZE_NODE_BUDGET = 20000
 
-# Clue types that name a hierarchy/group; minimize keeps these to the end of the
-# removal order so they survive into the minimal set more often (see minimize).
-_GROUP_CLUES = {
-    "InGroup", "SameGroup", "DiffGroup", "NotInGroup", "GroupCount", "GroupOrder",
-    "GroupGroupCount", "GroupGroupCompare",
-    "Compound",  # group-instance disjunctions ("either X or someone in G ...")
-    "SetCount",  # set-composition cardinality ("two members of the Hill Ward ...")
+# Diversity reserve: per tier, (depth, complexity_last) — how many clues OF
+# EACH SUBSTANTIVE SHAPE minimize keeps to the very end of the removal order
+# (chosen at random per puzzle), and whether that reserved block is ordered by
+# reading complexity so the most intricate shapes survive best. Greedy
+# minimization structurally selects against intricate clues — a cheaper clue
+# can usually stand in — so without a reserve whole families stop shipping
+# (measured on King's Guild censuses: pairings survived in ~4/30 puzzles,
+# conditionals ~3/30). The reserve is data-driven — every clue type present in
+# the pool participates, no curated type lists — except that direct facts
+# (clue_cost below _RESERVE_MIN_COST: Positive, Negative) never need
+# protecting and would only dilute harder tiers. complexity_last applies where
+# complexity is a goal (the rich tiers): without it, abundant strong simple
+# clues (sequential comparisons) crowd out the rare complex families; WITH it
+# at hard, the cheap-to-read hierarchy clues get evicted instead, so hard
+# keeps a random-order reserve. Protecting ALL clues of a type was tried and
+# overshot (the ceiling-5 population slid from 18% mega / 51% giga / 31% tera
+# to 6/29/65, starving the mega attempt budget).
+_RESERVE = {
+    "normal": (0, False),
+    "hard": (2, False),
+    "mega": (1, True),
+    "giga": (2, True),
+    "tera": (2, True),
 }
-
-# Showcase boost: per tier, how many clues of each *showcase* type minimize
-# keeps to the very END of the removal order — after even the group clues —
-# chosen at random per puzzle. These are the intricate clue types that
-# otherwise almost never survive greedy minimization (measured on 30-puzzle
-# King's Guild censuses: pairings ~4/30 puzzles unboosted, conditionals ~3/30),
-# because a cheaper clue can usually stand in for them. The counts scale with
-# tier so clue diversity and complexity peak at the top bands. Boosting ALL
-# pairings was tried and overshot: ~2 survived per puzzle and the ceiling-5
-# population slid from 18% mega / 51% giga / 31% tera to 6/29/65, starving the
-# mega attempt budget — small tier-scaled counts keep the drift pointed toward
-# the bands those requests want anyway.
-_SHOWCASE_BOOST = {
-    "normal": {},
-    "hard": {},
-    "mega": {"ExactlyKLinks": 1},
-    "giga": {"ExactlyKLinks": 2, "Conditional": 1},
-    "tera": {"ExactlyKLinks": 2, "Conditional": 2},
-}
+_RESERVE_MIN_COST = 1.5  # direct is/is-not facts sit below; everything else above
 
 
-def minimize(theme: Theme, clues: list, rng: random.Random, boost: dict | None = None) -> list:
+def minimize(
+    theme: Theme,
+    clues: list,
+    rng: random.Random,
+    reserve: int = 0,
+    complexity_last: bool = False,
+) -> list:
     """Greedily remove clues while uniqueness is preserved.
 
     A clue set is locally minimal once no further single clue can be dropped.
     Removal order is randomised so the surviving minimal set varies between
     seeds; difficulty is then selected by ``generate_rated`` measuring the band,
-    which keeps calibration honest. The deliberate skew: *group* clues are
-    considered for removal late, and `boost` (a {clue class name: count} dict,
-    see _SHOWCASE_BOOST) randomly-chosen showcase clues last of all, so a
-    puzzle that can keep a hierarchy clue, a cross-pair either/or, or a
-    conditional tends to (guilds appear in ~half of hard King's Guild puzzles
-    instead of ~5%). This is safe because these clues carry real deductive
-    weight, so keeping them doesn't push the measured band down — a broader
-    "keep all the interesting clues" bias was tried and it skewed medium
-    puzzles to easy (and boosting every pairing slid the rich-tier population
-    heavily toward tera; see the _SHOWCASE_BOOST note).
+    which keeps calibration honest. The one deliberate skew is the diversity
+    reserve (see _RESERVE): up to `reserve` randomly-chosen clues of every
+    substantive shape present are considered for removal last, so a puzzle
+    that can keep a hierarchy clue, a cross-pair either/or, or a conditional
+    tends to. This is safe because those clues carry real deductive weight, so
+    keeping them doesn't push the measured band down — protecting *all* clues
+    of the interesting shapes was tried twice and both times skewed the
+    population (see the _RESERVE note).
     """
     removal_order = list(clues)
     rng.shuffle(removal_order)
-    # post-shuffle first K of a type == K uniformly-random ones per puzzle
-    boosted = set()
-    for name, count in (boost or {}).items():
-        matches = [c for c in removal_order if type(c).__name__ == name]
-        boosted.update(id(c) for c in matches[:count])
+    # post-shuffle first `reserve` of a shape == that many uniformly-random ones
+    reserved: set = set()
+    if reserve:
+        taken: dict = {}
+        for c in removal_order:
+            name = type(c).__name__
+            if clue_cost(c) < _RESERVE_MIN_COST:
+                continue  # direct facts never need protecting
+            if taken.get(name, 0) < reserve:
+                taken[name] = taken.get(name, 0) + 1
+                reserved.add(id(c))
+    # With complexity_last, the reserve tries its cheapest reading for removal
+    # first, so the most intricate shapes survive best (see the _RESERVE note).
     removal_order.sort(
-        key=lambda c: 2 if id(c) in boosted else 1 if type(c).__name__ in _GROUP_CLUES else 0
+        key=lambda c: (1, clue_cost(c) if complexity_last else 0.0)
+        if id(c) in reserved
+        else (0, 0.0)
     )
 
     current = list(clues)
@@ -1116,7 +1190,8 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
     if count_solutions(theme, pool, cap=2) != 1:
         raise RuntimeError("clue pool failed to yield a unique solution (internal error)")
 
-    best = minimize(theme, pool, rng, boost=_SHOWCASE_BOOST[difficulty])
+    depth, complexity_last = _RESERVE[difficulty]
+    best = minimize(theme, pool, rng, reserve=depth, complexity_last=complexity_last)
     clues = list(best)
     extra_frac = _DIFFICULTY_EXTRA[difficulty]
     if extra_frac > 0:  # easy: hand back extra true clues so less inference is needed

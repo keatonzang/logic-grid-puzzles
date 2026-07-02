@@ -71,7 +71,7 @@ def test_bad_seed_is_400(api):
 
 def test_hint_empty_board_is_a_given(hint_api):
     status, payload = hint_api._build_response(
-        {"seed": 3, "difficulty": "hard", "items": 4, "categories": 3, "known": {}}
+        {"seed": 5, "difficulty": "hard", "items": 4, "categories": 3, "known": {}}
     )
     assert status == 200
     assert payload["tier"] == 0
@@ -119,7 +119,7 @@ def test_unknown_theme_is_400(api):
 
 def test_hint_theme(hint_api):
     status, payload = hint_api._build_response(
-        {"seed": 3, "difficulty": "hard", "items": 4, "categories": 3,
+        {"seed": 5, "difficulty": "hard", "items": 4, "categories": 3,
          "theme": "dnd", "known": {}}
     )
     assert status == 200
