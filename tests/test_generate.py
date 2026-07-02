@@ -692,3 +692,46 @@ def test_same_seed_is_reproducible(plain_theme):
     b = generate_puzzle(plain_theme, random.Random(42))
     assert a.solution == b.solution
     assert [c.text(plain_theme) for c in a.clues] == [c.text(plain_theme) for c in b.clues]
+
+
+def test_no_clue_names_a_singleton_group():
+    # A one-member group makes group clues collapse into direct links in
+    # costume (InGroup == Positive, "someone in G" == a named link). Fixed
+    # factual partitions (the chess camps) and uploaded custom themes can
+    # sample down to singletons, so every group-NAMING site draws only from
+    # >= 2-member groups (generate._big_groups); partition-wide clues
+    # (SameGroup/DiffGroup) are exempt — they never name one group.
+    from logicgrid.clues import (
+        Compound, Conditional, GroupCount, GroupLink, GroupOrder, GroupSubset,
+        InGroup, Not, NotInGroup, SetCount, Xor,
+    )
+    from logicgrid.webapi import build_puzzle
+
+    def leaves(stmt):
+        todo, out = [stmt], []
+        while todo:
+            s = todo.pop()
+            if isinstance(s, Not):
+                todo.append(s.s)
+            elif hasattr(s, "parts"):
+                todo.extend(s.parts)
+            elif isinstance(s, Xor):
+                todo.extend([s.p, s.q])
+            else:
+                out.append(s)
+        return out
+
+    for seed in range(10):
+        for tier in ("hard", "tera"):
+            theme, puzzle, _, _ = build_puzzle(seed=seed, difficulty=tier, theme="chess")
+            for cl in puzzle.clues:
+                if isinstance(cl, (InGroup, NotInGroup, GroupCount)):
+                    assert len(cl.members) >= 2, cl.text(theme)
+                if isinstance(cl, (Compound, Conditional)):
+                    roots = [cl.stmt] if isinstance(cl, Compound) else [cl.ante, cl.cons]
+                    for root in roots:
+                        for leaf in leaves(root):
+                            if isinstance(leaf, GroupLink):
+                                assert len(leaf.members) >= 2, cl.text(theme)
+                            if isinstance(leaf, GroupSubset):
+                                assert len(leaf.members_a) >= 2 and len(leaf.members_b) >= 2, cl.text(theme)
