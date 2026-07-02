@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Logic Grid Puzzles</title>
   <link rel="stylesheet" href="/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🧩</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='1' width='6' height='6' rx='1' fill='%236ea8fe'/><rect x='9' y='1' width='6' height='6' rx='1' fill='%23394869'/><rect x='1' y='9' width='6' height='6' rx='1' fill='%23394869'/><rect x='9' y='9' width='6' height='6' rx='1' fill='%236ea8fe'/></svg>" />
 </head>
 <body>
   <header>
-    <h1>🧩 Logic Grid Puzzles</h1>
-    <p class="tagline">Every puzzle has exactly one solution. Click a cell to cycle <b>blank → ✓ → ✗</b>, cross off clues as you use them, and hit <b>Hint</b> when stuck.</p>
-    <p class="nav-links"><a href="/guide">📖 How to solve &amp; clue reference</a></p>
+    <h1>Logic Grid Puzzles</h1>
+    <p class="tagline">Every puzzle has exactly one solution. Click a cell to cycle <b>blank → ✗ → ✓</b>, cross off clues as you use them, and hit <b>Hint</b> when stuck.</p>
+    <p class="nav-links"><a href="/guide">How to solve &amp; clue reference</a></p>
   </header>
 
   <section class="controls">
@@ -65,13 +65,13 @@
 
       <section class="grids-panel">
         <div class="grid-actions">
-          <button id="hint" class="hint-btn">💡 Hint</button>
+          <button id="hint" class="hint-btn">Hint</button>
           <button id="undo" title="Undo (Ctrl+Z)" disabled>↶ Undo</button>
           <button id="redo" title="Redo (Ctrl+Shift+Z)" disabled>↷ Redo</button>
           <button id="check">Check</button>
           <button id="reveal">Reveal solution</button>
           <button id="clear">Clear</button>
-          <button id="print">🖨 Print</button>
+          <button id="print">Print</button>
           <span id="timer" class="timer" role="timer" aria-live="off" hidden>0.0s</span>
         </div>
         <div id="grids"></div>
