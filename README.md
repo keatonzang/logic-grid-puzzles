@@ -110,15 +110,26 @@ The "one of N" disjunctions default to N ∈ {2, 3} via `build_clue_pool(among_s
    `X[entity][category] = item`, anchored so entity *i* is the *i*-th item of
    category 0).
 2. **Clue pool.** Enumerate clues that are *true* under that solution — all
-   positive links, a sample of negatives, and comparisons/differences for any
-   ordered category.
-3. **Minimize.** Greedily drop clues in random order as long as the puzzle still
+   positive links, a sample of negatives, comparisons/differences for any
+   ordered category, and the tier's counting / group / compound / conditional
+   families. Most counting clues are phrasings of one engine (`clues.Count`:
+   "between lo and hi of these term pairs share an entity"), which rejects a
+   repeated atom outright — no clue ever says "A goes with X or A goes with X".
+3. **Semantic screen.** Every candidate is evaluated against a shared sample of
+   random solutions. Tautologies and near-tautologies (true on the whole
+   sample: zero information) are rejected, semantic duplicates across families
+   keep only the cheapest reading, and a boolean compound with one branch
+   implying another (intra-clue redundancy) is rejected — one test instead of
+   per-family triviality guards.
+4. **Minimize.** Greedily drop clues in random order as long as the puzzle still
    has a unique solution (verified by a backtracking solution-counter that stops
-   at 2). The result is a compact, locally-minimal clue set with a natural mix of
-   clue types. The one deliberate skew: group/hierarchy clues are considered for
-   removal last, so they survive into ~half of rich-tier grouped puzzles instead of
-   ~5% — they carry real deductive weight, so keeping them doesn't soften the
-   measured difficulty band.
+   at 2). The result is a compact, locally-minimal clue set. The one deliberate
+   skew is a per-tier *diversity reserve*: a few random clues of every
+   substantive shape are considered for removal last (at the rich tiers,
+   ordered so the most intricate survive best), because greedy minimization
+   otherwise starves the intricate families — they carry real deductive
+   weight, so keeping them doesn't soften the measured difficulty band.
+   `python -m logicgrid.census` reports what actually ships, per tier.
 
 The solver assigns one category column at a time (most-constrained first) and
 prunes against every clue whose columns are fully assigned, so the small sizes
@@ -178,12 +189,19 @@ budget.
 
 ### What's verified — and what's only modeled
 
-Every shipped puzzle carries two hard, per-puzzle guarantees:
+Every shipped puzzle carries hard, per-puzzle guarantees:
 
 - **Uniqueness.** A backtracking counter proves exactly one solution exists (it
   counts to 2, so this is exact, not sampled).
 - **Logic-solvability.** The deductive solver itself finishes the puzzle with
   the shipped clue list before we ship it — a guess-free path always exists.
+- **No intra-clue redundancy.** A clue never repeats an atom, and no branch of
+  a compound implies a sibling (structurally via `clues.Count`, semantically
+  via the pool screen). Cross-clue redundancy exists only where intended: the
+  `normal` band's deliberate extra-clue padding.
+- **No zero-information clues.** Candidates true on the whole random-solution
+  sample never ship (informativeness is sampled, so an astronomically-weak
+  clue could in principle slip through; anything the sample can see is gone).
 
 Everything else is *measurement*, and measurement has edges. Known limits, in
 roughly descending order of importance:
@@ -424,8 +442,9 @@ logicgrid/
   model.py             Theme / Category data model + validation
   clues.py             clue types (Positive/Negative/Greater/Diff)
   solver.py            backtracking solution counter (uniqueness check)
-  generate.py          solution → clue pool → minimal unique set
+  generate.py          solution → clue pool → semantic screen → minimal unique set
   deduce.py            human-style deductive solver + difficulty grader
+  census.py            shipped-clue diversity / calibration census (python -m logicgrid.census)
   hint.py              step-by-step hint engine (explained deductive trace)
   render.py            console rendering: clues, grids, solution table
   themes.py            YAML/JSON theme loader

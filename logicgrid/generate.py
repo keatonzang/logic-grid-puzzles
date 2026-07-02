@@ -1203,13 +1203,14 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
     return Puzzle(theme=theme, solution=X, clues=clues)
 
 
-# Sampling budget per target. The ceiling-5 population split now depends on the
-# target's pairing boost (see _PAIRING_BOOST): under the contradiction-effort
-# cuts (deduce._MEGA_MAX_WHATIFS et al.) a mega request's pool runs ~21% mega /
-# 68% giga / 11% tera and a tera request's ~16% / 55% / 29% — the boost shifts
-# each pool toward the bands that target wants, so every band lands within a
-# few attempts. Tera also recovers ambiguous candidates via the nested-what-if
-# re-grade, widening its effective population further.
+# Sampling budget per target. The ceiling-5 population split depends on the
+# target's diversity reserve (see _RESERVE): a deeper, complexity-ordered
+# reserve keeps more intricate clues in the shipped set, shifting that pool
+# toward the harder bands the request wants anyway. Re-measure with
+# `python -m logicgrid.census --calibration` after touching pools, the screen,
+# or the reserve (latest: 97/100 exact across the five bands, tera 20/20).
+# Tera also recovers ambiguous candidates via the nested-what-if re-grade,
+# widening its effective population further.
 _RATED_ATTEMPTS = {"normal": 8, "hard": 9, "mega": 16, "giga": 14, "tera": 14}
 
 # Wall-clock cap on the depth-2 Tera-recovery solve. A genuine nested what-if
