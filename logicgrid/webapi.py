@@ -737,11 +737,12 @@ def build_payload(
             "ceiling": report["ceiling"],
             "steps": report["steps"],
             "total_steps": report["total_steps"],
-            # advanced difficulty signals behind the measured band
             # proof-by-contradiction volume: single (tier 5) + nested (tier 6)
-            # what-ifs — matching deduce.difficulty_index's definition (tier 4 is
-            # set-logic, not a what-if, so it must not be counted here).
+            # what-ifs (tier 4 is advanced forward logic, not a what-if), plus how
+            # long the longest refutation ran — the band's mega/giga/tera signal.
             "whatif": report["steps"][5] + report["steps"][6],
+            "whatif_max_proof": max(report.get("whatif_sizes") or [0]),
+            # supplemental fine-grained signals (they do not decide the band)
             "search_nodes": report.get("nodes"),
             "clue_load": round(report.get("clue_cost", {}).get("mean", 0.0), 2),
             "difficulty_index": round(difficulty_index(report), 2),

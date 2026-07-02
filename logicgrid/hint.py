@@ -21,6 +21,7 @@ from .deduce import (
     U,
     Y,
     Board,
+    _EXPERT_CLUES,
     _sweep_clues,
     _sweep_comparative,
     _sweep_cross_elim,
@@ -35,13 +36,14 @@ from .deduce import (
 from .model import Contradiction, Theme
 
 # Friendly names for the deduction tiers, surfaced in the hint UI. The index is
-# the tier number deduce.py uses (0 givens … 6 nested what-if).
+# the tier number deduce.py uses (0 givens … 6 nested what-if). Tier 4 covers
+# both the grid set logic and the expert clue propagators (_EXPERT_CLUES).
 TIER_NAMES = {
     0: "Given",
     1: "Elimination",
     2: "Cross-reference",
     3: "Clue logic",
-    4: "Set logic",
+    4: "Advanced logic",
     5: "What-if",
     6: "Nested what-if",
 }
@@ -392,6 +394,23 @@ def _clue_fail_ante(board, clue):
     return ante or _ablate_cells(board, clue)  # fall back to the full read set
 
 
+def _dead_line(theme, board):
+    """A row/column whose every option is ruled out (the line-sweep refutation).
+    Returns (text, antecedents) naming the item that has nowhere left to go."""
+    for (i, j), m in board.cell.items():
+        for a in range(board.n):
+            if all(v == N for v in m[a]):
+                return (f"…but now {_label(theme,(i,a))} has no possible "
+                        f"{_cat(theme, j)} left at all — a contradiction.",
+                        [(i, a, j, b) for b in range(board.n)])
+        for b in range(board.n):
+            if all(m[a][b] == N for a in range(board.n)):
+                return (f"…but now {_label(theme,(j,b))} has no possible "
+                        f"{_cat(theme, i)} left at all — a contradiction.",
+                        [(i, a, j, b) for a in range(board.n)])
+    return None
+
+
 def _clue_clash(theme, clues, board):
     """A count-style clue that can no longer be satisfied at ``board`` (the kind
     that raises without a single clashing cell). Returns (text, antecedents)."""
@@ -405,6 +424,9 @@ def _clue_clash(theme, clues, board):
         except Contradiction:
             return (f"…but now the clue “{clue.text(theme).rstrip('.')}” can no longer "
                     f"hold — a contradiction.", _clue_fail_ante(board, clue))
+    dead = _dead_line(theme, board)
+    if dead is not None:
+        return dead
     return ("…which forces a contradiction.", [])
 
 
@@ -550,17 +572,29 @@ def _round_trans(board, clues, theme, steps) -> bool:
     return True
 
 
-def _round_clues(board, clues, theme, steps) -> bool:
+def _clue_round(board, clues, theme, steps, expert: bool) -> bool:
     # Run clues one at a time so each deduction can name the clue that drove it.
+    # Cheap propagators narrate at tier 3; the expert ones (_EXPERT_CLUES) fire
+    # after set-up stalls and narrate at tier 4, mirroring deduce.solve.
+    tier = 4 if expert else 3
     for clue in clues:
-        if type(clue).__name__ not in _PROPAGATORS:
+        name = type(clue).__name__
+        if name not in _PROPAGATORS or (name in _EXPERT_CLUES) != expert:
             continue
         before = board.copy()
-        if _PROPAGATORS[type(clue).__name__](board, clue):
+        if _PROPAGATORS[name](board, clue):
             for (i, j, a, b, v) in _changes(before, board):
-                steps.append(_step(theme, i, j, a, b, v, 3, _reason_clue(theme, clue, i, a, j, b, v)))
+                steps.append(_step(theme, i, j, a, b, v, tier, _reason_clue(theme, clue, i, a, j, b, v)))
             return True
     return False
+
+
+def _round_clues(board, clues, theme, steps) -> bool:
+    return _clue_round(board, clues, theme, steps, expert=False)
+
+
+def _round_expert(board, clues, theme, steps) -> bool:
+    return _clue_round(board, clues, theme, steps, expert=True)
 
 
 def _round_setlogic(board, clues, theme, steps) -> bool:
@@ -622,7 +656,7 @@ def trace(theme: Theme, clues: list) -> list[dict]:
     board = Board(theme)
     steps: list[dict] = []
     _givens(board, clues, theme, steps)
-    rounds = (_round_lines, _round_trans, _round_clues, _round_setlogic, _round_hyp)
+    rounds = (_round_lines, _round_trans, _round_clues, _round_expert, _round_setlogic, _round_hyp)
     while not board.solved():
         if not any(r(board, clues, theme, steps) for r in rounds):
             break

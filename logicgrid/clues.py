@@ -319,7 +319,10 @@ class MultiCompare(Clue):
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
         labels = [_side(theme, o, self.cat) for o in self.others]
-        rel = "more" if self.greater else "less"
+        # "higher/lower", matching Greater — NOT "more/less": on a reversed-rank
+        # ordinal (Placing, where 1st = highest rank) "less placing" reads as a
+        # numerically smaller (better) place, the opposite of what is enforced.
+        rel = "higher" if self.greater else "lower"
         joiner = "both " if len(labels) == 2 else "all of "
         return f"{_cap(_poss(theme, self.c))} {cn} {cat.verb} {rel} than {joiner}{_join(labels, 'and')}."
 
@@ -420,6 +423,12 @@ class EitherOr(_Disjunction):
         labels = self._labels(theme)
         if len(labels) == 2:
             phrase = f"either {labels[0]} or {labels[1]}"
+            # Options in one category exclude each other anyway; options across
+            # categories could both hold, so the enforced exclusivity must be
+            # said out loud — a bare "either … or" reads as inclusive (cf. Or vs
+            # Xor in Compound clues) and would hide the no-link deduction.
+            if len({c for c, _ in self.options}) > 1:
+                phrase += " (but not both)"
         else:
             phrase = f"exactly one of {_join_or(labels)}"
         return f"{_label(theme, self.anchor)} goes with {phrase}."
@@ -694,6 +703,8 @@ class And(Statement):
         else:  # whole conj must be false: only forced once all but one are true
             vs = [p.eval(board) for p in self.parts]
             unknown = [p for p, v in zip(self.parts, vs) if v == _U]
+            if _N not in vs and not unknown:  # every part holds — can't be false
+                raise Contradiction("conjunction required false but fully true")
             if _N not in vs and len(unknown) == 1:
                 changed += unknown[0].constrain(board, _N)
         return changed
@@ -730,6 +741,8 @@ class Or(Statement):
         else:  # need at least one: forced once all but one are false
             vs = [p.eval(board) for p in self.parts]
             unknown = [p for p, v in zip(self.parts, vs) if v == _U]
+            if _Y not in vs and not unknown:  # every part failed — can't hold
+                raise Contradiction("disjunction required true but fully false")
             if _Y not in vs and len(unknown) == 1:
                 changed += unknown[0].constrain(board, _Y)
         return changed
@@ -764,6 +777,8 @@ class Xor(Statement):
         # target Y => the two differ; target N => they match. Pin the unknown side
         # off the known one (no move until exactly one side is known).
         want_same = target == _N
+        if vp != _U and vq != _U and (vp == vq) != want_same:
+            raise Contradiction("xor sides settled against the required parity")
         if vp != _U and vq == _U:
             return self.q.constrain(board, vp if want_same else _flip(vp))
         if vq != _U and vp == _U:
@@ -874,6 +889,8 @@ class GroupSubset(Statement):
         if _Y in states:
             return 0  # already witnessed
         unknown = [(a, b) for (a, b), s in zip(bad, states) if s == _U]
+        if not unknown:  # no witness possible — the universal can't be broken
+            raise Contradiction("subset required broken but provably holds")
         if len(unknown) == 1:
             a, b = unknown[0]
             return board.set(self.cat_a, a, self.cat_b, b, _Y)
@@ -955,6 +972,8 @@ class Compound(Clue):
         return self.stmt.value(X)
 
     def propagate(self, board) -> int:
+        if self.stmt.eval(board) == _N:  # asserted true but provably false
+            raise Contradiction("compound statement can no longer hold")
         return self.stmt.constrain(board, _Y)  # the statement is asserted true
 
     def text(self, theme: Theme) -> str:

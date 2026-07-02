@@ -11,10 +11,12 @@ Technique tiers (escalated only when cheaper ones are exhausted):
   0  givens          direct "is"/"is not"/neither/all-different facts
   1  line completion within a pairwise block, each item links exactly one other
   2  transitivity    combine blocks through a shared entity (the core move)
-  3  clue propagation counting/matching clues: among / either-or / exactly-K /
-                     group-match narrowing as the board fills in
-  4  set logic       cross-elimination & naked subsets — grid-only set reasoning
-                     that needs no single pivot link (see _sweep_set_logic)
+  3  clue propagation the everyday clue moves: among / either-or / exactly-K /
+                     conditionals / group-membership narrowing / simple rank bounds
+  4  advanced logic  the expert forward moves: grid set logic (cross-elimination,
+                     naked subsets, difference chaining) plus the heavy counting
+                     propagators (set counts, cross-group counts/comparisons,
+                     group ordering, between / distance pinches) — see _EXPERT_CLUES
   5  what-if         proof by contradiction (assume, propagate, refute)
   6  nested what-if  a what-if whose inner reasoning itself needs a what-if
 
@@ -131,11 +133,17 @@ def _sweep_lines(board) -> int:
                             changed += board.set(i, a2, j, b, N)
         for a in range(n):  # row with n-1 N's forces the remaining Y
             row = m[a]
-            if row.count(N) == n - 1 and U in row:
+            cnt = row.count(N)
+            if cnt == n:  # every option ruled out — a dead line is a refutation
+                raise Contradiction(f"({i},{a}) has no possible {j}-item left")
+            if cnt == n - 1 and U in row:
                 changed += board.set(i, a, j, row.index(U), Y)
         for b in range(n):  # same for columns
             col = [m[a][b] for a in range(n)]
-            if col.count(N) == n - 1 and U in col:
+            cnt = col.count(N)
+            if cnt == n:
+                raise Contradiction(f"({j},{b}) has no possible {i}-item left")
+            if cnt == n - 1 and U in col:
                 changed += board.set(i, col.index(U), j, b, Y)
     return changed
 
@@ -170,7 +178,7 @@ def _sweep_transitivity(board) -> int:
     return changed
 
 
-# --- Tier "set logic": cross-elimination & naked subsets --------------------
+# --- Grid set logic (half of tier 4): cross-elimination & naked subsets ------
 # Intermediate grid-only tactics — reached before resorting to trial-and-error,
 # but which line completion and transitivity cannot express because there is no
 # single established link to pivot through:
@@ -315,6 +323,8 @@ def _sweep_set_logic(board, clues) -> int:
 def _prop_among(board, clue) -> int:
     # at least `at_least` of the options share the anchor's entity
     not_n = [o for o in clue.options if _g(board, clue.anchor, o) != N]
+    if len(not_n) < clue.at_least:  # fewer live options than the minimum
+        raise Contradiction("among can't reach its minimum")
     if len(not_n) == clue.at_least:  # only this many can be Y, and we need them
         return sum(_s(board, clue.anchor, o, Y) for o in not_n)
     return 0
@@ -323,12 +333,16 @@ def _prop_among(board, clue) -> int:
 def _prop_either(board, clue) -> int:
     states = [_g(board, clue.anchor, o) for o in clue.options]
     changed = 0
+    if states.count(Y) > 1:  # exactly one may hold
+        raise Contradiction("either-or has two confirmed options")
     if Y in states:  # exactly one — rule out the rest
         for o, s in zip(clue.options, states):
             if s != Y:
                 changed += _s(board, clue.anchor, o, N)
     else:
         not_n = [o for o, s in zip(clue.options, states) if s != N]
+        if not not_n:  # every option ruled out, but exactly one must hold
+            raise Contradiction("either-or has no live option left")
         if len(not_n) == 1:
             changed += _s(board, clue.anchor, not_n[0], Y)
     return changed
@@ -338,6 +352,10 @@ def _prop_exactly(board, clue) -> int:
     states = [_g(board, p, q) for p, q in clue.links]
     unknown = [i for i, s in enumerate(states) if s == U]
     changed = 0
+    if states.count(Y) > clue.k:
+        raise Contradiction("exactly-K links exceed the quota")
+    if states.count(N) > len(clue.links) - clue.k:
+        raise Contradiction("exactly-K links can't reach the quota")
     if states.count(Y) == clue.k:  # quota met — rest are N
         for i in unknown:
             changed += _s(board, *clue.links[i], N)
@@ -355,6 +373,8 @@ def _prop_group_match(board, clue) -> int:
     def line(get_cell, set_cell):
         nonlocal changed
         states = [get_cell(t) for t in range(size)]
+        if states.count(N) == size:  # a term with no partner left — refuted
+            raise Contradiction("group-match term has no partner left")
         if Y in states:
             yj = states.index(Y)
             for t in range(size):
@@ -473,6 +493,8 @@ def _prop_multi_compare(board, clue) -> int:  # rank(c) >/< every other
 
 def _prop_at_most(board, clue) -> int:  # at most k options match the anchor
     states = [_g(board, clue.anchor, o) for o in clue.options]
+    if states.count(Y) > clue.k:
+        raise Contradiction("at-most quota exceeded")
     if states.count(Y) != clue.k:
         return 0
     changed = 0  # quota reached -> the rest can't match
@@ -485,11 +507,15 @@ def _prop_at_most(board, clue) -> int:  # at most k options match the anchor
 def _prop_exactly_anchor(board, clue) -> int:  # exactly k options match the anchor
     states = [_g(board, clue.anchor, o) for o in clue.options]
     changed = 0
+    if states.count(Y) > clue.k:
+        raise Contradiction("exactly-K quota exceeded")
     if states.count(Y) == clue.k:  # quota met -> the rest can't match
         for o, s in zip(clue.options, states):
             if s == U:
                 changed += _s(board, clue.anchor, o, N)
     not_n = [o for o, s in zip(clue.options, states) if s != N]
+    if len(not_n) < clue.k:  # fewer live options than the quota needs
+        raise Contradiction("exactly-K can't reach the quota")
     if len(not_n) == clue.k:  # only this many can match, and we need k -> all Y
         for o in not_n:
             changed += _s(board, clue.anchor, o, Y)
@@ -794,16 +820,35 @@ _PROPAGATORS = {
 }
 
 
-def _sweep_clues(board, clues) -> int:
+# Clue propagators whose reasoning is an *expert* forward move for a human —
+# multi-entity counting/pigeonhole (set counts, group counts, cross-group counts
+# and comparisons, group ordering) and the witness-scan pinches (between,
+# absolute distance). They fire at tier 4 alongside the grid set logic, only
+# when every cheaper technique has stalled, and are priced accordingly. The
+# remaining propagators (direct disjunctions, conditionals, simple rank bounds,
+# group membership narrowing) are the everyday tier-3 moves.
+_EXPERT_CLUES = frozenset({
+    "SetCount", "GroupCount", "GroupOrder", "GroupGroupCount",
+    "GroupGroupCompare", "Between", "AbsApart",
+})
+
+
+def _sweep_clues(board, clues, expert: bool = False) -> int:
     return sum(
         _PROPAGATORS[type(c).__name__](board, c)
         for c in clues
         if type(c).__name__ in _PROPAGATORS
+        and (type(c).__name__ in _EXPERT_CLUES) == expert
     )
 
 
+def _sweep_advanced(board, clues) -> int:
+    """Tier 4 combined: expert clue propagation, then grid set logic."""
+    return _sweep_clues(board, clues, expert=True) or _sweep_set_logic(board, clues)
+
+
 def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0, first: bool = False, deadline=None) -> None:
-    """Tiers 1-3 to a fixpoint; with hyp_depth > 0, also apply hypotheticals
+    """Tiers 1-4 to a fixpoint; with hyp_depth > 0, also apply hypotheticals
     nested up to that depth. Raises Contradiction on conflict.
 
     ``first`` forwards the early-exit mode into the nested hypotheticals (see
@@ -812,16 +857,19 @@ def _propagate_to_fixpoint(board, clues, hyp_depth: int = 0, first: bool = False
     is used only for solvability/grading at depth 2 — never on the canonical
     depth-1 grade or the hint narrator's minimal proofs.
 
-    Note: the grid set-logic sweeps (tier 4) are deliberately NOT run here. Inside
-    a what-if they almost never change which assumptions refute (a hypothetical
-    cascades to a line/transitivity clash first), so including them only multiplied
-    the per-trial cost — see solve(), which runs them at the top level instead."""
+    Tier 4 (expert clue propagation + grid set logic) IS part of the inner
+    closure: a what-if's refutation may use the full forward technique set, so
+    the solver never escalates to more (or deeper) what-ifs than the reasoning
+    genuinely needs. It runs last within the loop, so the cheap tiers still do
+    almost all the work and the per-trial cost stays modest."""
     while True:
         if _sweep_lines(board):
             continue
         if _sweep_transitivity(board):
             continue
         if _sweep_clues(board, clues):
+            continue
+        if _sweep_advanced(board, clues):
             continue
         if hyp_depth and _hypothetical_at(board, clues, hyp_depth, first=first, deadline=deadline):
             continue
@@ -841,7 +889,8 @@ def _ndet(board) -> int:
 # "easy enough" — take it without scanning further. Cheap stalls (the common case)
 # stop almost immediately; only a stall with no quick refutation pays for the full
 # scan. Tuned so the chosen what-if's proof is short without tripling grade cost.
-def _sweep_hypothetical(board, clues, depth: int, first: bool = False, deadline=None) -> int:
+def _sweep_hypothetical(board, clues, depth: int, first: bool = False, deadline=None,
+                        sizes: list | None = None) -> int:
     """Apply the *easiest* what-if: of every assumption that propagates to a
     contradiction, take the one whose contradiction needs the fewest forced cells.
     A person picks the assumption that blows up quickly, not the first one in
@@ -858,7 +907,11 @@ def _sweep_hypothetical(board, clues, depth: int, first: bool = False, deadline=
     that the chosen what-if is no longer minimal, so this mode is reserved for
     *solvability/grading* of the deep (Tera catch-all) tier and for picking a
     nested-what-if hint cell — never the canonical depth-1 grade or a minimal proof.
-    The inner propagation inherits ``first`` so the whole nested scan stays cheap."""
+    The inner propagation inherits ``first`` so the whole nested scan stays cheap.
+
+    ``sizes``, when given, collects the applied what-if's refutation length (the
+    cells its contradiction forced) — the direct "how easy was this proof by
+    contradiction" signal band_of separates mega/giga on."""
     base = _ndet(board)
     best = None  # (closure_size, i, a, j, b, other)
     for (i, j), m in board.cell.items():
@@ -874,16 +927,20 @@ def _sweep_hypothetical(board, clues, depth: int, first: bool = False, deadline=
                     try:
                         _propagate_to_fixpoint(test, clues, depth - 1, first=first, deadline=deadline)
                     except Contradiction:
+                        size = _ndet(test) - base  # cells forced before the clash
                         if first:  # solvability only — take the first refutation found
                             board.set(i, a, j, b, other)
+                            if sizes is not None:
+                                sizes.append(size)
                             return 1
-                        size = _ndet(test) - base  # cells forced before the clash
                         if best is None or size < best[0]:
                             best = (size, i, a, j, b, other)
                         break  # this cell is settled; don't test its other trial
     if best is None:
         return 0
     board.set(best[1], best[2], best[3], best[4], best[5])
+    if sizes is not None:
+        sizes.append(best[0])
     return 1
 
 
@@ -911,6 +968,7 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1, first: bool = False
     SolveBudgetExceeded propagates out (the Tera recovery catches it and skips)."""
     board = Board(theme)
     steps = {t: 0 for t in range(7)}
+    whatif_sizes: list = []  # refutation length of each applied what-if
     steps[0] = _apply_givens(board, clues)
     while not board.solved():
         c = _sweep_lines(board)
@@ -925,13 +983,14 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1, first: bool = False
         if c:
             steps[3] += c
             continue
-        c = _sweep_set_logic(board, clues)
+        c = _sweep_advanced(board, clues)
         if c:
             steps[4] += c
             continue
         progressed = False
         for depth in range(1, max_hyp_depth + 1):
-            c = _sweep_hypothetical(board, clues, depth, first=first, deadline=deadline)
+            c = _sweep_hypothetical(board, clues, depth, first=first, deadline=deadline,
+                                    sizes=whatif_sizes)
             if c:
                 steps[4 + depth] += c  # depth 1 -> tier 5, depth 2 -> tier 6
                 progressed = True
@@ -947,54 +1006,59 @@ def solve(theme: Theme, clues: list, max_hyp_depth: int = 1, first: bool = False
         "ceiling": max(used) if used else 0,
         "steps": steps,
         "total_steps": sum(steps.values()),
+        "whatif_sizes": whatif_sizes,
         "board": board,
     }
 
 
-# Difficulty bands. The reasoning *ceiling* brackets which bands the composite
-# index may pick, so the ladder reads as depth-of-reasoning with the index
-# softening hardness *within* a depth (and blending the boundaries between the
-# lower tiers):
-#   normal/hard/mega/giga  ceiling <=4   forward solving (givens → set-logic); the
-#                          index splits these four smoothly, no hard gates between
-#   mega/giga/tera         ceiling ==5   a single what-if; floored to >= mega so a
-#                          what-if is never labelled normal/hard, index splits the rest
-#   tera                   ceiling >=6   a nested what-if (proof inside a proof) —
-#                          the catch-all top tier for the deepest reasoning we verify
-# So a forward-only solve tops out at giga (tera is reserved for genuine what-if
-# depth, not mere clue density), and a what-if floors at mega — between those
-# brackets the index decides. See band_of.
+# Difficulty bands, separated primarily by solution METHODOLOGY — which
+# techniques a solve forces — with the volume/ease of the contradiction work as
+# the secondary separator inside the what-if bracket:
+#   normal  ceiling <= 2  line elimination + transitivity only, no clue tricks
+#   hard    ceiling 3-4   forward clue logic and/or the advanced tier-4 moves
+#                         (set logic, expert counting) — never a contradiction
+#   mega    ceiling == 5  contradictions INTRODUCED gently: at most
+#                         _MEGA_MAX_WHATIFS what-ifs, each refuted within
+#                         _MEGA_MAX_PROOF forced cells (a "very easy" what-if)
+#   giga    ceiling == 5  sustained contradiction work (more, or longer, what-ifs)
+#   tera    ceiling == 5 with heavy volume (>= _TERA_MIN_WHATIFS), or any nested
+#                         what-if (ceiling >= 6) — the catch-all top tier
+# The ladder is monotone in reasoning depth: no forward-only puzzle ever outranks
+# a contradiction puzzle. Depth/breadth signals (step counts, clue reading load)
+# remain *supplemental* — reported via difficulty_index on the payload, never the
+# band. See band_of.
 DIFFICULTY_ORDER = ("normal", "hard", "mega", "giga", "tera")
+
+# Contradiction-effort cuts inside the what-if bracket (ceiling 5), fitted on a
+# 360-candidate rich-pool sample (3 themes x 3 grid shapes) so all three what-if
+# bands stay reachable in a few generate-and-grade attempts — the ceiling-5
+# population split ~18% mega / 51% giga / 31% tera:
+#   mega — few and easy: <= _MEGA_MAX_WHATIFS what-ifs, every refutation forced
+#          within _MEGA_MAX_PROOF cells;
+#   tera — heavy volume: >= _TERA_MIN_WHATIFS what-ifs (nesting is tera outright);
+#   giga — everything between.
+_MEGA_MAX_WHATIFS = 2
+_MEGA_MAX_PROOF = 10
+_TERA_MIN_WHATIFS = 8
 
 # The index is a *human-effort* score, built on the deductive solve (our model of
 # a human solver) — NOT the backtracking search, which models work a person never
-# does. It resolves hardness *within* a ceiling bracket (see band_of), so it reads
-# as "how much work for a player who has these techniques". Two signals:
+# does. Two signals:
 #   * effort   — log1p of the deductive step count, each tier weighted by its human
-#                cost (_TIER_EFFORT): transitivity cheap … nested what-if dear. This
-#                is the dominant axis (more steps of harder techniques = harder).
+#                cost (_TIER_EFFORT): transitivity cheap … nested what-if dear.
 #   * cluecost — mean clue cognitive weight (reading / working-memory load).
 # Each is centred/scaled (centre, robust-spread) so the two contribute comparably;
-# the sum is the index. Re-based from a ~370-puzzle raw-signal sample; the old
-# blend was dominated by `lognodes` saturating the search cap (a search metric,
-# not a human one), so within-tier ordering tracked search size, not reasoning.
+# the sum is the index. SUPPLEMENTAL ONLY: reported on the payload as a
+# fine-grained "how much work" signal, but bands are decided by methodology
+# (ceiling bracket + contradiction effort), never by this scalar — see band_of.
 _TIER_EFFORT = {2: 1, 3: 4, 4: 12, 5: 40, 6: 120}  # human-cost weight per deductive tier
 _INDEX_NORM = {"effort": (5.199, 1.137), "cluecost": (2.813, 1.189)}  # (centre, scale)
-# The four index cuts that split the ladder into five bands, applied *under* the
-# ceiling brackets in band_of. Re-derived (coordinate descent) on the re-based
-# index over the same sample, weighted to uniform difficulty demand (basic .2,
-# mid .2, rich .6). Demand-weighted result is near-even fifths:
-#   normal 20% · hard 18% · mega 20% · giga 20% · tera 23%
-# and within a fixed ceiling the index now correlates with human effort
-# (corr ~0.72 with what-if volume in the what-if tier) rather than search size.
-_BAND_CUTS = (-2.18, -0.065, 0.463, 1.412)  # normal · hard · mega · giga · tera
 
 
 def difficulty_index(report: dict) -> float:
     """Human-effort difficulty score (see _INDEX_NORM): weighted deductive step
-    effort plus clue cognitive load, each z-scored and summed. Built on the
-    deductive solve's per-tier step counts, so it measures the work a rank-matched
-    human does, not the backtracking search the clues leave behind."""
+    effort plus clue cognitive load, each z-scored and summed. Informational —
+    it orders puzzles within a band on the payload; band_of does not read it."""
     s = report["steps"]
     effort = math.log1p(sum(w * s[t] for t, w in _TIER_EFFORT.items()))
     cluecost = report.get("clue_cost", {}).get("mean", _INDEX_NORM["cluecost"][0])
@@ -1007,53 +1071,47 @@ def difficulty_index(report: dict) -> float:
 
 
 def band_of(report: dict) -> str:
-    """Name the difficulty band for a solved report by quintile of the composite
-    index (see _BAND_CUTS / DIFFICULTY_ORDER). A nested what-if (ceiling >= 6) is
-    unconditionally the top tier — its index lands there anyway, but the floor
-    guards against an undersampled scale."""
-    # Nested what-if (a proof inside a proof) is the deepest reasoning we verify —
-    # unconditionally the top tier, the catch-all for "harder than giga".
-    if report["ceiling"] >= 6:
-        return DIFFICULTY_ORDER[-1]
-    d = difficulty_index(report)
-    band = sum(d >= cut for cut in _BAND_CUTS)  # 0..4 -> index into the order
-    # Bracket the soft index by the reasoning ceiling so the ladder tracks depth:
-    #   * a what-if (ceiling 5) is at least 'mega' — never normal/hard, so a mild-
-    #     index what-if can't slip into 'hard' (which must need no proof-by-
-    #     contradiction); without this a long but low-signal chain used to.
-    #   * a forward-only solve (ceiling <= 4) is at most 'giga' — 'tera' is reserved
-    #     for genuine what-if depth, so a merely clue-dense puzzle can't top out the
-    #     scale with zero contradiction reasoning (previously ~half of 'tera' grids
-    #     were ceiling-3, no what-if at all).
-    if report["ceiling"] >= 5:
-        band = max(band, DIFFICULTY_ORDER.index("mega"))
-    else:
-        band = min(band, DIFFICULTY_ORDER.index("giga"))
-    return DIFFICULTY_ORDER[band]
+    """Name the difficulty band for a solved report — methodology first.
 
-
-def _score(r: dict) -> int:
-    s = r["steps"]
-    return r["ceiling"] * 1000 + s[6] * 200 + s[5] * 50 + s[4] * 15 + s[3] * 5 + s[2]
+    The reasoning ceiling picks the bracket (normal / hard / the what-if bands);
+    within the what-if bracket the puzzle is separated by how easy its
+    contradiction work is: what-if count and refutation length (whatif_sizes,
+    the cells each applied what-if forced before clashing). A nested what-if
+    (ceiling >= 6) is unconditionally the top tier."""
+    ceiling = report["ceiling"]
+    if ceiling >= 6:  # a proof inside a proof — the deepest reasoning we verify
+        return "tera"
+    if ceiling == 5:
+        w = report["steps"][5]
+        sizes = report.get("whatif_sizes") or []
+        longest = max(sizes) if sizes else 0
+        if w <= _MEGA_MAX_WHATIFS and longest <= _MEGA_MAX_PROOF:
+            return "mega"  # contradiction reasoning, but introductory
+        if w >= _TERA_MIN_WHATIFS:
+            return "tera"  # what-if volume heavy enough to top the scale
+        return "giga"
+    if ceiling >= 3:  # clue logic / advanced forward moves, no contradiction
+        return "hard"
+    return "normal"  # elimination + cross-referencing only
 
 
 def grade(theme: Theme, clues: list, max_hyp_depth: int = 1, first: bool = False, deadline=None) -> dict:
-    """Difficulty report: band + ordinal score (ceiling dominates).
+    """Difficulty report: measured band + the per-tier step counts behind it.
 
     A single escalating solve reports the *ceiling* (the hardest technique it
-    actually used) and the per-tier step counts, which `band_of` turns into a
-    band. Grading caps at one round of contradiction reasoning by default
-    (`max_hyp_depth=1`): normal..giga are all reachable from there (they are
-    distinguished by the *number* of single what-ifs, not nested ones). A puzzle
-    that still won't solve at that depth is 'ambiguous'; Tera (the catch-all)
-    re-grades it at `max_hyp_depth=2, first=True` to recover nested what-ifs cheaply
-    (see generate.generate_rated), and anything still unsolved needs deeper nesting
-    than we verify and is skipped, so we only ship puzzles proven solvable by logic.
-    ``first`` forwards the early-exit what-if mode for that cheap deep check."""
+    actually used), the per-tier step counts, and each applied what-if's
+    refutation length, which `band_of` turns into a band. Grading caps at one
+    round of contradiction reasoning by default (`max_hyp_depth=1`): normal..giga
+    are all reachable from there (they are distinguished by the volume/ease of
+    single what-ifs, not nested ones). A puzzle that still won't solve at that
+    depth is 'ambiguous'; Tera (the catch-all) re-grades it at `max_hyp_depth=2,
+    first=True` to recover nested what-ifs cheaply (see generate.generate_rated),
+    and anything still unsolved needs deeper nesting than we verify and is
+    skipped, so we only ship puzzles proven solvable by logic. ``first`` forwards
+    the early-exit what-if mode for that cheap deep check."""
     r = solve(theme, clues, max_hyp_depth=max_hyp_depth, first=first, deadline=deadline)
     r.update(_advanced_metrics(theme, clues))
     r["band"] = band_of(r) if r["solved"] else "ambiguous"
-    r["score"] = _score(r)
     return r
 
 

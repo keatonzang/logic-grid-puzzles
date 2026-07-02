@@ -321,7 +321,7 @@ function render() {
   $("p-desc").textContent = puzzle.description;
   const tier = puzzle.rating ? puzzle.rating.ceiling : null;
   const tierNote = tier != null
-    ? ` · <span title="hardest deduction technique needed (5 = proof by contradiction, 6 = nested what-if)">logic tier ${tier}</span>`
+    ? ` · <span title="hardest deduction technique needed (4 = advanced forward logic, 5 = proof by contradiction, 6 = nested what-if)">logic tier ${tier}</span>`
     : "";
   // measured band can differ from the request when a small grid can't reach the
   // asked-for tier — surface that honestly rather than silently downgrading.

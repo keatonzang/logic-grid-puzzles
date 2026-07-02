@@ -197,7 +197,7 @@ def test_plural_category_name_agrees_in_comparison_clues():
     assert NextTo(2, (0, 0), (0, 1)).text(theme) == \
         "Aldric's dues are immediately next to Beatrix."
     assert MultiCompare(2, (0, 2), [(0, 0), (0, 1)], greater=True).text(theme) == \
-        "Cedric's dues are more than both Aldric and Beatrix."
+        "Cedric's dues are higher than both Aldric and Beatrix."
 
 
 def test_unit_prefixes_amounts_in_numeric_clues():
@@ -238,7 +238,7 @@ def test_multi_compare_holds_and_text(ordered_theme, identity_solution):
     assert above.holds(identity_solution)
     assert below.holds(identity_solution)
     assert not MultiCompare(2, (0, 1), [(0, 0), (0, 2)], greater=True).holds(identity_solution)
-    assert above.text(ordered_theme) == "Zu's year is more than both Xi and Yo."
+    assert above.text(ordered_theme) == "Zu's year is higher than both Xi and Yo."
 
 
 def test_at_most_holds_and_text(plain_theme, identity_solution):
@@ -698,8 +698,12 @@ def test_disjunction_text_phrasing(plain_theme):
     anchor = (0, 0)  # Ann
     assert Among(anchor, [(1, 0), (2, 1)]).text(plain_theme) == \
         "Ann goes with at least one of Dog or Hop."
+    # cross-category options could both hold, so exclusivity is spelled out
     assert EitherOr(anchor, [(1, 0), (2, 1)]).text(plain_theme) == \
-        "Ann goes with either Dog or Hop."
+        "Ann goes with either Dog or Hop (but not both)."
+    # same-category options exclude each other anyway — no noise appended
+    assert EitherOr(anchor, [(1, 0), (1, 2)]).text(plain_theme) == \
+        "Ann goes with either Dog or Fox."
     assert EitherOr(anchor, [(1, 0), (2, 1), (1, 2)]).text(plain_theme) == \
         "Ann goes with exactly one of Dog, Fox, or Hop."
     assert Neither(anchor, [(1, 1), (2, 1)]).text(plain_theme) == \

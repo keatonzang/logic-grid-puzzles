@@ -24,7 +24,7 @@ in many flavours:
 - **immediately next to** (`NextTo`) — `Cara's price is immediately next to Latte's.` (undirected)
 - **at least apart** (`AtLeastApart`) — `Ristretto's price is at least $3 more than Jade's.` (directional, ranged)
 - **away from** (`AbsApart`) — `Ben's price is at least $3 away from Ivory's.` / `Mocha's price is at most $2 away from Ava's.` (symmetric distance; `at most` bounds two items *close*)
-- **less/more than both** (`MultiCompare`) — `Croissant's price was more than both Hugo's and Donut's.`
+- **lower/higher than both** (`MultiCompare`) — `Croissant's price was higher than both Hugo's and Donut's.`
 - **at most K of N** (`AtMost`) — `Vanilla goes with at most one of Ben, Rose, and $8.` (complement of Among)
 
 These **sequential** clues need an *ordered* category. The café rolls in a
@@ -45,12 +45,15 @@ Ivory-mug order). Each sequential clue has a sound deductive propagator
   categories (no same-category weighting).
 - **either/or** (`EitherOr`, exclusive) — `Ava goes with either Bagel or Latte.`
   Exactly one holds, so the two options must sit on **different** entities. Takes any N
-  (`exactly one of A, B, or C`).
+  (`exactly one of A, B, or C`). Two same-category options exclude each other anyway;
+  when the pair spans categories (both *could* hold) the text says so —
+  `Ava goes with either Bagel or the Onyx mug (but not both).`
 - **neither/nor** (`Neither`) — `Ava goes with neither Bagel nor Latte.` / `none of A, B, or C.`
 - **all different** (`AllDifferent`) — `Ava, Ben, Chai, and Latte belong to different orders.`
-  N terms on distinct entities, spanning ≥ 2 categories (categories may repeat). Equivalent
-  to the conjunction of the pairwise "is not" facts; generated for N in 3..items
-  (`alldiff_sizes`).
+  N terms on distinct entities, in N pairwise-distinct categories — same-category terms
+  differ by definition, so a repeat would pad the clue with a vacuous pair. Equivalent
+  to the conjunction of the pairwise "is not" facts; generated for N in
+  3..min(items, categories) (`alldiff_sizes`).
 - **exclusive pairing** (`ExactlyKLinks`) — `Either Ben goes with Latte, or Cara goes with Chai — but not both.`
   Exactly K of N independent links hold (K=1, N=2 is the XOR; `pairing_k` / `pairing_sizes`).
 - **group match** (`GroupMatch`) — `Between Ava and Ben, one goes with Latte and the other with Bagel.`
@@ -65,10 +68,12 @@ Ivory-mug order). Each sequential clue has a sound deductive propagator
   the Bagel or Cara goes with the Mocha.` A statement is a `Link` atom combined with
   `Not` / `And` / `Or` / `Xor`; propagation is delegated to each statement's three-valued
   evaluate/constrain, so antecedent and consequent can be arbitrarily nested and the
-  implication still fires forward (modus ponens) and backward (contrapositive). The
-  generator biases toward simple atom⇒atom conditionals and surfaces compound ones more
-  rarely, so the *measured* difficulty tracks the reasoning each actually needs. Rich
-  tiers (mega and up) only (`enable_conditional`).
+  implication still fires forward (modus ponens) and backward (contrapositive). Rich
+  tiers (mega and up) only (`enable_conditional`). Compound sides carry a heavy parse
+  load for a human reader, so mega keeps conditionals atom⇒atom and only the extreme
+  tiers (giga/tera) roll compound ones — rarely even there
+  (`conditional_compound_prob`), so the *measured* difficulty tracks the reasoning each
+  actually needs.
 
 These **group / hierarchy** clues need a theme whose grouped category defines `groups`
 (e.g. King's Guild files each *trade* into a *guild*). They compile down to facts on that
@@ -129,24 +134,35 @@ deduction techniques, cheapest first, and reports what the solve required:
 | 0 | givens — direct is / is-not / neither / all-different |
 | 1 | line completion — each item links exactly one other in a block |
 | 2 | transitivity — combine blocks through a shared entity (the core move) |
-| 3 | clue propagation — among / either-or / exactly-K / conditional / group-match / hierarchy narrowing |
-| 4 | proof by contradiction — assume a cell, propagate, eliminate on conflict |
+| 3 | clue propagation — the everyday clue moves: among / either-or / exactly-K / conditionals / group narrowing / simple rank bounds |
+| 4 | advanced logic — grid set logic (cross-elimination, naked subsets, difference chaining) plus the expert counting propagators (set counts, cross-group counts/comparisons, group ordering, between / distance pinches) |
+| 5 | proof by contradiction — assume a cell, propagate, eliminate on conflict (a *what-if*) |
+| 6 | nested proof by contradiction — a what-if inside a what-if |
 
-The five named tiers are read off the *ceiling* (the hardest technique a solve
-forces) plus, for the abundant proof-by-contradiction tier, **how many** such
-steps it needs — a finely spread, reliably-generatable signal (nested what-ifs
-alone are rare):
+Inside a what-if, the solver's full forward technique set (tiers 1–4) is
+available, and every propagator reports when its clue can no longer be
+satisfied — so a refutation is found exactly when a sharp human would find one,
+and the measured what-if count never overstates the reasoning a puzzle needs.
 
-| Tier | Hardest technique a solve forces |
+The five named bands separate primarily by **solution methodology** — which
+techniques the solve forces (the reasoning *ceiling*) — with the ease of the
+contradiction work as the secondary separator inside the what-if bracket:
+
+| Band | Bracket |
 |---|---|
-| **normal** | ceiling ≤ 2 — transitivity only, no clue tricks |
-| **hard** | ceiling 3 — clue-logic propagation, no contradiction |
-| **mega** | ceiling 4 — needs a proof by contradiction, but few (≤ 4 what-ifs) |
-| **giga** | ceiling 4 — needs many what-ifs (5–14) |
-| **tera** | ceiling 4 with very many what-ifs (> 14), or a nested one (ceiling ≥ 5) |
+| **normal** | ceiling ≤ 2 — line elimination + cross-referencing only, no clue tricks |
+| **hard** | ceiling 3–4 — forward clue logic and/or the advanced tier-4 moves; never a contradiction |
+| **mega** | ceiling 5 — contradictions *introduced*: at most 2 what-ifs, each refuted within a few forced cells |
+| **giga** | ceiling 5 — sustained contradiction work: more, or longer, what-ifs |
+| **tera** | heavy what-if volume, or any nested what-if (ceiling 6) — the catch-all top tier |
 
-This is rigorous logic, not guessing — tiers 1–3 are forward propagation, tier 4
-is a contradiction proof. Generation is **generate-and-grade**: sample
+The ladder is monotone in reasoning depth: no forward-only puzzle ever outranks
+a contradiction puzzle, a what-if is never labelled normal/hard, and clue tricks
+are never labelled normal. Step counts and clue reading load remain
+*supplemental* signals (`difficulty_index` on the payload) — they order puzzles
+within a band but never decide it. This is rigorous logic, not guessing — tiers
+1–4 are forward propagation, tiers 5–6 are contradiction proofs. Generation is
+**generate-and-grade**: sample
 candidates, grade each, keep one whose *measured* band matches the request — so
 every puzzle is **solvable by logic alone, no guessing**. Difficulty and grid
 size are independent controls; the deeper tiers need a roomier grid, so on a

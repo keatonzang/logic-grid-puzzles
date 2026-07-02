@@ -167,8 +167,8 @@
         </article>
 
         <article class="rule">
-          <h3>More / less than several <span class="tag ord">ordered</span></h3>
-          <p class="eg">“Hugo's price was more than both Ava and the order with the Donut.”</p>
+          <h3>Higher / lower than several <span class="tag ord">ordered</span></h3>
+          <p class="eg">“Hugo's price was higher than both Ava and the order with the Donut.”</p>
           <p><b>Parameters:</b> the ordered category, one item, a list of other items, and a direction.</p>
           <p><b>Means:</b> the one item out-ranks (or under-ranks) <em>every</em> item in the list.</p>
           <p><b>On the grid:</b> like several “higher/lower” clues at once — being above all of them
@@ -198,10 +198,11 @@
 
         <article class="rule">
           <h3>Either / or <span class="tag logic">exclusive</span></h3>
-          <p class="eg">“Ava goes with either Bagel or Latte.” · “…exactly one of A, B, or C.”</p>
+          <p class="eg">“Ava goes with either Bagel or Latte.” · “…either Bagel or the Onyx mug (but not both).” · “…exactly one of A, B, or C.”</p>
           <p><b>Parameters:</b> an anchor item and a list of options (two or more).</p>
           <p><b>Means:</b> <i>exactly one</i> option matches. Because two can't both match, the options
-            must sit on different entities.</p>
+            must sit on different entities. When the two options span categories (so both
+            <em>could</em> have matched), the clue says “but not both” out loud.</p>
           <p><b>On the grid:</b> the instant one option turns ✓, ✗ all the others; the instant all but
             one are ✗, that one is ✓.</p>
         </article>
@@ -235,7 +236,7 @@
         <article class="rule">
           <h3>All different <span class="tag neg">negative</span></h3>
           <p class="eg">“Ava, Ben, Chai, and Latte are all different orders.”</p>
-          <p><b>Parameters:</b> a list of three or more items (spanning at least two categories).</p>
+          <p><b>Parameters:</b> a list of three or more items, each from a different category.</p>
           <p><b>Means:</b> every listed item is on a distinct entity — the conjunction of all the
             pairwise “is not” facts among them.</p>
           <p><b>On the grid:</b> ✗ each cross-category pair in the list. Great for thinning out a column fast.</p>
@@ -422,11 +423,21 @@
             cross-reference after each.</p>
         </li>
         <li>
-          <span class="tier">5 · What-if</span>
+          <span class="tier">5 · Advanced logic</span>
+          <p>The expert forward moves, for when the everyday ones stall. Grid set logic: two items whose
+            remaining candidates in some third category don't overlap can't be together
+            (cross-elimination), and two items that between them use up the same two candidates lock
+            everyone else out of those (naked pairs). Plus the heavyweight counting clues — set counts,
+            cross-group comparisons, group ordering, and <i>between</i>/<i>distance</i> squeezes — which
+            reward re-checking once the board is half full.</p>
+        </li>
+        <li>
+          <span class="tier">6 · What-if</span>
           <p>For the hardest puzzles: tentatively assume a blank cell is ✓ (or ✗), follow the
             consequences, and if they lead to a contradiction, the opposite must be true. Use this only
             when nothing else moves — every puzzle here is solvable without guessing, so a contradiction
-            is always a valid deduction, not a gamble.</p>
+            is always a valid deduction, not a gamble. <b>Mega</b> puzzles need at most a couple of
+            short ones; <b>giga</b> and <b>tera</b> lean on them hard.</p>
         </li>
       </ol>
     </section>

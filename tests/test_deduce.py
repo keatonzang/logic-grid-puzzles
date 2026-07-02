@@ -168,6 +168,99 @@ def test_difficulty_tiers_increase_by_index():
     assert h["ceiling"] >= 3  # mega demands clue-logic or proof-by-contradiction
 
 
+def test_bands_are_methodology_first_and_monotone():
+    # Bands separate primarily by solution methodology: the ceiling picks the
+    # bracket (normal / hard / what-if bands), and within the what-if bracket the
+    # ease of the contradiction work (count + refutation length) separates
+    # mega / giga / tera. No forward-only solve ever outranks a what-if solve.
+    from logicgrid.deduce import (
+        _MEGA_MAX_PROOF,
+        _MEGA_MAX_WHATIFS,
+        _TERA_MIN_WHATIFS,
+        band_of,
+    )
+
+    def rep(ceiling, steps, sizes=()):
+        base = {t: 0 for t in range(7)}
+        base.update(steps)
+        return {"ceiling": ceiling, "steps": base, "whatif_sizes": list(sizes),
+                "clue_cost": {"mean": 2.0}}
+
+    assert band_of(rep(2, {2: 3})) == "normal"
+    # clue logic / advanced moves are 'hard' — never normal, never a what-if band
+    assert band_of(rep(3, {2: 3, 3: 1})) == "hard"
+    assert band_of(rep(4, {2: 3, 4: 2})) == "hard"
+    # even a huge clue-dense forward-only solve stays 'hard' (monotone ladder)
+    assert band_of(rep(4, {2: 60, 3: 40, 4: 20})) == "hard"
+    # a gentle what-if (few, short) is mega; longer or more numerous is giga
+    assert band_of(rep(5, {2: 3, 5: 1}, sizes=[_MEGA_MAX_PROOF])) == "mega"
+    assert band_of(rep(5, {2: 3, 5: 1}, sizes=[_MEGA_MAX_PROOF + 1])) == "giga"
+    assert band_of(rep(5, {2: 3, 5: _MEGA_MAX_WHATIFS + 1},
+                       sizes=[2] * (_MEGA_MAX_WHATIFS + 1))) == "giga"
+    # heavy what-if volume tops the scale; nesting is unconditionally tera
+    assert band_of(rep(5, {2: 3, 5: _TERA_MIN_WHATIFS},
+                       sizes=[2] * _TERA_MIN_WHATIFS)) == "tera"
+    assert band_of(rep(6, {2: 3, 5: 1, 6: 1}, sizes=[3, 3])) == "tera"
+
+
+def test_propagators_refute_unsatisfiable_clues():
+    # Inside a what-if, a clue that can no longer hold must raise (a human notices
+    # "this clue is now impossible"); silent stalls overstate the needed depth.
+    import pytest as _pytest
+
+    from logicgrid.clues import Among, AtMost, Compound, EitherOr, Exactly, Link, Or
+    from logicgrid.deduce import _prop_among, _prop_at_most, _prop_either, _prop_exactly_anchor
+    from logicgrid.model import Category, Contradiction, Theme
+
+    theme = Theme("T", "", [
+        Category("Person", ["Ann", "Bo", "Cy"]),
+        Category("Pet", ["Dog", "Eel", "Fox"]),
+        Category("Drink", ["Gin", "Hop", "Ice"]),
+    ], entity_noun="row")
+    anchor, o1, o2 = (0, 0), (1, 1), (2, 1)
+
+    def board_with(cells):
+        b = Board(theme)
+        for (p, q, v) in cells:
+            b.set(p[0], p[1], q[0], q[1], v)
+        return b
+
+    both_out = board_with([(anchor, o1, N), (anchor, o2, N)])
+    with _pytest.raises(Contradiction):
+        _prop_among(both_out, Among(anchor, [o1, o2]))
+    with _pytest.raises(Contradiction):
+        _prop_either(both_out, EitherOr(anchor, [o1, o2]))
+    with _pytest.raises(Contradiction):
+        _prop_exactly_anchor(both_out, Exactly(anchor, [o1, o2], 1))
+    both_in = board_with([(anchor, o1, Y), (anchor, o2, Y)])
+    with _pytest.raises(Contradiction):
+        _prop_either(both_in, EitherOr(anchor, [o1, o2]))
+    with _pytest.raises(Contradiction):
+        _prop_at_most(both_in, AtMost(anchor, [o1, o2], 1))
+    # a Compound (asserted statement) that is provably false raises too
+    with _pytest.raises(Contradiction):
+        Compound(Or([Link(anchor, o1), Link(anchor, o2)])).propagate(both_out)
+
+
+def test_dead_line_is_a_refutation():
+    # Ruling out every option for one item is a contradiction the line sweep
+    # must notice (it has no single clashing cell, so board.set never fires).
+    import pytest as _pytest
+
+    from logicgrid.deduce import _sweep_lines
+    from logicgrid.model import Category, Contradiction, Theme
+
+    theme = Theme("T", "", [
+        Category("Person", ["Ann", "Bo", "Cy"]),
+        Category("Pet", ["Dog", "Eel", "Fox"]),
+    ], entity_noun="row")
+    b = Board(theme)
+    for pet in range(3):
+        b.set(0, 0, 1, pet, N)  # Ann can hold no pet at all
+    with _pytest.raises(Contradiction):
+        _sweep_lines(b)
+
+
 def test_solver_sound_across_cafe_sizes():
     for items in (3, 4):
         for d in ("normal", "hard", "mega"):

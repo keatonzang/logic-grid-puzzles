@@ -108,6 +108,7 @@ def build_clue_pool(
     max_atmost: int = 20,
     max_exactly: int = 20,
     max_conditional: int = 14,
+    conditional_compound_prob: float = 0.28,
     max_groups: int = 24,
     max_cross: int = 6,
     max_compounds: int = 16,
@@ -343,17 +344,17 @@ def build_clue_pool(
                     for k_exact in range(2, n_opts):
                         exactly.append(Exactly(anchor, distinct_opts(n_opts, k_exact), k_exact))
 
-    # "All different": N terms on N distinct entities, spanning >= 2 categories
-    # (categories may repeat). Generated for N >= 3 (N == 2 would be a Negative).
+    # "All different": N terms on N distinct entities, in N pairwise-DISTINCT
+    # categories — two same-category terms differ by definition, so allowing a
+    # repeat would pad the clue with a vacuous pair ("7 coins and 13 coins belong
+    # to different artisans"). Every pairwise fact is informative this way, at the
+    # cost of capping N at the category count. N >= 3 (N == 2 is a Negative).
     for size in alldiff_sizes if enable_alldiff else ():
-        if not 3 <= size <= n:
+        if not 3 <= size <= min(n, k):
             continue
         for _ in range(4 * n):
             ents = rng.sample(range(n), size)
-            cats = [rng.randrange(k) for _ in range(size)]
-            if len(set(cats)) < 2:  # force the required >= 2 distinct categories
-                j = rng.randrange(size)
-                cats[j] = (cats[j] + 1) % k
+            cats = rng.sample(range(k), size)
             alldiff.append(
                 AllDifferent([(cats[i], X[ents[i]][cats[i]]) for i in range(size)])
             )
@@ -416,8 +417,13 @@ def build_clue_pool(
         cond_grouped = _grouped_categories(theme) if enable_group_instances else []
 
         def fresh_link(truth: bool, used: set):
-            """A Link of the given truth under X whose cell isn't already used in
-            this statement (so a clue never repeats or negates its own atom)."""
+            """A Link of the given truth under X whose atoms don't collide with
+            this statement's other atoms. Two guards live in `used`: the cell key
+            (a clue never repeats or negates its own atom) and the two *line* keys
+            (term, other-category) — two atoms about one term in one category are
+            partially decided by each other under the bijection, so allowing them
+            can produce clues that are vacuous ("if Latte goes with the Bagel,
+            then Latte does not go with the Scone") or disguised negatives."""
             for _ in range(16):
                 c1, c2 = rng.sample(range(k), 2)
                 if truth:
@@ -427,15 +433,20 @@ def build_clue_pool(
                     e1, e2 = rng.sample(range(n), 2)
                     a, b = (c1, X[e1][c1]), (c2, X[e2][c2])
                 key = tuple(sorted((a, b)))
-                if key not in used:
+                lines = {("line", a, b[0]), ("line", b, a[0])}
+                if key not in used and not (lines & used):
                     used.add(key)
+                    used |= lines
                     return Link(a, b)
             return None
 
         def fresh_group_link(truth: bool, used: set):
             """A GroupLink leaf of the given truth: pick a grouped category and an
             anchor entity, then a group that does (truth) or does not (not truth)
-            contain that entity's grouped item. Fresh per statement via `used`."""
+            contain that entity's grouped item. Fresh per statement via `used`,
+            including the (anchor, grouped-category) line key — groups partition
+            the category, so two group atoms on one anchor (or a group atom plus a
+            plain link into the grouped category) decide each other."""
             for _ in range(16):
                 gc, labels, parts, group_of = rng.choice(cond_grouped)
                 e = rng.randrange(n)
@@ -450,8 +461,10 @@ def build_clue_pool(
                 co = rng.choice([c for c in range(k) if c != gc])
                 anchor = (co, X[e][co])
                 key = ("g", anchor, gc, gi)
-                if key not in used:
+                line = ("line", anchor, gc)
+                if key not in used and line not in used:
                     used.add(key)
+                    used.add(line)
                     return GroupLink(anchor, gc, labels[gi], parts[gi], subject=rng.random() < 0.5)
             return None
 
@@ -506,8 +519,11 @@ def build_clue_pool(
             # Bias hard toward simple atom=>atom conditionals (these are the strong,
             # minimization-surviving ones, so they keep conditionals common); a
             # compound side is the rarer, harder layer the grader can price in.
-            ante_compound = rng.random() < 0.28
-            cons_compound = rng.random() < 0.28
+            # `conditional_compound_prob` gates it per tier (0 = atom=>atom only) —
+            # compound sides push the parse cost hard, so only the extreme tiers
+            # (giga/tera) offer them at all.
+            ante_compound = rng.random() < conditional_compound_prob
+            cons_compound = rng.random() < conditional_compound_prob
             biconditional = rng.random() < 0.35
             same_truth = rng.random() < 0.5  # both-true vs both-false (both are valid)
             used: set = set()
@@ -770,13 +786,8 @@ def build_clue_pool(
             gc, glabels, gparts, _gof = rng.choice(grouped)
             ga = rng.randrange(len(gparts))
             subjects = [("group", gc, gparts[ga], glabels[ga])]
-            if rng.random() < 0.5:  # mix in 1-2 named entities -> the union form
-                for _ in range(rng.randint(1, 2)):
-                    ec = rng.choice([c for c in range(k) if c != gc])
-                    term = (ec, X[rng.randrange(n)][ec])
-                    if ("entity", term) not in subjects:
-                        subjects.append(("entity", term))
-            # target: another group (60%) or a small item set in some other category
+            # target first: another group (60%) or a small item set in some other
+            # category — named subjects below must avoid the target's category.
             other = [g for g in grouped if g[0] != gc]
             if other and rng.random() < 0.6:
                 tc, tlabels, tparts, _ = rng.choice(other)
@@ -792,6 +803,17 @@ def build_clue_pool(
                 names = [theme.categories[tc].items[i] for i in its]
                 target_cells = [(tc, i) for i in its]
                 tlabel, tgrp = f"{names[0]} or {names[1]}", False
+            # Named entities may join the union, but never named by the grouped
+            # category (membership in the subject union would be a given) nor by
+            # the target category (whether it hits the target would be decidable
+            # a priori) — either way the term would be dead weight or a red herring.
+            ecands = [c for c in range(k) if c not in (gc, tc)]
+            if ecands and rng.random() < 0.5:  # mix in 1-2 named entities
+                for _ in range(rng.randint(1, 2)):
+                    ec = rng.choice(ecands)
+                    term = (ec, X[rng.randrange(n)][ec])
+                    if ("entity", term) not in subjects:
+                        subjects.append(("entity", term))
             # distinct subject entities under X, then a true & non-degenerate K
             ents: set = set()
             for sub in subjects:
@@ -870,7 +892,10 @@ DIFFICULTIES = ("normal", "hard", "mega", "giga", "tera")
 # same-category "one of two"); `hard` adds either-or / neither / all-different /
 # groups / sequential; `mega`/`giga`/`tera` unlock the trickiest (at-least-K,
 # exclusive pairing, group match, conditionals) — they share one rich pool and
-# are pulled apart purely by the measured band the grader assigns.
+# are pulled apart purely by the measured band the grader assigns. The one
+# extreme-only extra: *compound* conditionals (a boolean and/or/xor side inside
+# an if-then/iff) carry a heavy parse load for humans, so mega keeps
+# conditionals atom=>atom and only giga/tera roll compound sides.
 _NORMAL_POOL = dict(  # is / is-not only -> solvable by transitivity (no clue tricks)
     enable_among=False, enable_either=False, enable_neither=False,
     enable_alldiff=False, multi_match=False,
@@ -889,17 +914,21 @@ _RICH_POOL = dict(
     enable_alldiff=True, multi_match=True,
     enable_pairing=True, enable_match=True,
     enable_conditional=True,  # if-then / iff (conditional reasoning)
+    conditional_compound_prob=0.0,  # atom=>atom only; compounds are extreme-tier
     enable_groups=True,
     enable_group_instances=True,  # groups as instances inside disjunctions / conditionals
     enable_set_count=True,  # cardinality over unions of set instances
     include_sequential=True,
 )
+# giga/tera additionally roll compound conditional sides ("if both A and B, then
+# …") — the heaviest clue to read, reserved for the most extreme tiers.
+_EXTREME_POOL = {**_RICH_POOL, "conditional_compound_prob": 0.28}
 _DIFFICULTY_POOL = {
     "normal": _NORMAL_POOL,
     "hard": _HARD_POOL,
     "mega": _RICH_POOL,
-    "giga": _RICH_POOL,
-    "tera": _RICH_POOL,
+    "giga": _EXTREME_POOL,
+    "tera": _EXTREME_POOL,
 }
 
 # Extra redundant clues as a fraction of the minimal set. `normal` hands back more
@@ -970,11 +999,11 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
     return Puzzle(theme=theme, solution=X, clues=clues)
 
 
-# Sampling budget per target. With the composite index split into equal tertiles,
-# giga/tera are now hit in a few attempts; the laggard is mega — the *easiest*
-# third of the contradiction tier, which the rich clue pool produces least often —
-# so it gets the largest budget while the once-rare top tiers are trimmed back
-# (which also caps their worst-case generation latency).
+# Sampling budget per target. The rich pool's ceiling-5 population splits about
+# 18% mega / 51% giga / 31% tera under the contradiction-effort cuts (see
+# deduce._MEGA_MAX_WHATIFS et al.), with another ~20% landing hard (no what-if
+# needed after minimization) — so mega, the narrowest slice, keeps the largest
+# budget and the common bands need only a few attempts.
 _RATED_ATTEMPTS = {"normal": 8, "hard": 9, "mega": 16, "giga": 14, "tera": 14}
 
 # Wall-clock cap on the depth-2 Tera-recovery solve. A genuine nested what-if
@@ -1012,7 +1041,13 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
         max_attempts = _RATED_ATTEMPTS.get(target, 9)
     order = DIFFICULTIES
     fallback = None
-    for _ in range(max_attempts):
+    # The attempt budget caps the search for an *exact* band match; the second
+    # half of the range only runs in the pathological case where every single
+    # candidate graded 'ambiguous' (nothing shippable at all), so we never
+    # return None into callers that unpack (theme, puzzle, report).
+    for attempt in range(2 * max_attempts):
+        if attempt >= max_attempts and fallback is not None:
+            break
         theme = make_theme(rng)
         puzzle = generate_puzzle(theme, rng, difficulty=target)
         report = grade(theme, puzzle.clues)
@@ -1042,4 +1077,9 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
             order.index(fallback[2]["band"]) - order.index(target)
         ):
             fallback = (theme, puzzle, report)
+    if fallback is None:
+        raise RuntimeError(
+            f"no logic-solvable puzzle found for {target!r}: every candidate "
+            "needed deeper contradiction nesting than we verify"
+        )
     return fallback

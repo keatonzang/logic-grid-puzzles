@@ -183,10 +183,49 @@ def test_set_count_clues_generate_unions_and_subsets():
             assert any(s[0] == "group" for s in c.subjects)  # always >= 1 group
             size = len(c.subject_entities(X))
             assert 1 <= c.k <= size - 1                       # strictly interior
+            # a named subject is never drawn from the grouped or target category —
+            # its membership/target-hit would be decidable a priori (dead weight)
+            tcat = c.target_cells[0][0]
+            gcats = {s[1] for s in c.subjects if s[0] == "group"}
+            for s in c.subjects:
+                if s[0] == "entity":
+                    assert s[1][0] not in gcats | {tcat}
             if len(c.subjects) > 1:
                 saw_union = True
     assert seen, "expected SetCount clues to be generated"
     assert saw_union, "expected at least one mixed-union SetCount"
+
+
+def test_conditional_atoms_never_share_a_line(plain_theme):
+    # Two atoms about one term in one category decide each other under the
+    # bijection — allowing them makes vacuous or disguised-negative conditionals
+    # ("if Latte goes with the Bagel, then Latte does not go with the Scone").
+    from logicgrid.clues import And, Conditional, GroupLink, Link, Not, Or, Xor
+
+    def atoms(s):
+        if isinstance(s, Not):
+            return atoms(s.s)
+        if isinstance(s, (And, Or)):
+            return [a for p in s.parts for a in atoms(p)]
+        if isinstance(s, Xor):
+            return atoms(s.p) + atoms(s.q)
+        return [s]
+
+    for seed in range(8):
+        rng = random.Random(seed)
+        X = random_solution(plain_theme, rng)
+        pool = build_clue_pool(plain_theme, X, rng, enable_conditional=True,
+                               conditional_compound_prob=0.5)
+        for c in pool:
+            if not isinstance(c, Conditional):
+                continue
+            lines = []
+            for a in atoms(c.ante) + atoms(c.cons):
+                if isinstance(a, Link):
+                    lines += [(a.a, a.b[0]), (a.b, a.a[0])]
+                elif isinstance(a, GroupLink):
+                    lines.append((a.anchor, a.cat))
+            assert len(lines) == len(set(lines)), c.text(plain_theme)
 
 
 def test_set_count_needs_the_flag_and_a_grouping(plain_theme):
@@ -278,6 +317,35 @@ def test_conditionals_are_rich_tiers_only(plain_theme):
     assert "Conditional" in palette["mega"]  # mega/giga/tera share the rich pool
 
 
+def test_compound_conditionals_are_extreme_tiers_only(plain_theme):
+    # Compound sides (And/Or/Xor inside an if-then/iff) are the heaviest clue to
+    # parse: mega stays atom=>atom, only giga/tera roll compounds.
+    from logicgrid.clues import And, Conditional, Or, Xor
+    from logicgrid.generate import _DIFFICULTY_POOL, build_clue_pool
+
+    assert _DIFFICULTY_POOL["mega"]["conditional_compound_prob"] == 0.0
+    for d in ("giga", "tera"):
+        assert _DIFFICULTY_POOL[d]["conditional_compound_prob"] > 0.0
+
+    is_compound = lambda c: isinstance(c.ante, (And, Or, Xor)) or isinstance(
+        c.cons, (And, Or, Xor)
+    )
+    seen = {0.0: False, 0.28: False}
+    for prob in seen:
+        for s in range(12):
+            rng = random.Random(s)
+            X = random_solution(plain_theme, rng)
+            pool = build_clue_pool(
+                plain_theme, X, rng,
+                enable_conditional=True, conditional_compound_prob=prob,
+            )
+            conds = [c for c in pool if isinstance(c, Conditional)]
+            assert conds
+            seen[prob] = seen[prob] or any(is_compound(c) for c in conds)
+    assert not seen[0.0]  # prob 0 never builds a compound side
+    assert seen[0.28]     # the extreme-tier prob does (over several seeds)
+
+
 def test_difficulty_controls_clue_palette_and_size(plain_theme):
     from logicgrid.clues import ExactlyKLinks, GroupMatch
     from logicgrid.generate import DIFFICULTIES
@@ -346,7 +414,9 @@ def test_all_different_generated_spanning_categories(plain_theme):
     assert diffs, "expected some AllDifferent clues"
     for c in diffs:
         assert len(c.terms) >= 3, "generated only for N >= 3"
-        assert len({t[0] for t in c.terms}) >= 2, "must span >= 2 categories"
+        # pairwise-distinct categories: same-category terms differ by definition,
+        # so a repeat would pad the clue with a vacuous pair
+        assert len({t[0] for t in c.terms}) == len(c.terms)
         assert c.holds(X)  # true under the solution
 
 
@@ -411,19 +481,28 @@ def test_pairing_k_and_sizes_configurable(plain_theme):
 
 
 def test_all_different_respects_size_bound():
-    # n == 4 here, so N == 4 ('all four different') should be reachable.
+    # N caps at min(items, categories): terms need N distinct entities AND N
+    # pairwise-distinct categories. space_colony (4 categories, 5 items) admits
+    # N == 4; morning_rush (3 categories) caps at N == 3 despite its 4 items.
     import random as _random
 
     from logicgrid import load_theme
     from logicgrid.clues import AllDifferent
 
-    theme = load_theme("themes/morning_rush.yaml")
+    theme = load_theme("themes/space_colony.yaml")
     rng = _random.Random(2)
     X = random_solution(theme, rng)
     pool = build_clue_pool(theme, X, rng)
     sizes = {len(c.terms) for c in pool if isinstance(c, AllDifferent)}
     assert sizes <= {3, 4}
-    assert 4 in sizes  # n == 4 allows the full N == 4 clue
+    assert 4 in sizes  # k == 4 and n == 5 allow the full N == 4 clue
+
+    cafe = load_theme("themes/morning_rush.yaml")  # k == 3: size-4 impossible
+    rng = _random.Random(2)
+    X = random_solution(cafe, rng)
+    sizes = {len(c.terms) for c in build_clue_pool(cafe, X, rng)
+             if isinstance(c, AllDifferent)}
+    assert sizes == {3}
 
 
 def test_at_least_k_among_is_distinct_and_always_ambiguous(wide_theme):
