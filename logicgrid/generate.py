@@ -42,6 +42,7 @@ from .clues import (
     Positive,
     SetCount,
     Xor,
+    clue_cost,
     entity_of,
 )
 from .model import Theme
@@ -92,6 +93,94 @@ def _grouped_categories(theme: Theme):
 # independent draws, which are always kept. See the pairing loop in
 # build_clue_pool.
 _PAIRING_OVERLAP_PROB = 0.25
+
+
+# --- Semantic screen ---------------------------------------------------------
+# One informativeness test instead of per-family triviality guards: every pool
+# candidate is evaluated against a shared sample of random solutions, yielding
+# a truth *signature* (bitmask over the sample). From the signatures we
+#   * reject tautologies and near-tautologies (holds on the whole sample —
+#     carries no information a solver could use),
+#   * drop semantic duplicates ACROSS families, keeping the cheaper reading
+#     (e.g. a shared-value pairing that restates an either/or),
+#   * reject INTRA-clue redundancy inside boolean compounds: an operand that
+#     semantically implies a sibling collapses the connective to one branch
+#     ("either Edmund is in Oldwall, or someone in the River Ward is Edmund"
+#     when Oldwall is in the River Ward) — the generalization of the old
+#     hand-coded named-link-subsumed-by-existential guard.
+# Duplicate atoms inside one clue ("A with X or A with X") are impossible by
+# construction (sampling without replacement / `used` sets) and additionally
+# rejected structurally where atoms are explicit (see clues.Count).
+_SCREEN_SAMPLES = 128
+_SCREEN_DEDUPE_MIN_BITS = 4  # sparse signatures are weak evidence of equivalence
+
+
+def _stmt_parts(stmt):
+    """Direct operands of a boolean connective node, else None."""
+    if isinstance(stmt, (And, Or)):
+        return list(stmt.parts)
+    if isinstance(stmt, Xor):
+        return [stmt.p, stmt.q]
+    return None
+
+
+def _has_subsumed_branch(clue, sols) -> bool:
+    """True if a boolean node inside the clue has an operand that semantically
+    implies a sibling on the sample — intra-clue redundancy."""
+    if isinstance(clue, Compound):
+        roots = [clue.stmt]
+    elif isinstance(clue, Conditional):
+        roots = [clue.ante, clue.cons]
+    else:
+        return False
+    todo = list(roots)
+    while todo:
+        node = todo.pop()
+        if isinstance(node, Not):
+            todo.append(node.s)
+            continue
+        parts = _stmt_parts(node)
+        if not parts:
+            continue
+        todo.extend(parts)
+        sigs = [
+            sum(1 << i for i, s in enumerate(sols) if p.value(s)) for p in parts
+        ]
+        for i in range(len(sigs)):
+            for j in range(len(sigs)):
+                if i != j and sigs[i] & ~sigs[j] == 0:  # operand i implies operand j
+                    return True
+    return False
+
+
+def _semantic_screen(theme, X, rng, clues: list) -> list:
+    """Filter an assembled pool by semantic signature (see section comment)."""
+    sols = [random_solution(theme, rng) for _ in range(_SCREEN_SAMPLES)]
+    full = (1 << _SCREEN_SAMPLES) - 1
+    kept: list = []
+    by_sig: dict = {}
+    for c in clues:
+        if isinstance(c, Positive):
+            kept.append(c)  # positives pin the solution; uniqueness of the full pool needs them
+            continue
+        sig = 0
+        for i, s in enumerate(sols):
+            if c.holds(s):
+                sig |= 1 << i
+        if sig == full:
+            continue  # true on the whole sample — (near-)tautology
+        if _has_subsumed_branch(c, sols):
+            continue
+        if bin(sig).count("1") < _SCREEN_DEDUPE_MIN_BITS:
+            kept.append(c)  # too selective to attest equivalence — keep unconditionally
+            continue
+        prev = by_sig.get(sig)
+        if prev is None:
+            by_sig[sig] = len(kept)
+            kept.append(c)
+        elif clue_cost(c) < clue_cost(kept[prev]):
+            kept[prev] = c  # same semantic content: the simpler reading wins
+    return kept
 
 
 def build_clue_pool(
@@ -573,15 +662,9 @@ def build_clue_pool(
                 pc = rng.choice([c for c in range(k) if c != qc])
                 if rng.random() < 0.5:  # the GROUP branch is the true one
                     ep = rng.choice([e for e in range(n) if e != eq])
-                    # The named link must not be subsumed by the existential: if it
-                    # names the SAME grouped category and an item that sits in the
-                    # very group the existential covers, then "link holds" already
-                    # forces pred into that group — the disjunction collapses to its
-                    # group branch, reading as a redundant clue (e.g. "either Edmund
-                    # is in Oldwall, or someone in the River Ward is Edmund" when
-                    # Oldwall *is* in the River Ward). Skip those draws.
-                    if pc == gc and X[ep][gc] in set(parts[gi]):
-                        continue
+                    # (A named link subsumed by the existential — the disjunction
+                    # collapsing to its group branch — is rejected semantically by
+                    # _semantic_screen's branch-subsumption check.)
                     link = Link((pc, X[ep][pc]), pred)  # false: a different entity
                     grp = GroupLink(pred, gc, labels[gi], parts[gi], subject=True)
                 else:  # the NAMED branch is the true one
@@ -878,7 +961,7 @@ def build_clue_pool(
     rng.shuffle(cross)
     rng.shuffle(compounds)
     rng.shuffle(set_counts)
-    return (
+    pool = (
         positives
         + negatives[:max_negatives]
         + comparisons[:max_comparisons]
@@ -896,6 +979,7 @@ def build_clue_pool(
         + compounds[:max_compounds]
         + set_counts[:max_set_count]
     )
+    return _semantic_screen(theme, X, rng, pool)
 
 
 # The named tiers, easiest first (see deduce.DIFFICULTY_ORDER / band_of). The

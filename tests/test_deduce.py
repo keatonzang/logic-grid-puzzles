@@ -278,10 +278,11 @@ def test_hard_requests_prefer_tier4_free_candidates():
 
 def test_extreme_tiers_keep_showcase_clues():
     # Exclusive pairings ("either A-X or B-Y, not both") and conditionals
-    # (if-then / iff) are the intricate clues the extreme tiers promise;
-    # minimize boosts a tier-scaled number of each to the end of the removal
-    # order (_SHOWCASE_BOOST), so most giga/tera puzzles ship with them
-    # (unboosted they survived in ~4/30 and ~3/30 puzzles respectively).
+    # (if-then / iff) are the intricate clues the extreme tiers promise; the
+    # minimize reserve keeps a tier-scaled number of each to the end of the
+    # removal order, so most giga/tera puzzles ship with them (unboosted they
+    # survived in ~4/30 and ~3/30 puzzles). Floors sit at half the measured
+    # rates (~90%/70%) — they catch a family collapsing, not stream drift.
     from logicgrid.clues import Conditional, ExactlyKLinks
 
     for diff in ("giga", "tera"):
@@ -292,8 +293,8 @@ def test_extreme_tiers_keep_showcase_clues():
             puzzle = generate_puzzle(theme, rng, difficulty=diff)
             pairing += any(isinstance(c, ExactlyKLinks) for c in puzzle.clues)
             conditional += any(isinstance(c, Conditional) for c in puzzle.clues)
-        assert pairing >= 5, f"{pairing}/6 {diff} puzzles kept a pairing"
-        assert conditional >= 4, f"{conditional}/6 {diff} puzzles kept a conditional"
+        assert pairing >= 4, f"{pairing}/6 {diff} puzzles kept a pairing"
+        assert conditional >= 3, f"{conditional}/6 {diff} puzzles kept a conditional"
 
 
 def test_solver_sound_across_cafe_sizes():

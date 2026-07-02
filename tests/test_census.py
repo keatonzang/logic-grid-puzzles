@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from logicgrid.census import type_census
 
-SEEDS = 5
+SEEDS = 8
 
 
 def test_diversity_scales_with_difficulty():

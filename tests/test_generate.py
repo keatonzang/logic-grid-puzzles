@@ -594,6 +594,46 @@ def test_among_sizes_configurable_for_larger_n(plain_theme):
     assert all(len(c.options) == 2 for c in disjunctions)
 
 
+def test_semantic_screen_rejects_tautologies(plain_theme):
+    # "at most 2 of these 2 options" is vacuously true on every solution —
+    # zero information, so the screen drops it with no per-family guard.
+    from logicgrid.clues import AtMost
+    from logicgrid.generate import _semantic_screen
+
+    rng = random.Random(2)
+    X = random_solution(plain_theme, rng)
+    trivial = AtMost((0, 0), [(1, 0), (2, 1)], 2)
+    assert _semantic_screen(plain_theme, X, rng, [trivial]) == []
+
+
+def test_semantic_screen_rejects_intra_clue_redundancy(plain_theme):
+    # The degenerate disjunction "A goes with X, or A goes with X": one branch
+    # (trivially) implies the other, so the connective collapses to one side.
+    from logicgrid.clues import Compound, Link, Or
+    from logicgrid.generate import _semantic_screen
+
+    rng = random.Random(3)
+    X = random_solution(plain_theme, rng)
+    dup = Compound(Or([Link((0, 0), (1, 0)), Link((0, 0), (1, 0))]))
+    assert _semantic_screen(plain_theme, X, rng, [dup]) == []
+
+
+def test_semantic_screen_dedupes_equivalent_content(plain_theme):
+    # The same fact stated two ways keeps only the cheaper reading, whichever
+    # order the pool presents them in.
+    from logicgrid.clues import Compound, Link, Negative, Not
+    from logicgrid.generate import _semantic_screen
+
+    rng = random.Random(4)
+    X = random_solution(plain_theme, rng)
+    neg = Negative((0, 0), (1, 1))
+    wordy = Compound(Not(Link((0, 0), (1, 1))))
+    kept = _semantic_screen(plain_theme, X, random.Random(4), [neg, wordy])
+    assert kept == [neg]
+    kept = _semantic_screen(plain_theme, X, random.Random(4), [wordy, neg])
+    assert kept == [neg]
+
+
 def test_minimize_preserves_uniqueness_and_is_minimal(plain_theme):
     rng = random.Random(3)
     X = random_solution(plain_theme, rng)
