@@ -64,7 +64,7 @@ function buildDoc() {
       if (c.unitSuffix) cd.unit_suffix = c.unitSuffix;
     }
     if (c.referent.trim()) cd.referent = c.referent.trim();
-    if (c.plural) cd.plural = true;
+    if (c.plural && c.ordered) cd.plural = true;  // plural only affects comparison text
     if (c.groupMode === "random") {
       const labels = lines(c.groupsText).map((l) => l.replace(/:.*$/, "").trim()).filter(Boolean);
       if (labels.length) {
@@ -198,10 +198,10 @@ function catCard(c, idx) {
     </div>
     <label class="field"><span>Items — one per line (every category needs the same count; labels unique across the whole theme)</span>
       <textarea data-f="itemsText" placeholder="Mei&#10;Omar&#10;Petra&#10;Quinn"></textarea></label>
-    <small class="hint-above" data-role="plural-hint"></small>
-    <label class="inline-check"><input data-f="plural" type="checkbox" /> plural name (“Earnings”)</label>
     <label class="inline-check"><input data-f="ordered" type="checkbox" /> ordered / numeric</label>
     <div class="ordered-extra" hidden>
+      <small class="hint-above" data-role="plural-hint"></small>
+      <label class="inline-check" style="margin-bottom:.5rem"><input data-f="plural" type="checkbox" /> plural name (“Earnings”, “Wages”)</label>
       <label class="field"><span>Values — one number per line, ascending, matching the items</span>
         <textarea data-f="valuesText" placeholder="10&#10;20&#10;30&#10;40"></textarea></label>
       <small class="hint-above" data-role="amount-hint"></small>
