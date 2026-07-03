@@ -679,8 +679,11 @@ footer .hire:hover { opacity: 1; color: var(--accent); }
 .claim-row { display: flex; gap: .5rem; }
 
 /* Daily controls bar: only text + the colorblind switch live here, so center
-   the row (free play keeps align-items: end to line up its taller pickers). */
+   the row. The label's own align-self:end + bottom padding exist to line it
+   up with free play's taller pickers — both must go here too, or they win
+   over the container's centering. */
 body[data-mode="daily"] .controls { align-items: center; }
+body[data-mode="daily"] .controls label.check { align-self: center; padding-bottom: 0; }
 .daily-info a { color: var(--accent); }
 
 /* --- Colorblind toggle: style the checkbox as a switch (both pages) --- */
