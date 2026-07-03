@@ -687,16 +687,61 @@ def build_puzzle(
     return theme_obj, puzzle, report, seed
 
 
+def _resolve_group_labels(theme_doc: dict, rng: random.Random) -> dict:
+    """Resolve per-category ``group_labels`` (open groups — membership drawn
+    fresh per puzzle) into concrete pinned groups via ``_random_groups``.
+
+    A category declares EITHER ``groups`` (pinned rosters, the author fixes
+    membership) OR ``group_labels`` (labels only, "anyone can be in it": the
+    generator assigns members per puzzle, deterministically in the seed, just
+    like registry themes' randomized hierarchies). When the item count can't
+    support >= 2 groups of >= 2 members, that draw simply carries no
+    hierarchy. Returns a new doc; the caller's document is never mutated."""
+    cats_in = theme_doc.get("categories")
+    if not isinstance(cats_in, list):
+        return theme_doc
+    out = dict(theme_doc)
+    cats = []
+    for cd in cats_in:
+        labels = cd.get("group_labels") if isinstance(cd, dict) else None
+        if labels is None:
+            cats.append(cd)
+            continue
+        if not isinstance(labels, list) or not all(isinstance(x, str) and x.strip() for x in labels):
+            raise ValueError("group_labels must be a list of non-empty strings")
+        if len(labels) < 2:
+            raise ValueError("group_labels needs at least 2 labels (one group says nothing)")
+        if len(set(labels)) != len(labels):
+            raise ValueError("group_labels must be unique")
+        if cd.get("groups"):
+            raise ValueError(
+                f"category '{cd.get('name')}': use pinned `groups` OR open "
+                "`group_labels`, not both"
+            )
+        cd = dict(cd)
+        cd.pop("group_labels")
+        grps = _random_groups(tuple((lab, ()) for lab in labels), list(cd.get("items") or []), rng)
+        if grps:
+            cd["group_noun"] = cd.get("group_noun") or "group"
+            cd["groups"] = [{"label": lab, "items": list(mem)} for lab, mem in grps]
+        else:
+            cd.pop("group_noun", None)  # too few items this draw — no hierarchy
+        cats.append(cd)
+    out["categories"] = cats
+    return out
+
+
 def build_custom_puzzle(seed: int | None, difficulty: str, theme_doc: dict):
-    """Generate a puzzle from a user-supplied *concrete* theme document — the
-    single-file dict format that ``logicgrid.themes`` round-trips (see README
+    """Generate a puzzle from a user-supplied theme document — the single-file
+    dict format that ``logicgrid.themes`` round-trips (see README
     "Single-file representation").
 
-    Unlike registry themes there is no attribute sampling and no numeric/group
-    rolls: the document IS the theme, categories and items fixed, so the same
-    (document, difficulty, seed) always rebuilds the identical puzzle — the
-    determinism contract the hint endpoint relies on. Returns
-    ``(theme, puzzle, report, seed)`` like ``build_puzzle``.
+    Unlike registry themes there is no attribute sampling: the document IS the
+    theme. The one seed-driven dial is open groups (``group_labels``), whose
+    membership is rolled up front from the seed rng — so the same (document,
+    difficulty, seed) always rebuilds the identical puzzle, the determinism
+    contract the hint endpoint relies on. Returns ``(theme, puzzle, report,
+    seed)`` like ``build_puzzle``.
 
     Raises ``ValueError`` with a human-readable message on a malformed,
     inconsistent, or out-of-bounds document.
@@ -707,8 +752,12 @@ def build_custom_puzzle(seed: int | None, difficulty: str, theme_doc: dict):
         raise ValueError(f"unknown difficulty: {difficulty!r}")
     if not isinstance(theme_doc, dict):
         raise ValueError("theme_doc must be a JSON object (the exported theme file)")
+    if seed is None:
+        seed = random.randrange(_MAX_SEED)
+    rng = random.Random(seed)
     try:
-        theme_obj = theme_from_dict(theme_doc)  # validates shape + consistency
+        resolved = _resolve_group_labels(theme_doc, rng)  # consumes rng first, deterministically
+        theme_obj = theme_from_dict(resolved)  # validates shape + consistency
     except ValueError:
         raise
     except (KeyError, TypeError, AttributeError) as exc:
@@ -723,9 +772,6 @@ def build_custom_puzzle(seed: int | None, difficulty: str, theme_doc: dict):
             f"custom themes need {MIN_CUSTOM_CATEGORIES}-{MAX_CUSTOM_CATEGORIES} "
             f"categories, got {theme_obj.k}"
         )
-    if seed is None:
-        seed = random.randrange(_MAX_SEED)
-    rng = random.Random(seed)
     theme_obj, puzzle, report = generate_rated(lambda r: theme_obj, rng, difficulty)
     return theme_obj, puzzle, report, seed
 

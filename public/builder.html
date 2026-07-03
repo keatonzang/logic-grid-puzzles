@@ -8,10 +8,11 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='1' width='6' height='6' rx='1' fill='%23394869'/><rect x='9' y='1' width='6' height='6' rx='1' fill='%236ea8fe'/><rect x='1' y='9' width='6' height='6' rx='1' fill='%236ea8fe'/><rect x='9' y='9' width='6' height='6' rx='1' fill='%23394869'/></svg>" />
   <style>
     /* Builder-page layout only — visual language comes from style.css. */
-    .builder-wrap { max-width: 980px; margin: 0 auto; padding: 0 1rem 3rem; }
-    .builder-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
-    @media (max-width: 880px) { .builder-grid { grid-template-columns: 1fr; } }
-    .card { background: var(--panel, #141a2e); border: 1px solid var(--border, #2a3350); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1.1rem; }
+    .builder-wrap { max-width: 1180px; margin: 0 auto; padding: 0 1rem 3rem; }
+    .top-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1.25rem; align-items: start; }
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; align-items: start; margin-top: 1.1rem; }
+    @media (max-width: 880px) { .top-grid { grid-template-columns: 1fr; } }
+    .card { background: var(--panel, #141a2e); border: 1px solid var(--border, #2a3350); border-radius: 10px; padding: 1rem 1.1rem; }
     .card h3 { margin: 0 0 .7rem; }
     .field { display: block; margin: 0 0 .7rem; font-size: .92rem; }
     .field > span { display: block; margin-bottom: .25rem; opacity: .85; }
@@ -19,20 +20,26 @@
       width: 100%; box-sizing: border-box; background: var(--bg, #0b1020); color: inherit;
       border: 1px solid var(--border, #2a3350); border-radius: 6px; padding: .45rem .55rem; font: inherit;
     }
-    .field textarea { min-height: 5.5em; resize: vertical; }
+    .field textarea { min-height: 5em; resize: vertical; }
     .field small { display: block; opacity: .6; margin-top: .2rem; }
     .row { display: flex; gap: .8rem; flex-wrap: wrap; }
-    .row > .field { flex: 1 1 10rem; }
+    .row > .field { flex: 1 1 9rem; }
     .inline-check { display: inline-flex; align-items: center; gap: .4rem; margin-right: 1rem; font-size: .92rem; }
     .cat-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
     .cat-head h4 { margin: 0; }
     .cat-tools button { margin-left: .35rem; }
-    .builder-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1rem 0; }
+    .builder-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1.1rem 0 0; }
     .ordered-extra, .groups-extra { border-left: 3px solid var(--border, #2a3350); padding-left: .8rem; margin-top: .5rem; }
     #b-error { white-space: pre-wrap; }
     #preview-clues li { margin-bottom: .35rem; }
     .ok { color: #7dd97d; }
     .muted { opacity: .65; font-size: .9rem; }
+    .reads { border: 1px dashed var(--border, #2a3350); border-radius: 8px; padding: .55rem .7rem; margin-top: .6rem; font-size: .88rem; }
+    .reads b { opacity: .8; font-weight: 600; }
+    .reads div { margin: .15rem 0; }
+    .reads .q { color: #a8c4ff; }
+    .file-card { margin-top: 1.25rem; }
+    .file-card textarea { min-height: 12em; font-family: ui-monospace, monospace; font-size: .8rem; }
   </style>
 </head>
 <body>
@@ -43,6 +50,49 @@
   </header>
 
   <div class="builder-wrap">
+    <div class="top-grid">
+      <section class="card">
+        <h3>Theme</h3>
+        <label class="field"><span>Name</span>
+          <input id="b-name" type="text" placeholder="The Night Market" />
+        </label>
+        <label class="field"><span>Description (shown under the title)</span>
+          <textarea id="b-desc" placeholder="Four vendors set up stalls at the night market, each selling different wares from a numbered pitch…"></textarea>
+        </label>
+        <label class="field"><span>Entity noun — what one row of the solution is</span>
+          <input id="b-noun" type="text" placeholder="stall" />
+        </label>
+        <div id="theme-reads" class="reads" hidden></div>
+      </section>
+
+      <section class="card">
+        <h3>Try it</h3>
+        <div class="row">
+          <label class="field"><span>Difficulty</span>
+            <select id="b-difficulty">
+              <option value="normal" selected>Normal</option>
+              <option value="hard">Hard</option>
+              <option value="mega">Mega</option>
+              <option value="giga">Giga</option>
+              <option value="tera">Tera</option>
+            </select>
+          </label>
+          <label class="field"><span>Seed (blank = random)</span>
+            <input id="b-seed" type="text" inputmode="numeric" placeholder="random" />
+          </label>
+        </div>
+        <div class="builder-actions" style="margin-top:0">
+          <button id="b-generate" class="primary">Generate preview</button>
+        </div>
+        <p id="b-status" class="muted"></p>
+        <p id="b-error" class="error" hidden></p>
+        <div id="b-preview" hidden>
+          <p class="meta"><span id="preview-meta"></span></p>
+          <ol id="preview-clues"></ol>
+        </div>
+      </section>
+    </div>
+
     <div class="builder-actions">
       <button id="b-add-cat">Add category</button>
       <button id="b-upload">Upload theme…</button>
@@ -51,60 +101,13 @@
       <button id="b-play">Play this theme</button>
     </div>
 
-    <div class="builder-grid">
-      <div>
-        <section class="card">
-          <h3>Theme</h3>
-          <label class="field"><span>Name</span>
-            <input id="b-name" type="text" placeholder="The Night Market" />
-          </label>
-          <label class="field"><span>Description (shown under the title)</span>
-            <textarea id="b-desc" placeholder="Five vendors set up stalls one evening…"></textarea>
-          </label>
-          <label class="field"><span>Entity noun — what one row of the solution is</span>
-            <input id="b-noun" type="text" placeholder="stall" />
-            <small>e.g. “order”, “artisan”, “stall”: clues read “…belong to different stalls”.</small>
-          </label>
-        </section>
+    <div id="b-cats" class="cat-grid"></div>
 
-        <div id="b-cats"></div>
-      </div>
-
-      <div>
-        <section class="card">
-          <h3>Try it</h3>
-          <div class="row">
-            <label class="field"><span>Difficulty</span>
-              <select id="b-difficulty">
-                <option value="normal" selected>Normal</option>
-                <option value="hard">Hard</option>
-                <option value="mega">Mega</option>
-                <option value="giga">Giga</option>
-                <option value="tera">Tera</option>
-              </select>
-            </label>
-            <label class="field"><span>Seed (blank = random)</span>
-              <input id="b-seed" type="text" inputmode="numeric" placeholder="random" />
-            </label>
-          </div>
-          <div class="builder-actions">
-            <button id="b-generate" class="primary">Generate preview</button>
-          </div>
-          <p id="b-status" class="muted"></p>
-          <p id="b-error" class="error" hidden></p>
-          <div id="b-preview" hidden>
-            <p class="meta"><span id="preview-meta"></span></p>
-            <ol id="preview-clues"></ol>
-          </div>
-        </section>
-
-        <section class="card">
-          <h3>The file</h3>
-          <p class="muted">This JSON is the whole theme — download it, share it, re-upload it here or on the main page. It is exactly what the puzzle CLI and API consume.</p>
-          <label class="field"><textarea id="b-json" readonly style="min-height: 14em; font-family: ui-monospace, monospace; font-size: .8rem;"></textarea></label>
-        </section>
-      </div>
-    </div>
+    <section class="card file-card">
+      <h3>The file</h3>
+      <p class="muted">This JSON is the whole theme — download it, share it, re-upload it here or on the main page. It is exactly what the puzzle CLI and API consume.</p>
+      <label class="field"><textarea id="b-json" readonly></textarea></label>
+    </section>
   </div>
 
   <footer>

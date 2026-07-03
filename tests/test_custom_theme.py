@@ -135,3 +135,63 @@ def test_api_puzzle_post_and_hint_roundtrip():
         {"seed": 1, "theme_doc": ["not", "a", "dict"], "known": {}}
     )
     assert status4 == 400 and "theme_doc" in err4["error"]
+
+
+def open_groups_doc() -> dict:
+    doc = farm_doc()
+    doc["categories"][1]["group_labels"] = ["North Field", "South Field"]
+    doc["categories"][1]["group_noun"] = "field"
+    return doc
+
+
+def test_open_groups_are_deterministic_in_the_seed():
+    # group_labels: membership is drawn per puzzle, but the SAME (doc, seed)
+    # must roll the same membership — the hint endpoint depends on it.
+    a = build_payload(seed=13, difficulty="hard", theme_doc=open_groups_doc())
+    b = build_payload(seed=13, difficulty="hard", theme_doc=open_groups_doc())
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+    crop = next(c for c in a["categories"] if c["name"] == "Crop")
+    assert crop.get("groups"), "4 items should always form 2 groups of 2"
+    assert {g["label"] for g in crop["groups"]} == {"North Field", "South Field"}
+    # different seeds may deal different memberships (it's a per-puzzle roll)
+    rosters = set()
+    for s in range(8):
+        p = build_payload(seed=s, difficulty="hard", theme_doc=open_groups_doc())
+        crop = next(c for c in p["categories"] if c["name"] == "Crop")
+        rosters.add(tuple(tuple(g["items"]) for g in crop.get("groups", [])))
+    assert len(rosters) > 1, "membership should vary across seeds"
+
+
+def test_open_groups_hint_roundtrip():
+    hint = build_hint(13, "hard", 0, 0, {}, theme_doc=open_groups_doc())
+    assert hint.get("text")
+
+
+def test_open_groups_validation():
+    bad = open_groups_doc()
+    bad["categories"][1]["group_labels"] = ["Only One"]
+    with pytest.raises(ValueError, match="at least 2"):
+        build_custom_puzzle(3, "normal", bad)
+
+    both = open_groups_doc()
+    both["categories"][1]["groups"] = [{"label": "X", "items": ["Kale", "Maize"]}]
+    with pytest.raises(ValueError, match="not both"):
+        build_custom_puzzle(3, "normal", both)
+
+    dupe = open_groups_doc()
+    dupe["categories"][1]["group_labels"] = ["A", "A"]
+    with pytest.raises(ValueError, match="unique"):
+        build_custom_puzzle(3, "normal", dupe)
+
+    # too few items to form 2x2 groups: no hierarchy, but still generates
+    tiny = {
+        "name": "T", "description": "", "entity_noun": "row",
+        "categories": [
+            {"name": "Pet", "items": ["Cat", "Dog", "Eel"]},
+            {"name": "Toy", "items": ["Ball", "Rope", "Kite"], "group_labels": ["A", "B"]},
+            {"name": "Bed", "items": ["Mat", "Nest", "Box"]},
+        ],
+    }
+    pay = build_payload(seed=2, difficulty="normal", theme_doc=tiny)
+    toy = next(c for c in pay["categories"] if c["name"] == "Toy")
+    assert not toy.get("groups")
