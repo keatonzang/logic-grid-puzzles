@@ -131,9 +131,11 @@ def compatible_themes(categories: int, items: int, needs_ordered: bool,
 
 def generate_big(seed: int, difficulty: str, categories: int, items: int,
                  ordered: bool = True, groups: bool = False,
-                 donor: str | None = None):
+                 donor: str | None = None, collect=None):
     """Generate the canonical (donor-themed) big puzzle. Returns
-    ``(theme, puzzle, report)`` — deterministic in all arguments."""
+    ``(theme, puzzle, report)`` — deterministic in all arguments. With
+    ``collect``, every logic-solvable candidate the walk grades is passed to
+    it (see ``generate_rated``)."""
     donor = donor or (GROUP_DONOR if groups else DONOR)
     spec = THEMES[donor]
     if not shape_supported(spec, categories, items, ordered):
@@ -143,8 +145,22 @@ def generate_big(seed: int, difficulty: str, categories: int, items: int,
     return generate_rated(
         lambda r: build_theme(spec, r, items, categories, n_numeric,
                               use_groups=groups, clamp=False),
-        rng, difficulty,
+        rng, difficulty, collect=collect,
     )
+
+
+def generate_big_all(seed: int, difficulty: str, categories: int, items: int,
+                     ordered: bool = True, groups: bool = False,
+                     donor: str | None = None) -> list:
+    """Every logic-solvable candidate one walk produces, as
+    ``(theme, puzzle, report)`` tuples — the target-band winner AND the
+    off-band byproducts. At big shapes each attempt costs minutes-to-hours,
+    so a mega that rolled while hunting a tera is a shippable puzzle, not
+    waste; callers bundle each under its *measured* band."""
+    collected: list = []
+    generate_big(seed, difficulty, categories, items, ordered, groups, donor,
+                 collect=lambda t, p, r: collected.append((t, p, r)))
+    return collected
 
 
 # --- Dressing a target theme with the donor's structure ----------------------
@@ -385,17 +401,15 @@ def _theme_payload(theme: Theme, clues: list, X) -> dict:
     }
 
 
-def build_big_bundle(puzzle_id: str, seed: int, difficulty: str,
-                     categories: int, items: int, ordered: bool = True,
-                     groups: bool = False, donor: str | None = None) -> dict:
-    """The complete static bundle for one big puzzle: shape + rating, plus a
-    ready-to-play rendering (categories, clues, solution, hint path) under
-    every compatible theme. Every re-render is verified against the solution
-    before it ships."""
-    donor = donor or (GROUP_DONOR if groups else DONOR)
-    theme_obj, puzzle, report = generate_big(
-        seed, difficulty, categories, items, ordered, groups, donor
-    )
+def bundle_candidate(puzzle_id: str, seed: int, requested: str,
+                     theme_obj, puzzle, report,
+                     donor: str | None = None) -> dict:
+    """The complete static bundle for one generated candidate: shape +
+    rating, plus a ready-to-play rendering (categories, clues, solution,
+    hint path) under every compatible theme. Every re-render is verified
+    against the solution before it ships."""
+    categories, items = theme_obj.k, theme_obj.n
+    donor = donor or DONOR
     X = puzzle.solution
     needs_ordered = any(c.ordered for c in theme_obj.categories)
     n_grouped, n_nested = puzzle_group_shape(theme_obj)
@@ -420,7 +434,7 @@ def build_big_bundle(puzzle_id: str, seed: int, difficulty: str,
         "seed": seed,
         "categories": categories,
         "items": items,
-        "requested": difficulty,
+        "requested": requested,
         "difficulty": report["band"],
         "has_ordered": needs_ordered,
         "grouped": n_grouped + n_nested > 0,
@@ -433,6 +447,20 @@ def build_big_bundle(puzzle_id: str, seed: int, difficulty: str,
         "default_theme": donor,
         "themes": themes,
     }
+
+
+def build_big_bundle(puzzle_id: str, seed: int, difficulty: str,
+                     categories: int, items: int, ordered: bool = True,
+                     groups: bool = False, donor: str | None = None) -> dict:
+    """One walk, one bundle: the target-band winner (or closest fallback)
+    only. The batch script prefers ``generate_big_all`` + ``bundle_candidate``
+    so a walk's off-band byproducts ship too."""
+    donor = donor or (GROUP_DONOR if groups else DONOR)
+    theme_obj, puzzle, report = generate_big(
+        seed, difficulty, categories, items, ordered, groups, donor
+    )
+    return bundle_candidate(puzzle_id, seed, difficulty, theme_obj, puzzle,
+                            report, donor)
 
 
 def random_seed() -> int:

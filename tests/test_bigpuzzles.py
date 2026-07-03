@@ -200,6 +200,20 @@ def test_group_clues_relabel_under_target_vocabulary():
         assert "Guild" not in txt and "Ward" not in txt and "Side" not in txt
 
 
+def test_walk_byproducts_are_collected_and_bundlable():
+    # every logic-solvable candidate a walk grades is collectable; a byproduct
+    # bundles under its MEASURED band with the request recorded honestly
+    cands = bigpuzzles.generate_big_all(12345, "hard", 3, 5)
+    assert cands
+    theme_obj, puzzle, report = cands[0]
+    assert report["band"] != "ambiguous"
+    b = bigpuzzles.bundle_candidate("t-byprod", 12345, "hard",
+                                    theme_obj, puzzle, report)
+    assert b["difficulty"] == report["band"]
+    assert b["requested"] == "hard"
+    assert b["themes"]
+
+
 # --- End-to-end bundle (small shape, kept cheap) ---------------------------------
 
 @pytest.fixture(scope="module")

@@ -1284,7 +1284,8 @@ _RATED_ATTEMPTS = {"normal": 8, "hard": 9, "mega": 16, "giga": 14, "tera": 14}
 _TERA_RECOVERY_BUDGET_S = 3.0
 
 
-def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int | None = None):
+def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: int | None = None,
+                   collect=None):
     """Generate-and-grade: sample candidates until one's *measured* difficulty
     band matches `target`, guaranteeing a logic-solvable (no-guessing) puzzle.
 
@@ -1348,6 +1349,13 @@ def generate_rated(make_theme, rng: random.Random, target: str, max_attempts: in
                 continue  # too deep to verify cheaply -> not shipping it
         if report["band"] == "ambiguous":
             continue  # needs deeper nesting than we verify — not shipping it
+        if collect is not None:
+            # Every candidate that reaches here is a complete, verified-unique,
+            # logic-solvable puzzle — expensive shapes shouldn't bin them just
+            # for measuring off-band. The collector sees each one (including
+            # whichever is eventually returned); offline pipelines ship them
+            # all under their measured bands.
+            collect(theme, puzzle, report)
         if report["band"] == target:
             if target != "hard" or not report["steps"][4]:
                 return theme, puzzle, report

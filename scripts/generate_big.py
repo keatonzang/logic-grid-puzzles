@@ -85,26 +85,35 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
 
     for cats, items, band, count, groups in args.spec:
+        donor = bigpuzzles.GROUP_DONOR if groups else bigpuzzles.DONOR
         for _ in range(count):
-            pid = next_id(cats, items, band)
             seed = bigpuzzles.random_seed()
             t0 = time.monotonic()
-            print(f"{pid}: generating (seed {seed}, groups={groups}) ...", flush=True)
-            bundle = bigpuzzles.build_big_bundle(
-                pid, seed, band, cats, items, ordered=True, groups=groups
+            print(f"{cats}x{items} {band}: generating (seed {seed}, "
+                  f"groups={groups}) ...", flush=True)
+            # Ship EVERY logic-solvable candidate the walk grades — at these
+            # shapes each attempt costs minutes-to-hours, so a mega that
+            # rolled while hunting a giga is a puzzle, not waste. Ids carry
+            # the MEASURED band.
+            candidates = bigpuzzles.generate_big_all(
+                seed, band, cats, items, ordered=True, groups=groups, donor=donor
             )
             took = time.monotonic() - t0
-            OUT.joinpath(f"{pid}.json").write_text(json.dumps(bundle, indent=1))
-            print(
-                f"{pid}: measured {bundle['difficulty']} | "
-                f"{len(bundle['themes'])} themes | "
-                f"{len(bundle['themes'][bundle['default_theme']]['clues'])} clues | "
-                f"{took:.0f}s",
-                flush=True,
-            )
-            if bundle["difficulty"] != band:
-                print(f"{pid}: note — requested {band}, best reachable was "
-                      f"{bundle['difficulty']}", flush=True)
+            for theme_obj, puzzle, report in candidates:
+                pid = next_id(cats, items, report["band"])
+                bundle = bigpuzzles.bundle_candidate(
+                    pid, seed, band, theme_obj, puzzle, report, donor
+                )
+                OUT.joinpath(f"{pid}.json").write_text(json.dumps(bundle, indent=1))
+                tag = "" if report["band"] == band else f" (byproduct of a {band} hunt)"
+                print(
+                    f"{pid}: measured {bundle['difficulty']}{tag} | "
+                    f"{len(bundle['themes'])} themes | "
+                    f"{len(bundle['themes'][bundle['default_theme']]['clues'])} clues",
+                    flush=True,
+                )
+            print(f"{cats}x{items} {band}: walk done — "
+                  f"{len(candidates)} puzzle(s) in {took:.0f}s", flush=True)
 
     total = rebuild_index()
     print(f"index rebuilt: {total} puzzles", flush=True)
