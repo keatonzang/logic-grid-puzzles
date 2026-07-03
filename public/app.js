@@ -6,6 +6,10 @@ const STATES = ["", "=", "×"]; // 0 blank, 1 link (=), 2 no-link (×)
 // pink) so alphabetically-sorted groups pick up an even spread across the wheel.
 const GROUP_COLORS = ["#ffc46e", "#51cf66", "#6ea8fe", "#c9a7ff", "#ff8fab"];
 const DESKTOP = window.matchMedia("(min-width: 821px)"); // staircase vs pairwise
+// Daily-challenge mode (/daily sets body[data-mode="daily"]): one shared
+// puzzle per day whose payload ships NO solution — checking happens server-
+// side — plus a leaderboard. Hint/Reveal/Check-as-you-go don't exist there.
+const DAILY = document.body.dataset.mode === "daily";
 
 let puzzle = null;        // current payload
 // `manual` is the source of truth: what the user explicitly set in each cell
@@ -98,10 +102,11 @@ function fmtTime(ms) {
   return `${m}:${String(s % 60).padStart(2, "0")}.${d}`;
 }
 
-// The live ticking clock is hidden for now — we still measure the elapsed time
-// and report it on a solve, just without a running display during play. Flip
-// this (e.g. from a future user setting) to show the clock live again.
-const SHOW_LIVE_TIMER = false;
+// The live ticking clock is hidden in free play — we still measure the elapsed
+// time and report it on a solve, just without a running display. The daily is
+// a race, so there the clock shows (the OFFICIAL time is measured server-side
+// from when the puzzle was fetched; this display is a close approximation).
+const SHOW_LIVE_TIMER = DAILY;
 
 function paintTimer() {
   $("timer").textContent = fmtTime(performance.now() - timerStart);
@@ -360,7 +365,7 @@ function buildState() {
     const key = `${i}-${j}`;
     manual[key] = cats[i].items.map(() => cats[j].items.map(() => 0));
     const set = new Set();
-    for (const row of puzzle.solution) {
+    for (const row of puzzle.solution || []) { // the daily ships no solution
       const a = cats[i].items.indexOf(row[i]);
       const b = cats[j].items.indexOf(row[j]);
       set.add(`${a},${b}`);
@@ -381,9 +386,12 @@ function render() {
   const reqNote = (puzzle.requested && puzzle.requested !== puzzle.difficulty)
     ? ` <span class="muted" title="you asked for ${puzzle.requested}; this grid could only reach ${puzzle.difficulty} — try more categories or items">(asked ${puzzle.requested})</span>`
     : "";
+  const tail = DAILY
+    ? `daily for <b>${dailyDate}</b>` // no seed: it would reproduce the answer key
+    : `seed <code>${puzzle.seed}</code>`;
   $("p-meta").innerHTML =
     `${puzzle.categories.length} × ${puzzle.items} · <b>${puzzle.difficulty}</b>${reqNote}${tierNote} · ` +
-    `${puzzle.clues.length} clues · seed <code>${puzzle.seed}</code>`;
+    `${puzzle.clues.length} clues · ${tail}`;
 
   const ol = $("clues");
   ol.innerHTML = "";
@@ -409,6 +417,7 @@ function render() {
 
 // Solution table, shown only when printing (its own page, after the puzzle).
 function renderAnswerKey() {
+  if (!puzzle.solution) return; // the daily keeps its answer key server-side
   const body = $("answer-key-body");
   body.innerHTML = "";
   const table = document.createElement("table");
@@ -927,6 +936,7 @@ function clearHighlights() {
 }
 
 function check() {
+  if (DAILY) { dailySubmit(); return; } // no per-cell feedback on the competitive board
   clearHighlights();
   // Flag any mark that contradicts the truth (a ✓ on a non-link, or a ✗ on a
   // real link). The puzzle is done once the *table* is fully reconstructed — you
@@ -973,6 +983,7 @@ function check() {
 }
 
 function reveal() {
+  if (DAILY) return; // the daily has no reveal (and no solution client-side)
   clearHighlights();
   resetHintButton();
   for (const [i, j] of pairs()) {
@@ -1016,7 +1027,9 @@ function clearGrids() {
 // A persistent status bar with a reserved height (CSS), so messages never shift
 // the grid below. With no message it shows a muted default tip rather than
 // collapsing.
-const DEFAULT_FEEDBACK = "Click a cell to cycle ✓ / ✗. Press <b>Hint</b> for the next logical step.";
+const DEFAULT_FEEDBACK = DAILY
+  ? "Click a cell to cycle ✓ / ✗. Fill the whole table, then <b>Submit</b> — the clock is running."
+  : "Click a cell to cycle ✓ / ✗. Press <b>Hint</b> for the next logical step.";
 function setFeedback(html, cls) {
   const el = $("feedback");
   const empty = !html;
@@ -1081,7 +1094,7 @@ function resetHintButton() {
 }
 
 async function hint() {
-  if (!puzzle) return;
+  if (!puzzle || DAILY) return; // hints would need the seed the daily withholds
   if (pendingHint) {              // second click reveals the tile we explained
     const step = pendingHint;
     resetHintButton();
@@ -1170,6 +1183,153 @@ $("cblind").addEventListener("change", (e) => {
   try { localStorage.setItem(CBLIND_KEY, on ? "1" : "0"); } catch (e) { /* no storage */ }
 });
 
+// --- Daily challenge (used only when DAILY) ----------------------------------
+// The server is the referee: the payload carries no solution, a signed session
+// token pins the official start time, and a solve is a two-phase exchange —
+// "finish" (verify the table, freeze the server-measured time) then "claim"
+// (attach a display name), so typing a name never costs leaderboard time.
+let dailyDate = null;   // "YYYY-MM-DD" of the loaded puzzle
+let dailyToken = null;  // signed session token from GET /api/daily
+let dailyResult = null; // {time_ms, result_token} after a verified solve
+
+const playedKey = () => `lg.daily.played.${dailyDate}`;
+function playedName() {
+  try { return localStorage.getItem(playedKey()); } catch (e) { return null; }
+}
+function markPlayed(name) {
+  try { localStorage.setItem(playedKey(), name); } catch (e) { /* no storage */ }
+}
+
+function renderLeaderboard(list, ownRank) {
+  const ol = $("board-list");
+  ol.innerHTML = "";
+  const rows = list || [];
+  $("board-empty").hidden = rows.length > 0;
+  rows.forEach((r, i) => {
+    const li = document.createElement("li");
+    if (ownRank === i + 1) li.className = "own";
+    const name = document.createElement("span");
+    name.className = "board-name";
+    name.textContent = r.name;
+    const time = document.createElement("span");
+    time.className = "board-time";
+    time.textContent = fmtTime(r.time_ms);
+    li.appendChild(name);
+    li.appendChild(time);
+    li.title = r.steps ? `${r.steps} steps` : "";
+    ol.appendChild(li);
+  });
+}
+
+// Submit flow (bound to the repurposed Check button). All-or-nothing: the
+// server only says correct / not correct — mistake locations would leak the
+// answer key one probe at a time.
+async function dailySubmit() {
+  if (!puzzle || !dailyToken) return;
+  if (dailyResult) { showClaim(); return; } // solved already — just re-open the name form
+  const prog = tableProgress();
+  if (!prog.complete) {
+    setFeedback(`Fill in the whole solution table first — <b>${prog.total - prog.filled}</b> to go. The daily is checked all-or-nothing.`, "warn");
+    return;
+  }
+  const labels = prog.rows.map((row) => row.map((it, c) => puzzle.categories[c].items[it]));
+  const btn = $("check");
+  btn.disabled = true;
+  try {
+    const res = await postJSON("/api/daily", {
+      action: "finish",
+      token: dailyToken,
+      rows: labels,
+      steps: history.size(),
+    });
+    if (!res.correct) {
+      setFeedback("Not quite — at least one placement is off. Recheck your deductions and submit again (the clock keeps running).", "bad");
+      return;
+    }
+    dailyResult = res;
+    stopTimer(true);
+    if (playedName()) {
+      setFeedback(`<b>Correct</b> in ${fmtTime(res.time_ms)} — but you've already posted a time today, so the board stands.`, "good");
+    } else {
+      setFeedback(`<b>Solved!</b> Official time <b>${fmtTime(res.time_ms)}</b> — enter a name to join the board.`, "good");
+      showClaim();
+    }
+  } catch (err) {
+    setFeedback(escapeHtml(err.message), "bad");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function showClaim() {
+  if (playedName()) return;
+  $("claim-time").innerHTML = `Verified solve — official time <b>${fmtTime(dailyResult.time_ms)}</b>.`;
+  $("claim-error").hidden = true;
+  $("claim").hidden = false;
+  $("claim-name").focus();
+}
+
+async function claimSpot() {
+  const name = $("claim-name").value.trim();
+  const errEl = $("claim-error");
+  errEl.hidden = true;
+  const btn = $("claim-submit");
+  btn.disabled = true;
+  try {
+    const res = await postJSON("/api/daily", {
+      action: "claim",
+      result_token: dailyResult.result_token,
+      name,
+    });
+    markPlayed(res.name);
+    $("claim").hidden = true;
+    renderLeaderboard(res.leaderboard, res.rank);
+    const spot = res.rank ? `<b>#${res.rank}</b> today` : "On the board";
+    setFeedback(`${spot} — ${fmtTime(res.time_ms)}. Come back tomorrow for a fresh one!`, "good");
+  } catch (err) {
+    errEl.textContent = err.message; // e.g. a rejected name — pick another and retry
+    errEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function loadDaily() {
+  $("error").hidden = true;
+  $("loading").hidden = false;
+  $("loading").textContent = "Fetching today's puzzle…";
+  try {
+    const data = await fetchJSON("/api/daily");
+    dailyDate = data.date;
+    dailyToken = data.token;
+    puzzle = data.puzzle;
+    $("daily-info").textContent = `Puzzle for ${data.date} (UTC)`;
+    $("board-date").textContent = data.date;
+    buildState();
+    render();
+    $("puzzle").hidden = false;
+    fitBoard();
+    startTimer(); // display only — the official clock started server-side
+    renderLeaderboard(data.leaderboard);
+    const prior = playedName();
+    if (prior) {
+      setFeedback(`You've already posted a time today as <b>${escapeHtml(prior)}</b> — replays are just for fun.`, "warn");
+    }
+  } catch (err) {
+    $("error").textContent = err.message;
+    $("error").hidden = false;
+  } finally {
+    $("loading").hidden = true;
+  }
+}
+
+if (DAILY) {
+  $("claim-submit").addEventListener("click", claimSpot);
+  $("claim-name").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); claimSpot(); }
+  });
+}
+
 $("generate").addEventListener("click", generate);
 $("hint").addEventListener("click", hint);
 $("print").addEventListener("click", () => window.print());
@@ -1235,6 +1395,10 @@ window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
 
 (async function init() {
   initColorblind();
+  if (DAILY) {
+    await loadDaily(); // fixed theme/size/difficulty — no pickers to set up
+    return;
+  }
   syncItemOptions();
   loadStoredCustom();
   await loadThemes();

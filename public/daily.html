@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Challenge — Logic Grid Puzzles</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='1' width='6' height='6' rx='1' fill='%23ffc46e'/><rect x='9' y='1' width='6' height='6' rx='1' fill='%23394869'/><rect x='1' y='9' width='6' height='6' rx='1' fill='%23394869'/><rect x='9' y='9' width='6' height='6' rx='1' fill='%23ffc46e'/></svg>" />
+</head>
+<body data-mode="daily">
+  <header>
+    <h1>Daily Challenge</h1>
+    <p class="tagline">One puzzle a day, same for everyone. Solve it, post your time, top the board — <b>no hints, no reveal, one entry per player</b>.</p>
+    <p class="nav-links"><a href="/">Free play</a> · <a href="/guide">How to solve &amp; clue reference</a> · <a href="/builder">Create your own theme</a></p>
+  </header>
+
+  <section class="controls">
+    <span id="daily-info" class="daily-info">Today's puzzle</span>
+    <label class="check" title="Color-blind-friendly palette: blue/orange marks instead of green/red">
+      <input id="cblind" type="checkbox" /> Colorblind
+    </label>
+  </section>
+
+  <!-- Free-play controls app.js expects to exist; the daily fixes them all. -->
+  <div hidden aria-hidden="true">
+    <select id="theme"></select>
+    <input id="theme-file" type="file" accept=".json,application/json" />
+    <select id="difficulty"><option value="hard" selected>Hard</option></select>
+    <select id="categories"><option value="4" selected>4</option></select>
+    <select id="items"><option value="4" selected>4</option></select>
+    <input id="seed" type="number" />
+    <button id="generate"></button>
+    <button id="hint"></button>
+    <button id="reveal"></button>
+  </div>
+
+  <main id="puzzle" hidden>
+    <div class="puzzle-head">
+      <h2 id="p-name"></h2>
+      <p id="p-desc" class="desc"></p>
+      <p class="meta"><span id="p-meta"></span></p>
+    </div>
+
+    <div class="layout">
+      <section class="clues-panel">
+        <h3>Clues</h3>
+        <ol id="clues"></ol>
+      </section>
+
+      <section class="grids-panel">
+        <div class="grid-actions">
+          <button id="undo" title="Undo (Ctrl+Z)" disabled>↶ Undo</button>
+          <button id="redo" title="Redo (Ctrl+Shift+Z)" disabled>↷ Redo</button>
+          <button id="check" class="primary">Submit solution</button>
+          <button id="clear">Clear</button>
+          <button id="print">Print</button>
+          <span id="timer" class="timer" role="timer" aria-live="off" hidden>0.0s</span>
+        </div>
+        <div id="grids"></div>
+      </section>
+
+      <aside class="side-panel">
+        <section id="progress" class="progress" hidden>
+          <h3>Your solution so far <span id="progress-count" class="progress-count"></span></h3>
+          <div id="progress-body"></div>
+        </section>
+
+        <section id="claim" class="claim" hidden>
+          <h3>Claim your spot</h3>
+          <p id="claim-time" class="claim-time"></p>
+          <label>Display name
+            <input id="claim-name" maxlength="20" autocomplete="nickname" placeholder="2–20 characters" />
+          </label>
+          <button id="claim-submit" class="primary">Post my time</button>
+          <p id="claim-error" class="claim-error" hidden></p>
+        </section>
+
+        <section id="board" class="board-panel">
+          <h3>Leaderboard <span id="board-date" class="progress-count"></span></h3>
+          <ol id="board-list" class="board-list"></ol>
+          <p id="board-empty" class="board-empty">No solves yet today — be the first!</p>
+        </section>
+
+        <div id="feedback" class="feedback empty" aria-live="polite"></div>
+      </aside>
+    </div>
+
+    <section id="answer-key" class="answer-key" hidden>
+      <h3>Answer key</h3>
+      <div id="answer-key-body"></div>
+    </section>
+  </main>
+
+  <p id="loading" class="loading">Loading…</p>
+  <p id="error" class="error" hidden></p>
+
+  <footer>
+    <span>Generated server-side in Python · guaranteed unique solution</span>
+    <a class="hire" href="https://zang-labs.vercel.app" target="_blank" rel="noopener">Hire me</a>
+  </footer>
+
+  <script src="/logic.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

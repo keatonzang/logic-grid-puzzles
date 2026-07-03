@@ -587,7 +587,7 @@ footer .hire:hover { opacity: 1; color: var(--accent); }
 /* --- Print: clean black-on-white puzzle + a tear-off answer key page --- */
 @media print {
   body { background: #fff; color: #000; padding: .5rem; }
-  .controls, .grid-actions, #feedback, #progress, footer, .tagline, .nav-links, #loading, #error { display: none !important; }
+  .controls, .grid-actions, #feedback, #progress, #claim, .board-panel, footer, .tagline, .nav-links, #loading, #error { display: none !important; }
   header { margin-bottom: .75rem; }
   header h1 { color: #000; font-size: 1.4rem; }
   #p-name, #p-desc, .meta, .meta code { color: #000; }
@@ -617,3 +617,60 @@ footer .hire:hover { opacity: 1; color: var(--accent); }
   .key-table th, .key-table td { border-color: #000; color: #000; }
   .key-table th { background: #eee; }
 }
+
+/* --- Daily challenge: leaderboard + claim panels (sidebar, /daily only) --- */
+.daily-info {
+  font-size: .8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  align-self: center;
+}
+.board-panel, .claim {
+  margin: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+.board-panel h3, .claim h3 { margin: 0 0 .6rem; font-size: 1rem; display: flex; align-items: baseline; gap: .5rem; }
+.board-list { margin: 0; padding-left: 1.6rem; }
+.board-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .25rem 0;
+  font-size: .88rem;
+  border-bottom: 1px solid var(--panel-2);
+}
+.board-list li:last-child { border-bottom: none; }
+.board-list li::marker { color: var(--muted); font-size: .8rem; }
+.board-list li.own { color: var(--accent); font-weight: 600; }
+.board-list li.own::marker { color: var(--accent); }
+.board-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board-time { font-variant-numeric: tabular-nums; color: var(--muted); flex-shrink: 0; }
+.board-list li.own .board-time { color: var(--accent); }
+.board-empty { margin: .25rem 0 0; font-size: .85rem; color: var(--muted); }
+
+.claim-time { margin: 0 0 .75rem; font-size: .9rem; color: var(--muted); }
+.claim-time b { color: var(--good); }
+.claim label {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  font-size: .8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: .75rem;
+}
+.claim input {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  padding: .5rem .6rem;
+  font-size: .95rem;
+}
+.claim input:focus { outline: none; border-color: var(--accent); }
+.claim-error { margin: .6rem 0 0; font-size: .85rem; color: var(--bad); }

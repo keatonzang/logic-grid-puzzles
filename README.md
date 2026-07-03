@@ -122,6 +122,34 @@ Add a theme by appending a `ThemeSpec` to `THEME_SPECS`. A theme may declare
 rolled in only on the rich tiers (mega and up) with ≥ 4 categories. Every
 ordered clue names its own dimension, so multiple dials stay unambiguous.
 
+### Daily challenge
+
+`/daily` serves one shared puzzle per UTC day (a 4×4 at the hard band, theme
+rotating through the registry) with a per-day leaderboard. Competitive
+integrity is server-side:
+
+- The day's seed is an HMAC of a server secret, and the daily payload ships
+  **no solution and no seed**, so the answer key can't be read out of the
+  network tab or reproduced through `/api/puzzle`.
+- Timing is server-authoritative: `GET /api/daily` issues a signed session
+  token; on submit the server verifies the solution against the regenerated
+  puzzle and measures elapsed time itself. A verified solve returns a signed
+  single-use result token, which the player then exchanges — together with a
+  display name — for a board entry, so typing a name costs no time.
+- Display names are filtered server-side (leet-normalized profanity check);
+  no accounts, no profiles.
+- Simple anti-cheat floors: implausibly fast times and too-few board
+  interactions are rejected, sessions expire, result tokens are single-use
+  (unique constraint), and entries per network per day are capped. Hint,
+  Reveal, and per-cell Check don't exist on the daily.
+
+Scores live in Supabase (`supabase/migrations/`), reached only through
+`api/daily.py` with the service-role key — both tables have RLS enabled with
+no policies, so the browser can never talk to the database directly.
+Configure with env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+`DAILY_SECRET` (any long random string; rotating it re-rolls upcoming
+puzzles and invalidates in-flight sessions).
+
 ## Writing a theme
 
 Themes are plain YAML (or JSON — same shape, no PyYAML needed). All categories
