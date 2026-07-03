@@ -25,6 +25,26 @@ function blankCat() {
 
 const lines = (t) => t.split("\n").map((s) => s.trim()).filter(Boolean);
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const q = (s) => `<span class="q">“${esc(s)}”</span>`;
+// Reference phrases are ALWAYS shown; missing pieces render as blanks that
+// visibly fill in as the user types (never hide the phrase, never fake values).
+const BLANK = '<span class="blank">____</span>';
+const slot = (v) => (v ? esc(v) : BLANK);
+const qh = (html) => `<span class="q">“${html}”</span>`;
+
+// Mirrors the engine's pluraliser (clues._plural): entry -> entries,
+// class -> classes, party -> parties. Enter nouns SINGULAR; clue text
+// pluralises where needed.
+function pluralize(noun) {
+  if (/y$/i.test(noun) && !/[aeiou]y$/i.test(noun)) return noun.slice(0, -1) + "ies";
+  if (/(s|x|z|ch|sh)$/i.test(noun)) return noun + "es";
+  return noun + "s";
+}
+function looksPlural(noun) {
+  const low = noun.toLowerCase();
+  return low.endsWith("s") && !/(ss|us|is)$/.test(low);
+}
 
 // --- doc <-> state -----------------------------------------------------------
 function buildDoc() {
@@ -111,8 +131,6 @@ function cardReads(c, idx) {
     return ["<div class=\"muted\">Add two or more items to preview how clues will read.</div>"];
   }
   const [a, b] = items;
-  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  const q = (s) => `<span class="q">“${esc(s)}”</span>`;
   if (idx === 0) {
     out.push(`<div><b>Named in clues:</b> ${q(a)} — the first category is the subject and reads as itself.</div>`);
   } else {
@@ -145,17 +163,18 @@ function cardReads(c, idx) {
 }
 
 function themeReads() {
-  const noun = $("b-noun").value.trim();
-  const el = $("theme-reads");
+  const el = $("noun-hint");
+  const raw = $("b-noun").value.trim();
   const allItems = cats.flatMap((c) => lines(c.itemsText));
-  if (!noun || allItems.length < 2) {
-    el.hidden = true;
+  const a = allItems[0];
+  const b = allItems[1];
+  if (raw && looksPlural(raw)) {
+    el.innerHTML = `<span class="error">looks plural — enter the singular; clues pluralise it themselves</span>`;
     return;
   }
-  const plural = noun.endsWith("s") ? noun + "es" : noun + "s";
-  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  el.innerHTML = `<div><b>Rows read as:</b> <span class="q">“${esc(allItems[0])} and ${esc(allItems[1])} belong to different ${esc(plural)}.”</span></div>`;
-  el.hidden = false;
+  el.innerHTML =
+    `${qh(`the ${slot(raw)} with ${slot(b)}`)} · ` +
+    `${qh(`${slot(a)} and ${slot(b)} belong to different ${raw ? esc(pluralize(raw)) : BLANK}.`)}`;
 }
 
 // --- Rendering ----------------------------------------------------------------
@@ -173,8 +192,9 @@ function catCard(c, idx) {
     </div>
     <div class="row">
       <label class="field"><span>Name</span><input data-f="name" type="text" placeholder="Vendor" /></label>
-      <label class="field"><span>Referent (optional)</span><input data-f="referent" type="text" placeholder="the vendor selling {}" />
-        <small>Template for naming a row by this category's item — <code>{}</code> is the item.</small></label>
+      <label class="field"><span>Referent (optional)</span>
+        <small class="hint-above" data-role="ref-hint"></small>
+        <input data-f="referent" type="text" placeholder="the vendor selling {}" /></label>
     </div>
     <label class="field"><span>Items — one per line (every category needs the same count; labels unique across the whole theme)</span>
       <textarea data-f="itemsText" placeholder="Mei&#10;Omar&#10;Petra&#10;Quinn"></textarea></label>
@@ -183,6 +203,7 @@ function catCard(c, idx) {
     <div class="ordered-extra" hidden>
       <label class="field"><span>Values — one number per line, ascending, matching the items</span>
         <textarea data-f="valuesText" placeholder="10&#10;20&#10;30&#10;40"></textarea></label>
+      <small class="hint-above" data-role="amount-hint"></small>
       <div class="row">
         <label class="field"><span>Unit prefix (optional)</span><input data-f="unit" type="text" placeholder="$" /></label>
         <label class="field"><span>Unit suffix (optional)</span><input data-f="unitSuffix" type="text" placeholder=" coins" /></label>
@@ -195,7 +216,8 @@ function catCard(c, idx) {
             <option value="pinned">Pinned — I list who's in each group</option>
             <option value="random">Open — anyone; dealt fresh each puzzle</option>
           </select></label>
-        <label class="field"><span>Group noun</span>
+        <label class="field"><span>Group noun — what ONE group is called (singular)</span>
+          <small class="hint-above" data-role="gnoun-hint"></small>
           <input data-f="groupNoun" type="text" placeholder="row" /></label>
       </div>
       <label class="field"><span data-role="groups-label">Groups (optional) — “Label: item, item” per line; unlocks hierarchy clues</span>
@@ -216,6 +238,39 @@ function catCard(c, idx) {
   };
   const syncReads = () => {
     card.querySelector('[data-role="reads"]').innerHTML = cardReads(c, idx).join("");
+    const noun = $("b-noun").value.trim() || "entry";
+    const items = lines(c.itemsText);
+    const item = items[0] || "Lanterns";
+
+    // Each hint sits directly above its field and shows ONLY the phrase that
+    // field controls, so cause and effect stay obvious while typing.
+    const refEl = card.querySelector('[data-role="ref-hint"]');
+    const ref = c.referent.trim();
+    const rawNoun = $("b-noun").value.trim();
+    const item0 = items[0];
+    if (idx === 0) {
+      refEl.innerHTML = `${qh(slot(item0))} — the subject reads as itself; referent ignored`;
+    } else if (!ref) {
+      refEl.innerHTML = `${qh(`the ${slot(rawNoun)} with ${slot(item0)}`)} (default)`;
+    } else if (!ref.includes("{}")) {
+      refEl.innerHTML = `<span class="error">needs {} where the item goes — e.g. “the vendor selling {}”</span>`;
+    } else {
+      refEl.innerHTML = qh(esc(ref).replace("{}", slot(item0)));
+    }
+
+    const amtEl = card.querySelector('[data-role="amount-hint"]');
+    const vals = lines(c.valuesText).map(Number);
+    const ok = vals.length >= 2 && vals.every(Number.isFinite);
+    const gapHtml = ok ? String(Math.abs(vals[1] - vals[0])) : BLANK;
+    amtEl.innerHTML = qh(`…is exactly ${esc(c.unit)}${gapHtml}${esc(c.unitSuffix)} more than…`);
+
+    const gEl = card.querySelector('[data-role="gnoun-hint"]');
+    const gn = c.groupNoun.trim();
+    if (gn && looksPlural(gn)) {
+      gEl.innerHTML = `<span class="error">looks plural — use the singular</span>`;
+    } else {
+      gEl.innerHTML = `${qh(`…are in the same ${slot(gn)}`)}${gn ? "" : " (defaults to “group”)"}`;
+    }
   };
   for (const el of card.querySelectorAll("[data-f]")) {
     const f = el.dataset.f;
@@ -303,7 +358,7 @@ function onEdit() {
     $("b-status").textContent = "Start typing — the file and phrasing previews build as you go.";
     return;
   }
-  const probs = localProblems(doc);
+  const probs = [...new Set(localProblems(doc))];
   err.hidden = probs.length === 0;
   err.textContent = probs.join("\n");
   $("b-status").textContent = probs.length ? "" : "Looks consistent — try a preview, then download.";

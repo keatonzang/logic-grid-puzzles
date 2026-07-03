@@ -176,6 +176,8 @@ def _semantic_screen(theme, X, rng, clues: list) -> list:
         if isinstance(c, Positive):
             kept.append(c)  # positives pin the solution; uniqueness of the full pool needs them
             continue
+        if not c.holds(X):
+            continue  # false under the true solution: a sampler bug — never poison the pool
         sig = 0
         for i, s in enumerate(sols):
             if c.holds(s):
@@ -310,7 +312,6 @@ def build_clue_pool(
 
         rank = {e: X[e][cn] for e in range(n)}            # item index == rank
         by_rank = sorted(range(n), key=lambda e: rank[e])  # entities low -> high
-        step = cat.values[1] - cat.values[0] if cat.values and n >= 2 else 1
 
         for e1 in range(n):  # higher-than for every ordered pair
             for e2 in range(n):
@@ -340,24 +341,30 @@ def build_clue_pool(
                 comparisons.append(Between(cn, a, b, c))
 
         if cat.values is not None:
+            # Deltas come from the ACTUAL value gaps, never step-times-rank:
+            # registry themes space values evenly, but custom themes may not
+            # ("9 am, 10 am, 1 pm, 2 pm"), and a step-based delta can then
+            # understate the true gap and emit a clue that is FALSE under X.
+            span = cat.values[-1] - cat.values[0]  # full value range
             for e1 in range(n):
                 for e2 in range(n):
                     if e1 == e2:
                         continue
                     m = rank[e1] - rank[e2]
-                    # at-least-apart / at-least-away: a loose multiple of the
-                    # (even) step, >= 2 steps so it differs from "more than".
-                    if m >= 2:
+                    gv = cat.values[rank[e1]] - cat.values[rank[e2]]  # true value gap
+                    # at-least-apart / at-least-away: a loose bound at or below
+                    # the true gap, >= 2 so it differs from plain "more than".
+                    if m >= 2 and gv >= 2:
                         a, b = refs_for([e1, e2])
-                        delta = step * rng.randint(2, m)
+                        delta = rng.randint(2, gv)
                         comparisons.append(AtLeastApart(cn, a, b, delta, cat.values))  # directional
                         comparisons.append(AbsApart(cn, a, b, delta, True, cat.values))  # symmetric
                     # at-most-away: |gap| <= delta, with delta >= the true gap but
-                    # below the full range, so it bounds the two items *close*.
-                    g = abs(m)
-                    if e1 < e2 and 1 <= g <= n - 2:
+                    # below the full span, so it bounds the two items *close*.
+                    g = abs(gv)
+                    if e1 < e2 and 1 <= g <= span - 1:
                         a, b = refs_for([e1, e2])
-                        delta = step * rng.randint(g, n - 2)
+                        delta = rng.randint(g, span - 1)
                         comparisons.append(AbsApart(cn, a, b, delta, False, cat.values))
 
         for c in range(n):  # less/more than both of two others

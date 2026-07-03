@@ -195,3 +195,46 @@ def test_open_groups_validation():
     pay = build_payload(seed=2, difficulty="normal", theme_doc=tiny)
     toy = next(c for c in pay["categories"] if c["name"] == "Toy")
     assert not toy.get("groups")
+
+
+def recital_doc() -> dict:
+    # UNEVENLY-spaced values + a grouped ORDERED category — both legal for
+    # custom themes; registry themes never exercise either.
+    return {
+        "name": "Recital Day", "description": "", "entity_noun": "slot",
+        "categories": [
+            {"name": "Student", "items": ["Ana", "Ben", "Cleo", "Dmitri"]},
+            {"name": "Piece", "items": ["Etude", "Nocturne", "Prelude", "Waltz"]},
+            {"name": "Time", "items": ["9 am", "10 am", "1 pm", "2 pm"],
+             "ordered": True, "values": [9, 10, 13, 14],
+             "group_noun": "session",
+             "groups": [{"label": "Morning", "items": ["9 am", "10 am"]},
+                        {"label": "Afternoon", "items": ["1 pm", "2 pm"]}]},
+        ],
+    }
+
+
+def test_uneven_values_and_grouped_ordered_category():
+    # Regression: the at-least/at-most-apart samplers once derived deltas from
+    # step * rank-gap (assuming even spacing) and emitted clues FALSE under X,
+    # crashing generation ("clue pool failed to yield a unique solution").
+    for seed in (3, 7, 11):
+        p = build_payload(seed=seed, difficulty="hard", theme_doc=recital_doc())
+        assert p["difficulty"] in ("normal", "hard", "mega", "giga", "tera")
+        assert p["clues"]
+
+
+def test_uneven_value_pool_is_all_true_and_keeps_apart_clues():
+    from logicgrid.clues import AbsApart, AtLeastApart
+    from logicgrid.generate import build_clue_pool, random_solution
+    import random
+
+    theme = theme_from_dict(recital_doc())
+    seen_apart = 0
+    for seed in range(6):
+        rng = random.Random(seed)
+        X = random_solution(theme, rng)
+        pool = build_clue_pool(theme, X, rng, include_sequential=True, enable_groups=True)
+        assert all(c.holds(X) for c in pool)
+        seen_apart += sum(isinstance(c, (AbsApart, AtLeastApart)) for c in pool)
+    assert seen_apart, "apart-style comparisons should survive with uneven values"

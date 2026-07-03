@@ -34,6 +34,9 @@
     #preview-clues li { margin-bottom: .35rem; }
     .ok { color: #7dd97d; }
     .muted { opacity: .65; font-size: .9rem; }
+    .hint-above { display: block; margin: .1rem 0 .3rem; font-size: .82rem; opacity: .8; min-height: 1.1em; }
+    .hint-above .q { color: #a8c4ff; }
+    .blank { opacity: .45; letter-spacing: 1px; }
     .reads { border: 1px dashed var(--border, #2a3350); border-radius: 8px; padding: .55rem .7rem; margin-top: .6rem; font-size: .88rem; }
     .reads b { opacity: .8; font-weight: 600; }
     .reads div { margin: .15rem 0; }
@@ -59,10 +62,10 @@
         <label class="field"><span>Description (shown under the title)</span>
           <textarea id="b-desc" placeholder="Four vendors set up stalls at the night market, each selling different wares from a numbered pitch…"></textarea>
         </label>
-        <label class="field"><span>Entity noun — what one row of the solution is</span>
+        <label class="field"><span>Entity noun — what ONE row is called (singular: “stall”, “order”, “suspect”)</span>
+          <small class="hint-above" id="noun-hint"></small>
           <input id="b-noun" type="text" placeholder="stall" />
         </label>
-        <div id="theme-reads" class="reads" hidden></div>
       </section>
 
       <section class="card">
