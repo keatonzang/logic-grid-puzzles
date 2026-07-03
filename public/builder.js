@@ -198,6 +198,7 @@ function catCard(c, idx) {
     </div>
     <label class="field"><span>Items — one per line (every category needs the same count; labels unique across the whole theme)</span>
       <textarea data-f="itemsText" placeholder="Mei&#10;Omar&#10;Petra&#10;Quinn"></textarea></label>
+    <small class="hint-above" data-role="plural-hint"></small>
     <label class="inline-check"><input data-f="plural" type="checkbox" /> plural name (“Earnings”)</label>
     <label class="inline-check"><input data-f="ordered" type="checkbox" /> ordered / numeric</label>
     <div class="ordered-extra" hidden>
@@ -244,19 +245,31 @@ function catCard(c, idx) {
 
     // Each hint sits directly above its field and shows ONLY the phrase that
     // field controls, so cause and effect stay obvious while typing.
+    // Referent: a full sample clue (a basic "goes with" link) so the effect of
+    // the template is unmistakable. The other side of the link is the subject's
+    // first item (or, on the subject card itself, the next category's).
     const refEl = card.querySelector('[data-role="ref-hint"]');
     const ref = c.referent.trim();
     const rawNoun = $("b-noun").value.trim();
     const item0 = items[0];
+    const subjItem = lines(cats[0] ? cats[0].itemsText : "")[0];
+    const other = idx === 0 ? lines(cats[1] ? cats[1].itemsText : "")[0] : subjItem;
     if (idx === 0) {
-      refEl.innerHTML = `${qh(slot(item0))} — the subject reads as itself; referent ignored`;
+      refEl.innerHTML = `${qh(`${slot(item0)} goes with ${slot(other)}.`)} — the subject reads as itself; referent ignored`;
     } else if (!ref) {
-      refEl.innerHTML = `${qh(`the ${slot(rawNoun)} with ${slot(item0)}`)} (default)`;
+      refEl.innerHTML = `${qh(`The ${slot(rawNoun)} with ${slot(item0)} goes with ${slot(other)}.`)} (default naming)`;
     } else if (!ref.includes("{}")) {
       refEl.innerHTML = `<span class="error">needs {} where the item goes — e.g. “the vendor selling {}”</span>`;
     } else {
-      refEl.innerHTML = qh(esc(ref).replace("{}", slot(item0)));
+      refEl.innerHTML = qh(`${esc(cap(ref)).replace("{}", slot(item0))} goes with ${slot(other)}.`);
     }
+
+    // Plurality: how the category name agrees in comparison clue text.
+    const plEl = card.querySelector('[data-role="plural-hint"]');
+    const nm = c.name.trim().toLowerCase();
+    plEl.innerHTML =
+      `${qh(`…${slot(nm)} ${c.plural ? "are" : "is"} higher than…`)} · ` +
+      `${qh(`${c.plural ? "" : "a "}higher ${slot(nm)}`)}`;
 
     const amtEl = card.querySelector('[data-role="amount-hint"]');
     const vals = lines(c.valuesText).map(Number);
