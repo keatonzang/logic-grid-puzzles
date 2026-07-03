@@ -32,30 +32,71 @@ from datetime import datetime as _dt
 
 from .webapi import _MAX_SEED, build_payload, list_themes
 
-# The daily is one fixed shape so times are comparable: a 4x4 at the "hard"
-# band (forward clue logic, never a contradiction) — meaty enough to race,
-# approachable enough that a first-timer can finish. The theme rotates
+# The daily follows a weekday schedule so times are comparable within a
+# weekday while the week as a whole has real variety: two beginner days, a
+# mid-week mega ramp, and a heavy weekend. Shapes are (band, categories,
+# items-per-category). Friday is the "second wind": the first giga of the
+# week on the smallest grid — full contradiction logic without the slog.
+# Monday's beginner grid goes the other way, wide and shallow (3 categories,
+# 5 entities), so even the easy days don't feel same-y. The theme rotates
 # through the registry so consecutive days feel different.
-DAILY_DIFFICULTY = "hard"
-DAILY_ITEMS = 4
-DAILY_CATEGORIES = 4
+WEEKDAY_SCHEDULE = {
+    0: ("normal", 3, 5),  # Mon — speed race on a wide, shallow grid
+    1: ("hard", 4, 4),    # Tue — the classic daily shape
+    2: ("mega", 4, 4),    # Wed — first contradictions
+    3: ("mega", 5, 4),    # Thu — same logic, bigger board
+    4: ("giga", 5, 3),    # Fri — second wind: deep logic, tiny grid
+    5: ("giga", 5, 4),    # Sat — the weekend main event
+    6: ("tera", 4, 4),    # Sun — nested what-ifs
+}
+
+
+def daily_config(day: date) -> tuple[str, int, int]:
+    """(difficulty, categories, items) for a calendar day."""
+    return WEEKDAY_SCHEDULE[day.weekday()]
+
 
 # Generation is generate-and-grade, so a given seed may measure off-band. We
 # walk a deterministic chain of candidate seeds and take the first that
-# grades exactly DAILY_DIFFICULTY, falling back to the closest band if the
-# chain is exhausted (mirrors the web app's own re-roll behavior).
+# grades exactly on-band, falling back to the closest band if the chain is
+# exhausted (mirrors the web app's own re-roll behavior).
 SEED_TRIES = 8
+# Heavy shapes take seconds-to-minutes per build, and the first uncached
+# request of a day pays for the whole walk — cap it so a serverless
+# invocation can't time out. In production the walk almost never runs in a
+# request at all: the warm-daily workflow (scripts/warm_daily.py, cron just
+# after UTC midnight) does the full unbudgeted walk and caches the result,
+# so this budget is the degraded path when the warmer hasn't run. When the
+# walk is cut short the best candidate so far is used; the winner's seed is
+# cached on first build, so every later request converges regardless.
+WALK_BUDGET_S = 20.0
 _BANDS = ["normal", "hard", "mega", "giga", "tera"]
 
 # --- Anti-cheat floors (deliberately simple; see docs in the PR) -----------
-# Nobody legitimately solves a 4x4 hard grid in under this — it's below the
-# time needed to *read* the clues. Catches answer paste-ins posting absurd times.
-MIN_SOLVE_MS = 45_000
+# Nobody legitimately solves a grid faster than its clues can be read.
+# Catches answer paste-ins posting absurd times. Scaled by band (harder
+# logic = more reading and testing) and by table size relative to the
+# classic 4x4's 12 solution cells. Every scheduled shape stays well under
+# two minutes so honest speedruns are never at risk.
+_BAND_FLOOR_MS = {
+    "normal": 30_000,
+    "hard": 45_000,
+    "mega": 60_000,
+    "giga": 75_000,
+    "tera": 90_000,
+}
+
+
+def min_solve_ms(band: str, items: int, categories: int) -> int:
+    cells = items * (categories - 1)
+    return int(_BAND_FLOOR_MS.get(band, 45_000) * cells / 12)
+
+
 # A session older than this can't submit (also bounds token replay windows).
 MAX_SOLVE_MS = 12 * 60 * 60 * 1000
 # Fewer board interactions than the solution table has cells means the grid
 # was never actually worked: every entity needs (k-1) placed links.
-def min_steps(items: int = DAILY_ITEMS, categories: int = DAILY_CATEGORIES) -> int:
+def min_steps(items: int, categories: int) -> int:
     return items * (categories - 1)
 
 # A result token must be claimed reasonably promptly after the solve.
@@ -82,30 +123,38 @@ def candidate_seed(day: date, secret: str, k: int) -> int:
     return int.from_bytes(digest[:8], "big") % _MAX_SEED
 
 
-def build_daily(day: date, secret: str, seed: int | None = None) -> tuple[dict, int]:
+def build_daily(day: date, secret: str, seed: int | None = None,
+                budget_s: float | None = WALK_BUDGET_S) -> tuple[dict, int]:
     """Build the day's full payload (solution included — callers strip it).
 
     With ``seed`` (the cached choice from the store) the puzzle is rebuilt
     directly. Without it, walk the candidate chain for a band match; the walk
     is deterministic in (day, secret), so even with no store every request
-    converges on the same puzzle.
+    converges on the same puzzle. (The only exception: if WALK_BUDGET_S cuts
+    a walk short, machines of different speeds could pick different
+    fallbacks — in production the store caches the first winner's seed, so
+    this never surfaces to players.)
     """
+    difficulty, categories, items = daily_config(day)
     theme = daily_theme(day)
     kwargs = dict(
-        difficulty=DAILY_DIFFICULTY,
-        items=DAILY_ITEMS,
-        categories=DAILY_CATEGORIES,
+        difficulty=difficulty,
+        items=items,
+        categories=categories,
         theme=theme,
     )
     if seed is not None:
         return build_payload(seed=seed, **kwargs), seed
 
-    want = _BANDS.index(DAILY_DIFFICULTY)
+    want = _BANDS.index(difficulty)
     best: tuple[dict, int] | None = None
+    t0 = time.monotonic()
     for k in range(SEED_TRIES):
+        if best is not None and budget_s is not None and time.monotonic() - t0 > budget_s:
+            break
         cand_seed = candidate_seed(day, secret, k)
         payload = build_payload(seed=cand_seed, **kwargs)
-        if payload["difficulty"] == DAILY_DIFFICULTY:
+        if payload["difficulty"] == difficulty:
             return payload, cand_seed
         if best is None or (
             abs(_BANDS.index(payload["difficulty"]) - want)

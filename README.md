@@ -124,9 +124,23 @@ ordered clue names its own dimension, so multiple dials stay unambiguous.
 
 ### Daily challenge
 
-`/daily` serves one shared puzzle per UTC day (a 4×4 at the hard band, theme
-rotating through the registry) with a per-day leaderboard. Competitive
-integrity is server-side:
+`/daily` serves one shared puzzle per UTC day with a per-day leaderboard.
+The shape follows a weekday schedule (theme rotating through the registry),
+so times are comparable within a weekday while the week has real variety —
+two beginner days, a mid-week mega ramp, a heavy weekend, and a Friday
+"second wind": the week's first giga on the smallest grid.
+
+| Day | Band | Grid (categories × items) |
+| --- | --- | --- |
+| Mon | normal | 3 × 5 (wide and shallow — a speed race) |
+| Tue | hard | 4 × 4 |
+| Wed | mega | 4 × 4 |
+| Thu | mega | 5 × 4 |
+| Fri | giga | 5 × 3 (second wind: deep logic, tiny grid) |
+| Sat | giga | 5 × 4 |
+| Sun | tera | 4 × 4 |
+
+Competitive integrity is server-side:
 
 - The day's seed is an HMAC of a server secret, and the daily payload ships
   **no solution and no seed**, so the answer key can't be read out of the
@@ -139,24 +153,22 @@ integrity is server-side:
   returns a signed single-use result token, which the player then exchanges —
   together with a display name — for a board entry, so typing a name (or
   signing in) costs no time.
-- Anyone can play; **posting a time requires an account** (Supabase Auth,
-  email + password, auto-confirmed — no emails sent). The API resolves the
-  access token server-side and a unique `(day, user_id)` index enforces one
-  score per account per day. No profiles beyond that; display names are
-  still chosen per solve and filtered server-side (leet-normalized
-  profanity check).
+- Anyone can play and anyone can post — no account needed. Display names
+  are chosen per solve and filtered server-side (leet-normalized profanity
+  check).
 - Simple anti-cheat floors: implausibly fast times and too-few board
-  interactions are rejected, sessions expire, result tokens are single-use
-  (unique constraint), and entries per network per day are capped. Hint,
-  Reveal, and per-cell Check don't exist on the daily.
+  interactions are rejected (both floors scale with the day's band and grid
+  size), sessions expire, result tokens are single-use (unique constraint),
+  and entries per network per day are capped. Hint, Reveal, and per-cell
+  Check don't exist on the daily.
 
 Scores live in Supabase (`supabase/migrations/`), reached only through
 `api/daily.py` with the service-role key — both tables have RLS enabled with
-no policies, so the browser can never talk to the database directly (the
-anon key it receives is only good for the auth endpoints). Configure with
-env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`,
-`DAILY_SECRET` (any long random string; rotating it re-rolls upcoming
-puzzles and invalidates in-flight sessions).
+no policies, and no key of any kind is shipped to the browser, so it can
+never talk to the database directly. Configure with env vars:
+`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `DAILY_SECRET` (any long
+random string; rotating it re-rolls upcoming puzzles and invalidates
+in-flight sessions).
 
 ## Writing a theme
 

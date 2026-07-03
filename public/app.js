@@ -178,11 +178,11 @@ async function fetchJSON(url) {
   return readJSON(await fetch(url));
 }
 
-async function postJSON(url, body, headers) {
+async function postJSON(url, body) {
   return readJSON(
     await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(headers || {}) },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }),
   );
@@ -1217,132 +1217,8 @@ function markPlayed(name) {
   try { localStorage.setItem(playedKey(), name); } catch (e) { /* no storage */ }
 }
 
-// --- Supabase Auth (email + password, via plain GoTrue REST) -----------------
-// Posting a time requires an account: the server verifies the access token and
-// the DB allows one score per account per day. The anon key arrives with the
-// puzzle payload and is public by design (RLS keeps it away from every table);
-// it only lets the browser talk to the auth endpoints.
-const AUTH_STORE = "lg.daily.auth";
 const NAME_STORE = "lg.daily.name";
-let authCfg = null;     // {url, anon_key} from GET /api/daily
-let authSession = null; // {access_token, refresh_token, expires_at, email}
-
-function loadAuthSession() {
-  try {
-    const raw = localStorage.getItem(AUTH_STORE);
-    if (raw) authSession = JSON.parse(raw);
-  } catch (e) { /* blocked storage or bad JSON — stay signed out */ }
-}
-
-function saveAuthSession(sess) {
-  authSession = sess;
-  try {
-    if (sess) localStorage.setItem(AUTH_STORE, JSON.stringify(sess));
-    else localStorage.removeItem(AUTH_STORE);
-  } catch (e) { /* no storage — the session just won't survive a reload */ }
-}
-
-// GoTrue error bodies vary by version ({error_description} / {msg} / {error}).
-async function authRequest(path, body) {
-  const res = await fetch(`${authCfg.url}/auth/v1/${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", apikey: authCfg.anon_key },
-    body: JSON.stringify(body),
-  });
-  let data = {};
-  try { data = await res.json(); } catch (e) { /* non-JSON error page */ }
-  if (!res.ok) {
-    throw new Error(data.error_description || data.msg || data.error || `Sign-in failed (${res.status})`);
-  }
-  return data;
-}
-
-function sessionFrom(data) {
-  if (!data || !data.access_token) return null;
-  return {
-    access_token: data.access_token,
-    refresh_token: data.refresh_token,
-    expires_at: Date.now() + (data.expires_in || 3600) * 1000,
-    email: (data.user && data.user.email) || "",
-  };
-}
-
-// A usable access token, refreshing (or clearing) a stale session as needed.
-async function freshAccessToken() {
-  if (!authSession || !authCfg) return null;
-  if (authSession.expires_at - Date.now() > 60_000) return authSession.access_token;
-  try {
-    const data = await authRequest("token?grant_type=refresh_token", {
-      refresh_token: authSession.refresh_token,
-    });
-    saveAuthSession(sessionFrom(data));
-    return authSession && authSession.access_token;
-  } catch (e) {
-    saveAuthSession(null); // refresh rejected — sign-in required again
-    return null;
-  }
-}
-
-async function signIn(email, password) {
-  const data = await authRequest("token?grant_type=password", { email, password });
-  saveAuthSession(sessionFrom(data));
-}
-
-async function signUp(email, password) {
-  const data = await authRequest("signup", { email, password });
-  const sess = sessionFrom(data);
-  if (sess) { saveAuthSession(sess); return; }
-  await signIn(email, password); // e.g. an already-registered address
-}
-
-function signOut() {
-  saveAuthSession(null);
-  updateClaimView();
-}
-
-// Swap the claim panel between its two states: sign-in form or name form.
-function updateClaimView() {
-  const authed = !!authSession;
-  $("claim-auth").hidden = authed;
-  $("claim-post").hidden = !authed;
-  if (authed) {
-    $("auth-status").innerHTML = "";
-    const label = document.createElement("span");
-    label.textContent = `Signed in as ${authSession.email || "your account"} · `;
-    const out = document.createElement("a");
-    out.href = "#";
-    out.textContent = "sign out";
-    out.addEventListener("click", (e) => { e.preventDefault(); signOut(); });
-    $("auth-status").appendChild(label);
-    $("auth-status").appendChild(out);
-  }
-}
-
-async function handleAuth(kind) {
-  const email = $("auth-email").value.trim();
-  const password = $("auth-password").value;
-  const errEl = $("claim-error");
-  errEl.hidden = true;
-  if (!email || !password) {
-    errEl.textContent = "Enter an email and a password.";
-    errEl.hidden = false;
-    return;
-  }
-  const btn = $(kind === "signup" ? "auth-signup" : "auth-signin");
-  btn.disabled = true;
-  try {
-    if (kind === "signup") await signUp(email, password);
-    else await signIn(email, password);
-    $("auth-password").value = "";
-    updateClaimView();
-    $("claim-name").focus();
-  } catch (err) {
-    errEl.textContent = err.message;
-    errEl.hidden = false;
-  } finally {
-    btn.disabled = false;
-  }
-}
+let boardAvailable = false; // GET /api/daily returned a leaderboard (store is up)
 
 function renderLeaderboard(list, ownRank) {
   const ol = $("board-list");
@@ -1411,16 +1287,15 @@ async function dailySubmit() {
 
 function showClaim() {
   if (playedName()) return;
-  if (!authCfg) {
+  if (!boardAvailable) {
     setFeedback("Solved and verified — but the leaderboard isn't available right now.", "warn");
     return;
   }
   $("claim-time").innerHTML = `Verified solve — official time <b>${fmtTime(dailyResult.time_ms)}</b>.`;
   $("claim-error").hidden = true;
   try { $("claim-name").value = localStorage.getItem(NAME_STORE) || $("claim-name").value; } catch (e) { /* fine */ }
-  updateClaimView();
   $("claim").hidden = false;
-  (authSession ? $("claim-name") : $("auth-email")).focus();
+  $("claim-name").focus();
 }
 
 async function claimSpot() {
@@ -1430,13 +1305,11 @@ async function claimSpot() {
   const btn = $("claim-submit");
   btn.disabled = true;
   try {
-    const access = await freshAccessToken();
-    if (!access) { updateClaimView(); return; } // session lapsed — back to sign-in
-    const res = await postJSON(
-      "/api/daily",
-      { action: "claim", result_token: dailyResult.result_token, name },
-      { Authorization: `Bearer ${access}` },
-    );
+    const res = await postJSON("/api/daily", {
+      action: "claim",
+      result_token: dailyResult.result_token,
+      name,
+    });
     markPlayed(res.name);
     try { localStorage.setItem(NAME_STORE, res.name); } catch (e) { /* fine */ }
     $("claim").hidden = true;
@@ -1444,9 +1317,8 @@ async function claimSpot() {
     const spot = res.rank ? `<b>#${res.rank}</b> today` : "On the board";
     setFeedback(`${spot} — ${fmtTime(res.time_ms)}. Come back tomorrow for a fresh one!`, "good");
   } catch (err) {
-    errEl.textContent = err.message; // e.g. a rejected name, or "already posted today"
+    errEl.textContent = err.message; // e.g. a rejected name, or a replayed token
     errEl.hidden = false;
-    if (/sign in/i.test(err.message)) { saveAuthSession(null); updateClaimView(); }
   } finally {
     btn.disabled = false;
   }
@@ -1486,8 +1358,8 @@ async function loadDaily() {
     const data = await fetchJSON("/api/daily");
     dailyDate = data.date;
     dailyToken = data.token;
-    authCfg = data.auth;
-    loadAuthSession();
+    // null board = store unavailable (an empty day is [] — still a board)
+    boardAvailable = data.leaderboard !== null && data.leaderboard !== undefined;
     puzzle = data.puzzle;
     $("daily-info").textContent = `Puzzle for ${data.date} (UTC)`;
     $("board-date").textContent = data.date;
@@ -1514,11 +1386,6 @@ if (DAILY) {
   $("claim-submit").addEventListener("click", claimSpot);
   $("claim-name").addEventListener("keydown", (e) => {
     if (e.key === "Enter") { e.preventDefault(); claimSpot(); }
-  });
-  $("auth-signin").addEventListener("click", () => handleAuth("signin"));
-  $("auth-signup").addEventListener("click", () => handleAuth("signup"));
-  $("auth-password").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); handleAuth("signin"); }
   });
 }
 

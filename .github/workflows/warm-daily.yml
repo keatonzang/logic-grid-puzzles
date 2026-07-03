@@ -1,0 +1,28 @@
+# Pre-generate the day's puzzle right after the UTC rollover and cache it in
+# Supabase. The heavy weekday shapes (mega/giga at 5 categories) take minutes
+# of generate-and-grade — far beyond a serverless request — so the cache is
+# filled here and the API only ever reads it. Idempotent: an already-cached
+# day is a fast no-op. If a run is missed the API falls back to a
+# time-budgeted walk, so the daily degrades instead of going down.
+name: Warm the daily puzzle cache
+
+on:
+  schedule:
+    - cron: "3 0 * * *"  # 00:03 UTC, just after the day rolls
+  workflow_dispatch:
+
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python scripts/warm_daily.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DAILY_SECRET: ${{ secrets.DAILY_SECRET }}

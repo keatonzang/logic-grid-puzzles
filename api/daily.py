@@ -9,9 +9,8 @@
            on success returns the official (server-measured) time and a
            signed single-use result token
     POST /api/daily {"action": "claim", "result_token": ..., "name": "..."}
-        (Authorization: Bearer <supabase auth access token>)
-        -> requires a signed-in account; filters the name, inserts the score
-           (one per account per day), returns rank + fresh board
+        -> filters the name, inserts the score (result tokens are single-use,
+           entries per network per day are capped), returns rank + fresh board
 
 The pure logic lives in ``logicgrid.daily`` (deterministic generation,
 tokens, name filter) and ``logicgrid.dailystore`` (Supabase REST), so this
@@ -104,20 +103,11 @@ def _build_get_response(query: dict, now: float | None = None) -> tuple[int, dic
         board = _board_rows(day) if dailystore.configured() else None
     except dailystore.StoreError:
         board = None
-    # The anon key is public by design (RLS blocks it from every table); the
-    # client only needs it to talk to Supabase Auth for sign-in/sign-up.
-    auth_cfg = None
-    if os.environ.get("SUPABASE_URL") and os.environ.get("SUPABASE_ANON_KEY"):
-        auth_cfg = {
-            "url": os.environ["SUPABASE_URL"].rstrip("/"),
-            "anon_key": os.environ["SUPABASE_ANON_KEY"],
-        }
     return 200, {
         "date": day.isoformat(),
         "token": daily.issue_session(day, secret, now),
         "puzzle": daily.public_daily(payload),
         "leaderboard": board,
-        "auth": auth_cfg,
     }
 
 
@@ -137,7 +127,15 @@ def _finish(body: dict, secret: str, now: float) -> tuple[int, dict]:
         steps = 0  # missing/absurd step counts fail the floor below
     # Anti-cheat floors: a submission faster than the puzzle can be read, or
     # with fewer board interactions than the table has cells, isn't a solve.
-    if elapsed_ms < daily.MIN_SOLVE_MS or steps < daily.min_steps():
+    # Sized from the payload itself — the schedule varies shape by weekday,
+    # and the payload's measured band is what the player actually solved.
+    items = payload.get("items", 4)
+    categories = payload.get("n_categories", 4)
+    band = payload.get("difficulty", "hard")
+    if (
+        elapsed_ms < daily.min_solve_ms(band, items, categories)
+        or steps < daily.min_steps(items, categories)
+    ):
         return 422, {
             "error": "that solve looks implausible, so it can't be posted to the board"
         }
@@ -149,8 +147,7 @@ def _finish(body: dict, secret: str, now: float) -> tuple[int, dict]:
     }
 
 
-def _claim(body: dict, secret: str, now: float, ip: str | None,
-           user_token: str | None) -> tuple[int, dict]:
+def _claim(body: dict, secret: str, now: float, ip: str | None) -> tuple[int, dict]:
     result, err = daily.validate_result(
         daily.verify_token(body.get("result_token", ""), secret), now
     )
@@ -161,12 +158,6 @@ def _claim(body: dict, secret: str, now: float, ip: str | None,
         return 400, {"error": err}
     if not dailystore.configured():
         return 503, {"error": "leaderboard is unavailable right now"}
-    try:
-        user = dailystore.auth_user(user_token or "")
-    except dailystore.StoreError:
-        return 503, {"error": "leaderboard is unavailable right now"}
-    if user is None:
-        return 401, {"error": "sign in to post your time to the board"}
 
     day = daily.date.fromisoformat(result["d"])
     ip_hash = _ip_hash(ip, secret)
@@ -174,13 +165,10 @@ def _claim(body: dict, secret: str, now: float, ip: str | None,
         if ip_hash and dailystore.count_for_ip(day, ip_hash) >= dailystore.MAX_PER_IP:
             return 429, {"error": "this network has posted enough scores for one day"}
         dailystore.insert_score(
-            day, name, result["ms"], result.get("steps") or None, result["sid"],
-            user["id"], ip_hash
+            day, name, result["ms"], result.get("steps") or None, result["sid"], ip_hash
         )
         rows = dailystore.top_scores(day)
-    except dailystore.DuplicateScore as dup:
-        if "daily_scores_day_user" in str(dup):
-            return 409, {"error": "this account already posted a time today"}
+    except dailystore.DuplicateScore:
         return 409, {"error": "this solve is already on the board"}
     except dailystore.StoreError:
         return 503, {"error": "leaderboard is unavailable right now"}
@@ -198,8 +186,7 @@ def _claim(body: dict, secret: str, now: float, ip: str | None,
 
 
 def _build_post_response(body: dict, ip: str | None = None,
-                         now: float | None = None,
-                         user_token: str | None = None) -> tuple[int, dict]:
+                         now: float | None = None) -> tuple[int, dict]:
     if not isinstance(body, dict):
         return 400, {"error": "request body must be a JSON object"}
     secret = _secret()
@@ -211,7 +198,7 @@ def _build_post_response(body: dict, ip: str | None = None,
     if action == "finish":
         return _finish(body, secret, now)
     if action == "claim":
-        return _claim(body, secret, now, ip, user_token)
+        return _claim(body, secret, now, ip)
     return 400, {"error": "action must be 'finish' or 'claim'"}
 
 
@@ -248,16 +235,14 @@ class handler(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             self._send(400, {"error": "invalid JSON body"})
             return
-        auth_header = self.headers.get("Authorization") or ""
-        user_token = auth_header[7:] if auth_header.startswith("Bearer ") else None
-        status, payload = _build_post_response(body, ip=self._client_ip(), user_token=user_token)
+        status, payload = _build_post_response(body, ip=self._client_ip())
         self._send(status, payload)
 
     def do_OPTIONS(self):  # noqa: N802 - CORS preflight for the POST
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
     def log_message(self, *args):  # silence default stderr logging
