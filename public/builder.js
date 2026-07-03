@@ -182,8 +182,12 @@ function lowerFirst(html) {
 // reads" boxes (cardReads) already show the noun in real sample clues, so a
 // second phrase-preview at the top was pure duplication.
 function themeReads() {
-  const el = $("noun-hint");
   const raw = $("b-noun").value.trim();
+  const allItems = cats.flatMap((c) => lines(c.itemsText));
+  $("noun-example").innerHTML =
+    `${qh(`the ${slot(raw)} with ${slot(allItems[1])}`)} · ` +
+    `${qh(`${slot(allItems[0])} and ${slot(allItems[1])} belong to different ${raw ? esc(pluralize(raw)) : BLANK}.`)}`;
+  const el = $("noun-hint");
   if (raw && looksPlural(raw)) {
     el.hidden = false;
     el.textContent = "looks plural — enter the singular; clues pluralise it themselves";
@@ -208,7 +212,7 @@ function catCard(c, idx) {
     </div>
     <div class="row">
       <label class="field"><span>Name</span><input data-f="name" type="text" placeholder="Vendor" /></label>
-      <label class="field"><span>Referent <span class="opt">(optional)</span></span>
+      <label class="field"><span>Referent <span class="opt">(optional) — names a row by its item; {} is the item</span></span>
         <input data-f="referent" type="text" placeholder="the vendor selling {}" /></label>
     </div>
     <label class="field"><span>Items <span class="opt">— one per line, same count in every category, unique across the theme</span></span>
@@ -219,8 +223,8 @@ function catCard(c, idx) {
       <label class="field"><span>Values <span class="opt">— one number per line, ascending, matching the items</span></span>
         <textarea data-f="valuesText" placeholder="10&#10;20&#10;30&#10;40"></textarea></label>
       <div class="row" style="margin-bottom:0">
-        <label class="field"><span>Unit prefix</span><input data-f="unit" type="text" placeholder="$" /></label>
-        <label class="field"><span>Unit suffix</span><input data-f="unitSuffix" type="text" placeholder=" coins" /></label>
+        <label class="field"><span>Unit prefix <span class="opt">(optional)</span></span><input data-f="unit" type="text" placeholder="$" /></label>
+        <label class="field"><span>Unit suffix <span class="opt">(optional)</span></span><input data-f="unitSuffix" type="text" placeholder=" coins" /></label>
       </div>
     </div>
     <div class="groups-extra">

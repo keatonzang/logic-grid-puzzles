@@ -52,6 +52,8 @@
     }
 
     .builder-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin: 1.5rem 0; }
+    /* the standalone toolbar centers; button groups inside cards stay left */
+    .builder-wrap > .builder-actions { justify-content: center; }
     .builder-actions button { padding: .65rem 1.1rem; font-weight: 600; font-size: .9rem; white-space: nowrap; }
     #b-generate { white-space: nowrap; }
 
@@ -78,6 +80,8 @@
     .blank { opacity: .45; letter-spacing: 1px; }
 
     .noun-hint { display: block; margin-top: .4rem; font-size: .82rem; color: var(--bad, #ff6b6b); min-height: 0; }
+    .field-example { display: block; margin-top: .4rem; font-size: .82rem; color: var(--muted, #9aa3c4); }
+    .field-example .q, .field-example .q * { color: #a8c4ff; }
 
     .file-card { margin-top: 1.5rem; }
     .file-card textarea { min-height: 14em; font-family: ui-monospace, monospace; font-size: .8rem; }
@@ -102,6 +106,7 @@
         </label>
         <label class="field"><span>Entity noun <span class="opt">— what ONE row is called (singular: “stall”, “order”, “suspect”)</span></span>
           <input id="b-noun" type="text" placeholder="stall" />
+          <small class="field-example" id="noun-example"></small>
           <small class="noun-hint" id="noun-hint" hidden></small>
         </label>
       </section>
