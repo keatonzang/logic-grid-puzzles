@@ -40,6 +40,7 @@ def theme_from_dict(data: dict) -> Theme:
                 unit=c.get("unit", ""),
                 unit_suffix=c.get("unit_suffix", ""),
                 referent=c.get("referent", ""),
+                compare=tuple(c["compare"]) if c.get("compare") else (),
                 plural=bool(c.get("plural", False)),
                 group_noun=c.get("group_noun", ""),
                 groups=tuple((g["label"], tuple(g["items"])) for g in c.get("groups", [])),
@@ -73,6 +74,8 @@ def theme_to_dict(theme: Theme) -> dict:
             cd["unit_suffix"] = c.unit_suffix
         if c.referent:
             cd["referent"] = c.referent
+        if c.compare:
+            cd["compare"] = list(c.compare)
         if c.plural:
             cd["plural"] = True
         if c.has_groups:

@@ -18,7 +18,9 @@ let cats = [];
 function blankCat() {
   return {
     name: "", itemsText: "", referent: "", plural: false,
-    ordered: false, valuesText: "", unit: "", unitSuffix: "",
+    ordered: false, valueMode: "fixed", valuesText: "",
+    minStart: "", startMax: "", stepsText: "", unit: "", unitSuffix: "",
+    compareMore: "", compareLess: "",
     groupMode: "pinned", groupNoun: "", groupsText: "",
   };
 }
@@ -55,13 +57,27 @@ function buildDoc() {
     categories: [],
   };
   for (const c of cats) {
-    const cd = { name: c.name.trim(), items: lines(c.itemsText) };
+    const randomValues = c.ordered && c.valueMode === "random";
+    const cd = { name: c.name.trim() };
+    if (!randomValues) cd.items = lines(c.itemsText);
     if (c.ordered) {
       cd.ordered = true;
-      const vals = lines(c.valuesText).map(Number);
-      if (vals.length && vals.every((v) => Number.isFinite(v))) cd.values = vals;
+      if (randomValues) {
+        const steps = c.stepsText.split(",").map((x) => Number(x.trim())).filter((x) => Number.isFinite(x) && x > 0);
+        cd.value_spec = {
+          min_start: Number(c.minStart) || 0,
+          start_max: Number(c.startMax) || 0,
+          steps: steps.length ? steps : [1],
+        };
+      } else {
+        const vals = lines(c.valuesText).map(Number);
+        if (vals.length && vals.every((v) => Number.isFinite(v))) cd.values = vals;
+      }
       if (c.unit) cd.unit = c.unit;                 // units keep their spacing
       if (c.unitSuffix) cd.unit_suffix = c.unitSuffix;
+      if (c.compareMore.trim() || c.compareLess.trim()) {
+        cd.compare = [c.compareMore.trim(), c.compareLess.trim()];
+      }
     }
     if (c.referent.trim()) cd.referent = c.referent.trim();
     if (c.plural && c.ordered) cd.plural = true;  // plural only affects comparison text
@@ -99,7 +115,13 @@ function docToState(doc) {
     referent: cd.referent || "",
     plural: !!cd.plural,
     ordered: !!cd.ordered,
+    valueMode: cd.value_spec ? "random" : "fixed",
     valuesText: (cd.values || []).join("\n"),
+    minStart: cd.value_spec ? String(cd.value_spec.min_start ?? "") : "",
+    startMax: cd.value_spec ? String(cd.value_spec.start_max ?? "") : "",
+    stepsText: cd.value_spec ? (cd.value_spec.steps || []).join(", ") : "",
+    compareMore: (cd.compare || [])[0] || "",
+    compareLess: (cd.compare || [])[1] || "",
     unit: cd.unit || "",
     unitSuffix: cd.unit_suffix || "",
     groupMode: cd.group_labels ? "random" : "pinned",
@@ -142,20 +164,40 @@ function cardReads(c, idx) {
   // The other side of the sample link: the subject's first item (or the next
   // category's, on the subject card itself).
   const other = idx === 0 ? lines(cats[1] ? cats[1].itemsText : "")[0] : lines(cats[0] ? cats[0].itemsText : "")[0];
+  const randomVals = c.ordered && c.valueMode === "random";
+  const step0 = randomVals
+    ? c.stepsText.split(",").map((x) => Number(x.trim())).find((x) => Number.isFinite(x) && x > 0)
+    : null;
+  const lo = randomVals && c.minStart.trim() !== "" ? Number(c.minStart) : null;
+  const sample = (i) =>
+    randomVals && lo !== null && Number.isFinite(lo) && step0
+      ? `${c.unit}${lo + i * step0}${c.unitSuffix}`
+      : null;
+  const sampleItem = a || sample(0);
+  const sampleItemB = b || sample(1);
   if (idx === 0) {
     out.push(`<div><b>Named in clues:</b> ${qh(`${slot(a)} goes with ${slot(other)}.`)} — the subject reads as itself.</div>`);
   } else {
-    out.push(`<div><b>Named in clues:</b> ${qh(`${named(a)} goes with ${slot(other)}.`)}${ref ? "" : " (default naming — set a referent to change it)"}</div>`);
+    out.push(`<div><b>Named in clues:</b> ${qh(`${named(sampleItem)} goes with ${slot(other)}.`)}${ref ? "" : " (default naming — set a referent to change it)"}</div>`);
   }
   if (c.ordered) {
     const nm = c.name.trim().toLowerCase();
-    const vals = lines(c.valuesText).map(Number);
-    const ok = vals.length >= 2 && vals.every(Number.isFinite);
-    const amount = `${esc(c.unit)}${ok ? Math.abs(vals[1] - vals[0]) : BLANK}${esc(c.unitSuffix)}`;
+    const random = c.valueMode === "random";
+    const vals = random
+      ? c.stepsText.split(",").map((x) => Number(x.trim())).filter((x) => Number.isFinite(x) && x > 0)
+      : lines(c.valuesText).map(Number);
+    const ok = random ? vals.length >= 1 : vals.length >= 2 && vals.every(Number.isFinite);
+    const gap = random ? vals[0] : ok ? Math.abs(vals[1] - vals[0]) : null;
+    const amount = `${esc(c.unit)}${ok ? gap : BLANK}${esc(c.unitSuffix)}`;
     const verb = c.plural ? "are" : "is";
     const article = c.plural ? "" : "a ";
-    out.push(`<div><b>Comparisons:</b> ${qh(`${named(b)}'s ${slot(nm)} ${verb} exactly ${amount} more than ${lowerFirst(named(a))}.`)}</div>`);
-    out.push(`<div><b>…and:</b> ${qh(`${article}higher ${slot(nm)}`)}${c.plural ? " (plural agreement)" : ""}</div>`);
+    out.push(`<div><b>Comparisons:</b> ${qh(`${named(sampleItemB)}'s ${slot(nm)} ${verb} exactly ${amount} more than ${lowerFirst(named(sampleItem))}.`)}</div>`);
+    const more = c.compareMore.trim() || "higher";
+    out.push(`<div><b>…and:</b> ${qh(`${article}${esc(more)} ${slot(nm)}`)}${c.plural ? " (plural agreement)" : ""}</div>`);
+    if (c.valueMode === "random") {
+      const lo = c.minStart.trim(), hi = c.startMax.trim();
+      out.push(`<div class="muted">Random values: each puzzle rolls a start (${lo || "…"}–${hi || "…"}) and a step, so items like ${qh(`${esc(c.unit)}${lo || BLANK}${esc(c.unitSuffix)}`)} vary per seed.</div>`);
+    }
   }
   const gLines = lines(c.groupsText);
   if (gLines.length) {
@@ -220,11 +262,25 @@ function catCard(c, idx) {
     <label class="inline-check"><input data-f="ordered" type="checkbox" /> Ordered / numeric value</label>
     <div class="ordered-extra" hidden>
       <label class="inline-check" style="margin-bottom:.9rem"><input data-f="plural" type="checkbox" /> Plural name (“Earnings”, “Wages”)</label>
-      <label class="field"><span>Values <span class="opt">— one number per line, ascending, matching the items</span></span>
+      <label class="field"><span>Values</span>
+        <select data-f="valueMode">
+          <option value="fixed">Fixed — I list the items and values</option>
+          <option value="random">Random per puzzle — rolled from a range (varies per seed)</option>
+        </select></label>
+      <label class="field" data-role="fixed-values"><span>Values <span class="opt">— one number per line, ascending, matching the items</span></span>
         <textarea data-f="valuesText" placeholder="10&#10;20&#10;30&#10;40"></textarea></label>
-      <div class="row" style="margin-bottom:0">
+      <div class="row" data-role="random-values" hidden>
+        <label class="field"><span>Start from</span><input data-f="minStart" type="text" inputmode="numeric" placeholder="2" /></label>
+        <label class="field"><span>Start up to</span><input data-f="startMax" type="text" inputmode="numeric" placeholder="12" /></label>
+        <label class="field"><span>Step choices <span class="opt">(comma-separated)</span></span><input data-f="stepsText" type="text" placeholder="1, 2" /></label>
+      </div>
+      <div class="row">
         <label class="field"><span>Unit prefix <span class="opt">(optional)</span></span><input data-f="unit" type="text" placeholder="$" /></label>
         <label class="field"><span>Unit suffix <span class="opt">(optional)</span></span><input data-f="unitSuffix" type="text" placeholder=" coins" /></label>
+      </div>
+      <div class="row" style="margin-bottom:0">
+        <label class="field"><span>“Greater” word <span class="opt">(optional — defaults to “higher”)</span></span><input data-f="compareMore" type="text" placeholder="later" /></label>
+        <label class="field"><span>“Lesser” word <span class="opt">(optional — defaults to “lower”)</span></span><input data-f="compareLess" type="text" placeholder="earlier" /></label>
       </div>
     </div>
     <div class="groups-extra">
@@ -242,6 +298,13 @@ function catCard(c, idx) {
     </div>
     <div class="reads" data-role="reads"></div>
   `;
+  const syncValueMode = () => {
+    const random = c.ordered && c.valueMode === "random";
+    card.querySelector('[data-role="fixed-values"]').hidden = random;
+    card.querySelector('[data-role="random-values"]').hidden = !random;
+    // items are generated from the rolled values in random mode
+    card.querySelector('[data-f="itemsText"]').closest(".field").hidden = random;
+  };
   const syncGroupsLabel = () => {
     const span = card.querySelector('[data-role="groups-label"]');
     const ta = card.querySelector('[data-f="groupsText"]');
@@ -265,16 +328,22 @@ function catCard(c, idx) {
     const f = el.dataset.f;
     if (el.type === "checkbox") {
       el.checked = c[f];
-      el.addEventListener("change", () => {
-        c[f] = el.checked;
-        if (f === "ordered") card.querySelector(".ordered-extra").hidden = !el.checked;
-        onEdit();
-      });
+      el.addEventListener("change", () => { c[f] = el.checked; if (f === "ordered") { card.querySelector(".ordered-extra").hidden = !el.checked; syncValueMode(); } onEdit(); });
     } else {
       el.value = c[f];
-      el.addEventListener("input", () => { c[f] = el.value; if (f === "groupMode") syncGroupsLabel(); onEdit(); });
+      el.addEventListener("input", () => {
+        c[f] = el.value;
+        if (f === "groupMode") syncGroupsLabel();
+        if (f === "valueMode") syncValueMode();
+        onEdit();
+      });
       if (el.tagName === "SELECT") {
-        el.addEventListener("change", () => { c[f] = el.value; syncGroupsLabel(); onEdit(); });
+        el.addEventListener("change", () => {
+          c[f] = el.value;
+          syncGroupsLabel();
+          syncValueMode();
+          onEdit();
+        });
       }
     }
   }
@@ -284,6 +353,7 @@ function catCard(c, idx) {
   card.querySelector('[data-act="down"]').addEventListener("click", () => { [cats[idx + 1], cats[idx]] = [cats[idx], cats[idx + 1]]; renderCats(); onEdit(); });
   card._syncReads = syncReads;
   syncGroupsLabel();
+  syncValueMode();
   syncReads();
   return card;
 }
@@ -305,20 +375,22 @@ function refreshReads() {
 function docIsEmpty(doc) {
   return (
     !$("b-name").value.trim() && !$("b-desc").value.trim() && !$("b-noun").value.trim() &&
-    doc.categories.every((c) => !c.name && !c.items.length)
+    doc.categories.every((c) => !c.name && !(c.items || []).length)
   );
 }
 
 function localProblems(doc) {
   const probs = [];
   if (doc.categories.length < 2) probs.push("A theme needs at least 2 categories.");
-  const counts = doc.categories.map((c) => c.items.length);
+  const listed = doc.categories.filter((c) => !c.value_spec);
+  const counts = listed.map((c) => (c.items || []).length);
   if (counts.length && new Set(counts).size > 1) {
     probs.push(`Every category needs the same number of items (got ${counts.join(", ")}).`);
   }
   if (counts.some((n) => n < 2)) probs.push("Each category needs at least 2 items.");
   if (counts.some((n) => n > 6)) probs.push("Custom themes are capped at 6 items per category.");
-  const all = doc.categories.flatMap((c) => c.items);
+  if (!listed.length) probs.push("At least one category must list its items (they fix the row count).");
+  const all = listed.flatMap((c) => c.items || []);
   const dupes = all.filter((x, i) => all.indexOf(x) !== i);
   if (dupes.length) probs.push(`Item labels must be unique across ALL categories: ${[...new Set(dupes)].join(", ")}.`);
   for (const c of doc.categories) {
@@ -326,8 +398,16 @@ function localProblems(doc) {
     if (c.referent && !c.referent.includes("{}")) {
       probs.push(`“${c.name}”: the referent needs a {} where the item goes (e.g. “the seller of {}”).`);
     }
-    if (c.ordered && c.values && c.values.length !== c.items.length) {
-      probs.push(`“${c.name}”: values (${c.values.length}) must match items (${c.items.length}).`);
+    if (c.ordered && c.values && c.values.length !== (c.items || []).length) {
+      probs.push(`“${c.name}”: values (${c.values.length}) must match items (${(c.items || []).length}).`);
+    }
+    if (c.compare && (!c.compare[0] || !c.compare[1])) {
+      probs.push(`“${c.name}”: comparison words need both the greater and lesser word (e.g. later / earlier).`);
+    }
+    if (c.value_spec) {
+      const v = c.value_spec;
+      if (!(v.min_start <= v.start_max)) probs.push(`“${c.name}”: random values need start-from <= start-up-to.`);
+      if (!v.steps.length || v.steps.some((x) => !(x > 0))) probs.push(`“${c.name}”: step choices must be positive numbers.`);
     }
     if (c.group_labels && c.group_labels.length < 2) {
       probs.push(`“${c.name}”: open groups need at least 2 labels.`);
@@ -341,16 +421,17 @@ function onEdit() {
   const doc = buildDoc();
   $("b-json").value = JSON.stringify(doc, null, 2);
   refreshReads();
+  // Barriers to generation are ALWAYS visible in the Try-it card — a fresh
+  // session lists exactly what the theme still needs instead of staying mute.
   const err = $("b-error");
-  if (docIsEmpty(doc)) {
-    err.hidden = true;
-    $("b-status").textContent = "Start typing — the file and phrasing previews build as you go.";
-    return;
-  }
   const probs = [...new Set(localProblems(doc))];
   err.hidden = probs.length === 0;
-  err.textContent = probs.join("\n");
-  $("b-status").textContent = probs.length ? "" : "Looks consistent — try a preview, then download.";
+  err.textContent = probs.length
+    ? "To generate, this theme still needs:\n" + probs.map((x) => "· " + x).join("\n")
+    : "";
+  $("b-status").textContent = probs.length
+    ? (docIsEmpty(doc) ? "Start typing — the file and phrasing previews build as you go." : "")
+    : "Looks consistent — try a preview, then download.";
 }
 
 // --- Actions --------------------------------------------------------------------

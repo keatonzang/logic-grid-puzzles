@@ -731,17 +731,86 @@ def _resolve_group_labels(theme_doc: dict, rng: random.Random) -> dict:
     return out
 
 
+def _resolve_value_specs(theme_doc: dict, rng: random.Random) -> dict:
+    """Resolve per-category ``value_spec`` (random numeric values — the custom-
+    theme mirror of registry ``NumericSpec``) into concrete items + values.
+
+    An ordered category may declare ``value_spec: {min_start, start_max,
+    steps}`` INSTEAD of explicit items/values: each puzzle rolls a start and a
+    step from the seed rng and generates evenly-spaced values, labelled with
+    the category's unit prefix/suffix — so "exactly N more" stays a relative
+    hint (the gap repeats) and the theme varies between puzzles while staying
+    deterministic per (document, seed). The item count comes from the theme's
+    other categories. Returns a new doc; never mutates the caller's."""
+    cats_in = theme_doc.get("categories")
+    if not isinstance(cats_in, list):
+        return theme_doc
+    n = next(
+        (len(cd["items"]) for cd in cats_in
+         if isinstance(cd, dict) and isinstance(cd.get("items"), list) and cd["items"]),
+        None,
+    )
+    out_cats = []
+    changed = False
+    for cd in cats_in:
+        spec = cd.get("value_spec") if isinstance(cd, dict) else None
+        if spec is None:
+            out_cats.append(cd)
+            continue
+        name = cd.get("name")
+        if not isinstance(spec, dict):
+            raise ValueError(f"category '{name}': value_spec must be an object")
+        if cd.get("items") or cd.get("values"):
+            raise ValueError(
+                f"category '{name}': use value_spec OR explicit items/values, not both"
+            )
+        if not cd.get("ordered"):
+            raise ValueError(f"category '{name}': value_spec requires ordered: true")
+        if n is None:
+            raise ValueError(
+                "value_spec needs at least one category with explicit items "
+                "(they fix the theme's item count)"
+            )
+        try:
+            lo, hi = int(spec["min_start"]), int(spec["start_max"])
+            steps = [int(x) for x in spec["steps"]]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(
+                f"category '{name}': value_spec needs integer min_start and "
+                "start_max plus a steps list of integers"
+            ) from exc
+        if lo > hi:
+            raise ValueError(f"category '{name}': value_spec min_start must be <= start_max")
+        if not steps or any(x <= 0 for x in steps):
+            raise ValueError(f"category '{name}': value_spec steps must be positive integers")
+        step = rng.choice(steps)
+        start = rng.randint(lo, hi)
+        values = [start + i * step for i in range(n)]
+        unit, suffix = cd.get("unit", ""), cd.get("unit_suffix", "")
+        cd = dict(cd)
+        cd.pop("value_spec")
+        cd["items"] = [f"{unit}{v}{suffix}" for v in values]
+        cd["values"] = values
+        out_cats.append(cd)
+        changed = True
+    if not changed:
+        return theme_doc
+    out = dict(theme_doc)
+    out["categories"] = out_cats
+    return out
+
+
 def build_custom_puzzle(seed: int | None, difficulty: str, theme_doc: dict):
     """Generate a puzzle from a user-supplied theme document — the single-file
     dict format that ``logicgrid.themes`` round-trips (see README
     "Single-file representation").
 
     Unlike registry themes there is no attribute sampling: the document IS the
-    theme. The one seed-driven dial is open groups (``group_labels``), whose
-    membership is rolled up front from the seed rng — so the same (document,
-    difficulty, seed) always rebuilds the identical puzzle, the determinism
-    contract the hint endpoint relies on. Returns ``(theme, puzzle, report,
-    seed)`` like ``build_puzzle``.
+    theme. The seed-driven dials — open groups (``group_labels``) and random
+    numeric values (``value_spec``) — are rolled up front from the seed rng in
+    a fixed order, so the same (document, difficulty, seed) always rebuilds
+    the identical puzzle, the determinism contract the hint endpoint relies
+    on. Returns ``(theme, puzzle, report, seed)`` like ``build_puzzle``.
 
     Raises ``ValueError`` with a human-readable message on a malformed,
     inconsistent, or out-of-bounds document.
@@ -756,7 +825,10 @@ def build_custom_puzzle(seed: int | None, difficulty: str, theme_doc: dict):
         seed = random.randrange(_MAX_SEED)
     rng = random.Random(seed)
     try:
-        resolved = _resolve_group_labels(theme_doc, rng)  # consumes rng first, deterministically
+        # Seed-driven dials resolve up front, in a fixed order, so the same
+        # (document, seed) always yields the identical concrete theme.
+        resolved = _resolve_value_specs(theme_doc, rng)
+        resolved = _resolve_group_labels(resolved, rng)
         theme_obj = theme_from_dict(resolved)  # validates shape + consistency
     except ValueError:
         raise

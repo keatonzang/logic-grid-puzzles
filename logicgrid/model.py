@@ -62,6 +62,12 @@ class Category:
     # subject category (index 0) is the entity's identity and always reads as the
     # bare item (a name), so its referent is ignored.
     referent: str = ""
+    # `compare` optionally replaces the comparison vocabulary for an ordered
+    # category: a (greater-word, lesser-word) pair of comparatives, e.g.
+    # ("later", "earlier") for times or ("longer", "shorter") for durations.
+    # Empty keeps the default "higher"/"lower" (and Adjacent's "immediately
+    # below"). Purely a clue-text dial — ranks and values are untouched.
+    compare: tuple = ()
     # `plural` marks a category whose *name* is a plural or mass noun ("Dues",
     # "Earnings", "Winnings"). Comparison clue text agrees with it: the verb
     # becomes "are" not "is" ("the order's dues are exactly $3 more") and the
@@ -79,6 +85,16 @@ class Category:
     def amount(self, n: int) -> str:
         """Format a numeric amount with this category's unit, e.g. '$3' or '20 gp'."""
         return f"{self.unit}{n}{self.unit_suffix}"
+
+    @property
+    def more_word(self) -> str:
+        """Comparative for the greater rank ("higher" unless overridden)."""
+        return self.compare[0] if self.compare else "higher"
+
+    @property
+    def less_word(self) -> str:
+        """Comparative for the lesser rank ("lower" unless overridden)."""
+        return self.compare[1] if self.compare else "lower"
 
     @property
     def verb(self) -> str:
@@ -142,6 +158,13 @@ class Theme:
                 raise ValueError(f"category '{c.name}' has duplicate items")
             if c.values is not None and len(c.values) != n:
                 raise ValueError(f"category '{c.name}': `values` length must equal item count")
+            if c.compare and (
+                len(c.compare) != 2 or not all(isinstance(w, str) and w.strip() for w in c.compare)
+            ):
+                raise ValueError(
+                    f"category '{c.name}': compare must be two words — the greater and "
+                    "lesser comparatives, e.g. [\"later\", \"earlier\"]"
+                )
             if c.referent and "{}" not in c.referent:
                 raise ValueError(
                     f"category '{c.name}': referent must contain '{{}}' where the item "

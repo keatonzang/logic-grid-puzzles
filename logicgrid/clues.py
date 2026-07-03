@@ -156,8 +156,8 @@ class Greater(Clue):
             # Parallel possessive form ("X's placing is higher than Y's placing"),
             # matching the other sequential clues — avoids the doubled-noun read
             # "a higher placing than Y's placing" when the partner restates the scale.
-            return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} higher than {_side(theme, self.b, self.cat)}."
-        return f"{_cap(_ref(theme, self.a))} has {cat.article}higher {cn} than {_ref(theme, self.b)}."
+            return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} {cat.more_word} than {_side(theme, self.b, self.cat)}."
+        return f"{_cap(_ref(theme, self.a))} has {cat.article}{cat.more_word} {cn} than {_ref(theme, self.b)}."
 
 
 class Diff(Clue):
@@ -223,7 +223,10 @@ class Adjacent(Clue):
     def text(self, theme: Theme) -> str:
         cat = theme.categories[self.cat]
         cn = _low(cat.name)
-        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately below {_side(theme, self.b, self.cat)}."
+        # Default vocabulary keeps the classic "immediately below"; a custom
+        # compare pair reads through its lesser word ("immediately earlier than").
+        rel = "below" if not cat.compare else f"{cat.less_word} than"
+        return f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} immediately {rel} {_side(theme, self.b, self.cat)}."
 
 
 class NextTo(Clue):
@@ -324,7 +327,7 @@ class MultiCompare(Clue):
         # "higher/lower", matching Greater — NOT "more/less": on a reversed-rank
         # ordinal (Placing, where 1st = highest rank) "less placing" reads as a
         # numerically smaller (better) place, the opposite of what is enforced.
-        rel = "higher" if self.greater else "lower"
+        rel = cat.more_word if self.greater else cat.less_word
         joiner = "both " if len(labels) == 2 else "all of "
         return f"{_cap(_poss(theme, self.c))} {cn} {cat.verb} {rel} than {joiner}{_join(labels, 'and')}."
 

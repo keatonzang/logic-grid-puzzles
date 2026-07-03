@@ -12,6 +12,8 @@
        consolidated "how it reads" preview per category (no more scattered
        per-field hint lines), clear primary/secondary button hierarchy. */
     .builder-wrap { max-width: 1240px; margin: 0 auto; padding: 0 1rem 3rem; }
+    /* the hidden attribute must beat .field/.row display rules */
+    [hidden] { display: none !important; }
     .top-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: stretch; }
     .top-grid > .card { flex: 1 1 380px; }
     .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; align-items: start; margin-top: 1.5rem; }
@@ -52,8 +54,11 @@
     }
 
     .builder-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin: 1.5rem 0; }
-    /* the standalone toolbar centers; button groups inside cards stay left */
-    .builder-wrap > .builder-actions { justify-content: center; }
+    /* the standalone toolbar centers on its MEDIAN: two equal flex halves put
+       the seam between buttons 2 and 3 exactly at the container's midline */
+    .toolbar-half { display: flex; gap: .7rem; flex: 1 1 0; min-width: 0; flex-wrap: wrap; align-content: flex-start; }
+    .toolbar-half.left { justify-content: flex-end; }
+    .toolbar-half.right { justify-content: flex-start; }
     .builder-actions button { padding: .65rem 1.1rem; font-weight: 600; font-size: .9rem; white-space: nowrap; }
     #b-generate { white-space: nowrap; }
 
@@ -140,11 +145,15 @@
     </div>
 
     <div class="builder-actions">
-      <button id="b-add-cat">+ Add category</button>
-      <button id="b-upload">Upload theme…</button>
-      <input id="b-file" type="file" accept=".json,application/json" hidden />
-      <button id="b-download" class="primary">Download theme file</button>
-      <button id="b-play">Play this theme</button>
+      <div class="toolbar-half left">
+        <button id="b-add-cat">+ Add category</button>
+        <button id="b-upload">Upload theme…</button>
+        <input id="b-file" type="file" accept=".json,application/json" hidden />
+      </div>
+      <div class="toolbar-half right">
+        <button id="b-download" class="primary">Download theme file</button>
+        <button id="b-play">Play this theme</button>
+      </div>
     </div>
 
     <div id="b-cats" class="cat-grid"></div>

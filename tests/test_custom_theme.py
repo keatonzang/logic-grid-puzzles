@@ -238,3 +238,110 @@ def test_uneven_value_pool_is_all_true_and_keeps_apart_clues():
         assert all(c.holds(X) for c in pool)
         seen_apart += sum(isinstance(c, (AbsApart, AtLeastApart)) for c in pool)
     assert seen_apart, "apart-style comparisons should survive with uneven values"
+
+
+def levies_doc() -> dict:
+    return {
+        "name": "Guild Levies", "description": "", "entity_noun": "artisan",
+        "categories": [
+            {"name": "Artisan", "items": ["Aldric", "Beatrix", "Cedric", "Matilda"]},
+            {"name": "Trade", "items": ["Cooper", "Mason", "Potter", "Weaver"]},
+            {"name": "Levy", "ordered": True, "unit_suffix": " coins",
+             "value_spec": {"min_start": 2, "start_max": 12, "steps": [1, 2]}},
+        ],
+    }
+
+
+def test_value_spec_is_deterministic_and_varies():
+    # the custom-theme mirror of registry NumericSpec: rolled per puzzle from
+    # the seed rng — identical for the same (doc, seed), varying across seeds.
+    a = build_payload(seed=4, difficulty="hard", theme_doc=levies_doc())
+    b = build_payload(seed=4, difficulty="hard", theme_doc=levies_doc())
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+    rolled = set()
+    for s in range(8):
+        p = build_payload(seed=s, difficulty="hard", theme_doc=levies_doc())
+        levy = next(c for c in p["categories"] if c["name"] == "Levy")
+        assert len(levy["items"]) == 4
+        assert all(i.endswith(" coins") for i in levy["items"])
+        rolled.add(tuple(levy["items"]))
+    assert len(rolled) > 1, "values should vary across seeds"
+    hint = build_hint(4, "hard", 0, 0, {}, theme_doc=levies_doc())
+    assert hint.get("text")
+
+
+def test_value_spec_validation():
+    both = levies_doc()
+    both["categories"][2]["items"] = ["1 coins", "2 coins", "3 coins", "4 coins"]
+    with pytest.raises(ValueError, match="not both"):
+        build_custom_puzzle(1, "normal", both)
+
+    unordered = levies_doc()
+    unordered["categories"][2].pop("ordered")
+    with pytest.raises(ValueError, match="ordered"):
+        build_custom_puzzle(1, "normal", unordered)
+
+    alone = levies_doc()
+    alone["categories"] = [alone["categories"][2]]
+    with pytest.raises(ValueError, match="item count|categories"):
+        build_custom_puzzle(1, "normal", alone)
+
+    bad = levies_doc()
+    bad["categories"][2]["value_spec"]["steps"] = []
+    with pytest.raises(ValueError, match="steps"):
+        build_custom_puzzle(1, "normal", bad)
+
+    inverted = levies_doc()
+    inverted["categories"][2]["value_spec"]["min_start"] = 99
+    with pytest.raises(ValueError, match="min_start"):
+        build_custom_puzzle(1, "normal", inverted)
+
+
+def test_compare_words_flow_through_clue_text():
+    # Ordered categories may override "higher/lower" with their own pair
+    # ("later/earlier", "longer/shorter") — clue text follows everywhere the
+    # vocabulary appears, and the file round-trips it.
+    doc = {
+        "name": "Recital Order", "description": "", "entity_noun": "slot",
+        "categories": [
+            {"name": "Student", "items": ["Ana", "Ben", "Cleo", "Dmitri"]},
+            {"name": "Piece", "items": ["Etude", "Nocturne", "Prelude", "Waltz"]},
+            {"name": "Time", "items": ["9 am", "10 am", "11 am", "12 pm"],
+             "ordered": True, "values": [9, 10, 11, 12],
+             "compare": ["later", "earlier"]},
+        ],
+    }
+    theme = theme_from_dict(doc)
+    assert theme_to_dict(theme)["categories"][2]["compare"] == ["later", "earlier"]
+    from logicgrid.clues import Adjacent, Greater, MultiCompare
+    assert "later time than" in Greater(2, (0, 1), (0, 0)).text(theme)
+    assert "immediately earlier than" in Adjacent(2, (0, 0), (0, 1)).text(theme)
+    assert "earlier than both" in MultiCompare(2, (0, 0), [(0, 1), (0, 2)], False).text(theme)
+    # default vocabulary is unchanged (incl. Adjacent's classic "below")
+    plain = theme_from_dict(farm_doc())
+    assert "immediately below" in Adjacent(2, (0, 0), (0, 1)).text(plain)
+
+    bad = dict(doc)
+    bad["categories"] = [dict(c) for c in doc["categories"]]
+    bad["categories"][2]["compare"] = ["later"]
+    with pytest.raises(ValueError, match="two words"):
+        theme_from_dict(bad)
+
+
+def test_compare_words_generate_end_to_end():
+    doc = {
+        "name": "Race Day", "description": "", "entity_noun": "runner",
+        "categories": [
+            {"name": "Runner", "items": ["Ana", "Ben", "Cleo", "Dmitri"]},
+            {"name": "Shoe", "items": ["Blue", "Green", "Red", "White"]},
+            {"name": "Route", "items": ["2 km", "4 km", "6 km", "8 km"],
+             "ordered": True, "values": [2, 4, 6, 8],
+             "compare": ["longer", "shorter"]},
+        ],
+    }
+    texts = []
+    for seed in range(6):
+        p = build_payload(seed=seed, difficulty="hard", theme_doc=doc)
+        texts.extend(p["clues"])
+    joined = " ".join(texts)
+    assert "higher" not in joined and "lower" not in joined
