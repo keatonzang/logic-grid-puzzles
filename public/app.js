@@ -128,6 +128,23 @@ function startTimer() {
   tick();
 }
 
+// Freeze/unfreeze only the ticking DISPLAY (the measured elapsed time keeps
+// its original t0). The daily pauses the readout the instant Submit is
+// clicked — the official clock stops when the request reaches the server —
+// and resumes it if the verdict comes back "not correct".
+function pauseTimerDisplay() {
+  if (timerRAF) { cancelAnimationFrame(timerRAF); timerRAF = null; }
+}
+function resumeTimerDisplay() {
+  if (timerDone || !SHOW_LIVE_TIMER || timerRAF) return;
+  const tick = () => {
+    if (timerDone) return;
+    paintTimer();
+    timerRAF = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
 // Freeze the clock. `solved` true marks a genuine solve (the time stays as a
 // little trophy); otherwise it just stops (e.g. the player revealed the answer).
 function stopTimer(solved) {
@@ -1362,6 +1379,7 @@ async function dailySubmit() {
   const labels = prog.rows.map((row) => row.map((it, c) => puzzle.categories[c].items[it]));
   const btn = $("check");
   btn.disabled = true;
+  pauseTimerDisplay(); // the official clock stops on arrival at the server
   try {
     const res = await postJSON("/api/daily", {
       action: "finish",
@@ -1370,11 +1388,13 @@ async function dailySubmit() {
       steps: history.size(),
     });
     if (!res.correct) {
+      resumeTimerDisplay();
       setFeedback("Not quite — at least one placement is off. Recheck your deductions and submit again (the clock keeps running).", "bad");
       return;
     }
     dailyResult = res;
     stopTimer(true);
+    $("timer").textContent = fmtTime(res.time_ms); // sync the readout to the official time
     if (playedName()) {
       setFeedback(`<b>Correct</b> in ${fmtTime(res.time_ms)} — but you've already posted a time today, so the board stands.`, "good");
     } else {
@@ -1382,6 +1402,7 @@ async function dailySubmit() {
       showClaim();
     }
   } catch (err) {
+    resumeTimerDisplay(); // the submission never landed — still on the clock
     setFeedback(escapeHtml(err.message), "bad");
   } finally {
     btn.disabled = false;

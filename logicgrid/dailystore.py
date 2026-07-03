@@ -65,19 +65,36 @@ def _request(method: str, table: str, *, params: dict | None = None,
     return json.loads(raw) if raw else None
 
 
-def get_daily_seed(day: date) -> int | None:
+def get_daily_row(day: date) -> dict | None:
+    """The day's canonical row: {"seed": int, "payload": dict | None}.
+    ``payload`` is the full generated puzzle (solution included), cached so
+    requests can serve and verify without a multi-second regeneration."""
     rows = _request("GET", "daily_puzzles",
-                    params={"day": f"eq.{day.isoformat()}", "select": "seed"})
-    return rows[0]["seed"] if rows else None
+                    params={"day": f"eq.{day.isoformat()}", "select": "seed,payload"})
+    return rows[0] if rows else None
 
 
-def save_daily_seed(day: date, seed: int, theme: str, difficulty: str) -> None:
-    """First writer wins; concurrent cold starts converge on one canonical row."""
+def save_daily_row(day: date, seed: int, theme: str, difficulty: str,
+                   payload: dict) -> None:
+    """First writer wins; concurrent cold starts converge on one canonical row
+    (generation is deterministic, so the losers' payloads were identical)."""
     _request(
         "POST", "daily_puzzles",
         params={"on_conflict": "day"},
-        body={"day": day.isoformat(), "seed": seed, "theme": theme, "difficulty": difficulty},
+        body={
+            "day": day.isoformat(), "seed": seed, "theme": theme,
+            "difficulty": difficulty, "payload": payload,
+        },
         prefer="resolution=ignore-duplicates",
+    )
+
+
+def update_daily_payload(day: date, payload: dict) -> None:
+    """Backfill the cached payload on a row that predates the cache column."""
+    _request(
+        "PATCH", "daily_puzzles",
+        params={"day": f"eq.{day.isoformat()}"},
+        body={"payload": payload},
     )
 
 

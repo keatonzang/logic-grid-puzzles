@@ -288,3 +288,54 @@ def test_unknown_action_is_400(api, monkeypatch):
     monkeypatch.setenv("DAILY_SECRET", SECRET)
     status, payload = api._build_post_response({"action": "cheat"})
     assert status == 400
+
+
+# --- Payload cache: submissions must verify without regenerating ---------------
+
+def _stub_store(monkeypatch):
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    monkeypatch.setenv("SUPABASE_URL", "https://stub.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "stub-key")
+
+
+def test_cached_payload_is_served_without_regenerating(api, monkeypatch, day_payload):
+    payload, seed = day_payload
+    _stub_store(monkeypatch)
+    monkeypatch.setattr(api.dailystore, "get_daily_row",
+                        lambda day: {"seed": seed, "payload": payload})
+    monkeypatch.setattr(api.dailystore, "top_scores", lambda day: [])
+
+    def boom(*args, **kwargs):
+        raise AssertionError("regenerated the puzzle despite a cached payload")
+
+    monkeypatch.setattr(api.daily, "build_daily", boom)
+    status, got = api._build_get_response({})
+    assert status == 200
+    assert got["puzzle"]["clues"] == payload["clues"]
+    assert "solution" not in got["puzzle"] and "seed" not in got["puzzle"]
+
+    # a finish verdict also comes straight from the cache
+    now = time.time()
+    token = daily.issue_session(daily.today_utc(), SECRET, now - 120)
+    status, fin = api._build_post_response(
+        {"action": "finish", "token": token,
+         "rows": [list(r) for r in payload["solution"]], "steps": 40},
+        now=now,
+    )
+    assert status == 200 and fin["correct"] is True
+
+
+def test_pre_cache_row_gets_its_payload_backfilled(api, monkeypatch, day_payload):
+    payload, seed = day_payload
+    _stub_store(monkeypatch)
+    monkeypatch.setattr(api.dailystore, "get_daily_row",
+                        lambda day: {"seed": seed, "payload": None})
+    monkeypatch.setattr(api.daily, "build_daily",
+                        lambda day, secret, seed=None: (payload, seed))
+    filled = {}
+    monkeypatch.setattr(api.dailystore, "update_daily_payload",
+                        lambda day, p: filled.update(payload=p))
+    monkeypatch.setattr(api.dailystore, "top_scores", lambda day: [])
+    status, got = api._build_get_response({})
+    assert status == 200
+    assert filled["payload"] is payload

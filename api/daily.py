@@ -57,21 +57,32 @@ def _board_rows(day) -> list[dict]:
 
 
 def _daily_payload(day, secret: str) -> tuple[dict, int]:
-    """The day's full payload, using the stored canonical seed when the
-    store is up and remembering a fresh choice for later requests. Falls
-    back to the deterministic candidate walk if the store is unavailable."""
-    seed = None
+    """The day's full payload. The store caches the whole generated payload
+    (not just the seed): generation is a multi-second generate-and-grade run,
+    and with the cache a request — crucially a solve submission awaiting its
+    verdict — costs one row read. Falls back to the deterministic candidate
+    walk if the store is unavailable, so the daily never goes down with it."""
+    row = None
     if dailystore.configured():
         try:
-            seed = dailystore.get_daily_seed(day)
+            row = dailystore.get_daily_row(day)
         except dailystore.StoreError:
-            seed = None  # degrade: deterministic walk still converges
+            row = None  # degrade: deterministic walk still converges
+    if row and row.get("payload"):
+        return row["payload"], row["seed"]
+
+    seed = row["seed"] if row else None
     payload, chosen = daily.build_daily(day, secret, seed=seed)
-    if seed is None and dailystore.configured():
+    if dailystore.configured():
         try:
-            dailystore.save_daily_seed(day, chosen, payload["theme"], payload["difficulty"])
+            if row is None:
+                dailystore.save_daily_row(
+                    day, chosen, payload["theme"], payload["difficulty"], payload
+                )
+            else:  # row from before the payload cache existed — backfill it
+                dailystore.update_daily_payload(day, payload)
         except dailystore.StoreError:
-            pass  # cache miss only costs the next request its candidate walk
+            pass  # cache miss only costs the next request a regeneration
     return payload, chosen
 
 
