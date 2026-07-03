@@ -255,7 +255,8 @@ function catCard(c, idx) {
     <div class="row">
       <label class="field"><span>Name</span><input data-f="name" type="text" placeholder="Vendor" /></label>
       <label class="field"><span>Referent <span class="opt">(optional) — names a row by its item; {} is the item</span></span>
-        <input data-f="referent" type="text" placeholder="the vendor selling {}" /></label>
+        <input data-f="referent" type="text" placeholder="the vendor selling {}" />
+        <small class="hint-inline" data-role="ref-hint"></small></label>
     </div>
     <label class="field"><span>Items <span class="opt">— one per line, same count in every category, unique across the theme</span></span>
       <textarea data-f="itemsText" placeholder="Mei&#10;Omar&#10;Petra&#10;Quinn"></textarea></label>
@@ -323,6 +324,24 @@ function catCard(c, idx) {
   const syncReads = () => {
     card.querySelector('[data-role="reads"]').innerHTML =
       '<div class="reads-label">Preview — how this reads</div>' + cardReads(c, idx).join("");
+
+    // The referent is the least self-explanatory field, so it keeps immediate
+    // at-the-field feedback: the sample clue it produces, live per keystroke.
+    const refEl = card.querySelector('[data-role="ref-hint"]');
+    const ref = c.referent.trim();
+    const rawNoun = $("b-noun").value.trim();
+    const items = lines(c.itemsText);
+    const item0 = items[0];
+    const other = idx === 0 ? lines(cats[1] ? cats[1].itemsText : "")[0] : lines(cats[0] ? cats[0].itemsText : "")[0];
+    if (idx === 0) {
+      refEl.innerHTML = `Ignored here — the subject reads as itself: ${qh(`${slot(item0)} goes with ${slot(other)}.`)}`;
+    } else if (!ref) {
+      refEl.innerHTML = `${qh(`The ${slot(rawNoun)} with ${slot(item0)} goes with ${slot(other)}.`)} (default — type a template to change it)`;
+    } else if (!ref.includes("{}")) {
+      refEl.innerHTML = `<span class="error">needs {} where the item goes — e.g. “the vendor selling {}”</span>`;
+    } else {
+      refEl.innerHTML = qh(`${esc(cap(ref)).replace("{}", slot(item0))} goes with ${slot(other)}.`);
+    }
   };
   for (const el of card.querySelectorAll("[data-f]")) {
     const f = el.dataset.f;
