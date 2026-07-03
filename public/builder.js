@@ -338,7 +338,7 @@ function catCard(c, idx) {
     } else if (!ref) {
       refEl.innerHTML = `${qh(`The ${slot(rawNoun)} with ${slot(item0)} goes with ${slot(other)}.`)} (default — type a template to change it)`;
     } else if (!ref.includes("{}")) {
-      refEl.innerHTML = `<span class="error">needs {} where the item goes — e.g. “the vendor selling {}”</span>`;
+      refEl.innerHTML = `<span class="err">needs <code>{}</code> where the item goes — e.g. “the vendor selling {}”</span>`;
     } else {
       refEl.innerHTML = qh(`${esc(cap(ref)).replace("{}", slot(item0))} goes with ${slot(other)}.`);
     }
@@ -367,6 +367,7 @@ function catCard(c, idx) {
     }
   }
   card.querySelector(".ordered-extra").hidden = !c.ordered;
+  if (idx === 0) card.querySelector('[data-f="referent"]').disabled = true; // subject reads as itself
   card.querySelector('[data-act="del"]').addEventListener("click", () => { cats.splice(idx, 1); renderCats(); onEdit(); });
   card.querySelector('[data-act="up"]').addEventListener("click", () => { [cats[idx - 1], cats[idx]] = [cats[idx], cats[idx - 1]]; renderCats(); onEdit(); });
   card.querySelector('[data-act="down"]').addEventListener("click", () => { [cats[idx + 1], cats[idx]] = [cats[idx], cats[idx + 1]]; renderCats(); onEdit(); });
@@ -550,7 +551,7 @@ function play() {
   if (doc) {
     docToState(doc);
   } else {
-    cats = [blankCat()]; // one empty category; ghost text shows the shape
+    cats = [blankCat(), blankCat()]; // the minimum viable shape: two empty categories
   }
   renderCats();
   onEdit();
