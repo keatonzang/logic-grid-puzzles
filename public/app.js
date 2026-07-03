@@ -10,6 +10,9 @@ const DESKTOP = window.matchMedia("(min-width: 821px)"); // staircase vs pairwis
 // puzzle per day whose payload ships NO solution — checking happens server-
 // side — plus a leaderboard. Hint/Reveal/Check-as-you-go don't exist there.
 const DAILY = document.body.dataset.mode === "daily";
+// Big-puzzles mode (/big): pre-generated oversized grids served as static
+// JSON, each playable under several themes — same logic, swapped vocabulary.
+const BIG = document.body.dataset.mode === "big";
 
 let puzzle = null;        // current payload
 // `manual` is the source of truth: what the user explicitly set in each cell
@@ -338,7 +341,20 @@ function pairs() {
 // stay the natural index order, so all link/state logic is untouched.
 function catGroups(ci) {
   const c = puzzle.categories[ci];
-  return c && c.groups && c.groups.length ? c.groups : null;
+  const gs = c && c.groups && c.groups.length ? c.groups : null;
+  if (!gs) return null;
+  // With a nested hierarchy, order the groups so wards of the same side of
+  // town sit adjacent — the coarse structure then reads off the band order
+  // (the rosters themselves are spelled out under the description).
+  const sgs = c.supergroups && c.supergroups.length ? c.supergroups : null;
+  if (!sgs) return gs;
+  const superOf = (g) => {
+    const i = sgs.findIndex((s) => s.items.includes(g.items[0]));
+    return i < 0 ? sgs.length : i;
+  };
+  return gs.slice().sort(
+    (a, b) => superOf(a) - superOf(b) || a.label.localeCompare(b.label)
+  );
 }
 
 // Item indices of category `ci` in display order (group order, then theme order).
@@ -394,6 +410,28 @@ function buildState() {
 function render() {
   $("p-name").textContent = puzzle.name;
   $("p-desc").textContent = puzzle.description;
+  // Nested hierarchies (big puzzles): spell out which groups roll up into
+  // which supergroups — clues speak at both levels, so the rosters are part
+  // of the puzzle statement. The element only exists on pages that can host
+  // nested grids.
+  const hier = document.getElementById("p-hierarchy");
+  if (hier) {
+    const lines = [];
+    for (const c of puzzle.categories) {
+      if (!c.supergroups || !c.supergroups.length) continue;
+      const blocks = c.supergroups.map((s) => {
+        const subs = c.groups
+          .filter((g) => g.items.every((it) => s.items.includes(it)))
+          .map((g) => escapeHtml(g.label));
+        return `<b>${escapeHtml(s.label)}</b>: ${subs.join(", ")}`;
+      });
+      lines.push(
+        `${escapeHtml(c.name)} by ${escapeHtml(c.supergroup_noun)} — ${blocks.join(" · ")}`
+      );
+    }
+    hier.innerHTML = lines.join("<br>");
+    hier.hidden = !lines.length;
+  }
   const tier = puzzle.rating ? puzzle.rating.ceiling : null;
   const tierNote = tier != null
     ? ` · <span title="hardest deduction technique needed (4 = advanced forward logic, 5 = proof by contradiction, 6 = nested what-if)">logic tier ${tier}</span>`
@@ -405,7 +443,9 @@ function render() {
     : "";
   const tail = DAILY
     ? `daily for <b>${dailyDate}</b>` // no seed: it would reproduce the answer key
-    : `seed <code>${puzzle.seed}</code>`;
+    : BIG
+      ? `big puzzle <code>${bigBundle ? bigBundle.id : ""}</code>`
+      : `seed <code>${puzzle.seed}</code>`;
   $("p-meta").innerHTML =
     `${puzzle.categories.length} × ${puzzle.items} · <b>${puzzle.difficulty}</b>${reqNote}${tierNote} · ` +
     `${puzzle.clues.length} clues · ${tail}`;
@@ -1125,7 +1165,9 @@ async function hint() {
   btn.disabled = true;
   setFeedback("");
   try {
-    const step = await postJSON("/api/hint", {
+    // Big puzzles ship their full solve path in the bundle, so the next hint
+    // is found client-side: the first step the player hasn't already made.
+    const step = BIG ? bigNextHint() : await postJSON("/api/hint", {
       seed: puzzle.seed,
       difficulty: puzzle.requested,
       items: puzzle.items,
@@ -1389,6 +1431,125 @@ if (DAILY) {
   });
 }
 
+// --- Big puzzles (used only when BIG) -----------------------------------------
+// Bundles are static JSON: every compatible theme's full rendering (categories,
+// clues, solution, solve path) of ONE logical puzzle. Swapping theme swaps the
+// words, not the logic — the board's indices are identical, so marks, undo
+// history, and progress survive the swap.
+let bigIndex = null;    // index.json entries
+let bigBundle = null;   // the loaded bundle (all theme renderings)
+let bigThemeKey = null; // which rendering is on screen
+const BIG_THEME_STORE = "lg.big.theme";
+
+function bigPayload(key) {
+  const t = bigBundle.themes[key];
+  return {
+    ...t,
+    theme: key,
+    items: bigBundle.items,
+    n_categories: bigBundle.categories,
+    difficulty: bigBundle.difficulty,
+    requested: bigBundle.requested,
+    rating: bigBundle.rating,
+  };
+}
+
+// The bundle carries the full ordered solve path; the next hint is simply the
+// first step the player hasn't already made correctly (mirrors the server's
+// next_hint, with zero network).
+function bigNextHint() {
+  const known = currentKnown();
+  for (const step of bigBundle.themes[bigThemeKey].hints) {
+    const cur = known[step.key];
+    if (cur && cur[step.a] && cur[step.a][step.b] === step.value) continue;
+    return step;
+  }
+  return { done: true };
+}
+
+function setBigTheme(key, { fresh } = {}) {
+  bigThemeKey = key;
+  $("big-theme").value = key;
+  try { localStorage.setItem(BIG_THEME_STORE, key); } catch (e) { /* fine */ }
+  puzzle = bigPayload(key);
+  if (fresh) buildState(); // a new puzzle wipes marks; a theme swap keeps them
+  resetHintButton();       // a pending hint's text belongs to the old wording
+  render();
+}
+
+function bigOptionLabel(e) {
+  const shape = `${e.categories} × ${e.items}`;
+  const extras = [
+    e.difficulty,
+    e.nested ? "nested groups" : e.grouped ? "groups" : null,
+  ].filter(Boolean).join(" · ");
+  return `${shape} · ${extras} · #${e.id.split("-").pop()}`;
+}
+
+async function loadBigPuzzle(id) {
+  $("error").hidden = true;
+  $("loading").hidden = false;
+  $("loading").textContent = "Fetching the puzzle…";
+  $("puzzle").hidden = true;
+  try {
+    bigBundle = await fetchJSON(`/big/${encodeURIComponent(id)}.json`);
+    const sel = $("big-theme");
+    sel.innerHTML = "";
+    for (const [key, t] of Object.entries(bigBundle.themes)) {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = t.name;
+      sel.appendChild(opt);
+    }
+    let key = bigBundle.default_theme;
+    try {
+      const pref = localStorage.getItem(BIG_THEME_STORE);
+      if (pref && bigBundle.themes[pref]) key = pref;
+    } catch (e) { /* fine */ }
+    location.hash = id; // shareable link straight to this puzzle
+    setBigTheme(key, { fresh: true });
+    $("puzzle").hidden = false;
+    fitBoard();
+    startTimer();
+  } catch (err) {
+    $("error").textContent = err.message;
+    $("error").hidden = false;
+  } finally {
+    $("loading").hidden = true;
+  }
+}
+
+async function loadBig() {
+  try {
+    bigIndex = await fetchJSON("/big/index.json");
+  } catch (err) {
+    bigIndex = [];
+  }
+  if (!bigIndex.length) {
+    $("loading").hidden = true;
+    $("error").textContent = "No big puzzles are published yet — check back soon.";
+    $("error").hidden = false;
+    return;
+  }
+  const sel = $("big-puzzle");
+  sel.innerHTML = "";
+  for (const e of bigIndex) {
+    const opt = document.createElement("option");
+    opt.value = e.id;
+    opt.textContent = bigOptionLabel(e);
+    sel.appendChild(opt);
+  }
+  const wanted = location.hash.slice(1);
+  const first = bigIndex.some((e) => e.id === wanted) ? wanted : bigIndex[0].id;
+  sel.value = first;
+  await loadBigPuzzle(first);
+}
+
+if (BIG) {
+  $("big-puzzle").addEventListener("change", (e) => loadBigPuzzle(e.target.value));
+  $("big-theme").addEventListener("change", (e) => setBigTheme(e.target.value));
+}
+
 $("generate").addEventListener("click", generate);
 $("hint").addEventListener("click", hint);
 $("print").addEventListener("click", () => window.print());
@@ -1456,6 +1617,10 @@ window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
   initColorblind();
   if (DAILY) {
     await loadDaily(); // fixed theme/size/difficulty — no pickers to set up
+    return;
+  }
+  if (BIG) {
+    await loadBig(); // static bundles — the pickers are the puzzle/theme lists
     return;
   }
   syncItemOptions();

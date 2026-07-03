@@ -351,8 +351,12 @@ def _count_word(n: int) -> str:
 
 
 def _plural(noun: str) -> str:
-    """Naive English pluralisation good enough for entity nouns (case, ship,
-    order, entry -> cases, ships, orders, entries)."""
+    """Naive English pluralisation good enough for entity and group nouns
+    (case, ship, entry -> cases, ships, entries). A head-noun phrase
+    pluralises its head: "side of town" -> "sides of town"."""
+    head, sep, rest = noun.partition(" of ")
+    if sep:
+        return f"{_plural(head)} of {rest}"
     if noun.endswith("y") and (len(noun) < 2 or noun[-2] not in "aeiou"):
         return noun[:-1] + "ies"
     if noun.endswith(("s", "x", "z", "ch", "sh")):

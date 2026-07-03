@@ -116,6 +116,15 @@ class ThemeSpec:
     # membership instead of randomising it — use it when the groups are factual
     # (e.g. King's-Pawn vs Queen's-Pawn openings) and shuffling would print lies.
     group_defs: tuple = ()
+    # Optional NESTED (two-level) hierarchy vocabularies for big grids. Each
+    # entry is (category_name, sub_noun, (sub_label, ...), super_noun,
+    # (super_label, ...)): with enough items (see NESTED_MIN_ITEMS) that
+    # category's draw partitions into sub-groups which themselves nest into
+    # super-groups — wards within sides of town, watersheds within basins.
+    # Membership at both levels is randomised per puzzle (flavor, like
+    # non-fixed group_defs). When a nested hierarchy is built it replaces the
+    # category's flat group_defs entry for that draw.
+    nested_group_defs: tuple = ()
 
     @property
     def numerics(self) -> tuple:
@@ -199,6 +208,17 @@ THEME_SPECS: tuple = (
                     ("River Ward", ("Bridgegate", "Millpond", "Riverside")),
                     ("Market Ward", ("Eastcheap", "Southgate")),
                 ),
+            ),
+        ),
+        # On big grids the wards themselves nest into sides of town: "same
+        # ward" and "same side of town" become two distinct clue granularities.
+        nested_group_defs=(
+            (
+                "Quarter",
+                "ward",
+                ("Hill Ward", "River Ward", "Market Ward", "Gate Ward"),
+                "side of town",
+                ("North Side", "South Side"),
             ),
         ),
     ),
@@ -380,6 +400,17 @@ THEME_SPECS: tuple = (
                 ),
             ),
         ),
+        # On big grids the watersheds nest into basins — "same watershed" and
+        # "same basin" read at two granularities.
+        nested_group_defs=(
+            (
+                "Pond",
+                "watershed",
+                ("North Watershed", "South Watershed", "East Watershed", "West Watershed"),
+                "basin",
+                ("Highland Basin", "Lowland Basin"),
+            ),
+        ),
     ),
     ThemeSpec(
         key="chess",
@@ -511,6 +542,51 @@ def _fixed_groups(partition: tuple, items: list, min_groups: int = 2) -> tuple:
     return tuple(out)
 
 
+# Items needed before a nested (two-level) hierarchy is worth building: with
+# fewer, sub-groups of >= 2 can't form >= 3 blocks under >= 2 supers. The live
+# API clamps items to 5, so nesting only ever fires on the offline big path.
+NESTED_MIN_ITEMS = 6
+
+
+def _nested_groups(sub_labels: tuple, super_labels: tuple, items: list,
+                   rng: random.Random, min_size: int = 2) -> tuple:
+    """A random two-level hierarchy: items partition into sub-groups (each
+    >= ``min_size``), which nest into super-groups (>= 2 supers, each >= 1
+    sub, and — by capping supers at subs-1 — at least one super holds >= 2
+    subs, so the coarse level always says something the fine level doesn't).
+    Deterministic in ``rng``; both levels come back label-sorted. Returns
+    ``(groups, supergroups)``, or ``((), ())`` when the draw can't support
+    the structure."""
+    n = len(items)
+    max_subs = min(len(sub_labels), n // min_size)
+    if max_subs < 3 or len(super_labels) < 2:
+        return (), ()
+    g = rng.randint(3, max_subs)
+    sizes = [min_size] * g
+    for _ in range(n - g * min_size):  # scatter leftovers across the subs
+        sizes[rng.randrange(g)] += 1
+    pool = list(items)
+    rng.shuffle(pool)
+    chosen_subs = rng.sample(sub_labels, g)
+    subs, pos = [], 0
+    for label, size in zip(chosen_subs, sizes):
+        subs.append((label, tuple(sorted(pool[pos:pos + size]))))
+        pos += size
+    s = rng.randint(2, min(len(super_labels), g - 1))
+    chosen_supers = rng.sample(super_labels, s)
+    assign = list(range(s)) + [rng.randrange(s) for _ in range(g - s)]
+    rng.shuffle(assign)  # every super gets >= 1 sub; the rest land at random
+    supers = []
+    for si, slabel in enumerate(chosen_supers):
+        members = tuple(sorted(
+            m for gi, (_lab, mem) in enumerate(subs) if assign[gi] == si for m in mem
+        ))
+        supers.append((slabel, members))
+    subs.sort(key=lambda lm: lm[0])
+    supers.sort(key=lambda lm: lm[0])
+    return tuple(subs), tuple(supers)
+
+
 def build_theme(
     spec: ThemeSpec,
     rng: random.Random,
@@ -518,6 +594,7 @@ def build_theme(
     categories: int = DEFAULT_CATEGORIES,
     n_numeric: int = 0,
     use_groups: bool = False,
+    clamp: bool = True,
 ) -> Theme:
     """Sample a concrete theme from a spec: the subject + (K-1) attribute
     categories, ``n_numeric`` of which are this theme's ordered categories (primary
@@ -527,9 +604,17 @@ def build_theme(
     When ``use_groups`` and the spec declares one or more ``group_defs``, those
     grouped categories are force-included (as many as fit) and get their
     (sampled-restricted) partitions, so the theme can carry one or two hierarchies.
+
+    ``clamp=False`` skips the web-serving size caps for offline generation
+    (the big-puzzles pipeline); the caller is responsible for staying within
+    the spec's label pools. The live API paths always clamp.
     """
-    k = clamp_categories(categories)
-    items = min(clamp_items(items), max_items_for(k))  # fewer items as k grows
+    if clamp:
+        k = clamp_categories(categories)
+        items = min(clamp_items(items), max_items_for(k))  # fewer items as k grows
+    else:
+        k = int(categories)
+        items = int(items)
     cats = [Category(spec.subject_name, sorted(rng.sample(spec.subject_items, items)))]
 
     refs = dict(spec.referents)  # category name -> referent template
@@ -542,14 +627,27 @@ def build_theme(
     # Force-include the grouped categories when rolling a hierarchy (as many as the
     # attribute slots allow); each keeps its name -> (group_noun, partition) here.
     gdefs = {gd[0]: gd for gd in spec.group_defs} if use_groups else {}
-    forced = [nm for nm in names if nm in gdefs][: max(0, n_attr)]
+    ndefs = ({nd[0]: nd for nd in spec.nested_group_defs}
+             if use_groups and items >= NESTED_MIN_ITEMS else {})
+    # nested-capable categories first: on a big grid the two-level hierarchy
+    # is the star attraction, so it must survive a tight attribute budget
+    forced = ([nm for nm in names if nm in ndefs]
+              + [nm for nm in names if nm in gdefs and nm not in ndefs])[: max(0, n_attr)]
     rest = [nm for nm in names if nm not in forced]
     chosen = forced + rng.sample(rest, n_attr - len(forced))
     chosen = sorted(chosen, key=names.index)  # canonical order
     for name in chosen:
         pool_items = sorted(rng.sample(pools[name], items))
         kwargs = {"referent": refs.get(name, "")}
-        if name in forced and name in gdefs:
+        if name in forced and name in ndefs:
+            # big grid + nested vocabulary: two-level hierarchy replaces the
+            # flat one for this draw (wards within sides of town)
+            nd = ndefs[name]
+            subs, supers = _nested_groups(nd[2], nd[4], pool_items, rng)
+            if supers:
+                kwargs.update(group_noun=nd[1], groups=subs,
+                              supergroup_noun=nd[3], supergroups=supers)
+        if name in forced and name in gdefs and "groups" not in kwargs:
             gd = gdefs[name]
             fixed = len(gd) > 3 and gd[3]
             grps = (_fixed_groups(gd[2], pool_items) if fixed
@@ -875,11 +973,17 @@ def build_hint(
 
 def _category_payload(c) -> dict:
     """Serialise a category for the client, including its group partition (the
-    guild/ward each item belongs to) so the UI can show and solve the groups."""
+    guild/ward each item belongs to) so the UI can show and solve the groups —
+    and, on big nested grids, the supergroups the groups roll up into."""
     out = {"name": c.name, "items": list(c.items)}
     if c.has_groups:
         out["group_noun"] = c.group_noun
         out["groups"] = [{"label": label, "items": list(members)} for label, members in c.groups]
+    if c.has_supergroups:
+        out["supergroup_noun"] = c.supergroup_noun
+        out["supergroups"] = [
+            {"label": label, "items": list(members)} for label, members in c.supergroups
+        ]
     return out
 
 

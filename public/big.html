@@ -3,58 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Logic Grid Puzzles</title>
+  <title>Big Puzzles — Logic Grid Puzzles</title>
   <link rel="stylesheet" href="/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='1' width='6' height='6' rx='1' fill='%236ea8fe'/><rect x='9' y='1' width='6' height='6' rx='1' fill='%23394869'/><rect x='1' y='9' width='6' height='6' rx='1' fill='%23394869'/><rect x='9' y='9' width='6' height='6' rx='1' fill='%236ea8fe'/></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='1' width='9' height='9' rx='1' fill='%237ee2a8'/><rect x='11' y='1' width='4' height='4' rx='1' fill='%23394869'/><rect x='1' y='11' width='4' height='4' rx='1' fill='%23394869'/><rect x='11' y='11' width='4' height='4' rx='1' fill='%237ee2a8'/></svg>" />
 </head>
-<body>
+<body data-mode="big">
   <header>
-    <h1>Logic Grid Puzzles</h1>
-    <p class="tagline">Every puzzle has exactly one solution. Click a cell to cycle <b>blank → ✗ → ✓</b>, cross off clues as you use them, and hit <b>Hint</b> when stuck.</p>
-    <p class="nav-links"><a href="/daily">Daily challenge</a> · <a href="/big">Big puzzles</a> · <a href="/guide">How to solve &amp; clue reference</a> · <a href="/builder">Create your own theme</a></p>
+    <h1>Big Puzzles</h1>
+    <p class="tagline">Oversized grids pre-built on heavy compute — sizes the live generator can't reach. Pick a puzzle, pick any compatible theme (same logic, new story — even mid-solve), and dig in.</p>
+    <p class="nav-links"><a href="/">Free play</a> · <a href="/daily">Daily challenge</a> · <a href="/guide">How to solve &amp; clue reference</a> · <a href="/builder">Create your own theme</a></p>
   </header>
 
   <section class="controls">
+    <label>Puzzle
+      <select id="big-puzzle"></select>
+    </label>
     <label>Theme
-      <select id="theme"></select>
-    </label>
-    <input id="theme-file" type="file" accept=".json,application/json" hidden />
-    <label>Difficulty
-      <select id="difficulty">
-        <option value="normal" selected>Normal</option>
-        <option value="hard">Hard</option>
-        <option value="mega">Mega</option>
-        <option value="giga">Giga</option>
-        <option value="tera">Tera</option>
-      </select>
-    </label>
-    <label>Categories
-      <select id="categories">
-        <option value="3" selected>3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-      </select>
-    </label>
-    <label>Items
-      <select id="items">
-        <option value="3">3</option>
-        <option value="4" selected>4</option>
-        <option value="5">5</option>
-      </select>
-    </label>
-    <label>Seed
-      <input id="seed" type="number" inputmode="numeric" placeholder="random" />
+      <select id="big-theme"></select>
     </label>
     <label class="check" title="Color-blind-friendly palette: blue/orange marks instead of green/red">
       <input id="cblind" type="checkbox" /> Colorblind
     </label>
-    <button id="generate" class="primary">Generate</button>
   </section>
+
+  <!-- Free-play controls app.js expects to exist; the big page fixes them all. -->
+  <div hidden aria-hidden="true">
+    <select id="theme"></select>
+    <input id="theme-file" type="file" accept=".json,application/json" />
+    <select id="difficulty"><option value="hard" selected>Hard</option></select>
+    <select id="categories"><option value="4" selected>4</option></select>
+    <select id="items"><option value="4" selected>4</option></select>
+    <input id="seed" type="number" />
+    <button id="generate"></button>
+  </div>
 
   <main id="puzzle" hidden>
     <div class="puzzle-head">
       <h2 id="p-name"></h2>
       <p id="p-desc" class="desc"></p>
+      <p id="p-hierarchy" class="desc" hidden></p>
       <p class="meta"><span id="p-meta"></span></p>
     </div>
 
@@ -97,7 +84,7 @@
   <p id="error" class="error" hidden></p>
 
   <footer>
-    <span>Generated server-side in Python · guaranteed unique solution · <a class="src" href="https://github.com/keatonzang/logic-grid-puzzles" target="_blank" rel="noopener">source</a></span>
+    <span>Pre-generated offline · guaranteed unique solution · <a class="src" href="https://github.com/keatonzang/logic-grid-puzzles" target="_blank" rel="noopener">source</a></span>
     <a class="hire" href="https://zang-labs.vercel.app" target="_blank" rel="noopener">Hire me</a>
   </footer>
 

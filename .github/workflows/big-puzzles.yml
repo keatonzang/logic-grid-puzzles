@@ -1,0 +1,45 @@
+# Generate big-puzzle bundles on GitHub's runners — the heavier compute the
+# big page's shapes need (a 4x6 mega is minutes-to-hours of generate-and-
+# grade). Dispatch with a specs string; the new JSON is committed straight to
+# main, which redeploys the site with the fresh puzzles.
+name: Generate big puzzles
+
+on:
+  workflow_dispatch:
+    inputs:
+      specs:
+        description: "Space-separated CATxITEMS:BAND:COUNT[:g] specs (append :g for group hierarchies)"
+        required: true
+        default: "4x6:mega:1 4x6:giga:1:g"
+
+concurrency:
+  group: big-puzzles
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Generate
+        run: |
+          args=""
+          for spec in ${{ inputs.specs }}; do args="$args --spec $spec"; done
+          python scripts/generate_big.py $args
+      - name: Commit new puzzles
+        run: |
+          git config user.name "big-puzzles-bot"
+          git config user.email "noreply@github.com"
+          git add public/big
+          git diff --cached --quiet && echo "nothing new" && exit 0
+          git commit -m "Big puzzles: ${{ inputs.specs }}"
+          git pull --rebase origin main
+          git push origin main

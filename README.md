@@ -170,6 +170,37 @@ never talk to the database directly. Configure with env vars:
 random string; rotating it re-rolls upcoming puzzles and invalidates
 in-flight sessions).
 
+### Big puzzles
+
+`/big` serves oversized grids the live generator can't build inside a
+request — a 4×6 or a 3×8 costs minutes-to-hours of generate-and-grade
+(the uniqueness search is `n!^(k-1)`, so items hurt far more than
+categories). They are pre-generated offline into static JSON bundles under
+`public/big/` by `scripts/generate_big.py` (run locally or dispatch the
+"Generate big puzzles" workflow, which commits results to main):
+
+    python scripts/generate_big.py --spec 4x6:mega:2 --spec 3x8:giga:1:g
+
+Each bundle carries the SAME logical puzzle rendered under **every
+compatible theme** — abstract clues hold (category, item) indices, so
+re-theming is a deterministic re-render (`logicgrid/bigpuzzles.py`):
+numeric deltas rescale through rank space to the target's value ladder, and
+group clues are re-labelled from the target's own vocabulary over identical
+index partitions. The theme picker on `/big` swaps story mid-solve — marks,
+undo history, and progress survive, because the board's indices don't
+change. Bundles also embed the full ordered solve path (`hint.trace`), so
+hints work client-side with zero backend.
+
+Big grids may carry group hierarchies (`:g`), and at 6+ items a **nested**
+hierarchy — groups of groups (wards within sides of town, watersheds within
+basins; `nested_group_defs` in the theme specs). Clues then speak at both
+granularities ("same ward" vs "same side of town"), and cross-category
+clues pair either level of one nest against other hierarchies — never the
+two levels of the same nest, whose overlap is printed roster, not
+deduction. Grouped puzzles re-theme across the themes with imposable
+(non-fixed) hierarchy vocabularies; fixed, factual partitions like chess's
+opening camps are never reshuffled.
+
 ## Writing a theme
 
 Themes are plain YAML (or JSON — same shape, no PyYAML needed). All categories

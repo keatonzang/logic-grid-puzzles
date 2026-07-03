@@ -74,13 +74,22 @@ class Category:
     # comparative drops its article ("higher dues" not "a higher dues"). Default
     # False keeps the usual singular agreement ("a higher price", "price is").
     plural: bool = False
-    # A two-level *hierarchy*: this category's items are partitioned into named
+    # A *hierarchy*: this category's items are partitioned into named
     # groups (e.g. Trades -> Guilds). `group_noun` is the collective noun
     # ("guild"); `groups` is ((label, (item, ...)), ...). Groups are a clue layer
     # only — the category stays an ordinary bijective column, and the grouping
     # surfaces purely in group-clue text. Empty = no hierarchy.
     group_noun: str = ""
     groups: tuple = ()
+    # An optional SECOND, coarser level above `groups` — groups of groups
+    # (wards nest into sides of town, watersheds into basins). Same shape as
+    # `groups`, but each supergroup's members must be the union of whole
+    # groups: every group sits entirely inside exactly one supergroup. Like
+    # `groups`, purely a clue/text layer; it lets clues speak at either
+    # granularity ("same ward" / "same side of town") on grids big enough to
+    # afford the extra structure. Empty = single-level (or no) hierarchy.
+    supergroup_noun: str = ""
+    supergroups: tuple = ()
 
     def amount(self, n: int) -> str:
         """Format a numeric amount with this category's unit, e.g. '$3' or '20 gp'."""
@@ -116,6 +125,10 @@ class Category:
     @property
     def has_groups(self) -> bool:
         return bool(self.group_noun and self.groups)
+
+    @property
+    def has_supergroups(self) -> bool:
+        return bool(self.supergroup_noun and self.supergroups)
 
     def group_of(self, item: str) -> str | None:
         """The group label containing `item`, or None if it isn't grouped."""
@@ -185,6 +198,34 @@ class Theme:
                                 f"category '{c.name}': item '{m}' is in more than one group"
                             )
                         seen.add(m)
+            if c.supergroups:
+                if not c.groups:
+                    raise ValueError(
+                        f"category '{c.name}': supergroups need groups to nest"
+                    )
+                sseen: set[str] = set()
+                for slabel, smembers in c.supergroups:
+                    for m in smembers:
+                        if m in sseen:
+                            raise ValueError(
+                                f"category '{c.name}': item '{m}' is in more than "
+                                "one supergroup"
+                            )
+                        sseen.add(m)
+                # every group nests wholly inside exactly one supergroup
+                for label, members in c.groups:
+                    homes = {
+                        slabel
+                        for slabel, smembers in c.supergroups
+                        if any(m in smembers for m in members)
+                    }
+                    if len(homes) != 1 or not all(
+                        m in dict(c.supergroups)[next(iter(homes))] for m in members
+                    ):
+                        raise ValueError(
+                            f"category '{c.name}': group '{label}' must sit entirely "
+                            "inside exactly one supergroup"
+                        )
         # item labels should be globally unique so clue text is unambiguous
         all_items = [it for c in self.categories for it in c.items]
         if len(set(all_items)) != len(all_items):

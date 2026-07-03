@@ -69,22 +69,40 @@ def random_solution(theme: Theme, rng: random.Random) -> list[list[int]]:
     return X
 
 
+def _partition_levels(catobj):
+    """Every hierarchy level a category carries, fine first: ``(noun, labels,
+    parts)`` with ``parts[gi]`` the item indices of block ``gi``. One entry for
+    a flat grouping; two when the groups nest into supergroups (wards, then
+    sides of town) — each level is a partition the group clues can speak at."""
+    out = []
+    for noun, blocks in (
+        (catobj.group_noun, catobj.groups),
+        (catobj.supergroup_noun, catobj.supergroups),
+    ):
+        if not (noun and blocks):
+            continue
+        labels = [lab for lab, _ in blocks]
+        parts = [tuple(catobj.items.index(m) for m in mem) for _, mem in blocks]
+        if len(parts) >= 2:
+            out.append((noun, labels, parts))
+    return out
+
+
 def _grouped_categories(theme: Theme):
-    """For every category that carries a (>=2-block) partition, the data a clue
+    """For every partition LEVEL of every grouped category, the data a clue
     needs to talk about its groups: ``(cat, labels, parts, group_of)`` where
-    ``parts[gi]`` are the item indices of group ``gi`` and ``group_of[item]`` is its
-    group index. Shared by the conditional and group-instance builders."""
+    ``parts[gi]`` are the item indices of block ``gi`` and ``group_of[item]`` is
+    its block index. A nested category contributes one entry per level (same
+    ``cat``, different granularity). Shared by the conditional and
+    group-instance builders — consumers that pair two hierarchies must compare
+    ``cat`` indices (not entry identity) so the two levels of one nest are
+    never cross-related: their cross-tabulation is roster vocabulary, not a
+    deduction."""
     out = []
     for cat in range(theme.k):
-        co = theme.categories[cat]
-        if not co.has_groups:
-            continue
-        labels = [lab for lab, _ in co.groups]
-        parts = [tuple(co.items.index(m) for m in mem) for _, mem in co.groups]
-        if len(parts) < 2:
-            continue
-        group_of = {x: gi for gi, mem in enumerate(parts) for x in mem}
-        out.append((cat, labels, parts, group_of))
+        for _noun, labels, parts in _partition_levels(theme.categories[cat]):
+            group_of = {x: gi for gi, mem in enumerate(parts) for x in mem}
+            out.append((cat, labels, parts, group_of))
     return out
 
 
@@ -780,7 +798,9 @@ def build_clue_pool(
         grouped = _grouped_categories(theme)
         for ia in range(len(grouped)):
             for ib in range(len(grouped)):
-                if ia == ib:
+                # same category also skips two LEVELS of one nest: ward vs side
+                # subset relations are printed rosters, not deductions
+                if grouped[ia][0] == grouped[ib][0]:
                     continue
                 ca, labs_a, parts_a, _ = grouped[ia]
                 cb, labs_b, parts_b, _ = grouped[ib]
@@ -820,17 +840,17 @@ def build_clue_pool(
     # Hierarchy / group clues over a grouped category (e.g. Trade -> Guild). The
     # group is just a partition of that column's items, so these resolve on the
     # ordinary grid; they only exist when the theme attached a grouping. Needs
-    # >= 2 groups present (sampled) to say anything non-trivial.
-    for cat in range(k) if enable_groups else ():
-        catobj = theme.categories[cat]
-        if not catobj.has_groups:
-            continue
-        labels = [label for label, _ in catobj.groups]
-        parts = [tuple(catobj.items.index(m) for m in members) for _, members in catobj.groups]
-        if len(parts) < 2:
-            continue
+    # >= 2 groups present (sampled) to say anything non-trivial. A nested
+    # category runs the whole builder once per LEVEL — membership, same/diff,
+    # counts, and orderings all speak at both the ward and the side-of-town
+    # granularity.
+    _glevels = [
+        (cat, noun, labels, parts)
+        for cat in (range(k) if enable_groups else ())
+        for noun, labels, parts in _partition_levels(theme.categories[cat])
+    ]
+    for cat, noun, labels, parts in _glevels:
         group_of = {x: gi for gi, members in enumerate(parts) for x in members}
-        noun = catobj.group_noun
         non_cat = [co for co in range(k) if co != cat]
 
         def anchor_for(e):  # name entity e by a random non-grouped category
@@ -912,30 +932,33 @@ def build_clue_pool(
     # hierarchies — counts and comparisons over the cross-tabulation that a single
     # partition can't express. Only possible when a second partition is present.
     if enable_groups:
-        ginfo = {}
+        # One entry per (category, level): a nested category's ward and
+        # side-of-town partitions each cross-tabulate against OTHER categories'
+        # hierarchies — never against each other (their overlap is roster
+        # vocabulary the player is given, not something to deduce).
+        gentries = []
         for cat in range(k):
-            co = theme.categories[cat]
-            if co.has_groups:
-                labs = [lab for lab, _ in co.groups]
-                prts = [tuple(co.items.index(m) for m in mem) for _, mem in co.groups]
-                if len(prts) >= 2:
-                    ginfo[cat] = (labs, prts)
-        gcats = sorted(ginfo)
-        gidx = {c: {x: gi for gi, mem in enumerate(ginfo[c][1]) for x in mem} for c in gcats}
+            for _noun, labs, prts in _partition_levels(theme.categories[cat]):
+                gidx_e = {x: gi for gi, mem in enumerate(prts) for x in mem}
+                gentries.append((cat, labs, prts, gidx_e))
 
-        def grp(cat, e):  # which group of `cat` entity e is in (or None)
-            return gidx[cat].get(X[e][cat])
+        def grp(gidx_e, cat, e):  # which block of this entry entity e is in (or None)
+            return gidx_e.get(X[e][cat])
 
-        for ci in range(len(gcats)):
-            for cj in range(ci + 1, len(gcats)):
-                c1, c2 = gcats[ci], gcats[cj]
-                labs1, prts1 = ginfo[c1]
-                labs2, prts2 = ginfo[c2]
+        for ci in range(len(gentries)):
+            for cj in range(ci + 1, len(gentries)):
+                c1, labs1, prts1, gidx1 = gentries[ci]
+                c2, labs2, prts2, gidx2 = gentries[cj]
+                if c1 == c2:
+                    continue
                 # "exactly/at least/at most K members of group A are in group B"
                 cc = []
                 for ga in _big_groups(prts1):
                     for gb in _big_groups(prts2):
-                        actual = sum(1 for e in range(n) if grp(c1, e) == ga and grp(c2, e) == gb)
+                        actual = sum(
+                            1 for e in range(n)
+                            if grp(gidx1, c1, e) == ga and grp(gidx2, c2, e) == gb
+                        )
                         cap = min(len(prts1[ga]), len(prts2[gb]))  # most that could overlap
                         opts = [("exactly", actual)]
                         if actual >= 1:
@@ -948,17 +971,19 @@ def build_clue_pool(
                 cross.extend(cc[:3])
                 # "more members of A than B are in the shared group C" (both directions)
                 cmp = []
-                for (cs, labs_s, prts_s), (cg, labs_g, prts_g) in (
-                    ((c1, labs1, prts1), (c2, labs2, prts2)),
-                    ((c2, labs2, prts2), (c1, labs1, prts1)),
+                for (cs, labs_s, prts_s, gidx_s), (cg, labs_g, prts_g, gidx_g) in (
+                    ((c1, labs1, prts1, gidx1), (c2, labs2, prts2, gidx2)),
+                    ((c2, labs2, prts2, gidx2), (c1, labs1, prts1, gidx1)),
                 ):
                     for gc in _big_groups(prts_g):
                         for ga in _big_groups(prts_s):
                             for gb in _big_groups(prts_s):
                                 if ga == gb:
                                     continue
-                                ca = sum(1 for e in range(n) if grp(cs, e) == ga and grp(cg, e) == gc)
-                                cb = sum(1 for e in range(n) if grp(cs, e) == gb and grp(cg, e) == gc)
+                                ca = sum(1 for e in range(n)
+                                         if grp(gidx_s, cs, e) == ga and grp(gidx_g, cg, e) == gc)
+                                cb = sum(1 for e in range(n)
+                                         if grp(gidx_s, cs, e) == gb and grp(gidx_g, cg, e) == gc)
                                 if ca > cb:
                                     cmp.append(GroupGroupCompare(
                                         cs, prts_s[ga], labs_s[ga], prts_s[gb], labs_s[gb],
