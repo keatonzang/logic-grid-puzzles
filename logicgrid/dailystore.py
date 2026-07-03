@@ -27,7 +27,9 @@ class StoreError(Exception):
 
 
 class DuplicateScore(StoreError):
-    """This solve (session id) is already on the board."""
+    """A unique constraint fired: this solve (session id) was already posted,
+    or this account already has a score today. ``str(exc)`` holds the
+    PostgREST detail so callers can tell which."""
 
 
 def configured() -> bool:
@@ -95,9 +97,10 @@ def top_scores(day: date, limit: int = BOARD_LIMIT) -> list[dict]:
 
 
 def insert_score(day: date, name: str, time_ms: int, steps: int | None,
-                 sid: str, ip_hash: str | None) -> None:
-    """One row per solve. The unique ``sid`` column makes a result token
-    single-use — replaying it is a 409, surfaced as DuplicateScore."""
+                 sid: str, user_id: str, ip_hash: str | None) -> None:
+    """One row per solve. Two unique constraints guard it: ``sid`` makes a
+    result token single-use, and (day, user_id) allows one score per account
+    per day. Either violation is a 409, surfaced as DuplicateScore."""
     _request(
         "POST", "daily_scores",
         body={
@@ -106,9 +109,34 @@ def insert_score(day: date, name: str, time_ms: int, steps: int | None,
             "time_ms": time_ms,
             "steps": steps,
             "sid": sid,
+            "user_id": user_id,
             "ip_hash": ip_hash,
         },
     )
+
+
+def auth_user(access_token: str) -> dict | None:
+    """Resolve a client-supplied Supabase Auth access token to its user via
+    GoTrue, or None if the token is missing/invalid/expired. Server-side
+    verification: the client's word about who it is never reaches the DB."""
+    if not access_token or not configured():
+        return None
+    base = os.environ["SUPABASE_URL"].rstrip("/")
+    key = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+    req = urllib.request.Request(
+        f"{base}/auth/v1/user",
+        headers={"apikey": key, "Authorization": f"Bearer {access_token}"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as res:
+            user = json.loads(res.read())
+    except urllib.error.HTTPError as exc:
+        if exc.code in (401, 403):
+            return None
+        raise StoreError(f"auth error {exc.code}") from exc
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise StoreError(f"auth unreachable: {exc}") from exc
+    return user if isinstance(user, dict) and user.get("id") else None
 
 
 def count_for_ip(day: date, ip_hash: str) -> int:

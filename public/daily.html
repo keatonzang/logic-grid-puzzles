@@ -68,10 +68,26 @@
         <section id="claim" class="claim" hidden>
           <h3>Claim your spot</h3>
           <p id="claim-time" class="claim-time"></p>
-          <label>Display name
-            <input id="claim-name" maxlength="20" autocomplete="nickname" placeholder="2–20 characters" />
-          </label>
-          <button id="claim-submit" class="primary">Post my time</button>
+          <div id="claim-auth" hidden>
+            <p class="claim-note">Posting a time needs an account — one entry per player per day. Your verified time is safe; signing in isn't on the clock.</p>
+            <label>Email
+              <input id="auth-email" type="email" autocomplete="email" />
+            </label>
+            <label>Password
+              <input id="auth-password" type="password" autocomplete="current-password" placeholder="6+ characters" />
+            </label>
+            <div class="claim-row">
+              <button id="auth-signin" class="primary">Sign in</button>
+              <button id="auth-signup">Create account</button>
+            </div>
+          </div>
+          <div id="claim-post" hidden>
+            <p id="auth-status" class="claim-note"></p>
+            <label>Display name
+              <input id="claim-name" maxlength="20" autocomplete="nickname" placeholder="2–20 characters" />
+            </label>
+            <button id="claim-submit" class="primary">Post my time</button>
+          </div>
           <p id="claim-error" class="claim-error" hidden></p>
         </section>
 

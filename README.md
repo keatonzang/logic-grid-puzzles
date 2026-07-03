@@ -133,11 +133,18 @@ integrity is server-side:
   network tab or reproduced through `/api/puzzle`.
 - Timing is server-authoritative: `GET /api/daily` issues a signed session
   token; on submit the server verifies the solution against the regenerated
-  puzzle and measures elapsed time itself. A verified solve returns a signed
-  single-use result token, which the player then exchanges — together with a
-  display name — for a board entry, so typing a name costs no time.
-- Display names are filtered server-side (leet-normalized profanity check);
-  no accounts, no profiles.
+  puzzle and measures elapsed time itself. Submission is all-or-nothing — a
+  yes/no with no cell-level feedback (that would leak the key one probe at a
+  time) — and a wrong submission leaves the clock running. A verified solve
+  returns a signed single-use result token, which the player then exchanges —
+  together with a display name — for a board entry, so typing a name (or
+  signing in) costs no time.
+- Anyone can play; **posting a time requires an account** (Supabase Auth,
+  email + password, auto-confirmed — no emails sent). The API resolves the
+  access token server-side and a unique `(day, user_id)` index enforces one
+  score per account per day. No profiles beyond that; display names are
+  still chosen per solve and filtered server-side (leet-normalized
+  profanity check).
 - Simple anti-cheat floors: implausibly fast times and too-few board
   interactions are rejected, sessions expire, result tokens are single-use
   (unique constraint), and entries per network per day are capped. Hint,
@@ -145,8 +152,9 @@ integrity is server-side:
 
 Scores live in Supabase (`supabase/migrations/`), reached only through
 `api/daily.py` with the service-role key — both tables have RLS enabled with
-no policies, so the browser can never talk to the database directly.
-Configure with env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+no policies, so the browser can never talk to the database directly (the
+anon key it receives is only good for the auth endpoints). Configure with
+env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`,
 `DAILY_SECRET` (any long random string; rotating it re-rolls upcoming
 puzzles and invalidates in-flight sessions).
 

@@ -231,6 +231,59 @@ def test_claim_rejects_bad_names_before_touching_the_store(api, monkeypatch):
     assert status == 503  # good name, but no store configured
 
 
+def _claim_env(api, monkeypatch):
+    """A configured store whose network calls are stubbed at the module level."""
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    monkeypatch.setenv("SUPABASE_URL", "https://stub.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "stub-key")
+    now = time.time()
+    result_token = daily.issue_result(
+        {"d": daily.today_utc().isoformat(), "sid": "abc123"}, 90_000, 40, SECRET, now
+    )
+    return now, {"action": "claim", "result_token": result_token, "name": "Keaton"}
+
+
+def test_claim_requires_a_signed_in_account(api, monkeypatch):
+    now, body = _claim_env(api, monkeypatch)
+    monkeypatch.setattr(api.dailystore, "auth_user", lambda token: None)
+    status, payload = api._build_post_response(body, now=now, user_token="expired-or-junk")
+    assert status == 401 and "sign in" in payload["error"]
+
+
+def test_claim_one_score_per_account_per_day(api, monkeypatch):
+    now, body = _claim_env(api, monkeypatch)
+    monkeypatch.setattr(api.dailystore, "auth_user", lambda token: {"id": "user-1"})
+    monkeypatch.setattr(api.dailystore, "count_for_ip", lambda day, ip: 0)
+
+    def dup(*args, **kwargs):
+        raise api.dailystore.DuplicateScore(
+            'duplicate key value violates unique constraint "daily_scores_day_user"'
+        )
+
+    monkeypatch.setattr(api.dailystore, "insert_score", dup)
+    status, payload = api._build_post_response(body, now=now, user_token="valid")
+    assert status == 409 and "already posted" in payload["error"]
+
+
+def test_claim_inserts_with_the_verified_user_id(api, monkeypatch):
+    now, body = _claim_env(api, monkeypatch)
+    monkeypatch.setattr(api.dailystore, "auth_user", lambda token: {"id": "user-9"})
+    monkeypatch.setattr(api.dailystore, "count_for_ip", lambda day, ip: 0)
+    seen = {}
+
+    def record(day, name, time_ms, steps, sid, user_id, ip_hash):
+        seen.update(name=name, time_ms=time_ms, sid=sid, user_id=user_id)
+
+    monkeypatch.setattr(api.dailystore, "insert_score", record)
+    monkeypatch.setattr(
+        api.dailystore, "top_scores",
+        lambda day: [{"name": "Keaton", "time_ms": 90_000, "steps": 40, "sid": "abc123"}],
+    )
+    status, payload = api._build_post_response(body, now=now, user_token="valid", ip="203.0.113.9")
+    assert status == 200 and payload["rank"] == 1
+    assert seen == {"name": "Keaton", "time_ms": 90_000, "sid": "abc123", "user_id": "user-9"}
+
+
 def test_unknown_action_is_400(api, monkeypatch):
     monkeypatch.setenv("DAILY_SECRET", SECRET)
     status, payload = api._build_post_response({"action": "cheat"})
