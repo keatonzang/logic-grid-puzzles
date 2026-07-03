@@ -309,23 +309,23 @@ table.staircase .blk-top { border-top: 2px solid var(--muted); }
 
 /* Thin (1px) solid sub-dividers between the groups of a hierarchical category —
    thinner than the 2px category dividers, and solid so the dashes don't read as
-   gaps in the colour-coded band. */
+   gaps in the color-coded band. */
 table.staircase .grp-left, table.grid .grp-left { border-left: 1px solid var(--muted); }
 table.staircase .grp-top, table.grid .grp-top { border-top: 1px solid var(--muted); }
 
-/* Labelled, colour-coded guild band over a grouped category's items, on the top
+/* Labelled, color-coded guild band over a grouped category's items, on the top
    (horizontal) and left (vertical) axes. The label is ABSOLUTELY placed inside an
    inner .gl-i capped to the padded box, so it is out of flow and can never grow a
    data cell — squares stay square and it can't push the table wider. JS
    (fitGuildBands / sizeGuildColumns) grows the band's free dimension — the top
    band's height (--gband-h), the left band's column width — then only shrinks the
    font if a single word still overflows the cell-bound dimension. Ungrouped
-   categories get a plain filler so no colour bleeds under them. */
+   categories get a plain filler so no color bleeds under them. */
 th.sc-guild, th.g-band, th.sc-rowguild {
   position: relative;
   padding: 0;
   background-color: var(--panel-2);  /* translucent guild tint over the panel — no
-     color-mix, so the colour also renders on older mobile browsers */
+     color-mix, so the color also renders on older mobile browsers */
   background-image: linear-gradient(var(--gcolor-soft, transparent), var(--gcolor-soft, transparent));
 }
 th.sc-guild, th.g-band { border-bottom: 2px solid var(--gcolor); height: var(--gband-h, 2.4rem); }
@@ -358,10 +358,10 @@ col.sc-rowguild-col { width: 1.9rem; }   /* starting width; JS widens it to fit 
   color: var(--ink);
 }
 th.sc-rowguild .gl-i { writing-mode: vertical-rl; transform: rotate(180deg); }  /* match the row-category label */
-/* No divider between adjacent group tags within a band — the colour change marks
+/* No divider between adjacent group tags within a band — the color change marks
    the split. Overrides both the base cell border and grp-left/grp-top (same
    specificity, later in source). Category dividers (blk-left/blk-top) and each
-   band's coloured edge (bottom for top, right for left) still show. */
+   band's colored edge (bottom for top, right for left) still show. */
 th.sc-guild, th.g-band,
 th.sc-guild.grp-left, th.g-band.grp-left { border-left-width: 0; border-right-width: 0; }
 th.sc-rowguild, th.sc-rowguild.grp-top { border-top-width: 0; border-bottom-width: 0; }
@@ -445,15 +445,15 @@ td.cell.no.lit { opacity: 1; color: #ffffff; }
 td.cell.wrong { background: rgba(255, 107, 107, .25); }
 td.cell.right { background: rgba(81, 207, 102, .18); }
 
-/* --- Colour-blind mode (body.cblind, toggled in the controls) --------------
-   The most common colour-vision deficiencies (deuter-/protanopia) make the
+/* --- Color-blind mode (body.cblind, toggled in the controls) --------------
+   The most common color-vision deficiencies (deuter-/protanopia) make the
    green "✓ / correct / good" and red "✗-mistake / bad" cues hard to tell apart.
    The ✓(=) and ✗(×) glyphs already differ by *shape*, so the grid marks stay
-   legible regardless; this swap targets the places where colour is the only
+   legible regardless; this swap targets the places where color is the only
    signal — a correct vs mistaken cell, a good vs bad banner — repainting the
    red/green pair as blue/orange, which stays distinct across all common types.
    It only re-points the shared palette variables (plus the two hard-coded cell
-   tints), so every dependent element re-colours automatically. */
+   tints), so every dependent element re-colors automatically. */
 body.cblind {
   --good: #4dabf7;   /* links, correct marks, success banners → blue   */
   --bad:  #f08c2e;   /* mistakes, error banners               → orange */

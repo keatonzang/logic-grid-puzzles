@@ -2,7 +2,7 @@
 
 const $ = (id) => document.getElementById(id);
 const STATES = ["", "=", "×"]; // 0 blank, 1 link (=), 2 no-link (×)
-// Per-group accent colours, ordered by hue (amber → green → blue → violet →
+// Per-group accent colors, ordered by hue (amber → green → blue → violet →
 // pink) so alphabetically-sorted groups pick up an even spread across the wheel.
 const GROUP_COLORS = ["#ffc46e", "#51cf66", "#6ea8fe", "#c9a7ff", "#ff8fab"];
 const DESKTOP = window.matchMedia("(min-width: 821px)"); // staircase vs pairwise
@@ -656,7 +656,7 @@ function vlabel(th, text) {
 
 // A six-digit #hex to an rgba() string. Used for the translucent guild tint so we
 // don't rely on CSS color-mix (unsupported on some mobile browsers, where the
-// band would otherwise render with no colour at all).
+// band would otherwise render with no color at all).
 function hexToRgba(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
@@ -777,7 +777,7 @@ function renderStaircase(cats) {
 
   // Thick category dividers sit BETWEEN blocks, not before the first one (the
   // row-label column / first row already separates it). Grouped categories get a
-  // labelled, colour-coded guild band over their (now contiguous) items plus thin
+  // labelled, color-coded guild band over their (now contiguous) items plus thin
   // sub-dividers between groups — on BOTH axes (top band + left band). Labels are
   // fitted (see guildCell + sizeGuildColumns/fitGuildBands) so they never push
   // a cell out of square.
@@ -812,7 +812,7 @@ function renderStaircase(cats) {
 
   // header row 1b: guild band — a labelled tinted cell per group. Ungrouped
   // categories skip it (their name cell rowspans down into this row instead), so
-  // there's no empty filler and no colour bleeds under them.
+  // there's no empty filler and no color bleeds under them.
   if (anyColGrouped) {
     const hg = document.createElement("tr");
     for (const j of colCats) {
@@ -1150,7 +1150,7 @@ async function loadThemes() {
   ensureCustomOption();
 }
 
-// --- Colour-blind palette toggle. A display-only preference (no re-generation),
+// --- Color-blind palette toggle. A display-only preference (no re-generation),
 // persisted in localStorage and applied via a `body.cblind` class — see the
 // `body.cblind` block in style.css. Wrapped in try/catch so a blocked
 // localStorage (private mode) degrades to a non-persisted toggle, never a crash.

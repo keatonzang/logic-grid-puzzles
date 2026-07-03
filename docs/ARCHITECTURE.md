@@ -533,7 +533,7 @@ Everything else is measurement, and measurement has edges:
 One known gap between payload and UI: the payload describes group grids richly
 enough to solve on, and `logic.js` exports a tested group-grid rule set
 (`nextStateGroup` / `deriveGroup`), but `app.js` currently renders hierarchy
-groups as display-only colour bands — the group-grid interaction is not wired
+groups as display-only color bands — the group-grid interaction is not wired
 up.
 
 ## 10. Testing and calibration
