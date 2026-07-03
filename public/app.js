@@ -1452,6 +1452,32 @@ async function claimSpot() {
   }
 }
 
+// Ticking countdown to the next puzzle (the day rolls at UTC midnight). When
+// it lands, offer a reload link rather than reloading — someone mid-solve at
+// midnight shouldn't have the board yanked out from under them.
+let countdownInterval = null;
+function startDailyCountdown() {
+  const [y, m, d] = dailyDate.split("-").map(Number);
+  const next = Date.UTC(y, m - 1, d + 1); // midnight after the puzzle's day
+  const el = $("daily-countdown");
+  const tick = () => {
+    const left = next - Date.now();
+    if (left <= 0) {
+      el.innerHTML = `new puzzle is ready — <a href="/daily">load it</a>`;
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      return;
+    }
+    const s = Math.floor(left / 1000);
+    const two = (n) => String(n).padStart(2, "0");
+    el.textContent =
+      `Next puzzle in ${two(Math.floor(s / 3600))}:${two(Math.floor((s % 3600) / 60))}:${two(s % 60)}`;
+  };
+  if (countdownInterval) clearInterval(countdownInterval);
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
 async function loadDaily() {
   $("error").hidden = true;
   $("loading").hidden = false;
@@ -1465,6 +1491,7 @@ async function loadDaily() {
     puzzle = data.puzzle;
     $("daily-info").textContent = `Puzzle for ${data.date} (UTC)`;
     $("board-date").textContent = data.date;
+    startDailyCountdown();
     buildState();
     render();
     $("puzzle").hidden = false;
