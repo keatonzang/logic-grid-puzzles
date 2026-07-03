@@ -124,36 +124,46 @@ function refPhrase(c, idx, noun, item) {
 }
 
 function cardReads(c, idx) {
-  const noun = $("b-noun").value.trim() || "entry";
+  // Always rendered: missing pieces show as blanks that visibly fill in as
+  // the user types — the phrases never hide and never fake sample values.
+  const rawNoun = $("b-noun").value.trim();
   const items = lines(c.itemsText);
   const out = [];
-  if (items.length < 2) {
-    return ["<div class=\"muted\">Add two or more items to preview how clues will read.</div>"];
-  }
-  const [a, b] = items;
+  const a = items[0];
+  const b = items[1];
+  const ref = c.referent.trim();
+  // A row named via THIS category's item: referent template, or the
+  // entity-noun default. HTML with blank slots, mirroring clues.py exactly.
+  const named = (item) => {
+    if (idx === 0) return slot(item);
+    if (ref.includes("{}")) return esc(cap(ref)).replace("{}", slot(item));
+    return `The ${slot(rawNoun)} with ${slot(item)}`;
+  };
+  // The other side of the sample link: the subject's first item (or the next
+  // category's, on the subject card itself).
+  const other = idx === 0 ? lines(cats[1] ? cats[1].itemsText : "")[0] : lines(cats[0] ? cats[0].itemsText : "")[0];
   if (idx === 0) {
-    out.push(`<div><b>Named in clues:</b> ${q(a)} — the first category is the subject and reads as itself.</div>`);
+    out.push(`<div><b>Named in clues:</b> ${qh(`${slot(a)} goes with ${slot(other)}.`)} — the subject reads as itself.</div>`);
   } else {
-    out.push(`<div><b>Named in clues:</b> ${q(cap(refPhrase(c, idx, noun, a)))}</div>`);
+    out.push(`<div><b>Named in clues:</b> ${qh(`${named(a)} goes with ${slot(other)}.`)}${ref ? "" : " (default naming — set a referent to change it)"}</div>`);
   }
   if (c.ordered) {
-    const name = (c.name.trim() || "value").toLowerCase();
+    const nm = c.name.trim().toLowerCase();
     const vals = lines(c.valuesText).map(Number);
     const ok = vals.length >= 2 && vals.every(Number.isFinite);
-    const gap = ok ? Math.abs(vals[1] - vals[0]) : 2;
-    const amount = `${c.unit}${gap}${c.unitSuffix}`;
+    const amount = `${esc(c.unit)}${ok ? Math.abs(vals[1] - vals[0]) : BLANK}${esc(c.unitSuffix)}`;
     const verb = c.plural ? "are" : "is";
     const article = c.plural ? "" : "a ";
-    out.push(`<div><b>Comparisons:</b> ${q(`${cap(refPhrase(c, idx, noun, b))}'s ${name} ${verb} exactly ${amount} more than ${refPhrase(c, idx, noun, a)}.`)}</div>`);
-    out.push(`<div><b>…and:</b> ${q(`${article}higher ${name}`)} ${c.plural ? "(plural agreement)" : ""}</div>`);
+    out.push(`<div><b>Comparisons:</b> ${qh(`${named(b)}'s ${slot(nm)} ${verb} exactly ${amount} more than ${lowerFirst(named(a))}.`)}</div>`);
+    out.push(`<div><b>…and:</b> ${qh(`${article}higher ${slot(nm)}`)}${c.plural ? " (plural agreement)" : ""}</div>`);
   }
   const gLines = lines(c.groupsText);
   if (gLines.length) {
-    const gnoun = c.groupNoun.trim() || "group";
+    const gn = c.groupNoun.trim();
     const label = gLines[0].replace(/:.*$/, "").trim();
     if (label) {
-      out.push(`<div><b>Groups:</b> ${q(`${a} belongs to the ${label}.`)} · ${q(`someone in the ${label}`)}</div>`);
-      out.push(`<div><b>…and:</b> ${q(`${a} and ${items[1]} are in the same ${gnoun}.`)}</div>`);
+      out.push(`<div><b>Groups:</b> ${qh(`${slot(a)} belongs to the ${esc(label)}.`)} · ${qh(`someone in the ${esc(label)}`)}</div>`);
+      out.push(`<div><b>…and:</b> ${qh(`${slot(a)} and ${slot(b)} are in the same ${slot(gn)}.`)}${gn ? "" : " (group noun defaults to “group”)"}</div>`);
       if (c.groupMode === "random") {
         out.push(`<div class="muted">Open groups: membership is dealt fresh each puzzle (needs 4+ items to form).</div>`);
       }
@@ -162,19 +172,25 @@ function cardReads(c, idx) {
   return out;
 }
 
+// Lowercase a leading "The " when the phrase lands mid-sentence (bare subject
+// items and referent templates keep their own casing after the first word).
+function lowerFirst(html) {
+  return html.replace(/^The /, "the ");
+}
+
+// Only the plural-noun warning surfaces here now — the per-category "how it
+// reads" boxes (cardReads) already show the noun in real sample clues, so a
+// second phrase-preview at the top was pure duplication.
 function themeReads() {
   const el = $("noun-hint");
   const raw = $("b-noun").value.trim();
-  const allItems = cats.flatMap((c) => lines(c.itemsText));
-  const a = allItems[0];
-  const b = allItems[1];
   if (raw && looksPlural(raw)) {
-    el.innerHTML = `<span class="error">looks plural — enter the singular; clues pluralise it themselves</span>`;
-    return;
+    el.hidden = false;
+    el.textContent = "looks plural — enter the singular; clues pluralise it themselves";
+  } else {
+    el.hidden = true;
+    el.textContent = "";
   }
-  el.innerHTML =
-    `${qh(`the ${slot(raw)} with ${slot(b)}`)} · ` +
-    `${qh(`${slot(a)} and ${slot(b)} belong to different ${raw ? esc(pluralize(raw)) : BLANK}.`)}`;
 }
 
 // --- Rendering ----------------------------------------------------------------
@@ -183,7 +199,7 @@ function catCard(c, idx) {
   card.className = "card";
   card.innerHTML = `
     <div class="cat-head">
-      <h4>Category ${idx + 1}${idx === 0 ? " · subject" : ""}</h4>
+      <h4>Category ${idx + 1}${idx === 0 ? '<span class="subject-badge">subject</span>' : ""}</h4>
       <span class="cat-tools">
         <button data-act="up" title="Move up" ${idx === 0 ? "disabled" : ""}>↑</button>
         <button data-act="down" title="Move down" ${idx === cats.length - 1 ? "disabled" : ""}>↓</button>
@@ -192,33 +208,29 @@ function catCard(c, idx) {
     </div>
     <div class="row">
       <label class="field"><span>Name</span><input data-f="name" type="text" placeholder="Vendor" /></label>
-      <label class="field"><span>Referent (optional)</span>
-        <small class="hint-above" data-role="ref-hint"></small>
+      <label class="field"><span>Referent <span class="opt">(optional)</span></span>
         <input data-f="referent" type="text" placeholder="the vendor selling {}" /></label>
     </div>
-    <label class="field"><span>Items — one per line (every category needs the same count; labels unique across the whole theme)</span>
+    <label class="field"><span>Items <span class="opt">— one per line, same count in every category, unique across the theme</span></span>
       <textarea data-f="itemsText" placeholder="Mei&#10;Omar&#10;Petra&#10;Quinn"></textarea></label>
-    <label class="inline-check"><input data-f="ordered" type="checkbox" /> ordered / numeric</label>
+    <label class="inline-check"><input data-f="ordered" type="checkbox" /> Ordered / numeric value</label>
     <div class="ordered-extra" hidden>
-      <small class="hint-above" data-role="plural-hint"></small>
-      <label class="inline-check" style="margin-bottom:.5rem"><input data-f="plural" type="checkbox" /> plural name (“Earnings”, “Wages”)</label>
-      <label class="field"><span>Values — one number per line, ascending, matching the items</span>
+      <label class="inline-check" style="margin-bottom:.9rem"><input data-f="plural" type="checkbox" /> Plural name (“Earnings”, “Wages”)</label>
+      <label class="field"><span>Values <span class="opt">— one number per line, ascending, matching the items</span></span>
         <textarea data-f="valuesText" placeholder="10&#10;20&#10;30&#10;40"></textarea></label>
-      <small class="hint-above" data-role="amount-hint"></small>
-      <div class="row">
-        <label class="field"><span>Unit prefix (optional)</span><input data-f="unit" type="text" placeholder="$" /></label>
-        <label class="field"><span>Unit suffix (optional)</span><input data-f="unitSuffix" type="text" placeholder=" coins" /></label>
+      <div class="row" style="margin-bottom:0">
+        <label class="field"><span>Unit prefix</span><input data-f="unit" type="text" placeholder="$" /></label>
+        <label class="field"><span>Unit suffix</span><input data-f="unitSuffix" type="text" placeholder=" coins" /></label>
       </div>
     </div>
-    <div class="groups-extra" style="margin-top:.6rem">
+    <div class="groups-extra">
       <div class="row">
         <label class="field"><span>Group membership</span>
           <select data-f="groupMode">
             <option value="pinned">Pinned — I list who's in each group</option>
             <option value="random">Open — anyone; dealt fresh each puzzle</option>
           </select></label>
-        <label class="field"><span>Group noun — what ONE group is called (singular)</span>
-          <small class="hint-above" data-role="gnoun-hint"></small>
+        <label class="field"><span>Group noun <span class="opt">(singular)</span></span>
           <input data-f="groupNoun" type="text" placeholder="row" /></label>
       </div>
       <label class="field"><span data-role="groups-label">Groups (optional) — “Label: item, item” per line; unlocks hierarchy clues</span>
@@ -237,53 +249,13 @@ function catCard(c, idx) {
       ta.placeholder = "North Row: Mei, Omar\nSouth Row: Petra, Quinn";
     }
   };
+  // A single consolidated preview box per category — replaces the five
+  // scattered hint-above lines the old layout drew above individual fields.
+  // cardReads() already mirrors the engine's real clue phrasing, so this is
+  // now the ONE place that live-previews how a category will read.
   const syncReads = () => {
-    card.querySelector('[data-role="reads"]').innerHTML = cardReads(c, idx).join("");
-    const noun = $("b-noun").value.trim() || "entry";
-    const items = lines(c.itemsText);
-    const item = items[0] || "Lanterns";
-
-    // Each hint sits directly above its field and shows ONLY the phrase that
-    // field controls, so cause and effect stay obvious while typing.
-    // Referent: a full sample clue (a basic "goes with" link) so the effect of
-    // the template is unmistakable. The other side of the link is the subject's
-    // first item (or, on the subject card itself, the next category's).
-    const refEl = card.querySelector('[data-role="ref-hint"]');
-    const ref = c.referent.trim();
-    const rawNoun = $("b-noun").value.trim();
-    const item0 = items[0];
-    const subjItem = lines(cats[0] ? cats[0].itemsText : "")[0];
-    const other = idx === 0 ? lines(cats[1] ? cats[1].itemsText : "")[0] : subjItem;
-    if (idx === 0) {
-      refEl.innerHTML = `${qh(`${slot(item0)} goes with ${slot(other)}.`)} — the subject reads as itself; referent ignored`;
-    } else if (!ref) {
-      refEl.innerHTML = `${qh(`The ${slot(rawNoun)} with ${slot(item0)} goes with ${slot(other)}.`)} (default naming)`;
-    } else if (!ref.includes("{}")) {
-      refEl.innerHTML = `<span class="error">needs {} where the item goes — e.g. “the vendor selling {}”</span>`;
-    } else {
-      refEl.innerHTML = qh(`${esc(cap(ref)).replace("{}", slot(item0))} goes with ${slot(other)}.`);
-    }
-
-    // Plurality: how the category name agrees in comparison clue text.
-    const plEl = card.querySelector('[data-role="plural-hint"]');
-    const nm = c.name.trim().toLowerCase();
-    plEl.innerHTML =
-      `${qh(`…${slot(nm)} ${c.plural ? "are" : "is"} higher than…`)} · ` +
-      `${qh(`${c.plural ? "" : "a "}higher ${slot(nm)}`)}`;
-
-    const amtEl = card.querySelector('[data-role="amount-hint"]');
-    const vals = lines(c.valuesText).map(Number);
-    const ok = vals.length >= 2 && vals.every(Number.isFinite);
-    const gapHtml = ok ? String(Math.abs(vals[1] - vals[0])) : BLANK;
-    amtEl.innerHTML = qh(`…is exactly ${esc(c.unit)}${gapHtml}${esc(c.unitSuffix)} more than…`);
-
-    const gEl = card.querySelector('[data-role="gnoun-hint"]');
-    const gn = c.groupNoun.trim();
-    if (gn && looksPlural(gn)) {
-      gEl.innerHTML = `<span class="error">looks plural — use the singular</span>`;
-    } else {
-      gEl.innerHTML = `${qh(`…are in the same ${slot(gn)}`)}${gn ? "" : " (defaults to “group”)"}`;
-    }
+    card.querySelector('[data-role="reads"]').innerHTML =
+      '<div class="reads-label">Preview — how this reads</div>' + cardReads(c, idx).join("");
   };
   for (const el of card.querySelectorAll("[data-f]")) {
     const f = el.dataset.f;

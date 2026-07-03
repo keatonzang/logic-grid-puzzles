@@ -7,42 +7,80 @@
   <link rel="stylesheet" href="/style.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='1' width='6' height='6' rx='1' fill='%23394869'/><rect x='9' y='1' width='6' height='6' rx='1' fill='%236ea8fe'/><rect x='1' y='9' width='6' height='6' rx='1' fill='%236ea8fe'/><rect x='9' y='9' width='6' height='6' rx='1' fill='%23394869'/></svg>" />
   <style>
-    /* Builder-page layout only — visual language comes from style.css. */
-    .builder-wrap { max-width: 1180px; margin: 0 auto; padding: 0 1rem 3rem; }
-    .top-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1.25rem; align-items: start; }
-    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; align-items: start; margin-top: 1.1rem; }
-    @media (max-width: 880px) { .top-grid { grid-template-columns: 1fr; } }
-    .card { background: var(--panel, #141a2e); border: 1px solid var(--border, #2a3350); border-radius: 10px; padding: 1rem 1.1rem; }
-    .card h3 { margin: 0 0 .7rem; }
-    .field { display: block; margin: 0 0 .7rem; font-size: .92rem; }
-    .field > span { display: block; margin-bottom: .25rem; opacity: .85; }
-    .field input[type="text"], .field textarea, .field select {
-      width: 100%; box-sizing: border-box; background: var(--bg, #0b1020); color: inherit;
-      border: 1px solid var(--border, #2a3350); border-radius: 6px; padding: .45rem .55rem; font: inherit;
+    /* Builder-page layout only — visual language comes from style.css.
+       Cleanup pass: consistent spacing scale, aligned label grid, one
+       consolidated "how it reads" preview per category (no more scattered
+       per-field hint lines), clear primary/secondary button hierarchy. */
+    .builder-wrap { max-width: 1240px; margin: 0 auto; padding: 0 1rem 3rem; }
+    .top-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: stretch; }
+    .top-grid > .card { flex: 1 1 380px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; align-items: start; margin-top: 1.5rem; }
+
+    .card { background: var(--panel, #181c2e); border: 1px solid var(--line, #2c3354); border-radius: 14px; padding: 1.5rem 1.6rem; }
+    .card h3 { margin: 0 0 1.1rem; font-size: 1.05rem; }
+    .card h4 { margin: 0; font-size: 1rem; }
+
+    .field { display: block; margin: 0 0 1rem; font-size: .95rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field > span {
+      display: block; margin-bottom: .4rem; font-size: .78rem; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--muted, #9aa3c4); font-weight: 600;
     }
-    .field textarea { min-height: 5em; resize: vertical; }
-    .field small { display: block; opacity: .6; margin-top: .2rem; }
-    .row { display: flex; gap: .8rem; flex-wrap: wrap; }
-    .row > .field { flex: 1 1 9rem; }
-    .inline-check { display: inline-flex; align-items: center; gap: .4rem; margin-right: 1rem; font-size: .92rem; }
-    .cat-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
-    .cat-head h4 { margin: 0; }
-    .cat-tools button { margin-left: .35rem; }
-    .builder-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1.1rem 0 0; }
-    .ordered-extra, .groups-extra { border-left: 3px solid var(--border, #2a3350); padding-left: .8rem; margin-top: .5rem; }
+    .field > span .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+    .field input[type="text"], .field textarea, .field select {
+      width: 100%; box-sizing: border-box; background: var(--panel-2, #20253c); color: inherit;
+      border: 1px solid var(--line, #2c3354); border-radius: 8px; padding: .6rem .75rem; font: inherit; font-size: .95rem;
+    }
+    .field textarea { min-height: 5em; resize: vertical; line-height: 1.5; }
+
+    .row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .row > .field { flex: 1 1 9rem; margin-bottom: 0; }
+
+    .inline-check { display: flex; align-items: center; gap: .6rem; font-size: .92rem; margin-bottom: .9rem; cursor: pointer; }
+    .inline-check input { width: 18px; height: 18px; accent-color: var(--accent, #6ea8fe); cursor: pointer; }
+
+    .cat-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; }
+    .cat-tools { display: flex; gap: .4rem; }
+    .cat-tools button {
+      width: 2rem; height: 2rem; padding: 0; background: var(--panel-2, #20253c);
+      border: 1px solid var(--line, #2c3354); border-radius: 6px; font-size: .85rem;
+    }
+    .subject-badge {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      color: var(--accent, #6ea8fe); background: rgba(110,168,254,.14); padding: .15rem .5rem;
+      border-radius: 999px; margin-left: .5rem; vertical-align: middle;
+    }
+
+    .builder-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin: 1.5rem 0; }
+    .builder-actions button { padding: .65rem 1.1rem; font-weight: 600; font-size: .9rem; white-space: nowrap; }
+    #b-generate { white-space: nowrap; }
+
+    .ordered-extra, .groups-extra { border-left: 2px solid var(--line, #2c3354); padding-left: 1rem; margin: 0 0 1.1rem; }
+    .groups-extra { border-left: none; padding-left: 0; }
+
     #b-error { white-space: pre-wrap; }
     #preview-clues li { margin-bottom: .35rem; }
-    .ok { color: #7dd97d; }
-    .muted { opacity: .65; font-size: .9rem; }
-    .hint-above { display: block; margin: .1rem 0 .3rem; font-size: .82rem; opacity: .8; min-height: 1.1em; }
-    .hint-above .q { color: #a8c4ff; }
+    .ok { color: var(--good, #51cf66); }
+    .muted { opacity: .8; font-size: .9rem; color: var(--muted, #9aa3c4); }
+
+    /* One consolidated live-preview box per category (replaces the old
+       per-field hint-above lines scattered through the form). */
+    .reads {
+      border: 1px dashed #384063; border-radius: 10px; padding: .8rem .95rem;
+      margin-top: 0; font-size: .86rem; line-height: 1.6;
+    }
+    .reads .reads-label {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted, #9aa3c4); margin-bottom: .4rem;
+    }
+    .reads div { margin: .3rem 0; }
+    .reads .q, .reads .q * { color: #a8c4ff; }
     .blank { opacity: .45; letter-spacing: 1px; }
-    .reads { border: 1px dashed var(--border, #2a3350); border-radius: 8px; padding: .55rem .7rem; margin-top: .6rem; font-size: .88rem; }
-    .reads b { opacity: .8; font-weight: 600; }
-    .reads div { margin: .15rem 0; }
-    .reads .q { color: #a8c4ff; }
-    .file-card { margin-top: 1.25rem; }
-    .file-card textarea { min-height: 12em; font-family: ui-monospace, monospace; font-size: .8rem; }
+
+    .noun-hint { display: block; margin-top: .4rem; font-size: .82rem; color: var(--bad, #ff6b6b); min-height: 0; }
+
+    .file-card { margin-top: 1.5rem; }
+    .file-card textarea { min-height: 14em; font-family: ui-monospace, monospace; font-size: .8rem; }
   </style>
 </head>
 <body>
@@ -62,9 +100,9 @@
         <label class="field"><span>Description (shown under the title)</span>
           <textarea id="b-desc" placeholder="Four vendors set up stalls at the night market, each selling different wares from a numbered pitch…"></textarea>
         </label>
-        <label class="field"><span>Entity noun — what ONE row is called (singular: “stall”, “order”, “suspect”)</span>
-          <small class="hint-above" id="noun-hint"></small>
+        <label class="field"><span>Entity noun <span class="opt">— what ONE row is called (singular: “stall”, “order”, “suspect”)</span></span>
           <input id="b-noun" type="text" placeholder="stall" />
+          <small class="noun-hint" id="noun-hint" hidden></small>
         </label>
       </section>
 
@@ -97,7 +135,7 @@
     </div>
 
     <div class="builder-actions">
-      <button id="b-add-cat">Add category</button>
+      <button id="b-add-cat">+ Add category</button>
       <button id="b-upload">Upload theme…</button>
       <input id="b-file" type="file" accept=".json,application/json" hidden />
       <button id="b-download" class="primary">Download theme file</button>
