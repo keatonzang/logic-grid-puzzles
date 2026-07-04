@@ -704,14 +704,24 @@ function fitGuildBands() {
     }
   };
   document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
-    table.querySelectorAll("th.sc-rowguild .gl-i, th.sc-rowsuper .gl-i").forEach((el) => shrink(el, "height"));
+    const side = [...table.querySelectorAll("th.sc-rowguild .gl-i, th.sc-rowsuper .gl-i")];
+    side.forEach((el) => shrink(el, "height"));
     const top = [...table.querySelectorAll("th.sc-guild .gl-i, th.g-band .gl-i")];
-    if (!top.length) return;
     top.forEach((el) => shrink(el, "width"));
-    let need = 0;
-    top.forEach((el) => { need = Math.max(need, el.scrollHeight); });
-    const MINH = 1.6 * rem, MAXH = 4.5 * rem;
-    table.style.setProperty("--gband-h", Math.min(MAXH, Math.max(MINH, Math.ceil(need) + 6)) + "px");
+    const sideCols = [...table.querySelectorAll("col.sc-rowguild-col, col.sc-rowsuper-col")];
+    if (!top.length && !sideCols.length) return;
+    // ONE shared thickness for the top band's height and the side bands'
+    // column widths — sized to whichever needs more — so the two axes read
+    // as equals instead of the top (which must fit wrapped labels) running
+    // visibly thicker than the side (whose text lies along its long axis).
+    let needTop = 0;
+    top.forEach((el) => { needTop = Math.max(needTop, el.scrollHeight + 6); });
+    let needSide = 0;
+    side.forEach((el) => { needSide = Math.max(needSide, el.scrollWidth + 8); });
+    const MINT = 1.6 * rem, MAXT = 4.5 * rem;
+    const t = Math.min(MAXT, Math.max(MINT, Math.ceil(Math.max(needTop, needSide))));
+    if (top.length) table.style.setProperty("--gband-h", t + "px");
+    sideCols.forEach((c) => { c.style.width = t + "px"; });
   });
 }
 
