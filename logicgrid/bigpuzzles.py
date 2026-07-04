@@ -67,6 +67,7 @@ from .webapi import (
     THEME_SPECS,
     THEMES,
     _category_payload,
+    _ordinal,
     _solution_rows,
     build_theme,
 )
@@ -78,6 +79,9 @@ from .webapi import (
 # NESTED_MIN_ITEMS and up.
 DONOR = "dnd"
 GROUP_DONOR = "kings_guild"
+# Double-sequential bundles need a spec with two ordered categories; school
+# (Grade + Period) donates, chess (Rating + Placing) is the re-theme partner.
+SEQ2_DONOR = "school"
 
 _VALUE_CLUES = (Diff, AtLeastApart, AbsApart)
 
@@ -100,23 +104,28 @@ def _flavor_group_defs(spec) -> list:
     return [gd for gd in spec.group_defs if not (len(gd) > 3 and gd[3])]
 
 
-def shape_supported(spec, categories: int, items: int, needs_ordered: bool,
+def shape_supported(spec, categories: int, items: int, needs_ordered,
                     n_grouped: int = 0, n_nested: int = 0) -> bool:
     """Can this theme spec dress a puzzle of the given shape?
 
     Needs: enough attribute pools for the non-subject, non-ordered slots,
     every pool deep enough for ``items``; a *valued* primary numeric when the
     puzzle carries an ordered category (evenly spaced values, so difference
-    clues remap exactly); and enough imposable hierarchy vocabularies —
-    ``n_nested`` categories with a nested (two-level) vocabulary plus
-    ``n_grouped`` more with at least a flat flavor one."""
-    n_attr = categories - 1 - (1 if needs_ordered else 0)
+    clues remap exactly) — ``needs_ordered`` counts the sequential dials, so
+    2 additionally requires a second declared numeric (rank-only is fine
+    there: extra dials never carry difference clues); and enough imposable
+    hierarchy vocabularies — ``n_nested`` categories with a nested vocabulary
+    plus ``n_grouped`` more with at least a flat flavor one."""
+    n_ordered = int(needs_ordered)
+    n_attr = categories - 1 - n_ordered
     if n_attr < 0 or len(spec.attributes) < n_attr:
         return False
     pools = [spec.subject_items] + [pool for _name, pool in spec.attributes]
     if any(len(pool) < items for pool in pools):
         return False
-    if needs_ordered and not (spec.numerics and spec.numerics[0].valued):
+    if n_ordered and not (spec.numerics and spec.numerics[0].valued):
+        return False
+    if n_ordered > len(spec.numerics):
         return False
     if n_nested > len(spec.nested_group_defs):
         return False
@@ -136,7 +145,7 @@ def puzzle_group_shape(theme: Theme) -> tuple[int, int]:
     return n_grouped, n_nested
 
 
-def compatible_themes(categories: int, items: int, needs_ordered: bool,
+def compatible_themes(categories: int, items: int, needs_ordered,
                       n_grouped: int = 0, n_nested: int = 0) -> list[str]:
     return [
         spec.key for spec in THEME_SPECS
@@ -147,28 +156,37 @@ def compatible_themes(categories: int, items: int, needs_ordered: bool,
 
 # --- Donor generation --------------------------------------------------------
 
+def pick_donor(groups: bool, n_ordered: int) -> str:
+    if n_ordered >= 2:
+        if groups:  # no registry theme carries flavor groups AND two dials
+            raise ValueError("grouped double-sequential has no donor theme")
+        return SEQ2_DONOR
+    return GROUP_DONOR if groups else DONOR
+
+
 def generate_big(seed: int, difficulty: str, categories: int, items: int,
-                 ordered: bool = True, groups: bool = False,
+                 ordered=True, groups: bool = False,
                  donor: str | None = None, collect=None):
     """Generate the canonical (donor-themed) big puzzle. Returns
-    ``(theme, puzzle, report)`` — deterministic in all arguments. With
-    ``collect``, every logic-solvable candidate the walk grades is passed to
-    it (see ``generate_rated``)."""
-    donor = donor or (GROUP_DONOR if groups else DONOR)
+    ``(theme, puzzle, report)`` — deterministic in all arguments. ``ordered``
+    counts the sequential dials (bool means one). With ``collect``, every
+    logic-solvable candidate the walk grades is passed to it (see
+    ``generate_rated``)."""
+    n_ordered = int(ordered)
+    donor = donor or pick_donor(groups, n_ordered)
     spec = THEMES[donor]
-    if not shape_supported(spec, categories, items, ordered):
+    if not shape_supported(spec, categories, items, n_ordered):
         raise ValueError(f"donor {donor!r} can't dress {categories}x{items}")
     rng = random.Random(seed)
-    n_numeric = 1 if ordered else 0
     return generate_rated(
-        lambda r: build_theme(spec, r, items, categories, n_numeric,
+        lambda r: build_theme(spec, r, items, categories, n_ordered,
                               use_groups=groups, clamp=False),
         rng, difficulty, collect=collect,
     )
 
 
 def generate_big_all(seed: int, difficulty: str, categories: int, items: int,
-                     ordered: bool = True, groups: bool = False,
+                     ordered=True, groups: bool = False,
                      donor: str | None = None) -> list:
     """Every logic-solvable candidate one walk produces, as
     ``(theme, puzzle, report)`` tuples — the target-band winner AND the
@@ -243,14 +261,25 @@ def dress(spec_key: str, seed: int, donor_theme: Theme):
     cats: list[Category] = [
         Category(spec.subject_name, sorted(rng.sample(spec.subject_items, n)))
     ]
+    dial = 0  # which of the spec's numerics dresses the next ordered slot
     for i, dc in enumerate(donor_cats):
         if dc.ordered:
-            ns = spec.numerics[0]
-            step = rng.choice(ns.steps)
-            start = rng.randint(ns.min_start, ns.start_max)
-            values = [start + j * step for j in range(n)]
+            ns = spec.numerics[dial]
+            dial += 1
+            # mirror build_theme's three numeric flavors exactly
+            if ns.valued:
+                step = rng.choice(ns.steps)
+                start = rng.randint(ns.min_start, ns.start_max)
+                values = [start + j * step for j in range(n)]
+                labels = [ns.label(v) for v in values]
+            elif ns.ordinal:  # placing words: rank order puts 1st last
+                values = None
+                labels = [_ordinal(n - j) for j in range(n)]
+            else:  # plain ordinal 1..N, no values
+                values = None
+                labels = [ns.label(j + 1) for j in range(n)]
             cats.append(Category(
-                ns.name, [ns.label(v) for v in values], ordered=True,
+                ns.name, labels, ordered=True,
                 values=values, unit=ns.unit_prefix, unit_suffix=ns.unit_suffix,
                 referent=refs.get(ns.name, ""),
             ))
@@ -435,11 +464,12 @@ def bundle_candidate(puzzle_id: str, seed: int, requested: str,
     categories, items = theme_obj.k, theme_obj.n
     donor = donor or DONOR
     X = puzzle.solution
-    needs_ordered = any(c.ordered for c in theme_obj.categories)
+    n_ordered = sum(1 for c in theme_obj.categories if c.ordered)
+    needs_ordered = n_ordered > 0
     n_grouped, n_nested = puzzle_group_shape(theme_obj)
 
     themes: dict[str, dict] = {}
-    for key in compatible_themes(categories, items, needs_ordered,
+    for key in compatible_themes(categories, items, n_ordered,
                                  n_grouped, n_nested):
         if key == donor:
             dressed, clues = theme_obj, puzzle.clues
@@ -564,12 +594,12 @@ def downgrade(theme_obj: Theme, puzzle, target: str, max_additions: int = 24):
 
 
 def build_big_bundle(puzzle_id: str, seed: int, difficulty: str,
-                     categories: int, items: int, ordered: bool = True,
+                     categories: int, items: int, ordered=True,
                      groups: bool = False, donor: str | None = None) -> dict:
     """One walk, one bundle: the target-band winner (or closest fallback)
     only. The batch script prefers ``generate_big_all`` + ``bundle_candidate``
     so a walk's off-band byproducts ship too."""
-    donor = donor or (GROUP_DONOR if groups else DONOR)
+    donor = donor or pick_donor(groups, int(ordered))
     theme_obj, puzzle, report = generate_big(
         seed, difficulty, categories, items, ordered, groups, donor
     )
@@ -583,9 +613,12 @@ def find_candidate(bundle: dict):
     inputs, and byproducts are identified among the candidates by matching
     the donor rendering's solution rows."""
     donor = bundle["default_theme"]
+    n_ordered = bundle.get(
+        "sequential_categories", 1 if bundle.get("has_ordered", True) else 0
+    )
     cands = generate_big_all(
         bundle["seed"], bundle["requested"], bundle["categories"],
-        bundle["items"], ordered=bundle.get("has_ordered", True),
+        bundle["items"], ordered=n_ordered,
         groups=donor == GROUP_DONOR, donor=donor,
     )
     want = bundle["themes"][donor]["solution"]

@@ -200,6 +200,21 @@ def test_group_clues_relabel_under_target_vocabulary():
         assert "Guild" not in txt and "Ward" not in txt and "Side" not in txt
 
 
+def test_double_sequential_compat_and_dress():
+    # two dials: only school (Grade+Period) and chess (Rating+Placing) qualify
+    assert set(bigpuzzles.compatible_themes(4, 5, 2)) == {"school", "chess"}
+    donor = build_theme(THEMES["school"], random.Random(5), 5, 4,
+                        n_numeric=2, clamp=False)
+    assert sum(c.ordered for c in donor.categories) == 2
+    target = bigpuzzles.dress("chess", 5, donor)
+    assert [c.ordered for c in donor.categories] == [
+        c.ordered for c in target.categories
+    ]
+    # dial 1 valued on both; dial 2 rank-only on both (Period vs Placing)
+    d1, d2 = [c for c in target.categories if c.ordered]
+    assert d1.values is not None and d2.values is None
+
+
 def test_downgrade_hits_exact_band_and_keeps_solution():
     # seed 777 at 3x5 deterministically measures giga; the downgrade must land
     # exactly on the target band with the same solution, every clue true

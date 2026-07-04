@@ -1,0 +1,2452 @@
+{
+ "id": "3x6-hard-004",
+ "seed": 176705,
+ "categories": 3,
+ "items": 6,
+ "requested": "mega",
+ "difficulty": "hard",
+ "has_ordered": true,
+ "grouped": true,
+ "nested": true,
+ "group_categories": 1,
+ "sequential_categories": 1,
+ "group_blocks": 5,
+ "sequential_clues": 4,
+ "family": "3x6-mega-001",
+ "derived_from": "3x6-mega-001",
+ "adjusted": true,
+ "rating": {
+  "ceiling": 4,
+  "steps": {
+   "0": 1,
+   "1": 46,
+   "2": 31,
+   "3": 26,
+   "4": 4,
+   "5": 0,
+   "6": 0
+  },
+  "total_steps": 108
+ },
+ "default_theme": "kings_guild",
+ "themes": {
+  "kings_guild": {
+   "name": "The King's Guild",
+   "description": "Master artisans of the King's Guild each ply a different trade in a different quarter of the city. Work out who's who.",
+   "entity_noun": "artisan",
+   "categories": [
+    {
+     "name": "Artisan",
+     "items": [
+      "Beatrix",
+      "Cedric",
+      "Edmund",
+      "Godfrey",
+      "Matilda",
+      "Wulfric"
+     ]
+    },
+    {
+     "name": "Quarter",
+     "items": [
+      "Highrow",
+      "Kingsford",
+      "Millpond",
+      "Oldwall",
+      "Riverside",
+      "Southgate"
+     ],
+     "group_noun": "ward",
+     "groups": [
+      {
+       "label": "Gate Ward",
+       "items": [
+        "Millpond",
+        "Oldwall"
+       ]
+      },
+      {
+       "label": "Market Ward",
+       "items": [
+        "Kingsford",
+        "Southgate"
+       ]
+      },
+      {
+       "label": "River Ward",
+       "items": [
+        "Highrow",
+        "Riverside"
+       ]
+      }
+     ],
+     "supergroup_noun": "side of town",
+     "supergroups": [
+      {
+       "label": "North Side",
+       "items": [
+        "Millpond",
+        "Oldwall"
+       ]
+      },
+      {
+       "label": "South Side",
+       "items": [
+        "Highrow",
+        "Kingsford",
+        "Riverside",
+        "Southgate"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Levy",
+     "items": [
+      "8 coins",
+      "10 coins",
+      "12 coins",
+      "14 coins",
+      "16 coins",
+      "18 coins"
+     ]
+    }
+   ],
+   "clues": [
+    "Matilda's levy is at least 2 coins more than the artisan in Highrow.",
+    "Either Godfrey goes with Southgate, or Kingsford goes with 18 coins \u2014 but not both.",
+    "Wulfric, Kingsford, and Oldwall go with 8 coins, 14 coins, and 18 coins, in some order.",
+    "Wulfric's levy is higher than both Cedric and Edmund.",
+    "At least one of Beatrix, Godfrey, and Wulfric belongs to the Gate Ward.",
+    "Wulfric's levy is at least 5 coins away from the artisan in Kingsford.",
+    "Edmund goes with either 8 coins or 18 coins.",
+    "Godfrey's levy is exactly 6 coins more than the artisan in Riverside.",
+    "Highrow goes with at least one of Edmund, 8 coins, or 14 coins.",
+    "Wulfric does not go with 12 coins."
+   ],
+   "solution": [
+    [
+     "Beatrix",
+     "Millpond",
+     "12 coins"
+    ],
+    [
+     "Cedric",
+     "Riverside",
+     "10 coins"
+    ],
+    [
+     "Edmund",
+     "Kingsford",
+     "8 coins"
+    ],
+    [
+     "Godfrey",
+     "Southgate",
+     "16 coins"
+    ],
+    [
+     "Matilda",
+     "Oldwall",
+     "18 coins"
+    ],
+    [
+     "Wulfric",
+     "Highrow",
+     "14 coins"
+    ]
+   ],
+   "hints": [
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 0,
+     "tier_name": "Given",
+     "text": "From the clue \u201cWulfric does not go with 12 coins\u201d \u2014 Wulfric can't go with 12 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMatilda's levy is at least 2 coins more than the artisan in Highrow\u201d \u2014 Matilda can't go with 8 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMatilda's levy is at least 2 coins more than the artisan in Highrow\u201d \u2014 Highrow can't go with 18 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric's levy is higher than both Cedric and Edmund\u201d \u2014 Cedric can't go with 18 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric's levy is higher than both Cedric and Edmund\u201d \u2014 Edmund can't go with 18 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric's levy is higher than both Cedric and Edmund\u201d \u2014 Wulfric can't go with 8 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cEdmund goes with either 8 coins or 18 coins\u201d \u2014 Edmund must go with 8 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Edmund, so Beatrix can't go with 8 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Edmund, so Cedric can't go with 8 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Edmund goes with 8 coins, so it can't also go with 10 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Edmund goes with 8 coins, so it can't also go with 12 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Edmund goes with 8 coins, so it can't also go with 14 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Edmund goes with 8 coins, so it can't also go with 16 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Edmund, so Godfrey can't go with 8 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric's levy is higher than both Cedric and Edmund\u201d \u2014 Wulfric can't go with 10 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey's levy is exactly 6 coins more than the artisan in Riverside\u201d \u2014 Godfrey can't go with 10 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey's levy is exactly 6 coins more than the artisan in Riverside\u201d \u2014 Godfrey can't go with 12 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey's levy is exactly 6 coins more than the artisan in Riverside\u201d \u2014 Riverside can't go with 14 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey's levy is exactly 6 coins more than the artisan in Riverside\u201d \u2014 Riverside can't go with 16 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey's levy is exactly 6 coins more than the artisan in Riverside\u201d \u2014 Riverside can't go with 18 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cWulfric's levy is at least 5 coins away from the artisan in Kingsford\u201d \u2014 Kingsford can't go with 14 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cWulfric's levy is at least 5 coins away from the artisan in Kingsford\u201d \u2014 Kingsford can't go with 16 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cWulfric's levy is at least 5 coins away from the artisan in Kingsford\u201d \u2014 Kingsford can't go with 18 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 5,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cEither Godfrey goes with Southgate, or Kingsford goes with 18 coins \u2014 but not both\u201d \u2014 Godfrey must go with Southgate."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Southgate goes with Godfrey, so Beatrix can't go with Southgate."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Southgate goes with Godfrey, so Cedric can't go with Southgate."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Southgate goes with Godfrey, so Edmund can't go with Southgate."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with Southgate, so it can't also go with Highrow."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with Southgate, so it can't also go with Kingsford."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with Southgate, so it can't also go with Millpond."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with Southgate, so it can't also go with Oldwall."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with Southgate, so it can't also go with Riverside."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Southgate goes with Godfrey, so Matilda can't go with Southgate."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Southgate goes with Godfrey, so Wulfric can't go with Southgate."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "8 coins goes with Edmund, but Southgate doesn't, so Southgate doesn't go with 8 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with Godfrey, but 10 coins doesn't, so Southgate doesn't go with 10 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with Godfrey, but 12 coins doesn't, so Southgate doesn't go with 12 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric, Kingsford, and Oldwall go with 8 coins, 14 coins, and 18 coins, in some order\u201d \u2014 Kingsford must go with 8 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric, Kingsford, and Oldwall go with 8 coins, 14 coins, and 18 coins, in some order\u201d \u2014 Oldwall can't go with 8 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Kingsford, so Highrow can't go with 8 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Kingsford goes with 8 coins, so it can't also go with 10 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Kingsford goes with 8 coins, so it can't also go with 12 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Kingsford, so Millpond can't go with 8 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Kingsford, so Riverside can't go with 8 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Beatrix doesn't, so Beatrix doesn't go with Kingsford."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Cedric doesn't, so Cedric doesn't go with Kingsford."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Edmund goes with 8 coins, but Highrow doesn't, so Edmund doesn't go with Highrow."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Edmund goes with 8 coins, and Kingsford goes with 8 coins, so Edmund goes with Kingsford."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Edmund goes with 8 coins, but Millpond doesn't, so Edmund doesn't go with Millpond."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Edmund goes with 8 coins, but Oldwall doesn't, so Edmund doesn't go with Oldwall."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Edmund goes with 8 coins, but Riverside doesn't, so Edmund doesn't go with Riverside."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Matilda doesn't, so Matilda doesn't go with Kingsford."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Wulfric doesn't, so Wulfric doesn't go with Kingsford."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMatilda's levy is at least 2 coins more than the artisan in Highrow\u201d \u2014 Matilda can't go with 10 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey's levy is exactly 6 coins more than the artisan in Riverside\u201d \u2014 Godfrey can't go with 14 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with Godfrey, but 14 coins doesn't, so Southgate doesn't go with 14 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cHighrow goes with at least one of Edmund, 8 coins, or 14 coins\u201d \u2014 Highrow must go with 14 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Highrow goes with 14 coins, so it can't also go with 10 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Highrow goes with 14 coins, so it can't also go with 12 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Highrow goes with 14 coins, so it can't also go with 16 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "14 coins goes with Highrow, so Millpond can't go with 14 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "14 coins goes with Highrow, so Oldwall can't go with 14 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMatilda's levy is at least 2 coins more than the artisan in Highrow\u201d \u2014 Matilda can't go with 12 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMatilda's levy is at least 2 coins more than the artisan in Highrow\u201d \u2014 Matilda can't go with 14 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Highrow goes with 14 coins, but Matilda doesn't, so Matilda doesn't go with Highrow."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric, Kingsford, and Oldwall go with 8 coins, 14 coins, and 18 coins, in some order\u201d \u2014 Wulfric must go with 14 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric, Kingsford, and Oldwall go with 8 coins, 14 coins, and 18 coins, in some order\u201d \u2014 Wulfric can't go with 18 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 5,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWulfric, Kingsford, and Oldwall go with 8 coins, 14 coins, and 18 coins, in some order\u201d \u2014 Oldwall must go with 18 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "14 coins goes with Wulfric, so Beatrix can't go with 14 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "14 coins goes with Wulfric, so Cedric can't go with 14 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Wulfric goes with 14 coins, so it can't also go with 16 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "18 coins goes with Oldwall, so Millpond can't go with 18 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Oldwall goes with 18 coins, so it can't also go with 10 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Oldwall goes with 18 coins, so it can't also go with 12 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Oldwall goes with 18 coins, so it can't also go with 16 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Levy, 16 coins must go with Southgate \u2014 every other Quarter is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "18 coins goes with Oldwall, so Southgate can't go with 18 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "16 coins goes with Southgate, so Millpond can't go with 16 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Highrow goes with 14 coins, but Beatrix doesn't, so Beatrix doesn't go with Highrow."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Highrow goes with 14 coins, but Cedric doesn't, so Cedric doesn't go with Highrow."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Oldwall goes with 18 coins, but Cedric doesn't, so Cedric doesn't go with Oldwall."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 14 coins, and Highrow goes with 14 coins, so Wulfric goes with Highrow."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 14 coins, but Millpond doesn't, so Wulfric doesn't go with Millpond."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 14 coins, but Oldwall doesn't, so Wulfric doesn't go with Oldwall."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 14 coins, but Riverside doesn't, so Wulfric doesn't go with Riverside."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "16 coins goes with Southgate, but Beatrix doesn't, so Beatrix doesn't go with 16 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "16 coins goes with Southgate, but Cedric doesn't, so Cedric doesn't go with 16 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with Southgate, and 16 coins goes with Southgate, so Godfrey goes with 16 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "18 coins goes with Oldwall, but Godfrey doesn't, so Godfrey doesn't go with 18 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "16 coins goes with Southgate, but Matilda doesn't, so Matilda doesn't go with 16 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 5,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Artisan \u00d7 Levy, Matilda must go with 18 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "18 coins goes with Matilda, so Beatrix can't go with 18 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Oldwall goes with 18 coins, but Beatrix doesn't, so Beatrix doesn't go with Oldwall."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Matilda goes with 18 coins, but Millpond doesn't, so Matilda doesn't go with Millpond."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Matilda goes with 18 coins, and Oldwall goes with 18 coins, so Matilda goes with Oldwall."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Matilda goes with 18 coins, but Riverside doesn't, so Matilda doesn't go with Riverside."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey's levy is exactly 6 coins more than the artisan in Riverside\u201d \u2014 Riverside can't go with 12 coins."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Levy, 12 coins must go with Millpond \u2014 every other Quarter is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Levy, Riverside must go with 10 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Millpond goes with 12 coins, so it can't also go with 10 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cAt least one of Beatrix, Godfrey, and Wulfric belongs to the Gate Ward\u201d \u2014 Beatrix can't go with Riverside."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Artisan \u00d7 Quarter, Beatrix must go with Millpond \u2014 every other Quarter is already crossed out for it."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Artisan \u00d7 Quarter, Riverside must go with Cedric \u2014 every other Artisan is already crossed out for it."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Cedric goes with Riverside, so it can't also go with Millpond."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with Millpond, but 10 coins doesn't, so Beatrix doesn't go with 10 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with Millpond, and 12 coins goes with Millpond, so Beatrix goes with 12 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cedric goes with Riverside, and 10 coins goes with Riverside, so Cedric goes with 10 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "12 coins goes with Millpond, but Cedric doesn't, so Cedric doesn't go with 12 coins."
+    }
+   ]
+  },
+  "fishing": {
+   "name": "The Fishing Derby",
+   "description": "Anglers at the lake-country derby each landed a different fish from a different pond on a different lure. Work out who caught what, and where.",
+   "entity_noun": "catch",
+   "categories": [
+    {
+     "name": "Angler",
+     "items": [
+      "Boone",
+      "Cody",
+      "Dale",
+      "Mabel",
+      "Royce",
+      "Wade"
+     ]
+    },
+    {
+     "name": "Pond",
+     "items": [
+      "Foxglen",
+      "Grayreach",
+      "Mossbank",
+      "Pinehollow",
+      "Stillwater",
+      "Willowmere"
+     ],
+     "group_noun": "watershed",
+     "groups": [
+      {
+       "label": "North Watershed",
+       "items": [
+        "Grayreach",
+        "Willowmere"
+       ]
+      },
+      {
+       "label": "South Watershed",
+       "items": [
+        "Foxglen",
+        "Stillwater"
+       ]
+      },
+      {
+       "label": "West Watershed",
+       "items": [
+        "Mossbank",
+        "Pinehollow"
+       ]
+      }
+     ],
+     "supergroup_noun": "basin",
+     "supergroups": [
+      {
+       "label": "Highland Basin",
+       "items": [
+        "Foxglen",
+        "Grayreach",
+        "Stillwater",
+        "Willowmere"
+       ]
+      },
+      {
+       "label": "Lowland Basin",
+       "items": [
+        "Mossbank",
+        "Pinehollow"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Weight",
+     "items": [
+      "4 lb",
+      "6 lb",
+      "8 lb",
+      "10 lb",
+      "12 lb",
+      "14 lb"
+     ]
+    }
+   ],
+   "clues": [
+    "Royce's weight is at least 2 lb more than the angler at Foxglen.",
+    "Either Mabel goes with Willowmere, or Grayreach goes with 14 lb \u2014 but not both.",
+    "Wade, Grayreach, and Pinehollow go with 4 lb, 10 lb, and 14 lb, in some order.",
+    "Wade's weight is higher than both Cody and Dale.",
+    "At least one of Boone, Mabel, and Wade belongs to the West Watershed.",
+    "Wade's weight is at least 6 lb away from the angler at Grayreach.",
+    "Dale goes with either 4 lb or 14 lb.",
+    "Mabel's weight is exactly 6 lb more than the angler at Stillwater.",
+    "Foxglen goes with at least one of Dale, 4 lb, or 10 lb.",
+    "Wade does not go with 8 lb."
+   ],
+   "solution": [
+    [
+     "Boone",
+     "Mossbank",
+     "8 lb"
+    ],
+    [
+     "Cody",
+     "Stillwater",
+     "6 lb"
+    ],
+    [
+     "Dale",
+     "Grayreach",
+     "4 lb"
+    ],
+    [
+     "Mabel",
+     "Willowmere",
+     "12 lb"
+    ],
+    [
+     "Royce",
+     "Pinehollow",
+     "14 lb"
+    ],
+    [
+     "Wade",
+     "Foxglen",
+     "10 lb"
+    ]
+   ],
+   "hints": [
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 0,
+     "tier_name": "Given",
+     "text": "From the clue \u201cWade does not go with 8 lb\u201d \u2014 Wade can't go with 8 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cRoyce's weight is at least 2 lb more than the angler at Foxglen\u201d \u2014 Royce can't go with 4 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cRoyce's weight is at least 2 lb more than the angler at Foxglen\u201d \u2014 Foxglen can't go with 14 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade's weight is higher than both Cody and Dale\u201d \u2014 Cody can't go with 14 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade's weight is higher than both Cody and Dale\u201d \u2014 Dale can't go with 14 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade's weight is higher than both Cody and Dale\u201d \u2014 Wade can't go with 4 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cDale goes with either 4 lb or 14 lb\u201d \u2014 Dale must go with 4 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Dale, so Boone can't go with 4 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Dale, so Cody can't go with 4 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Dale goes with 4 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Dale goes with 4 lb, so it can't also go with 8 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Dale goes with 4 lb, so it can't also go with 10 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Dale goes with 4 lb, so it can't also go with 12 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Dale, so Mabel can't go with 4 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade's weight is higher than both Cody and Dale\u201d \u2014 Wade can't go with 6 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMabel's weight is exactly 6 lb more than the angler at Stillwater\u201d \u2014 Mabel can't go with 6 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMabel's weight is exactly 6 lb more than the angler at Stillwater\u201d \u2014 Mabel can't go with 8 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMabel's weight is exactly 6 lb more than the angler at Stillwater\u201d \u2014 Stillwater can't go with 10 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMabel's weight is exactly 6 lb more than the angler at Stillwater\u201d \u2014 Stillwater can't go with 12 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMabel's weight is exactly 6 lb more than the angler at Stillwater\u201d \u2014 Stillwater can't go with 14 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cWade's weight is at least 6 lb away from the angler at Grayreach\u201d \u2014 Grayreach can't go with 10 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cWade's weight is at least 6 lb away from the angler at Grayreach\u201d \u2014 Grayreach can't go with 12 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cWade's weight is at least 6 lb away from the angler at Grayreach\u201d \u2014 Grayreach can't go with 14 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 5,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cEither Mabel goes with Willowmere, or Grayreach goes with 14 lb \u2014 but not both\u201d \u2014 Mabel must go with Willowmere."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Willowmere goes with Mabel, so Boone can't go with Willowmere."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Willowmere goes with Mabel, so Cody can't go with Willowmere."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Willowmere goes with Mabel, so Dale can't go with Willowmere."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mabel goes with Willowmere, so it can't also go with Foxglen."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mabel goes with Willowmere, so it can't also go with Grayreach."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mabel goes with Willowmere, so it can't also go with Mossbank."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mabel goes with Willowmere, so it can't also go with Pinehollow."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mabel goes with Willowmere, so it can't also go with Stillwater."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Willowmere goes with Mabel, so Royce can't go with Willowmere."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Willowmere goes with Mabel, so Wade can't go with Willowmere."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "4 lb goes with Dale, but Willowmere doesn't, so Willowmere doesn't go with 4 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with Mabel, but 6 lb doesn't, so Willowmere doesn't go with 6 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with Mabel, but 8 lb doesn't, so Willowmere doesn't go with 8 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade, Grayreach, and Pinehollow go with 4 lb, 10 lb, and 14 lb, in some order\u201d \u2014 Grayreach must go with 4 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade, Grayreach, and Pinehollow go with 4 lb, 10 lb, and 14 lb, in some order\u201d \u2014 Pinehollow can't go with 4 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Grayreach, so Foxglen can't go with 4 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Grayreach goes with 4 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Grayreach goes with 4 lb, so it can't also go with 8 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Grayreach, so Mossbank can't go with 4 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Grayreach, so Stillwater can't go with 4 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Grayreach goes with 4 lb, but Boone doesn't, so Boone doesn't go with Grayreach."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Grayreach goes with 4 lb, but Cody doesn't, so Cody doesn't go with Grayreach."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 4 lb, but Foxglen doesn't, so Dale doesn't go with Foxglen."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 4 lb, and Grayreach goes with 4 lb, so Dale goes with Grayreach."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 4 lb, but Mossbank doesn't, so Dale doesn't go with Mossbank."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 4 lb, but Pinehollow doesn't, so Dale doesn't go with Pinehollow."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 4 lb, but Stillwater doesn't, so Dale doesn't go with Stillwater."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Grayreach goes with 4 lb, but Royce doesn't, so Royce doesn't go with Grayreach."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Grayreach goes with 4 lb, but Wade doesn't, so Wade doesn't go with Grayreach."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cRoyce's weight is at least 2 lb more than the angler at Foxglen\u201d \u2014 Royce can't go with 6 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMabel's weight is exactly 6 lb more than the angler at Stillwater\u201d \u2014 Mabel can't go with 10 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with Mabel, but 10 lb doesn't, so Willowmere doesn't go with 10 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cFoxglen goes with at least one of Dale, 4 lb, or 10 lb\u201d \u2014 Foxglen must go with 10 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Foxglen goes with 10 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Foxglen goes with 10 lb, so it can't also go with 8 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Foxglen goes with 10 lb, so it can't also go with 12 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "10 lb goes with Foxglen, so Mossbank can't go with 10 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "10 lb goes with Foxglen, so Pinehollow can't go with 10 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cRoyce's weight is at least 2 lb more than the angler at Foxglen\u201d \u2014 Royce can't go with 8 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cRoyce's weight is at least 2 lb more than the angler at Foxglen\u201d \u2014 Royce can't go with 10 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Foxglen goes with 10 lb, but Royce doesn't, so Royce doesn't go with Foxglen."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade, Grayreach, and Pinehollow go with 4 lb, 10 lb, and 14 lb, in some order\u201d \u2014 Wade must go with 10 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade, Grayreach, and Pinehollow go with 4 lb, 10 lb, and 14 lb, in some order\u201d \u2014 Wade can't go with 14 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 5,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWade, Grayreach, and Pinehollow go with 4 lb, 10 lb, and 14 lb, in some order\u201d \u2014 Pinehollow must go with 14 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "10 lb goes with Wade, so Boone can't go with 10 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "10 lb goes with Wade, so Cody can't go with 10 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 5,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Wade goes with 10 lb, so it can't also go with 12 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "14 lb goes with Pinehollow, so Mossbank can't go with 14 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Pinehollow goes with 14 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Pinehollow goes with 14 lb, so it can't also go with 8 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Pinehollow goes with 14 lb, so it can't also go with 12 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Weight, 12 lb must go with Willowmere \u2014 every other Pond is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 5,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "14 lb goes with Pinehollow, so Willowmere can't go with 14 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "12 lb goes with Willowmere, so Mossbank can't go with 12 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Foxglen goes with 10 lb, but Boone doesn't, so Boone doesn't go with Foxglen."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Foxglen goes with 10 lb, but Cody doesn't, so Cody doesn't go with Foxglen."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 14 lb, but Cody doesn't, so Cody doesn't go with Pinehollow."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wade goes with 10 lb, and Foxglen goes with 10 lb, so Wade goes with Foxglen."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wade goes with 10 lb, but Mossbank doesn't, so Wade doesn't go with Mossbank."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wade goes with 10 lb, but Pinehollow doesn't, so Wade doesn't go with Pinehollow."
+    },
+    {
+     "key": "0-1",
+     "a": 5,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wade goes with 10 lb, but Stillwater doesn't, so Wade doesn't go with Stillwater."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "12 lb goes with Willowmere, but Boone doesn't, so Boone doesn't go with 12 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "12 lb goes with Willowmere, but Cody doesn't, so Cody doesn't go with 12 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mabel goes with Willowmere, and 12 lb goes with Willowmere, so Mabel goes with 12 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "14 lb goes with Pinehollow, but Mabel doesn't, so Mabel doesn't go with 14 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "12 lb goes with Willowmere, but Royce doesn't, so Royce doesn't go with 12 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 5,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Angler \u00d7 Weight, Royce must go with 14 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 5,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "14 lb goes with Royce, so Boone can't go with 14 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 14 lb, but Boone doesn't, so Boone doesn't go with Pinehollow."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 14 lb, but Mossbank doesn't, so Royce doesn't go with Mossbank."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 14 lb, and Pinehollow goes with 14 lb, so Royce goes with Pinehollow."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 14 lb, but Stillwater doesn't, so Royce doesn't go with Stillwater."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cMabel's weight is exactly 6 lb more than the angler at Stillwater\u201d \u2014 Stillwater can't go with 8 lb."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Weight, 8 lb must go with Mossbank \u2014 every other Pond is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Weight, Stillwater must go with 6 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mossbank goes with 8 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cAt least one of Boone, Mabel, and Wade belongs to the West Watershed\u201d \u2014 Boone can't go with Stillwater."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Angler \u00d7 Pond, Boone must go with Mossbank \u2014 every other Pond is already crossed out for it."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Angler \u00d7 Pond, Stillwater must go with Cody \u2014 every other Angler is already crossed out for it."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Cody goes with Stillwater, so it can't also go with Mossbank."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boone goes with Mossbank, but 6 lb doesn't, so Boone doesn't go with 6 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boone goes with Mossbank, and 8 lb goes with Mossbank, so Boone goes with 8 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with Stillwater, and 6 lb goes with Stillwater, so Cody goes with 6 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "8 lb goes with Mossbank, but Cody doesn't, so Cody doesn't go with 8 lb."
+    }
+   ]
+  }
+ }
+}

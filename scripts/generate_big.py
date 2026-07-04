@@ -28,17 +28,24 @@ from logicgrid import bigpuzzles  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "public" / "big"
 
-_SPEC = re.compile(r"^(\d+)x(\d+):(normal|hard|mega|giga|tera):(\d+)(:g)?$")
+_SPEC = re.compile(r"^(\d+)x(\d+):(normal|hard|mega|giga|tera):(\d+)((?::[gd])*)$")
 
 
-def parse_spec(text: str) -> tuple[int, int, str, int, bool]:
+def parse_spec(text: str) -> tuple[int, int, str, int, bool, int]:
+    """(categories, items, band, count, groups, n_ordered) from a spec.
+    Flags: :g rolls group hierarchies, :d a second sequential dial."""
     m = _SPEC.match(text.strip())
     if not m:
         raise argparse.ArgumentTypeError(
-            f"bad spec {text!r} (want CATxITEMS:BAND:COUNT[:g], e.g. 4x6:mega:2)"
+            f"bad spec {text!r} (want CATxITEMS:BAND:COUNT[:g][:d], e.g. 4x6:mega:2:d)"
         )
-    cats, items, band, count = int(m[1]), int(m[2]), m[3], int(m[4])
-    return cats, items, band, count, bool(m[5])
+    flags = set(m[5].replace(":", ""))
+    if flags >= {"g", "d"}:
+        raise argparse.ArgumentTypeError(
+            f"{text!r}: no registry theme carries flavor groups AND two dials"
+        )
+    return (int(m[1]), int(m[2]), m[3], int(m[4]),
+            "g" in flags, 2 if "d" in flags else 1)
 
 
 def next_id(cats: int, items: int, band: str) -> str:
@@ -179,19 +186,20 @@ def main() -> int:
     for parent_id, targets in args.derive:
         run_derive(parent_id, targets)
 
-    for cats, items, band, count, groups in args.spec:
-        donor = bigpuzzles.GROUP_DONOR if groups else bigpuzzles.DONOR
+    for cats, items, band, count, groups, n_ordered in args.spec:
+        donor = bigpuzzles.pick_donor(groups, n_ordered)
         for _ in range(count):
             seed = bigpuzzles.random_seed()
             t0 = time.monotonic()
             print(f"{cats}x{items} {band}: generating (seed {seed}, "
-                  f"groups={groups}) ...", flush=True)
+                  f"groups={groups}, dials={n_ordered}) ...", flush=True)
             # Ship EVERY logic-solvable candidate the walk grades — at these
             # shapes each attempt costs minutes-to-hours, so a mega that
             # rolled while hunting a giga is a puzzle, not waste. Ids carry
             # the MEASURED band.
             candidates = bigpuzzles.generate_big_all(
-                seed, band, cats, items, ordered=True, groups=groups, donor=donor
+                seed, band, cats, items, ordered=n_ordered, groups=groups,
+                donor=donor
             )
             took = time.monotonic() - t0
             for theme_obj, puzzle, report in candidates:
