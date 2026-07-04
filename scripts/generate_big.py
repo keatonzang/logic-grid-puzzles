@@ -123,6 +123,7 @@ def rebuild_index() -> int:
             ),
             "group_blocks": b.get("group_blocks", _group_blocks(b)),
             "sequential_clues": _sequential_clues(b),
+            "cross_dial_clues": b.get("cross_dial_clues", 0),
             "clue_count": len(b["themes"][b["default_theme"]]["clues"]),
             "themes": {key: t["name"] for key, t in b["themes"].items()},
         })

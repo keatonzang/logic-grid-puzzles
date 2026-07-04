@@ -1609,6 +1609,7 @@ function bigTile(e) {
     tag(`${e.group_categories} group ${e.group_categories === 1 ? "category" : "categories"}`);
   }
   if (e.sequential_categories) tag(`${e.sequential_categories} sequential`);
+  if (e.cross_dial_clues) tag("cross-dial", "tag-adjusted");
   tile.appendChild(tags);
 
   if (e.siblings && e.siblings.length) {

@@ -504,6 +504,9 @@ def bundle_candidate(puzzle_id: str, seed: int, requested: str,
         "sequential_clues": sum(
             1 for c in puzzle.clues if isinstance(c, _ORDERED_CLUES)
         ),
+        "cross_dial_clues": sum(
+            1 for c in puzzle.clues if isinstance(c, OrderAgree)
+        ),
         "family": family or puzzle_id,
         "derived_from": derived_from,
         "adjusted": bool(derived_from),
