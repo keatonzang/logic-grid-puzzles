@@ -53,10 +53,13 @@ def test_compatibility_ordered_and_pools():
     assert set(bigpuzzles.compatible_themes(3, 8, True, n_nested=1)) == {
         "kings_guild", "fishing",
     }
-    # chess's fixed (factual) camps are not imposable flavor
+    # chess hosts ONE flat hierarchy (tactic study groups — flavor); its
+    # factual camps stay non-imposable, so two-group puzzles exclude it
     grouped = bigpuzzles.compatible_themes(4, 6, True, n_grouped=1)
-    assert "chess" not in grouped
-    assert {"kings_guild", "fishing"} <= set(grouped)
+    assert {"kings_guild", "fishing", "chess"} <= set(grouped)
+    two_grouped = bigpuzzles.compatible_themes(4, 6, True, n_grouped=2)
+    assert "chess" not in two_grouped
+    assert {"kings_guild", "fishing"} <= set(two_grouped)
 
 
 # --- Nested hierarchy construction ----------------------------------------------

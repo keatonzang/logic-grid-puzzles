@@ -460,6 +460,17 @@ THEME_SPECS: tuple = (
                 ),
                 True,
             ),
+            # Which session covers which tactic varies week to week — flavor
+            # membership (reshuffled per puzzle), unlike the factual camps.
+            (
+                "Tactic",
+                "study group",
+                (
+                    ("Morning Study Group", ("Discovery", "Fork", "Pin")),
+                    ("Evening Study Group", ("Gambit", "Sacrifice", "Skewer")),
+                    ("Weekend Study Group", ("Zugzwang", "Zwischenzug")),
+                ),
+            ),
         ),
     ),
 )
