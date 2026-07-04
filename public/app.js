@@ -1567,20 +1567,30 @@ function setBigTheme(key, { fresh } = {}) {
 
 // --- The catalog: difficulty tabs -> size layers -> puzzle tiles --------------
 const BIG_BAND_STORE = "lg.big.band";
+const BIG_FILTER_STORE = "lg.big.filter";
 const BIG_BANDS = ["normal", "hard", "mega", "giga", "tera"];
-let bigById = {};   // id -> index entry
+let bigById = {};        // id -> index entry
+let bigThemeFilter = ""; // catalog filter: only puzzles compatible with this theme
 
 function bigShowCatalog() {
   $("puzzle").hidden = true;
   $("big-back").hidden = true;
   $("big-theme-wrap").hidden = true;
+  $("big-filter-wrap").hidden = false;
   $("catalog").hidden = false;
   stopTimer(false);
   if (location.hash) history.replaceState(null, "", location.pathname);
 }
 
+function bigVisible() {
+  return bigThemeFilter
+    ? bigIndex.filter((e) => bigThemeFilter in e.themes)
+    : bigIndex;
+}
+
 function bigActiveBand() {
-  const present = BIG_BANDS.filter((b) => bigIndex.some((e) => e.difficulty === b));
+  const pool = bigVisible();
+  const present = BIG_BANDS.filter((b) => pool.some((e) => e.difficulty === b));
   let band = null;
   try { band = localStorage.getItem(BIG_BAND_STORE); } catch (e) { /* fine */ }
   return present.includes(band) ? band : present[0];
@@ -1633,11 +1643,16 @@ function bigTile(e) {
 }
 
 function renderCatalog() {
+  const pool = bigVisible();
   const active = bigActiveBand();
   const tabs = $("band-tabs");
   tabs.innerHTML = "";
+  if (!pool.length) {
+    $("catalog-body").innerHTML = "";
+    return;
+  }
   for (const band of BIG_BANDS) {
-    const count = bigIndex.filter((e) => e.difficulty === band).length;
+    const count = pool.filter((e) => e.difficulty === band).length;
     if (!count) continue;
     const btn = document.createElement("button");
     btn.type = "button";
@@ -1652,7 +1667,7 @@ function renderCatalog() {
 
   const body = $("catalog-body");
   body.innerHTML = "";
-  const entries = bigIndex.filter((e) => e.difficulty === active);
+  const entries = pool.filter((e) => e.difficulty === active);
   const shapes = [...new Set(entries.map((e) => `${e.categories}x${e.items}`))]
     .sort((a, b2) => {
       const [ac, ai] = a.split("x").map(Number);
@@ -1696,10 +1711,13 @@ async function openBigPuzzle(id) {
       const pref = localStorage.getItem(BIG_THEME_STORE);
       if (pref && bigBundle.themes[pref]) key = pref;
     } catch (e) { /* fine */ }
+    // an active catalog filter is the strongest statement of theme intent
+    if (bigThemeFilter && bigBundle.themes[bigThemeFilter]) key = bigThemeFilter;
     if (location.hash.slice(1) !== id) location.hash = id; // shareable deep link
     setBigTheme(key, { fresh: true });
     $("big-back").hidden = false;
     $("big-theme-wrap").hidden = false;
+    $("big-filter-wrap").hidden = true;
     $("puzzle").hidden = false;
     fitBoard();
     startTimer();
@@ -1725,6 +1743,21 @@ async function loadBig() {
     return;
   }
   bigById = Object.fromEntries(bigIndex.map((e) => [e.id, e]));
+  // theme filter options: every theme any puzzle can wear
+  const names = {};
+  for (const e of bigIndex) Object.assign(names, e.themes);
+  const fsel = $("big-filter-theme");
+  for (const key of Object.keys(names).sort()) {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = names[key];
+    fsel.appendChild(opt);
+  }
+  try {
+    const saved = localStorage.getItem(BIG_FILTER_STORE);
+    if (saved && names[saved]) bigThemeFilter = saved;
+  } catch (e) { /* fine */ }
+  fsel.value = bigThemeFilter;
   renderCatalog();
   const wanted = location.hash.slice(1);
   if (wanted && bigById[wanted]) await openBigPuzzle(wanted);
@@ -1733,6 +1766,11 @@ async function loadBig() {
 
 if (BIG) {
   $("big-theme").addEventListener("change", (e) => setBigTheme(e.target.value));
+  $("big-filter-theme").addEventListener("change", (e) => {
+    bigThemeFilter = e.target.value;
+    try { localStorage.setItem(BIG_FILTER_STORE, bigThemeFilter); } catch (err) { /* fine */ }
+    renderCatalog();
+  });
   $("big-back").addEventListener("click", (e) => { e.preventDefault(); bigShowCatalog(); });
   window.addEventListener("hashchange", () => {
     const id = location.hash.slice(1);
