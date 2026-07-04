@@ -1,5 +1,6 @@
 {
  "id": "6x4-tera-023",
+ "hints_v": 2,
  "seed": 297403,
  "categories": 6,
  "items": 4,
@@ -12,6 +13,7 @@
  "sequential_categories": 1,
  "group_blocks": 4,
  "sequential_clues": 2,
+ "cross_dial_clues": 0,
  "family": "6x4-tera-023",
  "derived_from": null,
  "adjusted": false,
@@ -479,7 +481,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Matilda went with Potter \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Matilda went with Potter \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Matilda goes with Potter.",
+      "Matilda goes with Potter, so it can't also go with Blacksmith.",
+      "Matilda goes with Potter, so it can't also go with Tanner.",
+      "Potter goes with Matilda, so Beatrix can't go with Potter.",
+      "Potter goes with Matilda, so Godfrey can't go with Potter.",
+      "Matilda goes with Potter, but 11 coins doesn't, so Matilda doesn't go with 11 coins.",
+      "The clues force Blacksmith to go with Saddles.",
+      "The clues force Saddles to go with 11 coins.",
+      "\u2026but now the clue \u201cBetween Blacksmith and 11 coins, one goes with Matilda and the other with Saddles\u201d can no longer hold \u2014 a contradiction.",
+      "So Matilda does not go with Potter."
+     ]
     },
     {
      "key": "2-3",
@@ -489,7 +503,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Needle went with Barrels \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Needle went with Barrels \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Needle goes with Barrels.",
+      "Needle goes with Barrels, so it can't also go with Boots.",
+      "Needle goes with Barrels, but Edmund doesn't, so Edmund doesn't go with Needle.",
+      "\u2026but now the clue \u201cNeedle goes with exactly two of Edmund, Blacksmith, and Boots\u201d can no longer hold \u2014 a contradiction.",
+      "So Needle does not go with Barrels."
+     ]
     },
     {
      "key": "1-3",
@@ -499,7 +520,24 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Potter went with Saddles \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Potter went with Saddles \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Potter goes with Saddles.",
+      "Potter goes with Saddles, so it can't also go with Barrels.",
+      "Potter goes with Saddles, so it can't also go with Boots.",
+      "Potter goes with Saddles, so it can't also go with Rope.",
+      "Saddles goes with Potter, so Blacksmith can't go with Saddles.",
+      "Saddles goes with Potter, so Cooper can't go with Saddles.",
+      "Saddles goes with Potter, so Tanner can't go with Saddles.",
+      "Edmund goes with Cooper, but Saddles doesn't, so Edmund doesn't go with Saddles.",
+      "10 coins goes with Edmund, but Saddles doesn't, so Saddles doesn't go with 10 coins.",
+      "Saddles goes with Potter, but Matilda doesn't, so Matilda doesn't go with Saddles.",
+      "Saddles goes with Potter, but 11 coins doesn't, so Saddles doesn't go with 11 coins.",
+      "The clues force Matilda to go with Blacksmith.",
+      "The clues force Matilda to go with 11 coins.",
+      "\u2026but now the clue \u201cBetween Blacksmith and 11 coins, one goes with Matilda and the other with Saddles\u201d can no longer hold \u2014 a contradiction.",
+      "So Potter does not go with Saddles."
+     ]
     },
     {
      "key": "1-2",
@@ -509,7 +547,15 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Potter went with Needle \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Potter went with Needle \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Potter goes with Needle.",
+      "Needle goes with Potter, so Blacksmith can't go with Needle.",
+      "Needle goes with Potter, so Cooper can't go with Needle.",
+      "Edmund goes with Cooper, but Needle doesn't, so Edmund doesn't go with Needle.",
+      "\u2026but now the clue \u201cNeedle goes with exactly two of Edmund, Blacksmith, and Boots\u201d can no longer hold \u2014 a contradiction.",
+      "So Potter does not go with Needle."
+     ]
     },
     {
      "key": "2-3",
@@ -519,7 +565,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Needle didn't go with Boots \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Needle didn't go with Boots \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Needle does not go with Boots.",
+      "From the clue \u201cNeedle goes with exactly two of Edmund, Blacksmith, and Boots\u201d \u2014 Edmund must go with Needle.",
+      "From the clue \u201cNeedle goes with exactly two of Edmund, Blacksmith, and Boots\u201d \u2014 Blacksmith must go with Needle.",
+      "Needle goes with Blacksmith, so Cooper can't go with Needle.",
+      "Cooper goes with Edmund, and Needle goes with Edmund, so Cooper goes with Needle. But Cooper was already shown to not go with Needle \u2014 a contradiction.",
+      "So Needle goes with Boots."
+     ]
     },
     {
      "key": "2-3",
@@ -589,7 +643,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Beatrix went with Tanner \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Beatrix went with Tanner \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Beatrix goes with Tanner.",
+      "Beatrix goes with Tanner, so it can't also go with Potter.",
+      "In Artisan \u00d7 Trade, Potter must go with Godfrey \u2014 every other Artisan is already crossed out for it.",
+      "Godfrey goes with Potter, but Saddles doesn't, so Godfrey doesn't go with Saddles.",
+      "From the clue \u201cBetween Blacksmith and 11 coins, one goes with Matilda and the other with Saddles\u201d \u2014 Blacksmith can't go with Saddles.",
+      "\u2026but now the clue \u201cSaddles goes with at least four of Godfrey, Blacksmith, Awl, Riverside, and 12 coins\u201d can no longer hold \u2014 a contradiction.",
+      "So Beatrix does not go with Tanner."
+     ]
     },
     {
      "key": "0-5",
@@ -609,7 +672,30 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Edmund went with Saddles \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Edmund went with Saddles \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Edmund goes with Saddles.",
+      "Edmund goes with Saddles, so it can't also go with Boots.",
+      "Edmund goes with Saddles, so it can't also go with Rope.",
+      "Saddles goes with Edmund, so Beatrix can't go with Saddles.",
+      "Saddles goes with Edmund, so Godfrey can't go with Saddles.",
+      "Saddles goes with Edmund, so Matilda can't go with Saddles.",
+      "Cooper goes with Edmund, and Saddles goes with Edmund, so Cooper goes with Saddles.",
+      "Saddles goes with Edmund, and 10 coins goes with Edmund, so Saddles goes with 10 coins.",
+      "Cooper goes with Saddles, so it can't also go with Boots.",
+      "Cooper goes with Saddles, so it can't also go with Rope.",
+      "Saddles goes with Cooper, so Blacksmith can't go with Saddles.",
+      "Saddles goes with Cooper, so Tanner can't go with Saddles.",
+      "Saddles goes with 10 coins, so it can't also go with 11 coins.",
+      "Saddles goes with 10 coins, so it can't also go with 12 coins.",
+      "Saddles goes with 10 coins, so it can't also go with 13 coins.",
+      "10 coins goes with Saddles, so Boots can't go with 10 coins.",
+      "10 coins goes with Saddles, so Rope can't go with 10 coins.",
+      "The clues force Matilda to go with Blacksmith.",
+      "The clues force Matilda to go with 11 coins.",
+      "\u2026but now the clue \u201cBetween Blacksmith and 11 coins, one goes with Matilda and the other with Saddles\u201d can no longer hold \u2014 a contradiction.",
+      "So Edmund does not go with Saddles."
+     ]
     },
     {
      "key": "1-3",
@@ -639,7 +725,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Blacksmith didn't go with Saddles \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Blacksmith didn't go with Saddles \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Blacksmith does not go with Saddles.",
+      "In Trade \u00d7 Wares, Saddles must go with Tanner \u2014 every other Trade is already crossed out for it.",
+      "Saddles goes with Tanner, and 11 coins goes with Tanner, so Saddles goes with 11 coins.",
+      "Saddles goes with 11 coins, so it can't also go with 12 coins.",
+      "\u2026but now the clue \u201cSaddles goes with at least four of Godfrey, Blacksmith, Awl, Riverside, and 12 coins\u201d can no longer hold \u2014 a contradiction.",
+      "So Blacksmith goes with Saddles."
+     ]
     },
     {
      "key": "1-3",
@@ -2379,7 +2473,18 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Beatrix went with Hammer \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Beatrix went with Hammer \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Beatrix goes with Hammer.",
+      "Potter goes with Beatrix, and Hammer goes with Beatrix, so Potter goes with Hammer.",
+      "Hammer goes with Beatrix, and Eastcheap goes with Beatrix, so Hammer goes with Eastcheap.",
+      "Hammer goes with Potter, so Blacksmith can't go with Hammer.",
+      "Eastcheap goes with Hammer, so Loom can't go with Eastcheap.",
+      "In Trade \u00d7 Tool, Blacksmith must go with Loom \u2014 every other Tool is already crossed out for it.",
+      "In Tool \u00d7 Quarter, Loom must go with Riverside \u2014 every other Quarter is already crossed out for it.",
+      "\u2026but now the clue \u201cLoom goes with at most one of Beatrix, Blacksmith, Boots, Riverside, and 11 coins\u201d can no longer hold \u2014 a contradiction.",
+      "So Beatrix does not go with Hammer."
+     ]
     },
     {
      "key": "0-2",
@@ -3022,7 +3127,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Pike.",
+      "Wade goes with Pike, so it can't also go with Bass.",
+      "Wade goes with Pike, so it can't also go with Trout.",
+      "Pike goes with Wade, so Boone can't go with Pike.",
+      "Pike goes with Wade, so Mabel can't go with Pike.",
+      "Wade goes with Pike, but 13 lb doesn't, so Wade doesn't go with 13 lb.",
+      "The clues force Bass to go with Shrimp.",
+      "The clues force Shrimp to go with 13 lb.",
+      "\u2026but now the clue \u201cBetween Bass and 13 lb, one goes with Wade and the other with Shrimp\u201d can no longer hold \u2014 a contradiction.",
+      "So Wade does not go with Pike."
+     ]
     },
     {
      "key": "2-3",
@@ -3032,7 +3149,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Swimbait went with Corn \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Swimbait went with Corn \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Swimbait goes with Corn.",
+      "Swimbait goes with Corn, so it can't also go with Dough.",
+      "Swimbait goes with Corn, but Esther doesn't, so Esther doesn't go with Swimbait.",
+      "\u2026but now the clue \u201cSwimbait goes with exactly two of Esther, Bass, and Dough\u201d can no longer hold \u2014 a contradiction.",
+      "So Swimbait does not go with Corn."
+     ]
     },
     {
      "key": "1-3",
@@ -3042,7 +3166,24 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pike went with Shrimp \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Pike went with Shrimp \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Pike goes with Shrimp.",
+      "Pike goes with Shrimp, so it can't also go with Corn.",
+      "Pike goes with Shrimp, so it can't also go with Dough.",
+      "Pike goes with Shrimp, so it can't also go with Nightcrawler.",
+      "Shrimp goes with Pike, so Bass can't go with Shrimp.",
+      "Shrimp goes with Pike, so Catfish can't go with Shrimp.",
+      "Shrimp goes with Pike, so Trout can't go with Shrimp.",
+      "Esther goes with Catfish, but Shrimp doesn't, so Esther doesn't go with Shrimp.",
+      "12 lb goes with Esther, but Shrimp doesn't, so Shrimp doesn't go with 12 lb.",
+      "Shrimp goes with Pike, but Wade doesn't, so Wade doesn't go with Shrimp.",
+      "Shrimp goes with Pike, but 13 lb doesn't, so Shrimp doesn't go with 13 lb.",
+      "The clues force Wade to go with Bass.",
+      "The clues force Wade to go with 13 lb.",
+      "\u2026but now the clue \u201cBetween Bass and 13 lb, one goes with Wade and the other with Shrimp\u201d can no longer hold \u2014 a contradiction.",
+      "So Pike does not go with Shrimp."
+     ]
     },
     {
      "key": "1-2",
@@ -3052,7 +3193,15 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pike went with Swimbait \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Pike went with Swimbait \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Pike goes with Swimbait.",
+      "Swimbait goes with Pike, so Bass can't go with Swimbait.",
+      "Swimbait goes with Pike, so Catfish can't go with Swimbait.",
+      "Esther goes with Catfish, but Swimbait doesn't, so Esther doesn't go with Swimbait.",
+      "\u2026but now the clue \u201cSwimbait goes with exactly two of Esther, Bass, and Dough\u201d can no longer hold \u2014 a contradiction.",
+      "So Pike does not go with Swimbait."
+     ]
     },
     {
      "key": "2-3",
@@ -3062,7 +3211,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Swimbait didn't go with Dough \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Swimbait didn't go with Dough \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Swimbait does not go with Dough.",
+      "From the clue \u201cSwimbait goes with exactly two of Esther, Bass, and Dough\u201d \u2014 Esther must go with Swimbait.",
+      "From the clue \u201cSwimbait goes with exactly two of Esther, Bass, and Dough\u201d \u2014 Bass must go with Swimbait.",
+      "Swimbait goes with Bass, so Catfish can't go with Swimbait.",
+      "Catfish goes with Esther, and Swimbait goes with Esther, so Catfish goes with Swimbait. But Catfish was already shown to not go with Swimbait \u2014 a contradiction.",
+      "So Swimbait goes with Dough."
+     ]
     },
     {
      "key": "2-3",
@@ -3132,7 +3289,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with Trout \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with Trout \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with Trout.",
+      "Boone goes with Trout, so it can't also go with Pike.",
+      "In Angler \u00d7 Species, Pike must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Pike, but Shrimp doesn't, so Mabel doesn't go with Shrimp.",
+      "From the clue \u201cBetween Bass and 13 lb, one goes with Wade and the other with Shrimp\u201d \u2014 Bass can't go with Shrimp.",
+      "\u2026but now the clue \u201cShrimp goes with at least four of Mabel, Bass, Popper, Pinehollow, and 14 lb\u201d can no longer hold \u2014 a contradiction.",
+      "So Boone does not go with Trout."
+     ]
     },
     {
      "key": "0-5",
@@ -3152,7 +3318,30 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Esther went with Shrimp \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Esther went with Shrimp \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Esther goes with Shrimp.",
+      "Esther goes with Shrimp, so it can't also go with Dough.",
+      "Esther goes with Shrimp, so it can't also go with Nightcrawler.",
+      "Shrimp goes with Esther, so Boone can't go with Shrimp.",
+      "Shrimp goes with Esther, so Mabel can't go with Shrimp.",
+      "Shrimp goes with Esther, so Wade can't go with Shrimp.",
+      "Catfish goes with Esther, and Shrimp goes with Esther, so Catfish goes with Shrimp.",
+      "Shrimp goes with Esther, and 12 lb goes with Esther, so Shrimp goes with 12 lb.",
+      "Catfish goes with Shrimp, so it can't also go with Dough.",
+      "Catfish goes with Shrimp, so it can't also go with Nightcrawler.",
+      "Shrimp goes with Catfish, so Bass can't go with Shrimp.",
+      "Shrimp goes with Catfish, so Trout can't go with Shrimp.",
+      "Shrimp goes with 12 lb, so it can't also go with 13 lb.",
+      "Shrimp goes with 12 lb, so it can't also go with 14 lb.",
+      "Shrimp goes with 12 lb, so it can't also go with 15 lb.",
+      "12 lb goes with Shrimp, so Dough can't go with 12 lb.",
+      "12 lb goes with Shrimp, so Nightcrawler can't go with 12 lb.",
+      "The clues force Wade to go with Bass.",
+      "The clues force Wade to go with 13 lb.",
+      "\u2026but now the clue \u201cBetween Bass and 13 lb, one goes with Wade and the other with Shrimp\u201d can no longer hold \u2014 a contradiction.",
+      "So Esther does not go with Shrimp."
+     ]
     },
     {
      "key": "1-3",
@@ -3182,7 +3371,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Bass didn't go with Shrimp \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Bass didn't go with Shrimp \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Bass does not go with Shrimp.",
+      "In Species \u00d7 Bait, Shrimp must go with Trout \u2014 every other Species is already crossed out for it.",
+      "Shrimp goes with Trout, and 13 lb goes with Trout, so Shrimp goes with 13 lb.",
+      "Shrimp goes with 13 lb, so it can't also go with 14 lb.",
+      "\u2026but now the clue \u201cShrimp goes with at least four of Mabel, Bass, Popper, Pinehollow, and 14 lb\u201d can no longer hold \u2014 a contradiction.",
+      "So Bass goes with Shrimp."
+     ]
     },
     {
      "key": "1-3",
@@ -4922,7 +5119,18 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with Spinnerbait \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with Spinnerbait \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with Spinnerbait.",
+      "Pike goes with Boone, and Spinnerbait goes with Boone, so Pike goes with Spinnerbait.",
+      "Spinnerbait goes with Boone, and Foxglen goes with Boone, so Spinnerbait goes with Foxglen.",
+      "Spinnerbait goes with Pike, so Bass can't go with Spinnerbait.",
+      "Foxglen goes with Spinnerbait, so Spoon can't go with Foxglen.",
+      "In Species \u00d7 Lure, Bass must go with Spoon \u2014 every other Lure is already crossed out for it.",
+      "In Lure \u00d7 Pond, Spoon must go with Pinehollow \u2014 every other Pond is already crossed out for it.",
+      "\u2026but now the clue \u201cSpoon goes with at most one of Boone, Bass, Dough, Pinehollow, and 13 lb\u201d can no longer hold \u2014 a contradiction.",
+      "So Boone does not go with Spinnerbait."
+     ]
     },
     {
      "key": "0-2",

@@ -1,5 +1,6 @@
 {
  "id": "6x4-tera-020",
+ "hints_v": 2,
  "seed": 297403,
  "categories": 6,
  "items": 4,
@@ -12,6 +13,7 @@
  "sequential_categories": 1,
  "group_blocks": 4,
  "sequential_clues": 2,
+ "cross_dial_clues": 0,
  "family": "6x4-tera-020",
  "derived_from": null,
  "adjusted": false,
@@ -288,7 +290,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Mason went with Candles \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Mason went with Candles \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Mason goes with Candles.",
+      "Candles goes with Mason, but 2 coins doesn't, so Candles doesn't go with 2 coins.",
+      "Mason goes with Candles, but 5 coins doesn't, so Mason doesn't go with 5 coins.",
+      "From the clue \u201cThe artisan who makes Candles' levy is lower than both the Mason and the artisan in Eastcheap\u201d \u2014 Candles can't go with 4 coins.",
+      "From the clue \u201cThe artisan who makes Candles' levy is lower than both the Mason and the artisan in Eastcheap\u201d \u2014 Mason can't go with 3 coins.",
+      "In Trade \u00d7 Levy, Mason must go with 4 coins \u2014 every other Levy is already crossed out for it.",
+      "Candles goes with Mason, and 4 coins goes with Mason, so Candles goes with 4 coins. But Candles was already shown to not go with 4 coins \u2014 a contradiction.",
+      "So Mason does not go with Candles."
+     ]
     },
     {
      "key": "3-4",
@@ -298,7 +310,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Candles went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Candles went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Candles goes with Eastcheap.",
+      "Eastcheap goes with Candles, but 5 coins doesn't, so Eastcheap doesn't go with 5 coins.",
+      "Candles goes with Eastcheap, but 2 coins doesn't, so Candles doesn't go with 2 coins.",
+      "From the clue \u201cThe artisan who makes Candles' levy is lower than both the Mason and the artisan in Eastcheap\u201d \u2014 Candles can't go with 4 coins.",
+      "From the clue \u201cThe artisan who makes Candles' levy is lower than both the Mason and the artisan in Eastcheap\u201d \u2014 Eastcheap can't go with 3 coins.",
+      "In Wares \u00d7 Levy, Candles must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "Eastcheap goes with Candles, and 3 coins goes with Candles, so Eastcheap goes with 3 coins. But Eastcheap was already shown to not go with 3 coins \u2014 a contradiction.",
+      "So Candles does not go with Eastcheap."
+     ]
     },
     {
      "key": "0-4",
@@ -308,7 +330,22 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with Eastcheap.",
+      "Wulfric goes with Eastcheap, so it can't also go with Riverside.",
+      "Wulfric goes with Eastcheap, but 2 coins doesn't, so Wulfric doesn't go with 2 coins.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Horseshoes.",
+      "Blacksmith goes with Wulfric, so Matilda can't go with Blacksmith.",
+      "Blacksmith goes with Wulfric, and Horseshoes goes with Wulfric, so Blacksmith goes with Horseshoes.",
+      "Blacksmith goes with Wulfric, and Eastcheap goes with Wulfric, so Blacksmith goes with Eastcheap.",
+      "Blacksmith goes with Horseshoes, so it can't also go with Rope.",
+      "Blacksmith goes with Eastcheap, so it can't also go with Kingsford.",
+      "Blacksmith goes with Wulfric, but 2 coins doesn't, so Blacksmith doesn't go with 2 coins.",
+      "\u2026but now the clue \u201cBlacksmith goes with exactly two of Matilda, Anvil, Rope, Kingsford, and 2 coins\u201d can no longer hold \u2014 a contradiction.",
+      "So Wulfric does not go with Eastcheap."
+     ]
     },
     {
      "key": "0-1",
@@ -318,7 +355,18 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with Mason \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with Mason \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with Mason.",
+      "Wulfric goes with Mason, so it can't also go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Horseshoes.",
+      "Horseshoes goes with Wulfric, so Rowan can't go with Horseshoes.",
+      "Mason goes with Wulfric, and Horseshoes goes with Wulfric, so Mason goes with Horseshoes.",
+      "Horseshoes goes with Mason, so Blacksmith can't go with Horseshoes.",
+      "Horseshoes goes with Mason, so Fletcher can't go with Horseshoes.",
+      "\u2026but now the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wulfric does not go with Mason."
+     ]
     },
     {
      "key": "0-3",
@@ -328,7 +376,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with Candles \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with Candles \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with Candles.",
+      "Wulfric goes with Candles, so it can't also go with Horseshoes.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Riverside.",
+      "Blacksmith goes with Wulfric, and Candles goes with Wulfric, so Blacksmith goes with Candles.",
+      "Blacksmith goes with Wulfric, and Riverside goes with Wulfric, so Blacksmith goes with Riverside.",
+      "Blacksmith goes with Candles, so it can't also go with Horseshoes.",
+      "Blacksmith goes with Candles, so it can't also go with Rope.",
+      "Blacksmith goes with Riverside, so it can't also go with Kingsford.",
+      "\u2026but now the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wulfric does not go with Candles."
+     ]
     },
     {
      "key": "0-1",
@@ -338,7 +399,24 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with Tanner \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with Tanner \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with Tanner.",
+      "Wulfric goes with Tanner, so it can't also go with Blacksmith.",
+      "Wulfric goes with Tanner, so it can't also go with Fletcher.",
+      "Tanner goes with Wulfric, so Cedric can't go with Tanner.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Horseshoes.",
+      "From the clue \u201cIf Wulfric does not go with Fletcher, then someone in the Clothiers' Guild goes with Cedric\u201d \u2014 Cedric can't go with Blacksmith.",
+      "From the clue \u201cIf Wulfric does not go with Fletcher, then someone in the Clothiers' Guild goes with Cedric\u201d \u2014 Cedric can't go with Mason.",
+      "In Artisan \u00d7 Trade, Cedric must go with Fletcher \u2014 every other Trade is already crossed out for it.",
+      "Horseshoes goes with Wulfric, so Cedric can't go with Horseshoes.",
+      "Horseshoes goes with Wulfric, so Rowan can't go with Horseshoes.",
+      "Fletcher goes with Cedric, but Horseshoes doesn't, so Fletcher doesn't go with Horseshoes.",
+      "Tanner goes with Wulfric, and Horseshoes goes with Wulfric, so Tanner goes with Horseshoes.",
+      "Horseshoes goes with Tanner, so Blacksmith can't go with Horseshoes.",
+      "\u2026but now the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wulfric does not go with Tanner."
+     ]
     },
     {
      "key": "0-3",
@@ -348,7 +426,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with Boots \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with Boots \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with Boots.",
+      "Wulfric goes with Boots, so it can't also go with Horseshoes.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Riverside.",
+      "Blacksmith goes with Wulfric, and Boots goes with Wulfric, so Blacksmith goes with Boots.",
+      "Blacksmith goes with Wulfric, and Riverside goes with Wulfric, so Blacksmith goes with Riverside.",
+      "Blacksmith goes with Boots, so it can't also go with Horseshoes.",
+      "Blacksmith goes with Boots, so it can't also go with Rope.",
+      "Blacksmith goes with Riverside, so it can't also go with Kingsford.",
+      "\u2026but now the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wulfric does not go with Boots."
+     ]
     },
     {
      "key": "0-1",
@@ -358,7 +449,23 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Rowan went with Fletcher \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Rowan went with Fletcher \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Rowan goes with Fletcher.",
+      "Rowan goes with Fletcher, so it can't also go with Mason.",
+      "Fletcher goes with Rowan, so Wulfric can't go with Fletcher.",
+      "From the clue \u201cIf Wulfric does not go with Fletcher, then someone in the Clothiers' Guild goes with Cedric\u201d \u2014 Cedric can't go with Mason.",
+      "In Artisan \u00d7 Trade, Mason must go with Matilda \u2014 every other Artisan is already crossed out for it.",
+      "Matilda goes with Mason, but Candles doesn't, so Matilda doesn't go with Candles.",
+      "Matilda and Wulfric must take Horseshoes or Rope between them, so Rowan can't go with Horseshoes.",
+      "Matilda and Wulfric must take Horseshoes or Rope between them, so Rowan can't go with Rope.",
+      "Fletcher goes with Rowan, but Horseshoes doesn't, so Fletcher doesn't go with Horseshoes.",
+      "Fletcher goes with Rowan, but Rope doesn't, so Fletcher doesn't go with Rope.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Blacksmith must go with Horseshoes.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Blacksmith must go with Rope.",
+      "Blacksmith goes with Horseshoes, so it can't also go with Rope. But Blacksmith was already shown to go with Rope \u2014 a contradiction.",
+      "So Rowan does not go with Fletcher."
+     ]
     },
     {
      "key": "0-4",
@@ -368,7 +475,25 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with Kingsford.",
+      "Wulfric goes with Kingsford, so it can't also go with Riverside.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Horseshoes.",
+      "Wulfric goes with Blacksmith, so it can't also go with Fletcher.",
+      "Blacksmith goes with Wulfric, and Horseshoes goes with Wulfric, so Blacksmith goes with Horseshoes.",
+      "Horseshoes goes with Blacksmith, so Mason can't go with Horseshoes.",
+      "From the clue \u201cIf Wulfric does not go with Fletcher, then someone in the Clothiers' Guild goes with Cedric\u201d \u2014 Cedric can't go with Mason.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Rowan must go with Rope.",
+      "The clues force Fletcher to go with Rope.",
+      "Rowan goes with Rope, so it can't also go with Boots.",
+      "In Artisan \u00d7 Wares, Boots must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "Rope goes with Fletcher, so Mason can't go with Rope.",
+      "In Trade \u00d7 Wares, Mason must go with Boots \u2014 every other Wares is already crossed out for it.",
+      "Boots goes with Cedric, but Mason doesn't, so Mason doesn't go with Boots. But Mason was already shown to go with Boots \u2014 a contradiction.",
+      "So Wulfric does not go with Kingsford."
+     ]
     },
     {
      "key": "0-3",
@@ -378,7 +503,25 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Matilda went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Matilda went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Matilda goes with Horseshoes.",
+      "Horseshoes goes with Matilda, so Wulfric can't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Wulfric must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "Rope goes with Wulfric, but Mason doesn't, so Mason doesn't go with Rope.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Riverside.",
+      "Wulfric goes with Blacksmith, so it can't also go with Fletcher.",
+      "Blacksmith goes with Wulfric, and Riverside goes with Wulfric, so Blacksmith goes with Riverside.",
+      "From the clue \u201cIf Wulfric does not go with Fletcher, then someone in the Clothiers' Guild goes with Cedric\u201d \u2014 Cedric can't go with Mason.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Fletcher must go with Horseshoes.",
+      "From the clue \u201cExactly one of these is true: Cedric goes with Anvil; Rowan goes with Boots; Blacksmith goes with Riverside\u201d \u2014 Rowan can't go with Boots.",
+      "In Artisan \u00d7 Wares, Boots must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "Horseshoes goes with Fletcher, so Mason can't go with Horseshoes.",
+      "In Trade \u00d7 Wares, Mason must go with Boots \u2014 every other Wares is already crossed out for it.",
+      "Boots goes with Cedric, but Mason doesn't, so Mason doesn't go with Boots. But Mason was already shown to go with Boots \u2014 a contradiction.",
+      "So Matilda does not go with Horseshoes."
+     ]
     },
     {
      "key": "0-1",
@@ -388,7 +531,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Matilda went with Mason \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Matilda went with Mason \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Matilda goes with Mason.",
+      "Mason goes with Matilda, but Boots doesn't, so Mason doesn't go with Boots.",
+      "Mason goes with Matilda, but Horseshoes doesn't, so Mason doesn't go with Horseshoes.",
+      "Matilda goes with Mason, but Candles doesn't, so Matilda doesn't go with Candles.",
+      "In Artisan \u00d7 Wares, Matilda must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "In Trade \u00d7 Wares, Mason must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "Rope goes with Matilda, so Rowan can't go with Rope.",
+      "Rope goes with Mason, so Blacksmith can't go with Rope.",
+      "Rope goes with Mason, so Fletcher can't go with Rope.",
+      "\u2026but now the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Matilda does not go with Mason."
+     ]
     },
     {
      "key": "0-3",
@@ -398,7 +554,36 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cedric went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Cedric went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Cedric goes with Horseshoes.",
+      "Cedric goes with Horseshoes, so it can't also go with Boots.",
+      "Horseshoes goes with Cedric, so Rowan can't go with Horseshoes.",
+      "Horseshoes goes with Cedric, so Wulfric can't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Wulfric must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "In Artisan \u00d7 Wares, Boots must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with Boots, so it can't also go with Rope.",
+      "Rope goes with Wulfric, so Matilda can't go with Rope.",
+      "In Artisan \u00d7 Wares, Matilda must go with Candles \u2014 every other Wares is already crossed out for it.",
+      "Matilda goes with Candles, but Eastcheap doesn't, so Matilda doesn't go with Eastcheap.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Riverside.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Rowan must go with Kingsford.",
+      "From the clue \u201cExactly one of these is true: Cedric goes with Anvil; Rowan goes with Boots; Blacksmith goes with Riverside\u201d \u2014 Blacksmith can't go with Riverside.",
+      "Blacksmith goes with Wulfric, so Cedric can't go with Blacksmith.",
+      "Blacksmith goes with Wulfric, so Matilda can't go with Blacksmith.",
+      "Blacksmith goes with Wulfric, so Rowan can't go with Blacksmith.",
+      "Rowan goes with Kingsford, so it can't also go with Eastcheap.",
+      "Kingsford goes with Rowan, so Matilda can't go with Kingsford.",
+      "Riverside goes with Wulfric, so Matilda can't go with Riverside.",
+      "In Artisan \u00d7 Quarter, Matilda must go with Millpond \u2014 every other Quarter is already crossed out for it.",
+      "In Artisan \u00d7 Quarter, Eastcheap must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "Eastcheap goes with Cedric, but Blacksmith doesn't, so Blacksmith doesn't go with Eastcheap.",
+      "Millpond goes with Matilda, but Blacksmith doesn't, so Blacksmith doesn't go with Millpond.",
+      "Kingsford goes with Rowan, but Blacksmith doesn't, so Blacksmith doesn't go with Kingsford.",
+      "In Trade \u00d7 Quarter, Blacksmith must go with Riverside \u2014 every other Quarter is already crossed out for it. But Blacksmith was already shown to not go with Riverside \u2014 a contradiction.",
+      "So Cedric does not go with Horseshoes."
+     ]
     },
     {
      "key": "1-3",
@@ -408,7 +593,21 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tanner went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Tanner went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Tanner goes with Horseshoes.",
+      "Horseshoes goes with Tanner, but Wulfric doesn't, so Wulfric doesn't go with Horseshoes.",
+      "Tanner goes with Horseshoes, but Cedric doesn't, so Cedric doesn't go with Tanner.",
+      "Tanner goes with Horseshoes, but Matilda doesn't, so Matilda doesn't go with Tanner.",
+      "In Artisan \u00d7 Trade, Tanner must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with Tanner, so it can't also go with Mason.",
+      "In Artisan \u00d7 Trade, Mason must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "Cedric goes with Mason, so it can't also go with Fletcher.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cIf Wulfric does not go with Fletcher, then someone in the Clothiers' Guild goes with Cedric\u201d \u2014 Wulfric must go with Fletcher.",
+      "Wulfric goes with Blacksmith, so it can't also go with Fletcher. But Wulfric was already shown to go with Fletcher \u2014 a contradiction.",
+      "So Tanner does not go with Horseshoes."
+     ]
     },
     {
      "key": "3-4",
@@ -418,7 +617,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Horseshoes went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Horseshoes went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Horseshoes goes with Kingsford.",
+      "Horseshoes goes with Kingsford, but Wulfric doesn't, so Wulfric doesn't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Wulfric must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "Blacksmith goes with Wulfric, and Rope goes with Wulfric, so Blacksmith goes with Rope.",
+      "The clues force Fletcher to go with Rope.",
+      "Rope goes with Blacksmith, so Fletcher can't go with Rope. But Fletcher was already shown to go with Rope \u2014 a contradiction.",
+      "So Horseshoes does not go with Kingsford."
+     ]
     },
     {
      "key": "3-4",
@@ -428,7 +637,38 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Horseshoes went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Horseshoes went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Horseshoes goes with Eastcheap.",
+      "Eastcheap goes with Horseshoes, but Cedric doesn't, so Cedric doesn't go with Eastcheap.",
+      "Eastcheap goes with Horseshoes, but Matilda doesn't, so Matilda doesn't go with Eastcheap.",
+      "Eastcheap goes with Horseshoes, but Tanner doesn't, so Tanner doesn't go with Eastcheap.",
+      "Horseshoes goes with Eastcheap, but Wulfric doesn't, so Wulfric doesn't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Horseshoes must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Quarter, Eastcheap must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Eastcheap goes with Rowan, but Fletcher doesn't, so Fletcher doesn't go with Eastcheap.",
+      "Rowan goes with Horseshoes, but Tanner doesn't, so Rowan doesn't go with Tanner.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Riverside.",
+      "Blacksmith goes with Wulfric, so Rowan can't go with Blacksmith.",
+      "In Artisan \u00d7 Trade, Rowan must go with Mason \u2014 every other Trade is already crossed out for it.",
+      "Mason goes with Rowan, and Eastcheap goes with Rowan, so Mason goes with Eastcheap.",
+      "Mason goes with Eastcheap, so it can't also go with Kingsford.",
+      "Mason goes with Eastcheap, so it can't also go with Millpond.",
+      "Mason goes with Eastcheap, so it can't also go with Riverside.",
+      "Eastcheap goes with Mason, so Blacksmith can't go with Eastcheap.",
+      "Blacksmith goes with Wulfric, and Riverside goes with Wulfric, so Blacksmith goes with Riverside.",
+      "Blacksmith goes with Riverside, so it can't also go with Kingsford.",
+      "Blacksmith goes with Riverside, so it can't also go with Millpond.",
+      "Riverside goes with Blacksmith, so Fletcher can't go with Riverside.",
+      "Riverside goes with Blacksmith, so Tanner can't go with Riverside.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Fletcher must go with Kingsford.",
+      "Fletcher goes with Kingsford, so it can't also go with Millpond.",
+      "Kingsford goes with Fletcher, so Tanner can't go with Kingsford.",
+      "In Trade \u00d7 Quarter, Tanner must go with Millpond \u2014 every other Quarter is already crossed out for it.",
+      "\u2026but now the clue \u201cAt most one member of the Ironmongers' Guild is in the River Ward\u201d can no longer hold \u2014 a contradiction.",
+      "So Horseshoes does not go with Eastcheap."
+     ]
     },
     {
      "key": "2-4",
@@ -438,7 +678,33 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Loom went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Loom went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Loom goes with Eastcheap.",
+      "Loom goes with Eastcheap, but Candles doesn't, so Loom doesn't go with Candles.",
+      "Loom goes with Eastcheap, but Horseshoes doesn't, so Loom doesn't go with Horseshoes.",
+      "Loom goes with Eastcheap, but 2 coins doesn't, so Loom doesn't go with 2 coins.",
+      "In Tool \u00d7 Wares, Loom must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "Rope goes with Loom, but Matilda doesn't, so Matilda doesn't go with Rope.",
+      "Rope goes with Loom, but 3 coins doesn't, so Rope doesn't go with 3 coins.",
+      "In Artisan \u00d7 Wares, Matilda must go with Candles \u2014 every other Wares is already crossed out for it.",
+      "Candles goes with Matilda, but 3 coins doesn't, so Candles doesn't go with 3 coins.",
+      "In Wares \u00d7 Levy, 3 coins must go with Horseshoes \u2014 every other Wares is already crossed out for it.",
+      "Horseshoes goes with 3 coins, so it can't also go with 2 coins.",
+      "Horseshoes goes with 3 coins, so it can't also go with 4 coins.",
+      "Horseshoes goes with 3 coins, so it can't also go with 5 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Mallet can't go with 3 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Riverside can't go with 2 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Riverside can't go with 3 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Riverside can't go with 4 coins.",
+      "In Tool \u00d7 Levy, Mallet must go with 4 coins \u2014 every other Levy is already crossed out for it.",
+      "In Quarter \u00d7 Levy, Riverside must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "4 coins goes with Mallet, so Loom can't go with 4 coins.",
+      "In Tool \u00d7 Levy, Loom must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "5 coins goes with Riverside, so Eastcheap can't go with 5 coins.",
+      "Eastcheap goes with Loom, and 5 coins goes with Loom, so Eastcheap goes with 5 coins. But Eastcheap was already shown to not go with 5 coins \u2014 a contradiction.",
+      "So Loom does not go with Eastcheap."
+     ]
     },
     {
      "key": "0-3",
@@ -448,7 +714,41 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cedric went with Candles \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Cedric went with Candles \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Cedric goes with Candles.",
+      "Cedric goes with Candles, so it can't also go with Boots.",
+      "Candles goes with Cedric, so Matilda can't go with Candles.",
+      "In Artisan \u00d7 Wares, Matilda must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "In Artisan \u00d7 Wares, Boots must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with Boots, so it can't also go with Rope.",
+      "Rope goes with Matilda, so Wulfric can't go with Rope.",
+      "Rowan goes with Boots, so it can't also go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Wulfric must go with Horseshoes \u2014 every other Wares is already crossed out for it.",
+      "Rowan goes with Boots, but 3 coins doesn't, so Rowan doesn't go with 3 coins.",
+      "Cedric goes with Candles, but Mason doesn't, so Cedric doesn't go with Mason.",
+      "Cedric goes with Candles, but Eastcheap doesn't, so Cedric doesn't go with Eastcheap.",
+      "Cedric goes with Candles, but 5 coins doesn't, so Cedric doesn't go with 5 coins.",
+      "In Artisan \u00d7 Trade, Mason must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with Mason, but 2 coins doesn't, so Rowan doesn't go with 2 coins.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Rowan must go with Kingsford.",
+      "Rowan goes with Kingsford, so it can't also go with Eastcheap.",
+      "Rowan goes with Kingsford, so it can't also go with Riverside.",
+      "In Artisan \u00d7 Quarter, Eastcheap must go with Matilda \u2014 every other Artisan is already crossed out for it.",
+      "Matilda goes with Eastcheap, so it can't also go with Riverside.",
+      "Matilda goes with Eastcheap, but 2 coins doesn't, so Matilda doesn't go with 2 coins.",
+      "Matilda and Rowan must take 4 coins or 5 coins between them, so Cedric can't go with 4 coins.",
+      "Matilda and Rowan must take 4 coins or 5 coins between them, so Wulfric can't go with 4 coins.",
+      "Matilda and Rowan must take 4 coins or 5 coins between them, so Wulfric can't go with 5 coins.",
+      "Horseshoes goes with Wulfric, but 4 coins doesn't, so Horseshoes doesn't go with 4 coins.",
+      "Horseshoes goes with Wulfric, but 5 coins doesn't, so Horseshoes doesn't go with 5 coins.",
+      "In Artisan, Riverside must be Cedric or Wulfric, but 4 coins can be none of those, so they can't be the same.",
+      "In Artisan, Riverside must be Cedric or Wulfric, but 5 coins can be none of those, so they can't be the same.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Mallet can't go with 3 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Mallet can't go with 4 coins.",
+      "\u2026but now Mallet has no possible Levy left at all \u2014 a contradiction.",
+      "So Cedric does not go with Candles."
+     ]
     },
     {
      "key": "0-2",
@@ -458,7 +758,23 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cedric went with Loom \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Cedric went with Loom \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Cedric goes with Loom.",
+      "Cedric goes with Loom, but Boots doesn't, so Cedric doesn't go with Boots.",
+      "Cedric goes with Loom, but Eastcheap doesn't, so Cedric doesn't go with Eastcheap.",
+      "In Artisan \u00d7 Wares, Cedric must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "In Artisan \u00d7 Wares, Boots must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rope goes with Cedric, so Matilda can't go with Rope.",
+      "Rowan goes with Boots, so it can't also go with Rope.",
+      "Rowan goes with Boots, so it can't also go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Matilda must go with Candles \u2014 every other Wares is already crossed out for it.",
+      "Matilda goes with Candles, but Eastcheap doesn't, so Matilda doesn't go with Eastcheap.",
+      "In Artisan \u00d7 Quarter, Eastcheap must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with Eastcheap, so it can't also go with Kingsford.",
+      "\u2026but now the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Cedric does not go with Loom."
+     ]
     },
     {
      "key": "2-3",
@@ -468,7 +784,58 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Mallet went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Mallet went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Mallet goes with Horseshoes.",
+      "Mallet goes with Horseshoes, so it can't also go with Boots.",
+      "Mallet goes with Horseshoes, so it can't also go with Candles.",
+      "Mallet goes with Horseshoes, so it can't also go with Rope.",
+      "Horseshoes goes with Mallet, so Anvil can't go with Horseshoes.",
+      "Horseshoes goes with Mallet, so Awl can't go with Horseshoes.",
+      "Horseshoes goes with Mallet, so Loom can't go with Horseshoes.",
+      "Horseshoes goes with Mallet, but 2 coins doesn't, so Horseshoes doesn't go with 2 coins.",
+      "Horseshoes goes with Mallet, but 5 coins doesn't, so Horseshoes doesn't go with 5 coins.",
+      "Mallet goes with Horseshoes, but Cedric doesn't, so Cedric doesn't go with Mallet.",
+      "Mallet goes with Horseshoes, but Matilda doesn't, so Matilda doesn't go with Mallet.",
+      "Mallet goes with Horseshoes, but Eastcheap doesn't, so Mallet doesn't go with Eastcheap.",
+      "Mallet goes with Horseshoes, but Kingsford doesn't, so Mallet doesn't go with Kingsford.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Riverside can't go with 3 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Riverside can't go with 4 coins.",
+      "In Levy, Mallet must be 3 coins or 4 coins, but Riverside can be none of those, so they can't be the same.",
+      "Horseshoes goes with Mallet, but Riverside doesn't, so Horseshoes doesn't go with Riverside.",
+      "In Tool \u00d7 Quarter, Mallet must go with Millpond \u2014 every other Quarter is already crossed out for it.",
+      "In Wares \u00d7 Quarter, Horseshoes must go with Millpond \u2014 every other Quarter is already crossed out for it.",
+      "Millpond goes with Mallet, so Anvil can't go with Millpond.",
+      "Millpond goes with Mallet, so Awl can't go with Millpond.",
+      "Millpond goes with Mallet, so Loom can't go with Millpond.",
+      "Millpond goes with Horseshoes, so Boots can't go with Millpond.",
+      "Millpond goes with Horseshoes, so Candles can't go with Millpond.",
+      "Millpond goes with Horseshoes, so Rope can't go with Millpond.",
+      "Millpond goes with Mallet, but 2 coins doesn't, so Millpond doesn't go with 2 coins.",
+      "Millpond goes with Mallet, but 5 coins doesn't, so Millpond doesn't go with 5 coins.",
+      "Cedric and Matilda must take Anvil or Awl between them, so Rowan can't go with Anvil.",
+      "Cedric and Matilda must take Anvil or Awl between them, so Rowan can't go with Awl.",
+      "Cedric and Matilda must take Anvil or Awl between them, so Wulfric can't go with Anvil.",
+      "Cedric and Matilda must take Anvil or Awl between them, so Wulfric can't go with Awl.",
+      "In Tool, Rowan must be Loom or Mallet, but Boots can be none of those, so they can't be the same.",
+      "In Tool, Rowan must be Loom or Mallet, but Eastcheap can be none of those, so they can't be the same.",
+      "In Artisan \u00d7 Wares, Boots must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "Cedric goes with Boots, but 3 coins doesn't, so Cedric doesn't go with 3 coins.",
+      "In Artisan, Anvil must be Cedric or Matilda, but 3 coins can be none of those, so they can't be the same.",
+      "In Artisan, Awl must be Cedric or Matilda, but 3 coins can be none of those, so they can't be the same.",
+      "In Artisan, Eastcheap must be Cedric or Matilda, but 3 coins can be none of those, so they can't be the same.",
+      "In Tool \u00d7 Levy, 3 coins must go with Mallet \u2014 every other Tool is already crossed out for it.",
+      "Mallet goes with 3 coins, so it can't also go with 4 coins.",
+      "Horseshoes goes with Mallet, and 3 coins goes with Mallet, so Horseshoes goes with 3 coins.",
+      "Millpond goes with Mallet, and 3 coins goes with Mallet, so Millpond goes with 3 coins.",
+      "Horseshoes goes with 3 coins, so it can't also go with 4 coins.",
+      "Millpond goes with 3 coins, so it can't also go with 4 coins.",
+      "3 coins goes with Horseshoes, so Candles can't go with 3 coins.",
+      "3 coins goes with Horseshoes, so Rope can't go with 3 coins.",
+      "3 coins goes with Millpond, so Kingsford can't go with 3 coins.",
+      "\u2026but now the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d can no longer hold \u2014 a contradiction.",
+      "So Mallet does not go with Horseshoes."
+     ]
     },
     {
      "key": "1-3",
@@ -478,7 +845,29 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Blacksmith went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Blacksmith went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Blacksmith goes with Horseshoes.",
+      "Blacksmith goes with Horseshoes, so it can't also go with Rope.",
+      "Blacksmith goes with Horseshoes, but Matilda doesn't, so Matilda doesn't go with Blacksmith.",
+      "Blacksmith goes with Horseshoes, but Kingsford doesn't, so Blacksmith doesn't go with Kingsford.",
+      "From the clue \u201cBlacksmith goes with exactly two of Matilda, Anvil, Rope, Kingsford, and 2 coins\u201d \u2014 Blacksmith must go with Anvil.",
+      "From the clue \u201cBlacksmith goes with exactly two of Matilda, Anvil, Rope, Kingsford, and 2 coins\u201d \u2014 Blacksmith must go with 2 coins.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Rowan can't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Horseshoes must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "Wulfric goes with Horseshoes, and Blacksmith goes with Horseshoes, so Wulfric goes with Blacksmith.",
+      "Wulfric goes with Blacksmith, and Anvil goes with Blacksmith, so Wulfric goes with Anvil.",
+      "Wulfric goes with Blacksmith, and 2 coins goes with Blacksmith, so Wulfric goes with 2 coins.",
+      "Wulfric goes with Anvil, so it can't also go with Loom.",
+      "Wulfric goes with 2 coins, so it can't also go with 3 coins.",
+      "In Artisan \u00d7 Tool, Loom must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with Loom, but Boots doesn't, so Rowan doesn't go with Boots.",
+      "Rowan goes with Loom, but 3 coins doesn't, so Rowan doesn't go with 3 coins.",
+      "In Artisan \u00d7 Wares, Boots must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Levy, 3 coins must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "Boots goes with Cedric, and 3 coins goes with Cedric, so Boots goes with 3 coins. But Boots was already shown to not go with 3 coins \u2014 a contradiction.",
+      "So Blacksmith does not go with Horseshoes."
+     ]
     },
     {
      "key": "0-4",
@@ -488,7 +877,15 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with Millpond \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with Millpond \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with Millpond.",
+      "Wulfric goes with Millpond, so it can't also go with Riverside.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Blacksmith.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Horseshoes.",
+      "Blacksmith goes with Wulfric, and Horseshoes goes with Wulfric, so Blacksmith goes with Horseshoes. But Blacksmith was already shown to not go with Horseshoes \u2014 a contradiction.",
+      "So Wulfric does not go with Millpond."
+     ]
     },
     {
      "key": "0-4",
@@ -578,7 +975,25 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wulfric went with 2 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wulfric went with 2 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wulfric goes with 2 coins.",
+      "Riverside goes with Wulfric, and 2 coins goes with Wulfric, so Riverside goes with 2 coins.",
+      "Riverside goes with 2 coins, so it can't also go with 4 coins.",
+      "Riverside goes with 2 coins, so it can't also go with 5 coins.",
+      "2 coins goes with Wulfric, but Boots doesn't, so Boots doesn't go with 2 coins.",
+      "2 coins goes with Wulfric, but Candles doesn't, so Candles doesn't go with 2 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Horseshoes can't go with 2 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Horseshoes can't go with 3 coins.",
+      "In Wares \u00d7 Levy, 2 coins must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "Rope goes with 2 coins, so it can't also go with 3 coins.",
+      "In Wares \u00d7 Levy, 3 coins must go with Candles \u2014 every other Wares is already crossed out for it.",
+      "Wulfric goes with 2 coins, and Rope goes with 2 coins, so Wulfric goes with Rope.",
+      "Rope goes with Wulfric, so Matilda can't go with Rope.",
+      "Candles goes with 3 coins, but Matilda doesn't, so Matilda doesn't go with Candles.",
+      "\u2026but now Matilda has no possible Wares left at all \u2014 a contradiction.",
+      "So Wulfric does not go with 2 coins."
+     ]
     },
     {
      "key": "4-5",
@@ -608,7 +1023,23 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Loom went with 4 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Loom went with 4 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Loom goes with 4 coins.",
+      "4 coins goes with Loom, so Mallet can't go with 4 coins.",
+      "In Tool \u00d7 Levy, Mallet must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "4 coins goes with Loom, but Matilda doesn't, so Matilda doesn't go with 4 coins.",
+      "4 coins goes with Loom, but Boots doesn't, so Boots doesn't go with 4 coins.",
+      "3 coins goes with Mallet, but Horseshoes doesn't, so Horseshoes doesn't go with 3 coins.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Horseshoes can't go with 5 coins.",
+      "In Wares \u00d7 Levy, Horseshoes must go with 2 coins \u2014 every other Levy is already crossed out for it.",
+      "2 coins goes with Horseshoes, so Boots can't go with 2 coins.",
+      "In Wares \u00d7 Levy, Boots must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "5 coins goes with Boots, but Matilda doesn't, so Matilda doesn't go with 5 coins.",
+      "2 coins goes with Horseshoes, but Matilda doesn't, so Matilda doesn't go with 2 coins.",
+      "\u2026but now Matilda has no possible Levy left at all \u2014 a contradiction.",
+      "So Loom does not go with 4 coins."
+     ]
     },
     {
      "key": "1-4",
@@ -618,7 +1049,21 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Fletcher went with Millpond \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Fletcher went with Millpond \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Fletcher goes with Millpond.",
+      "Fletcher goes with Millpond, so it can't also go with Riverside.",
+      "In Trade \u00d7 Quarter, Riverside must go with Blacksmith \u2014 every other Trade is already crossed out for it.",
+      "Riverside goes with Blacksmith, but Horseshoes doesn't, so Horseshoes doesn't go with Riverside.",
+      "Millpond goes with Fletcher, but Rowan doesn't, so Rowan doesn't go with Millpond.",
+      "Fletcher goes with Millpond, but Wulfric doesn't, so Wulfric doesn't go with Fletcher.",
+      "In Artisan \u00d7 Trade, Wulfric must go with Blacksmith \u2014 every other Trade is already crossed out for it.",
+      "Wulfric goes with Blacksmith, but Horseshoes doesn't, so Wulfric doesn't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Horseshoes must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "In Wares \u00d7 Quarter, Horseshoes must go with Millpond \u2014 every other Quarter is already crossed out for it.",
+      "Horseshoes goes with Rowan, but Millpond doesn't, so Horseshoes doesn't go with Millpond. But Horseshoes was already shown to go with Millpond \u2014 a contradiction.",
+      "So Fletcher does not go with Millpond."
+     ]
     },
     {
      "key": "4-5",
@@ -628,7 +1073,22 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Kingsford went with 3 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Kingsford went with 3 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Kingsford goes with 3 coins.",
+      "Kingsford goes with 3 coins, so it can't also go with 2 coins.",
+      "3 coins goes with Kingsford, so Riverside can't go with 3 coins.",
+      "In Quarter \u00d7 Levy, 2 coins must go with Millpond \u2014 every other Quarter is already crossed out for it.",
+      "3 coins goes with Kingsford, but Horseshoes doesn't, so Horseshoes doesn't go with 3 coins.",
+      "Millpond goes with 2 coins, but Mason doesn't, so Mason doesn't go with Millpond.",
+      "From the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d \u2014 Horseshoes can't go with 5 coins.",
+      "In Wares \u00d7 Levy, Horseshoes must go with 2 coins \u2014 every other Levy is already crossed out for it.",
+      "Horseshoes goes with 2 coins, and Millpond goes with 2 coins, so Horseshoes goes with Millpond.",
+      "Horseshoes goes with Millpond, but Fletcher doesn't, so Fletcher doesn't go with Horseshoes.",
+      "Horseshoes goes with Millpond, but Mason doesn't, so Mason doesn't go with Horseshoes.",
+      "\u2026but now Horseshoes has no possible Trade left at all \u2014 a contradiction.",
+      "So Kingsford does not go with 3 coins."
+     ]
     },
     {
      "key": "3-5",
@@ -638,7 +1098,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Horseshoes went with 2 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Horseshoes went with 2 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Horseshoes goes with 2 coins.",
+      "Horseshoes goes with 2 coins, but Wulfric doesn't, so Wulfric doesn't go with Horseshoes.",
+      "Horseshoes goes with 2 coins, but Mason doesn't, so Mason doesn't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Horseshoes must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "In Trade \u00d7 Wares, Horseshoes must go with Fletcher \u2014 every other Trade is already crossed out for it.",
+      "Horseshoes goes with Rowan, but Fletcher doesn't, so Fletcher doesn't go with Horseshoes. But Fletcher was already shown to go with Horseshoes \u2014 a contradiction.",
+      "So Horseshoes does not go with 2 coins."
+     ]
     },
     {
      "key": "2-5",
@@ -728,7 +1197,50 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Fletcher went with Loom \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Fletcher went with Loom \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Fletcher goes with Loom.",
+      "Loom goes with Fletcher, but Rowan doesn't, so Rowan doesn't go with Loom.",
+      "Loom goes with Fletcher, but Millpond doesn't, so Loom doesn't go with Millpond.",
+      "Fletcher goes with Loom, but Cedric doesn't, so Cedric doesn't go with Fletcher.",
+      "Fletcher goes with Loom, but Matilda doesn't, so Matilda doesn't go with Fletcher.",
+      "Fletcher goes with Loom, but 3 coins doesn't, so Fletcher doesn't go with 3 coins.",
+      "In Artisan \u00d7 Trade, Fletcher must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Tool, Loom must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "Wulfric goes with Fletcher, so it can't also go with Blacksmith.",
+      "Loom goes with Wulfric, and Riverside goes with Wulfric, so Loom goes with Riverside.",
+      "Loom goes with Wulfric, but Candles doesn't, so Loom doesn't go with Candles.",
+      "Loom goes with Riverside, so it can't also go with Kingsford.",
+      "Loom goes with Wulfric, but 2 coins doesn't, so Loom doesn't go with 2 coins.",
+      "Riverside goes with Loom, so Anvil can't go with Riverside.",
+      "Riverside goes with Loom, so Awl can't go with Riverside.",
+      "Wulfric goes with Fletcher, but 3 coins doesn't, so Wulfric doesn't go with 3 coins.",
+      "Riverside goes with Wulfric, but 3 coins doesn't, so Riverside doesn't go with 3 coins.",
+      "In Artisan \u00d7 Levy, Wulfric must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "In Tool \u00d7 Levy, Loom must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "In Quarter \u00d7 Levy, Riverside must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "5 coins goes with Loom, so Anvil can't go with 5 coins.",
+      "5 coins goes with Loom, so Awl can't go with 5 coins.",
+      "5 coins goes with Riverside, so Eastcheap can't go with 5 coins.",
+      "5 coins goes with Riverside, so Kingsford can't go with 5 coins.",
+      "5 coins goes with Riverside, so Millpond can't go with 5 coins.",
+      "5 coins goes with Wulfric, but Boots doesn't, so Boots doesn't go with 5 coins.",
+      "From the clue \u201cWulfric goes with at least two of Blacksmith, Horseshoes, and Riverside\u201d \u2014 Wulfric must go with Horseshoes.",
+      "From the clue \u201cThe artisan who makes Candles' levy is lower than both the Mason and the artisan in Eastcheap\u201d \u2014 Candles can't go with 4 coins.",
+      "Loom goes with Wulfric, and Horseshoes goes with Wulfric, so Loom goes with Horseshoes.",
+      "Horseshoes goes with Wulfric, and Riverside goes with Wulfric, so Horseshoes goes with Riverside.",
+      "Horseshoes goes with Wulfric, and 5 coins goes with Wulfric, so Horseshoes goes with 5 coins.",
+      "Loom goes with Horseshoes, so it can't also go with Rope.",
+      "Horseshoes goes with Loom, so Anvil can't go with Horseshoes.",
+      "Horseshoes goes with Loom, so Awl can't go with Horseshoes.",
+      "Horseshoes goes with Riverside, so it can't also go with Millpond.",
+      "Horseshoes goes with 5 coins, so it can't also go with 3 coins.",
+      "Riverside goes with Horseshoes, so Rope can't go with Riverside.",
+      "5 coins goes with Horseshoes, so Rope can't go with 5 coins.",
+      "Mallet goes with 4 coins, but Candles doesn't, so Mallet doesn't go with Candles.",
+      "\u2026but now the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d can no longer hold \u2014 a contradiction.",
+      "So Fletcher does not go with Loom."
+     ]
     },
     {
      "key": "0-3",
@@ -738,7 +1250,20 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cedric didn't go with Boots \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Cedric didn't go with Boots \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Cedric does not go with Boots.",
+      "In Artisan \u00d7 Wares, Cedric must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "In Artisan \u00d7 Wares, Boots must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rope goes with Cedric, so Wulfric can't go with Rope.",
+      "In Artisan \u00d7 Wares, Wulfric must go with Horseshoes \u2014 every other Wares is already crossed out for it.",
+      "Rowan goes with Boots, but Loom doesn't, so Rowan doesn't go with Loom.",
+      "Wulfric goes with Horseshoes, but Blacksmith doesn't, so Wulfric doesn't go with Blacksmith.",
+      "In Artisan \u00d7 Trade, Wulfric must go with Fletcher \u2014 every other Trade is already crossed out for it.",
+      "In Artisan \u00d7 Tool, Loom must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "Fletcher goes with Wulfric, and Loom goes with Wulfric, so Fletcher goes with Loom. But Fletcher was already shown to not go with Loom \u2014 a contradiction.",
+      "So Cedric goes with Boots."
+     ]
     },
     {
      "key": "0-3",
@@ -778,7 +1303,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Rowan went with 4 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Rowan went with 4 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Rowan goes with 4 coins.",
+      "Rowan goes with 4 coins, so it can't also go with 3 coins.",
+      "In Artisan \u00d7 Levy, 3 coins must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "Wulfric goes with 3 coins, but Loom doesn't, so Wulfric doesn't go with Loom.",
+      "Rowan goes with 4 coins, and Mallet goes with 4 coins, so Rowan goes with Mallet.",
+      "Rowan goes with Mallet, so it can't also go with Loom.",
+      "\u2026but now Loom has no possible Artisan left at all \u2014 a contradiction.",
+      "So Rowan does not go with 4 coins."
+     ]
     },
     {
      "key": "0-2",
@@ -798,7 +1333,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Rowan went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Rowan went with Eastcheap \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Rowan goes with Eastcheap.",
+      "Rowan goes with Eastcheap, but Loom doesn't, so Rowan doesn't go with Loom.",
+      "Rowan goes with Eastcheap, but Horseshoes doesn't, so Rowan doesn't go with Horseshoes.",
+      "In Artisan \u00d7 Tool, Loom must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Wares, Horseshoes must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "Wulfric goes with Loom, but 3 coins doesn't, so Wulfric doesn't go with 3 coins.",
+      "Horseshoes goes with Wulfric, but 3 coins doesn't, so Horseshoes doesn't go with 3 coins.",
+      "Riverside goes with Wulfric, but 3 coins doesn't, so Riverside doesn't go with 3 coins.",
+      "\u2026but now the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d can no longer hold \u2014 a contradiction.",
+      "So Rowan does not go with Eastcheap."
+     ]
     },
     {
      "key": "4-5",
@@ -818,7 +1365,24 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cedric went with 2 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Cedric went with 2 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Cedric goes with 2 coins.",
+      "Cedric goes with 2 coins, but Mason doesn't, so Cedric doesn't go with Mason.",
+      "Cedric goes with 2 coins, but Eastcheap doesn't, so Cedric doesn't go with Eastcheap.",
+      "Boots goes with Cedric, but Eastcheap doesn't, so Boots doesn't go with Eastcheap.",
+      "In Artisan \u00d7 Trade, Mason must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Quarter, Eastcheap must go with Matilda \u2014 every other Artisan is already crossed out for it.",
+      "In Wares \u00d7 Quarter, Eastcheap must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "Rowan goes with Mason, but Candles doesn't, so Rowan doesn't go with Candles.",
+      "Matilda goes with Eastcheap, and Rope goes with Eastcheap, so Matilda goes with Rope.",
+      "Rope goes with Matilda, so Rowan can't go with Rope.",
+      "Rope goes with Matilda, so Wulfric can't go with Rope.",
+      "In Artisan \u00d7 Wares, Wulfric must go with Horseshoes \u2014 every other Wares is already crossed out for it.",
+      "Horseshoes goes with Wulfric, so Rowan can't go with Horseshoes.",
+      "\u2026but now Rowan has no possible Wares left at all \u2014 a contradiction.",
+      "So Cedric does not go with 2 coins."
+     ]
     },
     {
      "key": "3-5",
@@ -838,7 +1402,30 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Fletcher went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Fletcher went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Fletcher goes with 5 coins.",
+      "Fletcher goes with 5 coins, so it can't also go with 3 coins.",
+      "5 coins goes with Fletcher, but Loom doesn't, so Loom doesn't go with 5 coins.",
+      "In Tool \u00d7 Levy, Loom must go with 2 coins \u2014 every other Levy is already crossed out for it.",
+      "2 coins goes with Loom, but Matilda doesn't, so Matilda doesn't go with 2 coins.",
+      "Loom goes with 2 coins, but Wulfric doesn't, so Wulfric doesn't go with Loom.",
+      "Loom goes with 2 coins, but Mason doesn't, so Mason doesn't go with Loom.",
+      "In Artisan \u00d7 Tool, Loom must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Levy, 2 coins must go with Rowan \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with 2 coins, so it can't also go with 3 coins.",
+      "In Artisan \u00d7 Levy, 3 coins must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "Rowan goes with Loom, but Mason doesn't, so Rowan doesn't go with Mason.",
+      "Wulfric goes with 3 coins, but Fletcher doesn't, so Wulfric doesn't go with Fletcher.",
+      "In Artisan \u00d7 Trade, Mason must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "Cedric goes with Mason, so it can't also go with Fletcher.",
+      "In Artisan \u00d7 Trade, Fletcher must go with Matilda \u2014 every other Artisan is already crossed out for it.",
+      "Mason goes with Cedric, and Boots goes with Cedric, so Mason goes with Boots.",
+      "Mason goes with Boots, so it can't also go with Horseshoes.",
+      "Fletcher goes with Matilda, but Horseshoes doesn't, so Fletcher doesn't go with Horseshoes.",
+      "In Trade \u00d7 Wares, Horseshoes must go with Blacksmith \u2014 every other Trade is already crossed out for it. But Blacksmith was already shown to not go with Horseshoes \u2014 a contradiction.",
+      "So Fletcher does not go with 5 coins."
+     ]
     },
     {
      "key": "3-5",
@@ -848,7 +1435,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Candles went with 3 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Candles went with 3 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Candles goes with 3 coins.",
+      "Candles goes with 3 coins, so it can't also go with 2 coins.",
+      "3 coins goes with Candles, so Horseshoes can't go with 3 coins.",
+      "In Wares \u00d7 Levy, Horseshoes must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "In Wares \u00d7 Levy, 2 coins must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "Rope goes with 2 coins, but Wulfric doesn't, so Wulfric doesn't go with Rope.",
+      "Horseshoes goes with 5 coins, but Fletcher doesn't, so Fletcher doesn't go with Horseshoes.",
+      "In Artisan \u00d7 Wares, Wulfric must go with Horseshoes \u2014 every other Wares is already crossed out for it.",
+      "In Trade \u00d7 Wares, Horseshoes must go with Mason \u2014 every other Trade is already crossed out for it.",
+      "Horseshoes goes with Wulfric, but Mason doesn't, so Mason doesn't go with Horseshoes. But Mason was already shown to go with Horseshoes \u2014 a contradiction.",
+      "So Candles does not go with 3 coins."
+     ]
     },
     {
      "key": "1-2",
@@ -858,7 +1458,53 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Mason went with Mallet \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Mason went with Mallet \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Mason goes with Mallet.",
+      "Mallet goes with Mason, but Matilda doesn't, so Matilda doesn't go with Mallet.",
+      "Mallet goes with Mason, but Candles doesn't, so Mallet doesn't go with Candles.",
+      "Mason goes with Mallet, and 4 coins goes with Mallet, so Mason goes with 4 coins.",
+      "Mason goes with Mallet, but Rowan doesn't, so Rowan doesn't go with Mason.",
+      "Mason goes with Mallet, but Horseshoes doesn't, so Mason doesn't go with Horseshoes.",
+      "4 coins goes with Mason, but Matilda doesn't, so Matilda doesn't go with 4 coins.",
+      "4 coins goes with Mason, so Fletcher can't go with 4 coins.",
+      "4 coins goes with Mason, but Candles doesn't, so Candles doesn't go with 4 coins.",
+      "In Artisan \u00d7 Trade, Mason must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Tool, Mallet must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "In Artisan \u00d7 Levy, 4 coins must go with Cedric \u2014 every other Artisan is already crossed out for it.",
+      "In Trade \u00d7 Wares, Horseshoes must go with Fletcher \u2014 every other Trade is already crossed out for it.",
+      "In Wares \u00d7 Levy, Candles must go with 2 coins \u2014 every other Levy is already crossed out for it.",
+      "Cedric goes with Mason, so it can't also go with Fletcher.",
+      "Fletcher goes with Horseshoes, so it can't also go with Candles.",
+      "2 coins goes with Candles, so Rope can't go with 2 coins.",
+      "Mallet goes with Cedric, and Boots goes with Cedric, so Mallet goes with Boots.",
+      "Boots goes with Cedric, and 4 coins goes with Cedric, so Boots goes with 4 coins.",
+      "Mallet goes with Boots, so it can't also go with Rope.",
+      "Boots goes with Mallet, so Anvil can't go with Boots.",
+      "Boots goes with Mallet, so Awl can't go with Boots.",
+      "Boots goes with 4 coins, so it can't also go with 5 coins.",
+      "4 coins goes with Boots, so Rope can't go with 4 coins.",
+      "Horseshoes goes with Fletcher, but Loom doesn't, so Loom doesn't go with Horseshoes.",
+      "Horseshoes goes with Fletcher, but Millpond doesn't, so Horseshoes doesn't go with Millpond.",
+      "Horseshoes goes with Fletcher, but 5 coins doesn't, so Horseshoes doesn't go with 5 coins.",
+      "2 coins goes with Candles, but Fletcher doesn't, so Fletcher doesn't go with 2 coins.",
+      "Fletcher goes with Horseshoes, but Matilda doesn't, so Matilda doesn't go with Fletcher.",
+      "In Artisan \u00d7 Trade, Fletcher must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "In Trade \u00d7 Levy, Fletcher must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "In Wares \u00d7 Quarter, Horseshoes must go with Riverside \u2014 every other Quarter is already crossed out for it.",
+      "In Wares \u00d7 Levy, Horseshoes must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "In Wares \u00d7 Levy, 5 coins must go with Rope \u2014 every other Wares is already crossed out for it.",
+      "Riverside goes with Horseshoes, so Rope can't go with Riverside.",
+      "Rope goes with 5 coins, so it can't also go with 3 coins.",
+      "Wulfric goes with Fletcher, and 3 coins goes with Fletcher, so Wulfric goes with 3 coins.",
+      "Riverside goes with Wulfric, and 3 coins goes with Wulfric, so Riverside goes with 3 coins.",
+      "Wulfric goes with Fletcher, but Loom doesn't, so Wulfric doesn't go with Loom.",
+      "Riverside goes with Wulfric, but Loom doesn't, so Loom doesn't go with Riverside.",
+      "Riverside goes with 3 coins, so it can't also go with 5 coins.",
+      "3 coins goes with Riverside, so Millpond can't go with 3 coins.",
+      "\u2026but now the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d can no longer hold \u2014 a contradiction.",
+      "So Mason does not go with Mallet."
+     ]
     },
     {
      "key": "1-5",
@@ -878,7 +1524,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tanner went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Tanner went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Tanner goes with 5 coins.",
+      "5 coins goes with Tanner, so Mason can't go with 5 coins.",
+      "In Trade \u00d7 Levy, Mason must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "3 coins goes with Mason, but Wulfric doesn't, so Wulfric doesn't go with 3 coins.",
+      "5 coins goes with Tanner, but Wulfric doesn't, so Wulfric doesn't go with 5 coins.",
+      "\u2026but now Wulfric has no possible Levy left at all \u2014 a contradiction.",
+      "So Tanner does not go with 5 coins."
+     ]
     },
     {
      "key": "1-5",
@@ -888,7 +1543,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tanner went with 3 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Tanner went with 3 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Tanner goes with 3 coins.",
+      "3 coins goes with Tanner, so Mason can't go with 3 coins.",
+      "In Trade \u00d7 Levy, Mason must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "5 coins goes with Mason, but Wulfric doesn't, so Wulfric doesn't go with 5 coins.",
+      "3 coins goes with Tanner, but Wulfric doesn't, so Wulfric doesn't go with 3 coins.",
+      "\u2026but now Wulfric has no possible Levy left at all \u2014 a contradiction.",
+      "So Tanner does not go with 3 coins."
+     ]
     },
     {
      "key": "0-5",
@@ -898,7 +1562,13 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Matilda went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Matilda went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Matilda goes with 5 coins.",
+      "5 coins goes with Matilda, but Horseshoes doesn't, so Horseshoes doesn't go with 5 coins.",
+      "\u2026but now the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d can no longer hold \u2014 a contradiction.",
+      "So Matilda does not go with 5 coins."
+     ]
     },
     {
      "key": "1-4",
@@ -908,7 +1578,40 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Mason went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Mason went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Mason goes with Kingsford.",
+      "Kingsford goes with Mason, so Blacksmith can't go with Kingsford.",
+      "Kingsford goes with Mason, so Fletcher can't go with Kingsford.",
+      "Kingsford goes with Mason, but Mallet doesn't, so Mallet doesn't go with Kingsford.",
+      "Kingsford goes with Mason, but Candles doesn't, so Candles doesn't go with Kingsford.",
+      "Kingsford goes with Mason, but 2 coins doesn't, so Kingsford doesn't go with 2 coins.",
+      "Kingsford goes with Mason, but 4 coins doesn't, so Kingsford doesn't go with 4 coins.",
+      "Mason goes with Kingsford, but Horseshoes doesn't, so Mason doesn't go with Horseshoes.",
+      "In Trade \u00d7 Wares, Horseshoes must go with Fletcher \u2014 every other Trade is already crossed out for it.",
+      "In Wares \u00d7 Quarter, Candles must go with Millpond \u2014 every other Quarter is already crossed out for it.",
+      "In Quarter \u00d7 Levy, Kingsford must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "Millpond goes with Candles, so Boots can't go with Millpond.",
+      "Millpond goes with Candles, so Horseshoes can't go with Millpond.",
+      "In Wares \u00d7 Quarter, Horseshoes must go with Riverside \u2014 every other Quarter is already crossed out for it.",
+      "5 coins goes with Kingsford, so Eastcheap can't go with 5 coins.",
+      "In Quarter \u00d7 Levy, Eastcheap must go with 4 coins \u2014 every other Levy is already crossed out for it.",
+      "Cedric goes with Boots, but Millpond doesn't, so Cedric doesn't go with Millpond.",
+      "Fletcher goes with Horseshoes, and Riverside goes with Horseshoes, so Fletcher goes with Riverside.",
+      "Riverside goes with Fletcher, so Blacksmith can't go with Riverside.",
+      "4 coins goes with Eastcheap, but Candles doesn't, so Candles doesn't go with 4 coins.",
+      "In Wares \u00d7 Levy, Candles must go with 2 coins \u2014 every other Levy is already crossed out for it.",
+      "Candles goes with 2 coins, but Mallet doesn't, so Mallet doesn't go with Candles.",
+      "Millpond goes with Candles, but Mallet doesn't, so Mallet doesn't go with Millpond.",
+      "In Tool \u00d7 Quarter, Mallet must go with Eastcheap \u2014 every other Quarter is already crossed out for it.",
+      "Eastcheap goes with Mallet, so Anvil can't go with Eastcheap.",
+      "From the clue \u201cHorseshoes, Rope, and Kingsford go with Rowan, Blacksmith, and Fletcher, in some order\u201d \u2014 Rowan must go with Kingsford.",
+      "From the clue \u201cExactly one of these is true: Cedric goes with Anvil; Rowan goes with Boots; Blacksmith goes with Riverside\u201d \u2014 Cedric must go with Anvil.",
+      "Kingsford goes with Rowan, so Cedric can't go with Kingsford.",
+      "In Artisan \u00d7 Quarter, Cedric must go with Eastcheap \u2014 every other Quarter is already crossed out for it.",
+      "Anvil goes with Cedric, and Eastcheap goes with Cedric, so Anvil goes with Eastcheap. But Anvil was already shown to not go with Eastcheap \u2014 a contradiction.",
+      "So Mason does not go with Kingsford."
+     ]
     },
     {
      "key": "4-5",
@@ -918,7 +1621,13 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Kingsford went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Kingsford went with 5 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Kingsford goes with 5 coins.",
+      "5 coins goes with Kingsford, but Horseshoes doesn't, so Horseshoes doesn't go with 5 coins.",
+      "\u2026but now the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d can no longer hold \u2014 a contradiction.",
+      "So Kingsford does not go with 5 coins."
+     ]
     },
     {
      "key": "0-4",
@@ -928,7 +1637,18 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cedric went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Cedric went with Kingsford \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Cedric goes with Kingsford.",
+      "Cedric goes with Kingsford, so it can't also go with Eastcheap.",
+      "In Artisan \u00d7 Quarter, Eastcheap must go with Matilda \u2014 every other Artisan is already crossed out for it.",
+      "Matilda goes with Eastcheap, but 2 coins doesn't, so Matilda doesn't go with 2 coins.",
+      "Cedric goes with Kingsford, but 5 coins doesn't, so Cedric doesn't go with 5 coins.",
+      "In Artisan \u00d7 Levy, Cedric must go with 4 coins \u2014 every other Levy is already crossed out for it.",
+      "In Artisan \u00d7 Levy, Matilda must go with 4 coins \u2014 every other Levy is already crossed out for it.",
+      "4 coins goes with Cedric, so Matilda can't go with 4 coins. But Matilda was already shown to go with 4 coins \u2014 a contradiction.",
+      "So Cedric does not go with Kingsford."
+     ]
     },
     {
      "key": "3-4",
@@ -948,7 +1668,64 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cedric went with Mason \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Cedric went with Mason \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Cedric goes with Mason.",
+      "Cedric goes with Mason, so it can't also go with Fletcher.",
+      "Mason goes with Cedric, and Boots goes with Cedric, so Mason goes with Boots.",
+      "Mason goes with Boots, so it can't also go with Horseshoes.",
+      "Cedric goes with Mason, but Mallet doesn't, so Cedric doesn't go with Mallet.",
+      "Cedric goes with Mason, but 4 coins doesn't, so Cedric doesn't go with 4 coins.",
+      "Boots goes with Cedric, but Mallet doesn't, so Mallet doesn't go with Boots.",
+      "Boots goes with Cedric, but 4 coins doesn't, so Boots doesn't go with 4 coins.",
+      "In Artisan \u00d7 Levy, Cedric must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "In Trade \u00d7 Wares, Horseshoes must go with Fletcher \u2014 every other Trade is already crossed out for it.",
+      "In Wares \u00d7 Levy, Boots must go with 5 coins \u2014 every other Levy is already crossed out for it.",
+      "5 coins goes with Boots, so Horseshoes can't go with 5 coins.",
+      "5 coins goes with Boots, so Rope can't go with 5 coins.",
+      "In Wares \u00d7 Levy, Horseshoes must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "3 coins goes with Horseshoes, so Rope can't go with 3 coins.",
+      "5 coins goes with Cedric, but Loom doesn't, so Loom doesn't go with 5 coins.",
+      "5 coins goes with Cedric, but Riverside doesn't, so Riverside doesn't go with 5 coins.",
+      "In Quarter \u00d7 Levy, Riverside must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "3 coins goes with Riverside, so Millpond can't go with 3 coins.",
+      "Horseshoes goes with Fletcher, but Loom doesn't, so Loom doesn't go with Horseshoes.",
+      "Horseshoes goes with Fletcher, but Millpond doesn't, so Horseshoes doesn't go with Millpond.",
+      "Fletcher goes with Horseshoes, but Matilda doesn't, so Matilda doesn't go with Fletcher.",
+      "Fletcher goes with Horseshoes, but Eastcheap doesn't, so Fletcher doesn't go with Eastcheap.",
+      "Fletcher goes with Horseshoes, but Kingsford doesn't, so Fletcher doesn't go with Kingsford.",
+      "In Artisan \u00d7 Trade, Fletcher must go with Wulfric \u2014 every other Artisan is already crossed out for it.",
+      "In Trade \u00d7 Quarter, Fletcher must go with Riverside \u2014 every other Quarter is already crossed out for it.",
+      "In Wares \u00d7 Quarter, Horseshoes must go with Riverside \u2014 every other Quarter is already crossed out for it.",
+      "Wulfric goes with Fletcher, but Loom doesn't, so Wulfric doesn't go with Loom.",
+      "Riverside goes with Fletcher, so Blacksmith can't go with Riverside.",
+      "Riverside goes with Wulfric, but Loom doesn't, so Loom doesn't go with Riverside.",
+      "Riverside goes with Horseshoes, so Rope can't go with Riverside.",
+      "In Tool \u00d7 Levy, Loom must go with 2 coins \u2014 every other Levy is already crossed out for it.",
+      "2 coins goes with Loom, so Anvil can't go with 2 coins.",
+      "2 coins goes with Loom, so Awl can't go with 2 coins.",
+      "From the clue \u201cExactly one of these is true: Cedric goes with Anvil; Rowan goes with Boots; Blacksmith goes with Riverside\u201d \u2014 Cedric must go with Anvil.",
+      "Anvil goes with Cedric, and Boots goes with Cedric, so Anvil goes with Boots.",
+      "Anvil goes with Cedric, and 5 coins goes with Cedric, so Anvil goes with 5 coins.",
+      "Anvil goes with Boots, so it can't also go with Candles.",
+      "Anvil goes with Boots, so it can't also go with Horseshoes.",
+      "Anvil goes with Boots, so it can't also go with Rope.",
+      "Anvil goes with Cedric, but Kingsford doesn't, so Anvil doesn't go with Kingsford.",
+      "Anvil goes with Cedric, but Riverside doesn't, so Anvil doesn't go with Riverside.",
+      "Anvil goes with 5 coins, so it can't also go with 3 coins.",
+      "Boots goes with Anvil, so Awl can't go with Boots.",
+      "5 coins goes with Anvil, so Awl can't go with 5 coins.",
+      "In Tool \u00d7 Wares, Horseshoes must go with Awl \u2014 every other Tool is already crossed out for it.",
+      "In Tool \u00d7 Quarter, Riverside must go with Awl \u2014 every other Tool is already crossed out for it.",
+      "In Tool \u00d7 Levy, Awl must go with 3 coins \u2014 every other Levy is already crossed out for it.",
+      "Awl goes with Horseshoes, so it can't also go with Candles.",
+      "Awl goes with Horseshoes, so it can't also go with Rope.",
+      "Awl goes with Riverside, so it can't also go with Eastcheap.",
+      "Awl goes with Riverside, so it can't also go with Kingsford.",
+      "Awl goes with Riverside, so it can't also go with Millpond.",
+      "\u2026but now the clue \u201cThe artisan with the Mallet's levy is between the artisan in Riverside and the artisan who makes Horseshoes\u201d can no longer hold \u2014 a contradiction.",
+      "So Cedric does not go with Mason."
+     ]
     },
     {
      "key": "0-1",
@@ -2830,7 +3607,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pike went with Dough \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Pike went with Dough \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Pike goes with Dough.",
+      "Dough goes with Pike, but 12 lb doesn't, so Dough doesn't go with 12 lb.",
+      "Pike goes with Dough, but 15 lb doesn't, so Pike doesn't go with 15 lb.",
+      "From the clue \u201cThe angler fishing with Dough's weight is lower than both the angler who landed the Pike and the angler at Birchpool\u201d \u2014 Dough can't go with 14 lb.",
+      "From the clue \u201cThe angler fishing with Dough's weight is lower than both the angler who landed the Pike and the angler at Birchpool\u201d \u2014 Pike can't go with 13 lb.",
+      "In Species \u00d7 Weight, Pike must go with 14 lb \u2014 every other Weight is already crossed out for it.",
+      "Dough goes with Pike, and 14 lb goes with Pike, so Dough goes with 14 lb. But Dough was already shown to not go with 14 lb \u2014 a contradiction.",
+      "So Pike does not go with Dough."
+     ]
     },
     {
      "key": "3-4",
@@ -2840,7 +3627,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Dough went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Dough went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Dough goes with Birchpool.",
+      "Birchpool goes with Dough, but 15 lb doesn't, so Birchpool doesn't go with 15 lb.",
+      "Dough goes with Birchpool, but 12 lb doesn't, so Dough doesn't go with 12 lb.",
+      "From the clue \u201cThe angler fishing with Dough's weight is lower than both the angler who landed the Pike and the angler at Birchpool\u201d \u2014 Dough can't go with 14 lb.",
+      "From the clue \u201cThe angler fishing with Dough's weight is lower than both the angler who landed the Pike and the angler at Birchpool\u201d \u2014 Birchpool can't go with 13 lb.",
+      "In Bait \u00d7 Weight, Dough must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "Birchpool goes with Dough, and 13 lb goes with Dough, so Birchpool goes with 13 lb. But Birchpool was already shown to not go with 13 lb \u2014 a contradiction.",
+      "So Dough does not go with Birchpool."
+     ]
     },
     {
      "key": "0-4",
@@ -2850,7 +3647,22 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Birchpool.",
+      "Wade goes with Birchpool, so it can't also go with Pinehollow.",
+      "Wade goes with Birchpool, but 12 lb doesn't, so Wade doesn't go with 12 lb.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Nightcrawler.",
+      "Bass goes with Wade, so Esther can't go with Bass.",
+      "Bass goes with Wade, and Nightcrawler goes with Wade, so Bass goes with Nightcrawler.",
+      "Bass goes with Wade, and Birchpool goes with Wade, so Bass goes with Birchpool.",
+      "Bass goes with Nightcrawler, so it can't also go with Shrimp.",
+      "Bass goes with Birchpool, so it can't also go with Foxglen.",
+      "Bass goes with Wade, but 12 lb doesn't, so Bass doesn't go with 12 lb.",
+      "\u2026but now the clue \u201cBass goes with exactly two of Esther, Popper, Shrimp, Foxglen, and 12 lb\u201d can no longer hold \u2014 a contradiction.",
+      "So Wade does not go with Birchpool."
+     ]
     },
     {
      "key": "0-1",
@@ -2860,7 +3672,18 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Pike.",
+      "Wade goes with Pike, so it can't also go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Nightcrawler.",
+      "Nightcrawler goes with Wade, so Mabel can't go with Nightcrawler.",
+      "Pike goes with Wade, and Nightcrawler goes with Wade, so Pike goes with Nightcrawler.",
+      "Nightcrawler goes with Pike, so Bass can't go with Nightcrawler.",
+      "Nightcrawler goes with Pike, so Catfish can't go with Nightcrawler.",
+      "\u2026but now the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wade does not go with Pike."
+     ]
     },
     {
      "key": "0-3",
@@ -2870,7 +3693,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Dough \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Dough \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Dough.",
+      "Wade goes with Dough, so it can't also go with Nightcrawler.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Pinehollow.",
+      "Bass goes with Wade, and Dough goes with Wade, so Bass goes with Dough.",
+      "Bass goes with Wade, and Pinehollow goes with Wade, so Bass goes with Pinehollow.",
+      "Bass goes with Dough, so it can't also go with Nightcrawler.",
+      "Bass goes with Dough, so it can't also go with Shrimp.",
+      "Bass goes with Pinehollow, so it can't also go with Foxglen.",
+      "\u2026but now the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wade does not go with Dough."
+     ]
     },
     {
      "key": "0-1",
@@ -2880,7 +3716,24 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Trout \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Trout \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Trout.",
+      "Wade goes with Trout, so it can't also go with Bass.",
+      "Wade goes with Trout, so it can't also go with Catfish.",
+      "Trout goes with Wade, so Boone can't go with Trout.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Nightcrawler.",
+      "From the clue \u201cIf Wade does not go with Catfish, then someone in the Pike Family goes with Boone\u201d \u2014 Boone can't go with Bass.",
+      "From the clue \u201cIf Wade does not go with Catfish, then someone in the Pike Family goes with Boone\u201d \u2014 Boone can't go with Pike.",
+      "In Angler \u00d7 Species, Boone must go with Catfish \u2014 every other Species is already crossed out for it.",
+      "Nightcrawler goes with Wade, so Boone can't go with Nightcrawler.",
+      "Nightcrawler goes with Wade, so Mabel can't go with Nightcrawler.",
+      "Catfish goes with Boone, but Nightcrawler doesn't, so Catfish doesn't go with Nightcrawler.",
+      "Trout goes with Wade, and Nightcrawler goes with Wade, so Trout goes with Nightcrawler.",
+      "Nightcrawler goes with Trout, so Bass can't go with Nightcrawler.",
+      "\u2026but now the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wade does not go with Trout."
+     ]
     },
     {
      "key": "0-3",
@@ -2890,7 +3743,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Corn \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Corn \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Corn.",
+      "Wade goes with Corn, so it can't also go with Nightcrawler.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Pinehollow.",
+      "Bass goes with Wade, and Corn goes with Wade, so Bass goes with Corn.",
+      "Bass goes with Wade, and Pinehollow goes with Wade, so Bass goes with Pinehollow.",
+      "Bass goes with Corn, so it can't also go with Nightcrawler.",
+      "Bass goes with Corn, so it can't also go with Shrimp.",
+      "Bass goes with Pinehollow, so it can't also go with Foxglen.",
+      "\u2026but now the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Wade does not go with Corn."
+     ]
     },
     {
      "key": "0-1",
@@ -2900,7 +3766,23 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Mabel went with Catfish \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Mabel went with Catfish \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Mabel goes with Catfish.",
+      "Mabel goes with Catfish, so it can't also go with Pike.",
+      "Catfish goes with Mabel, so Wade can't go with Catfish.",
+      "From the clue \u201cIf Wade does not go with Catfish, then someone in the Pike Family goes with Boone\u201d \u2014 Boone can't go with Pike.",
+      "In Angler \u00d7 Species, Pike must go with Esther \u2014 every other Angler is already crossed out for it.",
+      "Esther goes with Pike, but Dough doesn't, so Esther doesn't go with Dough.",
+      "Esther and Wade must take Nightcrawler or Shrimp between them, so Mabel can't go with Nightcrawler.",
+      "Esther and Wade must take Nightcrawler or Shrimp between them, so Mabel can't go with Shrimp.",
+      "Catfish goes with Mabel, but Nightcrawler doesn't, so Catfish doesn't go with Nightcrawler.",
+      "Catfish goes with Mabel, but Shrimp doesn't, so Catfish doesn't go with Shrimp.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Bass must go with Nightcrawler.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Bass must go with Shrimp.",
+      "Bass goes with Nightcrawler, so it can't also go with Shrimp. But Bass was already shown to go with Shrimp \u2014 a contradiction.",
+      "So Mabel does not go with Catfish."
+     ]
     },
     {
      "key": "0-4",
@@ -2910,7 +3792,25 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Foxglen.",
+      "Wade goes with Foxglen, so it can't also go with Pinehollow.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Nightcrawler.",
+      "Wade goes with Bass, so it can't also go with Catfish.",
+      "Bass goes with Wade, and Nightcrawler goes with Wade, so Bass goes with Nightcrawler.",
+      "Nightcrawler goes with Bass, so Pike can't go with Nightcrawler.",
+      "From the clue \u201cIf Wade does not go with Catfish, then someone in the Pike Family goes with Boone\u201d \u2014 Boone can't go with Pike.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Mabel must go with Shrimp.",
+      "The clues force Catfish to go with Shrimp.",
+      "Mabel goes with Shrimp, so it can't also go with Corn.",
+      "In Angler \u00d7 Bait, Corn must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "Shrimp goes with Catfish, so Pike can't go with Shrimp.",
+      "In Species \u00d7 Bait, Pike must go with Corn \u2014 every other Bait is already crossed out for it.",
+      "Corn goes with Boone, but Pike doesn't, so Pike doesn't go with Corn. But Pike was already shown to go with Corn \u2014 a contradiction.",
+      "So Wade does not go with Foxglen."
+     ]
     },
     {
      "key": "0-3",
@@ -2920,7 +3820,25 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Esther went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Esther went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Esther goes with Nightcrawler.",
+      "Nightcrawler goes with Esther, so Wade can't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Wade must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "Shrimp goes with Wade, but Pike doesn't, so Pike doesn't go with Shrimp.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Pinehollow.",
+      "Wade goes with Bass, so it can't also go with Catfish.",
+      "Bass goes with Wade, and Pinehollow goes with Wade, so Bass goes with Pinehollow.",
+      "From the clue \u201cIf Wade does not go with Catfish, then someone in the Pike Family goes with Boone\u201d \u2014 Boone can't go with Pike.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Catfish must go with Nightcrawler.",
+      "From the clue \u201cExactly one of these is true: Boone goes with Popper; Mabel goes with Corn; Bass goes with Pinehollow\u201d \u2014 Mabel can't go with Corn.",
+      "In Angler \u00d7 Bait, Corn must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "Nightcrawler goes with Catfish, so Pike can't go with Nightcrawler.",
+      "In Species \u00d7 Bait, Pike must go with Corn \u2014 every other Bait is already crossed out for it.",
+      "Corn goes with Boone, but Pike doesn't, so Pike doesn't go with Corn. But Pike was already shown to go with Corn \u2014 a contradiction.",
+      "So Esther does not go with Nightcrawler."
+     ]
     },
     {
      "key": "0-1",
@@ -2930,7 +3848,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Esther went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Esther went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Esther goes with Pike.",
+      "Pike goes with Esther, but Corn doesn't, so Pike doesn't go with Corn.",
+      "Pike goes with Esther, but Nightcrawler doesn't, so Pike doesn't go with Nightcrawler.",
+      "Esther goes with Pike, but Dough doesn't, so Esther doesn't go with Dough.",
+      "In Angler \u00d7 Bait, Esther must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "In Species \u00d7 Bait, Pike must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "Shrimp goes with Esther, so Mabel can't go with Shrimp.",
+      "Shrimp goes with Pike, so Bass can't go with Shrimp.",
+      "Shrimp goes with Pike, so Catfish can't go with Shrimp.",
+      "\u2026but now the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Esther does not go with Pike."
+     ]
     },
     {
      "key": "0-3",
@@ -2940,7 +3871,36 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with Nightcrawler.",
+      "Boone goes with Nightcrawler, so it can't also go with Corn.",
+      "Nightcrawler goes with Boone, so Mabel can't go with Nightcrawler.",
+      "Nightcrawler goes with Boone, so Wade can't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Wade must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "In Angler \u00d7 Bait, Corn must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Corn, so it can't also go with Shrimp.",
+      "Shrimp goes with Wade, so Esther can't go with Shrimp.",
+      "In Angler \u00d7 Bait, Esther must go with Dough \u2014 every other Bait is already crossed out for it.",
+      "Esther goes with Dough, but Birchpool doesn't, so Esther doesn't go with Birchpool.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Pinehollow.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Mabel must go with Foxglen.",
+      "From the clue \u201cExactly one of these is true: Boone goes with Popper; Mabel goes with Corn; Bass goes with Pinehollow\u201d \u2014 Bass can't go with Pinehollow.",
+      "Bass goes with Wade, so Boone can't go with Bass.",
+      "Bass goes with Wade, so Esther can't go with Bass.",
+      "Bass goes with Wade, so Mabel can't go with Bass.",
+      "Mabel goes with Foxglen, so it can't also go with Birchpool.",
+      "Foxglen goes with Mabel, so Esther can't go with Foxglen.",
+      "Pinehollow goes with Wade, so Esther can't go with Pinehollow.",
+      "In Angler \u00d7 Pond, Esther must go with Grayreach \u2014 every other Pond is already crossed out for it.",
+      "In Angler \u00d7 Pond, Birchpool must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "Birchpool goes with Boone, but Bass doesn't, so Bass doesn't go with Birchpool.",
+      "Grayreach goes with Esther, but Bass doesn't, so Bass doesn't go with Grayreach.",
+      "Foxglen goes with Mabel, but Bass doesn't, so Bass doesn't go with Foxglen.",
+      "In Species \u00d7 Pond, Bass must go with Pinehollow \u2014 every other Pond is already crossed out for it. But Bass was already shown to not go with Pinehollow \u2014 a contradiction.",
+      "So Boone does not go with Nightcrawler."
+     ]
     },
     {
      "key": "1-3",
@@ -2950,7 +3910,21 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Trout went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Trout went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Trout goes with Nightcrawler.",
+      "Nightcrawler goes with Trout, but Wade doesn't, so Wade doesn't go with Nightcrawler.",
+      "Trout goes with Nightcrawler, but Boone doesn't, so Boone doesn't go with Trout.",
+      "Trout goes with Nightcrawler, but Esther doesn't, so Esther doesn't go with Trout.",
+      "In Angler \u00d7 Species, Trout must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Trout, so it can't also go with Pike.",
+      "In Angler \u00d7 Species, Pike must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "Boone goes with Pike, so it can't also go with Catfish.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cIf Wade does not go with Catfish, then someone in the Pike Family goes with Boone\u201d \u2014 Wade must go with Catfish.",
+      "Wade goes with Bass, so it can't also go with Catfish. But Wade was already shown to go with Catfish \u2014 a contradiction.",
+      "So Trout does not go with Nightcrawler."
+     ]
     },
     {
      "key": "3-4",
@@ -2960,7 +3934,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Nightcrawler went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Nightcrawler went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Nightcrawler goes with Foxglen.",
+      "Nightcrawler goes with Foxglen, but Wade doesn't, so Wade doesn't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Wade must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "Bass goes with Wade, and Shrimp goes with Wade, so Bass goes with Shrimp.",
+      "The clues force Catfish to go with Shrimp.",
+      "Shrimp goes with Bass, so Catfish can't go with Shrimp. But Catfish was already shown to go with Shrimp \u2014 a contradiction.",
+      "So Nightcrawler does not go with Foxglen."
+     ]
     },
     {
      "key": "3-4",
@@ -2970,7 +3954,38 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Nightcrawler went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Nightcrawler went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Nightcrawler goes with Birchpool.",
+      "Birchpool goes with Nightcrawler, but Boone doesn't, so Boone doesn't go with Birchpool.",
+      "Birchpool goes with Nightcrawler, but Esther doesn't, so Esther doesn't go with Birchpool.",
+      "Birchpool goes with Nightcrawler, but Trout doesn't, so Trout doesn't go with Birchpool.",
+      "Nightcrawler goes with Birchpool, but Wade doesn't, so Wade doesn't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Nightcrawler must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Pond, Birchpool must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Birchpool goes with Mabel, but Catfish doesn't, so Catfish doesn't go with Birchpool.",
+      "Mabel goes with Nightcrawler, but Trout doesn't, so Mabel doesn't go with Trout.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Pinehollow.",
+      "Bass goes with Wade, so Mabel can't go with Bass.",
+      "In Angler \u00d7 Species, Mabel must go with Pike \u2014 every other Species is already crossed out for it.",
+      "Pike goes with Mabel, and Birchpool goes with Mabel, so Pike goes with Birchpool.",
+      "Pike goes with Birchpool, so it can't also go with Foxglen.",
+      "Pike goes with Birchpool, so it can't also go with Grayreach.",
+      "Pike goes with Birchpool, so it can't also go with Pinehollow.",
+      "Birchpool goes with Pike, so Bass can't go with Birchpool.",
+      "Bass goes with Wade, and Pinehollow goes with Wade, so Bass goes with Pinehollow.",
+      "Bass goes with Pinehollow, so it can't also go with Foxglen.",
+      "Bass goes with Pinehollow, so it can't also go with Grayreach.",
+      "Pinehollow goes with Bass, so Catfish can't go with Pinehollow.",
+      "Pinehollow goes with Bass, so Trout can't go with Pinehollow.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Catfish must go with Foxglen.",
+      "Catfish goes with Foxglen, so it can't also go with Grayreach.",
+      "Foxglen goes with Catfish, so Trout can't go with Foxglen.",
+      "In Species \u00d7 Pond, Trout must go with Grayreach \u2014 every other Pond is already crossed out for it.",
+      "\u2026but now the clue \u201cAt most one member of the Sunfish Family is in the East Watershed\u201d can no longer hold \u2014 a contradiction.",
+      "So Nightcrawler does not go with Birchpool."
+     ]
     },
     {
      "key": "2-4",
@@ -2980,7 +3995,33 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Spoon went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Spoon went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Spoon goes with Birchpool.",
+      "Spoon goes with Birchpool, but Dough doesn't, so Spoon doesn't go with Dough.",
+      "Spoon goes with Birchpool, but Nightcrawler doesn't, so Spoon doesn't go with Nightcrawler.",
+      "Spoon goes with Birchpool, but 12 lb doesn't, so Spoon doesn't go with 12 lb.",
+      "In Lure \u00d7 Bait, Spoon must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "Shrimp goes with Spoon, but Esther doesn't, so Esther doesn't go with Shrimp.",
+      "Shrimp goes with Spoon, but 13 lb doesn't, so Shrimp doesn't go with 13 lb.",
+      "In Angler \u00d7 Bait, Esther must go with Dough \u2014 every other Bait is already crossed out for it.",
+      "Dough goes with Esther, but 13 lb doesn't, so Dough doesn't go with 13 lb.",
+      "In Bait \u00d7 Weight, 13 lb must go with Nightcrawler \u2014 every other Bait is already crossed out for it.",
+      "Nightcrawler goes with 13 lb, so it can't also go with 12 lb.",
+      "Nightcrawler goes with 13 lb, so it can't also go with 14 lb.",
+      "Nightcrawler goes with 13 lb, so it can't also go with 15 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Swimbait can't go with 13 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Pinehollow can't go with 12 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Pinehollow can't go with 13 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Pinehollow can't go with 14 lb.",
+      "In Lure \u00d7 Weight, Swimbait must go with 14 lb \u2014 every other Weight is already crossed out for it.",
+      "In Pond \u00d7 Weight, Pinehollow must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "14 lb goes with Swimbait, so Spoon can't go with 14 lb.",
+      "In Lure \u00d7 Weight, Spoon must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "15 lb goes with Pinehollow, so Birchpool can't go with 15 lb.",
+      "Birchpool goes with Spoon, and 15 lb goes with Spoon, so Birchpool goes with 15 lb. But Birchpool was already shown to not go with 15 lb \u2014 a contradiction.",
+      "So Spoon does not go with Birchpool."
+     ]
     },
     {
      "key": "0-3",
@@ -2990,7 +4031,41 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with Dough \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with Dough \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with Dough.",
+      "Boone goes with Dough, so it can't also go with Corn.",
+      "Dough goes with Boone, so Esther can't go with Dough.",
+      "In Angler \u00d7 Bait, Esther must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "In Angler \u00d7 Bait, Corn must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Corn, so it can't also go with Shrimp.",
+      "Shrimp goes with Esther, so Wade can't go with Shrimp.",
+      "Mabel goes with Corn, so it can't also go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Wade must go with Nightcrawler \u2014 every other Bait is already crossed out for it.",
+      "Mabel goes with Corn, but 13 lb doesn't, so Mabel doesn't go with 13 lb.",
+      "Boone goes with Dough, but Pike doesn't, so Boone doesn't go with Pike.",
+      "Boone goes with Dough, but Birchpool doesn't, so Boone doesn't go with Birchpool.",
+      "Boone goes with Dough, but 15 lb doesn't, so Boone doesn't go with 15 lb.",
+      "In Angler \u00d7 Species, Pike must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Pike, but 12 lb doesn't, so Mabel doesn't go with 12 lb.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Mabel must go with Foxglen.",
+      "Mabel goes with Foxglen, so it can't also go with Birchpool.",
+      "Mabel goes with Foxglen, so it can't also go with Pinehollow.",
+      "In Angler \u00d7 Pond, Birchpool must go with Esther \u2014 every other Angler is already crossed out for it.",
+      "Esther goes with Birchpool, so it can't also go with Pinehollow.",
+      "Esther goes with Birchpool, but 12 lb doesn't, so Esther doesn't go with 12 lb.",
+      "Esther and Mabel must take 14 lb or 15 lb between them, so Boone can't go with 14 lb.",
+      "Esther and Mabel must take 14 lb or 15 lb between them, so Wade can't go with 14 lb.",
+      "Esther and Mabel must take 14 lb or 15 lb between them, so Wade can't go with 15 lb.",
+      "Nightcrawler goes with Wade, but 14 lb doesn't, so Nightcrawler doesn't go with 14 lb.",
+      "Nightcrawler goes with Wade, but 15 lb doesn't, so Nightcrawler doesn't go with 15 lb.",
+      "In Angler, Pinehollow must be Boone or Wade, but 14 lb can be none of those, so they can't be the same.",
+      "In Angler, Pinehollow must be Boone or Wade, but 15 lb can be none of those, so they can't be the same.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Swimbait can't go with 13 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Swimbait can't go with 14 lb.",
+      "\u2026but now Swimbait has no possible Weight left at all \u2014 a contradiction.",
+      "So Boone does not go with Dough."
+     ]
     },
     {
      "key": "0-2",
@@ -3000,7 +4075,23 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with Spoon \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with Spoon \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with Spoon.",
+      "Boone goes with Spoon, but Corn doesn't, so Boone doesn't go with Corn.",
+      "Boone goes with Spoon, but Birchpool doesn't, so Boone doesn't go with Birchpool.",
+      "In Angler \u00d7 Bait, Boone must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "In Angler \u00d7 Bait, Corn must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Shrimp goes with Boone, so Esther can't go with Shrimp.",
+      "Mabel goes with Corn, so it can't also go with Shrimp.",
+      "Mabel goes with Corn, so it can't also go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Esther must go with Dough \u2014 every other Bait is already crossed out for it.",
+      "Esther goes with Dough, but Birchpool doesn't, so Esther doesn't go with Birchpool.",
+      "In Angler \u00d7 Pond, Birchpool must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Birchpool, so it can't also go with Foxglen.",
+      "\u2026but now the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Boone does not go with Spoon."
+     ]
     },
     {
      "key": "2-3",
@@ -3010,7 +4101,58 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Swimbait went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Swimbait went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Swimbait goes with Nightcrawler.",
+      "Swimbait goes with Nightcrawler, so it can't also go with Corn.",
+      "Swimbait goes with Nightcrawler, so it can't also go with Dough.",
+      "Swimbait goes with Nightcrawler, so it can't also go with Shrimp.",
+      "Nightcrawler goes with Swimbait, so Popper can't go with Nightcrawler.",
+      "Nightcrawler goes with Swimbait, so Spinnerbait can't go with Nightcrawler.",
+      "Nightcrawler goes with Swimbait, so Spoon can't go with Nightcrawler.",
+      "Nightcrawler goes with Swimbait, but 12 lb doesn't, so Nightcrawler doesn't go with 12 lb.",
+      "Nightcrawler goes with Swimbait, but 15 lb doesn't, so Nightcrawler doesn't go with 15 lb.",
+      "Swimbait goes with Nightcrawler, but Boone doesn't, so Boone doesn't go with Swimbait.",
+      "Swimbait goes with Nightcrawler, but Esther doesn't, so Esther doesn't go with Swimbait.",
+      "Swimbait goes with Nightcrawler, but Birchpool doesn't, so Swimbait doesn't go with Birchpool.",
+      "Swimbait goes with Nightcrawler, but Foxglen doesn't, so Swimbait doesn't go with Foxglen.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Pinehollow can't go with 13 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Pinehollow can't go with 14 lb.",
+      "In Weight, Swimbait must be 13 lb or 14 lb, but Pinehollow can be none of those, so they can't be the same.",
+      "Nightcrawler goes with Swimbait, but Pinehollow doesn't, so Nightcrawler doesn't go with Pinehollow.",
+      "In Lure \u00d7 Pond, Swimbait must go with Grayreach \u2014 every other Pond is already crossed out for it.",
+      "In Bait \u00d7 Pond, Nightcrawler must go with Grayreach \u2014 every other Pond is already crossed out for it.",
+      "Grayreach goes with Swimbait, so Popper can't go with Grayreach.",
+      "Grayreach goes with Swimbait, so Spinnerbait can't go with Grayreach.",
+      "Grayreach goes with Swimbait, so Spoon can't go with Grayreach.",
+      "Grayreach goes with Nightcrawler, so Corn can't go with Grayreach.",
+      "Grayreach goes with Nightcrawler, so Dough can't go with Grayreach.",
+      "Grayreach goes with Nightcrawler, so Shrimp can't go with Grayreach.",
+      "Grayreach goes with Swimbait, but 12 lb doesn't, so Grayreach doesn't go with 12 lb.",
+      "Grayreach goes with Swimbait, but 15 lb doesn't, so Grayreach doesn't go with 15 lb.",
+      "Boone and Esther must take Popper or Spinnerbait between them, so Mabel can't go with Popper.",
+      "Boone and Esther must take Popper or Spinnerbait between them, so Mabel can't go with Spinnerbait.",
+      "Boone and Esther must take Popper or Spinnerbait between them, so Wade can't go with Popper.",
+      "Boone and Esther must take Popper or Spinnerbait between them, so Wade can't go with Spinnerbait.",
+      "In Lure, Mabel must be Spoon or Swimbait, but Corn can be none of those, so they can't be the same.",
+      "In Lure, Mabel must be Spoon or Swimbait, but Birchpool can be none of those, so they can't be the same.",
+      "In Angler \u00d7 Bait, Corn must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "Boone goes with Corn, but 13 lb doesn't, so Boone doesn't go with 13 lb.",
+      "In Angler, Popper must be Boone or Esther, but 13 lb can be none of those, so they can't be the same.",
+      "In Angler, Spinnerbait must be Boone or Esther, but 13 lb can be none of those, so they can't be the same.",
+      "In Angler, Birchpool must be Boone or Esther, but 13 lb can be none of those, so they can't be the same.",
+      "In Lure \u00d7 Weight, 13 lb must go with Swimbait \u2014 every other Lure is already crossed out for it.",
+      "Swimbait goes with 13 lb, so it can't also go with 14 lb.",
+      "Nightcrawler goes with Swimbait, and 13 lb goes with Swimbait, so Nightcrawler goes with 13 lb.",
+      "Grayreach goes with Swimbait, and 13 lb goes with Swimbait, so Grayreach goes with 13 lb.",
+      "Nightcrawler goes with 13 lb, so it can't also go with 14 lb.",
+      "Grayreach goes with 13 lb, so it can't also go with 14 lb.",
+      "13 lb goes with Nightcrawler, so Dough can't go with 13 lb.",
+      "13 lb goes with Nightcrawler, so Shrimp can't go with 13 lb.",
+      "13 lb goes with Grayreach, so Foxglen can't go with 13 lb.",
+      "\u2026but now the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d can no longer hold \u2014 a contradiction.",
+      "So Swimbait does not go with Nightcrawler."
+     ]
     },
     {
      "key": "1-3",
@@ -3020,7 +4162,29 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Bass went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Bass went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Bass goes with Nightcrawler.",
+      "Bass goes with Nightcrawler, so it can't also go with Shrimp.",
+      "Bass goes with Nightcrawler, but Esther doesn't, so Esther doesn't go with Bass.",
+      "Bass goes with Nightcrawler, but Foxglen doesn't, so Bass doesn't go with Foxglen.",
+      "From the clue \u201cBass goes with exactly two of Esther, Popper, Shrimp, Foxglen, and 12 lb\u201d \u2014 Bass must go with Popper.",
+      "From the clue \u201cBass goes with exactly two of Esther, Popper, Shrimp, Foxglen, and 12 lb\u201d \u2014 Bass must go with 12 lb.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Mabel can't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Nightcrawler must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "Wade goes with Nightcrawler, and Bass goes with Nightcrawler, so Wade goes with Bass.",
+      "Wade goes with Bass, and Popper goes with Bass, so Wade goes with Popper.",
+      "Wade goes with Bass, and 12 lb goes with Bass, so Wade goes with 12 lb.",
+      "Wade goes with Popper, so it can't also go with Spoon.",
+      "Wade goes with 12 lb, so it can't also go with 13 lb.",
+      "In Angler \u00d7 Lure, Spoon must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Spoon, but Corn doesn't, so Mabel doesn't go with Corn.",
+      "Mabel goes with Spoon, but 13 lb doesn't, so Mabel doesn't go with 13 lb.",
+      "In Angler \u00d7 Bait, Corn must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Weight, 13 lb must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "Corn goes with Boone, and 13 lb goes with Boone, so Corn goes with 13 lb. But Corn was already shown to not go with 13 lb \u2014 a contradiction.",
+      "So Bass does not go with Nightcrawler."
+     ]
     },
     {
      "key": "0-4",
@@ -3030,7 +4194,15 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with Grayreach \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with Grayreach \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with Grayreach.",
+      "Wade goes with Grayreach, so it can't also go with Pinehollow.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Bass.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Nightcrawler.",
+      "Bass goes with Wade, and Nightcrawler goes with Wade, so Bass goes with Nightcrawler. But Bass was already shown to not go with Nightcrawler \u2014 a contradiction.",
+      "So Wade does not go with Grayreach."
+     ]
     },
     {
      "key": "0-4",
@@ -3120,7 +4292,25 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Wade went with 12 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Wade went with 12 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Wade goes with 12 lb.",
+      "Pinehollow goes with Wade, and 12 lb goes with Wade, so Pinehollow goes with 12 lb.",
+      "Pinehollow goes with 12 lb, so it can't also go with 14 lb.",
+      "Pinehollow goes with 12 lb, so it can't also go with 15 lb.",
+      "12 lb goes with Wade, but Corn doesn't, so Corn doesn't go with 12 lb.",
+      "12 lb goes with Wade, but Dough doesn't, so Dough doesn't go with 12 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Nightcrawler can't go with 12 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Nightcrawler can't go with 13 lb.",
+      "In Bait \u00d7 Weight, 12 lb must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "Shrimp goes with 12 lb, so it can't also go with 13 lb.",
+      "In Bait \u00d7 Weight, 13 lb must go with Dough \u2014 every other Bait is already crossed out for it.",
+      "Wade goes with 12 lb, and Shrimp goes with 12 lb, so Wade goes with Shrimp.",
+      "Shrimp goes with Wade, so Esther can't go with Shrimp.",
+      "Dough goes with 13 lb, but Esther doesn't, so Esther doesn't go with Dough.",
+      "\u2026but now Esther has no possible Bait left at all \u2014 a contradiction.",
+      "So Wade does not go with 12 lb."
+     ]
     },
     {
      "key": "4-5",
@@ -3150,7 +4340,23 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Spoon went with 14 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Spoon went with 14 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Spoon goes with 14 lb.",
+      "14 lb goes with Spoon, so Swimbait can't go with 14 lb.",
+      "In Lure \u00d7 Weight, Swimbait must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "14 lb goes with Spoon, but Esther doesn't, so Esther doesn't go with 14 lb.",
+      "14 lb goes with Spoon, but Corn doesn't, so Corn doesn't go with 14 lb.",
+      "13 lb goes with Swimbait, but Nightcrawler doesn't, so Nightcrawler doesn't go with 13 lb.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Nightcrawler can't go with 15 lb.",
+      "In Bait \u00d7 Weight, Nightcrawler must go with 12 lb \u2014 every other Weight is already crossed out for it.",
+      "12 lb goes with Nightcrawler, so Corn can't go with 12 lb.",
+      "In Bait \u00d7 Weight, Corn must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "15 lb goes with Corn, but Esther doesn't, so Esther doesn't go with 15 lb.",
+      "12 lb goes with Nightcrawler, but Esther doesn't, so Esther doesn't go with 12 lb.",
+      "\u2026but now Esther has no possible Weight left at all \u2014 a contradiction.",
+      "So Spoon does not go with 14 lb."
+     ]
     },
     {
      "key": "1-4",
@@ -3160,7 +4366,21 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Catfish went with Grayreach \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Catfish went with Grayreach \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Catfish goes with Grayreach.",
+      "Catfish goes with Grayreach, so it can't also go with Pinehollow.",
+      "In Species \u00d7 Pond, Pinehollow must go with Bass \u2014 every other Species is already crossed out for it.",
+      "Pinehollow goes with Bass, but Nightcrawler doesn't, so Nightcrawler doesn't go with Pinehollow.",
+      "Grayreach goes with Catfish, but Mabel doesn't, so Mabel doesn't go with Grayreach.",
+      "Catfish goes with Grayreach, but Wade doesn't, so Wade doesn't go with Catfish.",
+      "In Angler \u00d7 Species, Wade must go with Bass \u2014 every other Species is already crossed out for it.",
+      "Wade goes with Bass, but Nightcrawler doesn't, so Wade doesn't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Nightcrawler must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "In Bait \u00d7 Pond, Nightcrawler must go with Grayreach \u2014 every other Pond is already crossed out for it.",
+      "Nightcrawler goes with Mabel, but Grayreach doesn't, so Nightcrawler doesn't go with Grayreach. But Nightcrawler was already shown to go with Grayreach \u2014 a contradiction.",
+      "So Catfish does not go with Grayreach."
+     ]
     },
     {
      "key": "4-5",
@@ -3170,7 +4390,22 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Foxglen went with 13 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Foxglen went with 13 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Foxglen goes with 13 lb.",
+      "Foxglen goes with 13 lb, so it can't also go with 12 lb.",
+      "13 lb goes with Foxglen, so Pinehollow can't go with 13 lb.",
+      "In Pond \u00d7 Weight, 12 lb must go with Grayreach \u2014 every other Pond is already crossed out for it.",
+      "13 lb goes with Foxglen, but Nightcrawler doesn't, so Nightcrawler doesn't go with 13 lb.",
+      "Grayreach goes with 12 lb, but Pike doesn't, so Pike doesn't go with Grayreach.",
+      "From the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d \u2014 Nightcrawler can't go with 15 lb.",
+      "In Bait \u00d7 Weight, Nightcrawler must go with 12 lb \u2014 every other Weight is already crossed out for it.",
+      "Nightcrawler goes with 12 lb, and Grayreach goes with 12 lb, so Nightcrawler goes with Grayreach.",
+      "Nightcrawler goes with Grayreach, but Catfish doesn't, so Catfish doesn't go with Nightcrawler.",
+      "Nightcrawler goes with Grayreach, but Pike doesn't, so Pike doesn't go with Nightcrawler.",
+      "\u2026but now Nightcrawler has no possible Species left at all \u2014 a contradiction.",
+      "So Foxglen does not go with 13 lb."
+     ]
     },
     {
      "key": "3-5",
@@ -3180,7 +4415,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Nightcrawler went with 12 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Nightcrawler went with 12 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Nightcrawler goes with 12 lb.",
+      "Nightcrawler goes with 12 lb, but Wade doesn't, so Wade doesn't go with Nightcrawler.",
+      "Nightcrawler goes with 12 lb, but Pike doesn't, so Pike doesn't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Nightcrawler must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "In Species \u00d7 Bait, Nightcrawler must go with Catfish \u2014 every other Species is already crossed out for it.",
+      "Nightcrawler goes with Mabel, but Catfish doesn't, so Catfish doesn't go with Nightcrawler. But Catfish was already shown to go with Nightcrawler \u2014 a contradiction.",
+      "So Nightcrawler does not go with 12 lb."
+     ]
     },
     {
      "key": "2-5",
@@ -3270,7 +4514,50 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Catfish went with Spoon \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Catfish went with Spoon \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Catfish goes with Spoon.",
+      "Spoon goes with Catfish, but Mabel doesn't, so Mabel doesn't go with Spoon.",
+      "Spoon goes with Catfish, but Grayreach doesn't, so Spoon doesn't go with Grayreach.",
+      "Catfish goes with Spoon, but Boone doesn't, so Boone doesn't go with Catfish.",
+      "Catfish goes with Spoon, but Esther doesn't, so Esther doesn't go with Catfish.",
+      "Catfish goes with Spoon, but 13 lb doesn't, so Catfish doesn't go with 13 lb.",
+      "In Angler \u00d7 Species, Catfish must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Lure, Spoon must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "Wade goes with Catfish, so it can't also go with Bass.",
+      "Spoon goes with Wade, and Pinehollow goes with Wade, so Spoon goes with Pinehollow.",
+      "Spoon goes with Wade, but Dough doesn't, so Spoon doesn't go with Dough.",
+      "Spoon goes with Pinehollow, so it can't also go with Foxglen.",
+      "Spoon goes with Wade, but 12 lb doesn't, so Spoon doesn't go with 12 lb.",
+      "Pinehollow goes with Spoon, so Popper can't go with Pinehollow.",
+      "Pinehollow goes with Spoon, so Spinnerbait can't go with Pinehollow.",
+      "Wade goes with Catfish, but 13 lb doesn't, so Wade doesn't go with 13 lb.",
+      "Pinehollow goes with Wade, but 13 lb doesn't, so Pinehollow doesn't go with 13 lb.",
+      "In Angler \u00d7 Weight, Wade must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "In Lure \u00d7 Weight, Spoon must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "In Pond \u00d7 Weight, Pinehollow must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "15 lb goes with Spoon, so Popper can't go with 15 lb.",
+      "15 lb goes with Spoon, so Spinnerbait can't go with 15 lb.",
+      "15 lb goes with Pinehollow, so Birchpool can't go with 15 lb.",
+      "15 lb goes with Pinehollow, so Foxglen can't go with 15 lb.",
+      "15 lb goes with Pinehollow, so Grayreach can't go with 15 lb.",
+      "15 lb goes with Wade, but Corn doesn't, so Corn doesn't go with 15 lb.",
+      "From the clue \u201cWade goes with at least two of Bass, Nightcrawler, and Pinehollow\u201d \u2014 Wade must go with Nightcrawler.",
+      "From the clue \u201cThe angler fishing with Dough's weight is lower than both the angler who landed the Pike and the angler at Birchpool\u201d \u2014 Dough can't go with 14 lb.",
+      "Spoon goes with Wade, and Nightcrawler goes with Wade, so Spoon goes with Nightcrawler.",
+      "Nightcrawler goes with Wade, and Pinehollow goes with Wade, so Nightcrawler goes with Pinehollow.",
+      "Nightcrawler goes with Wade, and 15 lb goes with Wade, so Nightcrawler goes with 15 lb.",
+      "Spoon goes with Nightcrawler, so it can't also go with Shrimp.",
+      "Nightcrawler goes with Spoon, so Popper can't go with Nightcrawler.",
+      "Nightcrawler goes with Spoon, so Spinnerbait can't go with Nightcrawler.",
+      "Nightcrawler goes with Pinehollow, so it can't also go with Grayreach.",
+      "Nightcrawler goes with 15 lb, so it can't also go with 13 lb.",
+      "Pinehollow goes with Nightcrawler, so Shrimp can't go with Pinehollow.",
+      "15 lb goes with Nightcrawler, so Shrimp can't go with 15 lb.",
+      "Swimbait goes with 14 lb, but Dough doesn't, so Swimbait doesn't go with Dough.",
+      "\u2026but now the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d can no longer hold \u2014 a contradiction.",
+      "So Catfish does not go with Spoon."
+     ]
     },
     {
      "key": "0-3",
@@ -3280,7 +4567,20 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone didn't go with Corn \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Boone didn't go with Corn \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Boone does not go with Corn.",
+      "In Angler \u00d7 Bait, Boone must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "In Angler \u00d7 Bait, Corn must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Shrimp goes with Boone, so Wade can't go with Shrimp.",
+      "In Angler \u00d7 Bait, Wade must go with Nightcrawler \u2014 every other Bait is already crossed out for it.",
+      "Mabel goes with Corn, but Spoon doesn't, so Mabel doesn't go with Spoon.",
+      "Wade goes with Nightcrawler, but Bass doesn't, so Wade doesn't go with Bass.",
+      "In Angler \u00d7 Species, Wade must go with Catfish \u2014 every other Species is already crossed out for it.",
+      "In Angler \u00d7 Lure, Spoon must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "Catfish goes with Wade, and Spoon goes with Wade, so Catfish goes with Spoon. But Catfish was already shown to not go with Spoon \u2014 a contradiction.",
+      "So Boone goes with Corn."
+     ]
     },
     {
      "key": "0-3",
@@ -3320,7 +4620,17 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Mabel went with 14 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Mabel went with 14 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Mabel goes with 14 lb.",
+      "Mabel goes with 14 lb, so it can't also go with 13 lb.",
+      "In Angler \u00d7 Weight, 13 lb must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "Wade goes with 13 lb, but Spoon doesn't, so Wade doesn't go with Spoon.",
+      "Mabel goes with 14 lb, and Swimbait goes with 14 lb, so Mabel goes with Swimbait.",
+      "Mabel goes with Swimbait, so it can't also go with Spoon.",
+      "\u2026but now Spoon has no possible Angler left at all \u2014 a contradiction.",
+      "So Mabel does not go with 14 lb."
+     ]
     },
     {
      "key": "0-2",
@@ -3340,7 +4650,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Mabel went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Mabel went with Birchpool \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Mabel goes with Birchpool.",
+      "Mabel goes with Birchpool, but Spoon doesn't, so Mabel doesn't go with Spoon.",
+      "Mabel goes with Birchpool, but Nightcrawler doesn't, so Mabel doesn't go with Nightcrawler.",
+      "In Angler \u00d7 Lure, Spoon must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Bait, Nightcrawler must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "Wade goes with Spoon, but 13 lb doesn't, so Wade doesn't go with 13 lb.",
+      "Nightcrawler goes with Wade, but 13 lb doesn't, so Nightcrawler doesn't go with 13 lb.",
+      "Pinehollow goes with Wade, but 13 lb doesn't, so Pinehollow doesn't go with 13 lb.",
+      "\u2026but now the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d can no longer hold \u2014 a contradiction.",
+      "So Mabel does not go with Birchpool."
+     ]
     },
     {
      "key": "4-5",
@@ -3360,7 +4682,24 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with 12 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with 12 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with 12 lb.",
+      "Boone goes with 12 lb, but Pike doesn't, so Boone doesn't go with Pike.",
+      "Boone goes with 12 lb, but Birchpool doesn't, so Boone doesn't go with Birchpool.",
+      "Corn goes with Boone, but Birchpool doesn't, so Corn doesn't go with Birchpool.",
+      "In Angler \u00d7 Species, Pike must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Pond, Birchpool must go with Esther \u2014 every other Angler is already crossed out for it.",
+      "In Bait \u00d7 Pond, Birchpool must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "Mabel goes with Pike, but Dough doesn't, so Mabel doesn't go with Dough.",
+      "Esther goes with Birchpool, and Shrimp goes with Birchpool, so Esther goes with Shrimp.",
+      "Shrimp goes with Esther, so Mabel can't go with Shrimp.",
+      "Shrimp goes with Esther, so Wade can't go with Shrimp.",
+      "In Angler \u00d7 Bait, Wade must go with Nightcrawler \u2014 every other Bait is already crossed out for it.",
+      "Nightcrawler goes with Wade, so Mabel can't go with Nightcrawler.",
+      "\u2026but now Mabel has no possible Bait left at all \u2014 a contradiction.",
+      "So Boone does not go with 12 lb."
+     ]
     },
     {
      "key": "3-5",
@@ -3380,7 +4719,30 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Catfish went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Catfish went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Catfish goes with 15 lb.",
+      "Catfish goes with 15 lb, so it can't also go with 13 lb.",
+      "15 lb goes with Catfish, but Spoon doesn't, so Spoon doesn't go with 15 lb.",
+      "In Lure \u00d7 Weight, Spoon must go with 12 lb \u2014 every other Weight is already crossed out for it.",
+      "12 lb goes with Spoon, but Esther doesn't, so Esther doesn't go with 12 lb.",
+      "Spoon goes with 12 lb, but Wade doesn't, so Wade doesn't go with Spoon.",
+      "Spoon goes with 12 lb, but Pike doesn't, so Pike doesn't go with Spoon.",
+      "In Angler \u00d7 Lure, Spoon must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Weight, 12 lb must go with Mabel \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with 12 lb, so it can't also go with 13 lb.",
+      "In Angler \u00d7 Weight, 13 lb must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "Mabel goes with Spoon, but Pike doesn't, so Mabel doesn't go with Pike.",
+      "Wade goes with 13 lb, but Catfish doesn't, so Wade doesn't go with Catfish.",
+      "In Angler \u00d7 Species, Pike must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "Boone goes with Pike, so it can't also go with Catfish.",
+      "In Angler \u00d7 Species, Catfish must go with Esther \u2014 every other Angler is already crossed out for it.",
+      "Pike goes with Boone, and Corn goes with Boone, so Pike goes with Corn.",
+      "Pike goes with Corn, so it can't also go with Nightcrawler.",
+      "Catfish goes with Esther, but Nightcrawler doesn't, so Catfish doesn't go with Nightcrawler.",
+      "In Species \u00d7 Bait, Nightcrawler must go with Bass \u2014 every other Species is already crossed out for it. But Bass was already shown to not go with Nightcrawler \u2014 a contradiction.",
+      "So Catfish does not go with 15 lb."
+     ]
     },
     {
      "key": "3-5",
@@ -3390,7 +4752,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Dough went with 13 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Dough went with 13 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Dough goes with 13 lb.",
+      "Dough goes with 13 lb, so it can't also go with 12 lb.",
+      "13 lb goes with Dough, so Nightcrawler can't go with 13 lb.",
+      "In Bait \u00d7 Weight, Nightcrawler must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "In Bait \u00d7 Weight, 12 lb must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "Shrimp goes with 12 lb, but Wade doesn't, so Wade doesn't go with Shrimp.",
+      "Nightcrawler goes with 15 lb, but Catfish doesn't, so Catfish doesn't go with Nightcrawler.",
+      "In Angler \u00d7 Bait, Wade must go with Nightcrawler \u2014 every other Bait is already crossed out for it.",
+      "In Species \u00d7 Bait, Nightcrawler must go with Pike \u2014 every other Species is already crossed out for it.",
+      "Nightcrawler goes with Wade, but Pike doesn't, so Pike doesn't go with Nightcrawler. But Pike was already shown to go with Nightcrawler \u2014 a contradiction.",
+      "So Dough does not go with 13 lb."
+     ]
     },
     {
      "key": "1-2",
@@ -3400,7 +4775,53 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pike went with Swimbait \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Pike went with Swimbait \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Pike goes with Swimbait.",
+      "Swimbait goes with Pike, but Esther doesn't, so Esther doesn't go with Swimbait.",
+      "Swimbait goes with Pike, but Dough doesn't, so Swimbait doesn't go with Dough.",
+      "Pike goes with Swimbait, and 14 lb goes with Swimbait, so Pike goes with 14 lb.",
+      "Pike goes with Swimbait, but Mabel doesn't, so Mabel doesn't go with Pike.",
+      "Pike goes with Swimbait, but Nightcrawler doesn't, so Pike doesn't go with Nightcrawler.",
+      "14 lb goes with Pike, but Esther doesn't, so Esther doesn't go with 14 lb.",
+      "14 lb goes with Pike, so Catfish can't go with 14 lb.",
+      "14 lb goes with Pike, but Dough doesn't, so Dough doesn't go with 14 lb.",
+      "In Angler \u00d7 Species, Pike must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Lure, Swimbait must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "In Angler \u00d7 Weight, 14 lb must go with Boone \u2014 every other Angler is already crossed out for it.",
+      "In Species \u00d7 Bait, Nightcrawler must go with Catfish \u2014 every other Species is already crossed out for it.",
+      "In Bait \u00d7 Weight, Dough must go with 12 lb \u2014 every other Weight is already crossed out for it.",
+      "Boone goes with Pike, so it can't also go with Catfish.",
+      "Catfish goes with Nightcrawler, so it can't also go with Dough.",
+      "12 lb goes with Dough, so Shrimp can't go with 12 lb.",
+      "Swimbait goes with Boone, and Corn goes with Boone, so Swimbait goes with Corn.",
+      "Corn goes with Boone, and 14 lb goes with Boone, so Corn goes with 14 lb.",
+      "Swimbait goes with Corn, so it can't also go with Shrimp.",
+      "Corn goes with Swimbait, so Popper can't go with Corn.",
+      "Corn goes with Swimbait, so Spinnerbait can't go with Corn.",
+      "Corn goes with 14 lb, so it can't also go with 15 lb.",
+      "14 lb goes with Corn, so Shrimp can't go with 14 lb.",
+      "Nightcrawler goes with Catfish, but Spoon doesn't, so Spoon doesn't go with Nightcrawler.",
+      "Nightcrawler goes with Catfish, but Grayreach doesn't, so Nightcrawler doesn't go with Grayreach.",
+      "Nightcrawler goes with Catfish, but 15 lb doesn't, so Nightcrawler doesn't go with 15 lb.",
+      "12 lb goes with Dough, but Catfish doesn't, so Catfish doesn't go with 12 lb.",
+      "Catfish goes with Nightcrawler, but Esther doesn't, so Esther doesn't go with Catfish.",
+      "In Angler \u00d7 Species, Catfish must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "In Species \u00d7 Weight, Catfish must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "In Bait \u00d7 Pond, Nightcrawler must go with Pinehollow \u2014 every other Pond is already crossed out for it.",
+      "In Bait \u00d7 Weight, Nightcrawler must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "In Bait \u00d7 Weight, 15 lb must go with Shrimp \u2014 every other Bait is already crossed out for it.",
+      "Pinehollow goes with Nightcrawler, so Shrimp can't go with Pinehollow.",
+      "Shrimp goes with 15 lb, so it can't also go with 13 lb.",
+      "Wade goes with Catfish, and 13 lb goes with Catfish, so Wade goes with 13 lb.",
+      "Pinehollow goes with Wade, and 13 lb goes with Wade, so Pinehollow goes with 13 lb.",
+      "Wade goes with Catfish, but Spoon doesn't, so Wade doesn't go with Spoon.",
+      "Pinehollow goes with Wade, but Spoon doesn't, so Spoon doesn't go with Pinehollow.",
+      "Pinehollow goes with 13 lb, so it can't also go with 15 lb.",
+      "13 lb goes with Pinehollow, so Grayreach can't go with 13 lb.",
+      "\u2026but now the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d can no longer hold \u2014 a contradiction.",
+      "So Pike does not go with Swimbait."
+     ]
     },
     {
      "key": "1-5",
@@ -3420,7 +4841,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Trout went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Trout went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Trout goes with 15 lb.",
+      "15 lb goes with Trout, so Pike can't go with 15 lb.",
+      "In Species \u00d7 Weight, Pike must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "13 lb goes with Pike, but Wade doesn't, so Wade doesn't go with 13 lb.",
+      "15 lb goes with Trout, but Wade doesn't, so Wade doesn't go with 15 lb.",
+      "\u2026but now Wade has no possible Weight left at all \u2014 a contradiction.",
+      "So Trout does not go with 15 lb."
+     ]
     },
     {
      "key": "1-5",
@@ -3430,7 +4860,16 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Trout went with 13 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Trout went with 13 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Trout goes with 13 lb.",
+      "13 lb goes with Trout, so Pike can't go with 13 lb.",
+      "In Species \u00d7 Weight, Pike must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "15 lb goes with Pike, but Wade doesn't, so Wade doesn't go with 15 lb.",
+      "13 lb goes with Trout, but Wade doesn't, so Wade doesn't go with 13 lb.",
+      "\u2026but now Wade has no possible Weight left at all \u2014 a contradiction.",
+      "So Trout does not go with 13 lb."
+     ]
     },
     {
      "key": "0-5",
@@ -3440,7 +4879,13 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Esther went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Esther went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Esther goes with 15 lb.",
+      "15 lb goes with Esther, but Nightcrawler doesn't, so Nightcrawler doesn't go with 15 lb.",
+      "\u2026but now the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d can no longer hold \u2014 a contradiction.",
+      "So Esther does not go with 15 lb."
+     ]
     },
     {
      "key": "1-4",
@@ -3450,7 +4895,40 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pike went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Pike went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Pike goes with Foxglen.",
+      "Foxglen goes with Pike, so Bass can't go with Foxglen.",
+      "Foxglen goes with Pike, so Catfish can't go with Foxglen.",
+      "Foxglen goes with Pike, but Swimbait doesn't, so Swimbait doesn't go with Foxglen.",
+      "Foxglen goes with Pike, but Dough doesn't, so Dough doesn't go with Foxglen.",
+      "Foxglen goes with Pike, but 12 lb doesn't, so Foxglen doesn't go with 12 lb.",
+      "Foxglen goes with Pike, but 14 lb doesn't, so Foxglen doesn't go with 14 lb.",
+      "Pike goes with Foxglen, but Nightcrawler doesn't, so Pike doesn't go with Nightcrawler.",
+      "In Species \u00d7 Bait, Nightcrawler must go with Catfish \u2014 every other Species is already crossed out for it.",
+      "In Bait \u00d7 Pond, Dough must go with Grayreach \u2014 every other Pond is already crossed out for it.",
+      "In Pond \u00d7 Weight, Foxglen must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "Grayreach goes with Dough, so Corn can't go with Grayreach.",
+      "Grayreach goes with Dough, so Nightcrawler can't go with Grayreach.",
+      "In Bait \u00d7 Pond, Nightcrawler must go with Pinehollow \u2014 every other Pond is already crossed out for it.",
+      "15 lb goes with Foxglen, so Birchpool can't go with 15 lb.",
+      "In Pond \u00d7 Weight, Birchpool must go with 14 lb \u2014 every other Weight is already crossed out for it.",
+      "Boone goes with Corn, but Grayreach doesn't, so Boone doesn't go with Grayreach.",
+      "Catfish goes with Nightcrawler, and Pinehollow goes with Nightcrawler, so Catfish goes with Pinehollow.",
+      "Pinehollow goes with Catfish, so Bass can't go with Pinehollow.",
+      "14 lb goes with Birchpool, but Dough doesn't, so Dough doesn't go with 14 lb.",
+      "In Bait \u00d7 Weight, Dough must go with 12 lb \u2014 every other Weight is already crossed out for it.",
+      "Dough goes with 12 lb, but Swimbait doesn't, so Swimbait doesn't go with Dough.",
+      "Grayreach goes with Dough, but Swimbait doesn't, so Swimbait doesn't go with Grayreach.",
+      "In Lure \u00d7 Pond, Swimbait must go with Birchpool \u2014 every other Pond is already crossed out for it.",
+      "Birchpool goes with Swimbait, so Popper can't go with Birchpool.",
+      "From the clue \u201cNightcrawler, Shrimp, and Foxglen go with Mabel, Bass, and Catfish, in some order\u201d \u2014 Mabel must go with Foxglen.",
+      "From the clue \u201cExactly one of these is true: Boone goes with Popper; Mabel goes with Corn; Bass goes with Pinehollow\u201d \u2014 Boone must go with Popper.",
+      "Foxglen goes with Mabel, so Boone can't go with Foxglen.",
+      "In Angler \u00d7 Pond, Boone must go with Birchpool \u2014 every other Pond is already crossed out for it.",
+      "Popper goes with Boone, and Birchpool goes with Boone, so Popper goes with Birchpool. But Popper was already shown to not go with Birchpool \u2014 a contradiction.",
+      "So Pike does not go with Foxglen."
+     ]
     },
     {
      "key": "4-5",
@@ -3460,7 +4938,13 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Foxglen went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Foxglen went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Foxglen goes with 15 lb.",
+      "15 lb goes with Foxglen, but Nightcrawler doesn't, so Nightcrawler doesn't go with 15 lb.",
+      "\u2026but now the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d can no longer hold \u2014 a contradiction.",
+      "So Foxglen does not go with 15 lb."
+     ]
     },
     {
      "key": "0-4",
@@ -3470,7 +4954,18 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with Foxglen \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with Foxglen.",
+      "Boone goes with Foxglen, so it can't also go with Birchpool.",
+      "In Angler \u00d7 Pond, Birchpool must go with Esther \u2014 every other Angler is already crossed out for it.",
+      "Esther goes with Birchpool, but 12 lb doesn't, so Esther doesn't go with 12 lb.",
+      "Boone goes with Foxglen, but 15 lb doesn't, so Boone doesn't go with 15 lb.",
+      "In Angler \u00d7 Weight, Boone must go with 14 lb \u2014 every other Weight is already crossed out for it.",
+      "In Angler \u00d7 Weight, Esther must go with 14 lb \u2014 every other Weight is already crossed out for it.",
+      "14 lb goes with Boone, so Esther can't go with 14 lb. But Esther was already shown to go with 14 lb \u2014 a contradiction.",
+      "So Boone does not go with Foxglen."
+     ]
     },
     {
      "key": "3-4",
@@ -3490,7 +4985,64 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boone went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Boone went with Pike \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Boone goes with Pike.",
+      "Boone goes with Pike, so it can't also go with Catfish.",
+      "Pike goes with Boone, and Corn goes with Boone, so Pike goes with Corn.",
+      "Pike goes with Corn, so it can't also go with Nightcrawler.",
+      "Boone goes with Pike, but Swimbait doesn't, so Boone doesn't go with Swimbait.",
+      "Boone goes with Pike, but 14 lb doesn't, so Boone doesn't go with 14 lb.",
+      "Corn goes with Boone, but Swimbait doesn't, so Swimbait doesn't go with Corn.",
+      "Corn goes with Boone, but 14 lb doesn't, so Corn doesn't go with 14 lb.",
+      "In Angler \u00d7 Weight, Boone must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "In Species \u00d7 Bait, Nightcrawler must go with Catfish \u2014 every other Species is already crossed out for it.",
+      "In Bait \u00d7 Weight, Corn must go with 15 lb \u2014 every other Weight is already crossed out for it.",
+      "15 lb goes with Corn, so Nightcrawler can't go with 15 lb.",
+      "15 lb goes with Corn, so Shrimp can't go with 15 lb.",
+      "In Bait \u00d7 Weight, Nightcrawler must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "13 lb goes with Nightcrawler, so Shrimp can't go with 13 lb.",
+      "15 lb goes with Boone, but Spoon doesn't, so Spoon doesn't go with 15 lb.",
+      "15 lb goes with Boone, but Pinehollow doesn't, so Pinehollow doesn't go with 15 lb.",
+      "In Pond \u00d7 Weight, Pinehollow must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "13 lb goes with Pinehollow, so Grayreach can't go with 13 lb.",
+      "Nightcrawler goes with Catfish, but Spoon doesn't, so Spoon doesn't go with Nightcrawler.",
+      "Nightcrawler goes with Catfish, but Grayreach doesn't, so Nightcrawler doesn't go with Grayreach.",
+      "Catfish goes with Nightcrawler, but Esther doesn't, so Esther doesn't go with Catfish.",
+      "Catfish goes with Nightcrawler, but Birchpool doesn't, so Catfish doesn't go with Birchpool.",
+      "Catfish goes with Nightcrawler, but Foxglen doesn't, so Catfish doesn't go with Foxglen.",
+      "In Angler \u00d7 Species, Catfish must go with Wade \u2014 every other Angler is already crossed out for it.",
+      "In Species \u00d7 Pond, Catfish must go with Pinehollow \u2014 every other Pond is already crossed out for it.",
+      "In Bait \u00d7 Pond, Nightcrawler must go with Pinehollow \u2014 every other Pond is already crossed out for it.",
+      "Wade goes with Catfish, but Spoon doesn't, so Wade doesn't go with Spoon.",
+      "Pinehollow goes with Catfish, so Bass can't go with Pinehollow.",
+      "Pinehollow goes with Wade, but Spoon doesn't, so Spoon doesn't go with Pinehollow.",
+      "Pinehollow goes with Nightcrawler, so Shrimp can't go with Pinehollow.",
+      "In Lure \u00d7 Weight, Spoon must go with 12 lb \u2014 every other Weight is already crossed out for it.",
+      "12 lb goes with Spoon, so Popper can't go with 12 lb.",
+      "12 lb goes with Spoon, so Spinnerbait can't go with 12 lb.",
+      "From the clue \u201cExactly one of these is true: Boone goes with Popper; Mabel goes with Corn; Bass goes with Pinehollow\u201d \u2014 Boone must go with Popper.",
+      "Popper goes with Boone, and Corn goes with Boone, so Popper goes with Corn.",
+      "Popper goes with Boone, and 15 lb goes with Boone, so Popper goes with 15 lb.",
+      "Popper goes with Corn, so it can't also go with Dough.",
+      "Popper goes with Corn, so it can't also go with Nightcrawler.",
+      "Popper goes with Corn, so it can't also go with Shrimp.",
+      "Popper goes with Boone, but Foxglen doesn't, so Popper doesn't go with Foxglen.",
+      "Popper goes with Boone, but Pinehollow doesn't, so Popper doesn't go with Pinehollow.",
+      "Popper goes with 15 lb, so it can't also go with 13 lb.",
+      "Corn goes with Popper, so Spinnerbait can't go with Corn.",
+      "15 lb goes with Popper, so Spinnerbait can't go with 15 lb.",
+      "In Lure \u00d7 Bait, Nightcrawler must go with Spinnerbait \u2014 every other Lure is already crossed out for it.",
+      "In Lure \u00d7 Pond, Pinehollow must go with Spinnerbait \u2014 every other Lure is already crossed out for it.",
+      "In Lure \u00d7 Weight, Spinnerbait must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "Spinnerbait goes with Nightcrawler, so it can't also go with Dough.",
+      "Spinnerbait goes with Nightcrawler, so it can't also go with Shrimp.",
+      "Spinnerbait goes with Pinehollow, so it can't also go with Birchpool.",
+      "Spinnerbait goes with Pinehollow, so it can't also go with Foxglen.",
+      "Spinnerbait goes with Pinehollow, so it can't also go with Grayreach.",
+      "\u2026but now the clue \u201cThe angler using the Swimbait's weight is between the angler at Pinehollow and the angler fishing with Nightcrawler\u201d can no longer hold \u2014 a contradiction.",
+      "So Boone does not go with Pike."
+     ]
     },
     {
      "key": "0-1",

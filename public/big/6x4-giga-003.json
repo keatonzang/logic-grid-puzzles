@@ -1,5 +1,6 @@
 {
  "id": "6x4-giga-003",
+ "hints_v": 2,
  "seed": 297403,
  "categories": 6,
  "items": 4,
@@ -12,6 +13,7 @@
  "sequential_categories": 1,
  "group_blocks": 4,
  "sequential_clues": 2,
+ "cross_dial_clues": 0,
  "family": "6x4-giga-003",
  "derived_from": null,
  "adjusted": false,
@@ -460,7 +462,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Saddles went with 13 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Saddles went with 13 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Saddles goes with 13 coins.",
+      "Saddles goes with 13 coins, so it can't also go with 9 coins.",
+      "Saddles goes with 13 coins, so it can't also go with 11 coins.",
+      "\u2026but now the clue \u201cBlacksmith, Saw, and Saddles go with 7 coins, 9 coins, and 11 coins, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Saddles does not go with 13 coins."
+     ]
     },
     {
      "key": "0-5",
@@ -530,7 +539,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Saw went with 13 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Saw went with 13 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Saw goes with 13 coins.",
+      "Saw goes with 13 coins, so it can't also go with 9 coins.",
+      "Saw goes with 13 coins, so it can't also go with 11 coins.",
+      "\u2026but now the clue \u201cBlacksmith, Saw, and Saddles go with 7 coins, 9 coins, and 11 coins, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Saw does not go with 13 coins."
+     ]
     },
     {
      "key": "1-2",
@@ -540,7 +556,27 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Blacksmith didn't go with Mallet \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Blacksmith didn't go with Mallet \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Blacksmith does not go with Mallet.",
+      "In Trade \u00d7 Tool, Mallet must go with Weaver \u2014 every other Trade is already crossed out for it.",
+      "Weaver goes with Mallet, so it can't also go with Chisel.",
+      "Weaver goes with Mallet, so it can't also go with Loom.",
+      "Weaver goes with Mallet, so it can't also go with Saw.",
+      "7 coins goes with Blacksmith, but Mallet doesn't, so Mallet doesn't go with 7 coins.",
+      "In Tool \u00d7 Levy, Mallet must go with 9 coins \u2014 every other Levy is already crossed out for it.",
+      "9 coins goes with Mallet, so Chisel can't go with 9 coins.",
+      "9 coins goes with Mallet, so Loom can't go with 9 coins.",
+      "9 coins goes with Mallet, so Saw can't go with 9 coins.",
+      "In Tool \u00d7 Levy, Saw must go with 11 coins \u2014 every other Levy is already crossed out for it.",
+      "11 coins goes with Saw, so Chisel can't go with 11 coins.",
+      "11 coins goes with Saw, so Loom can't go with 11 coins.",
+      "Saw goes with 11 coins, but Pottery doesn't, so Saw doesn't go with Pottery.",
+      "From the clue \u201cThe artisan who makes Saddles' levy is higher than both Cedric and the artisan with the Mallet\u201d \u2014 Saddles can't go with 9 coins.",
+      "In Wares \u00d7 Levy, Saddles must go with 11 coins \u2014 every other Levy is already crossed out for it.",
+      "\u2026but now the clue \u201cBlacksmith, Saw, and Saddles go with 7 coins, 9 coins, and 11 coins, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Blacksmith goes with Mallet."
+     ]
     },
     {
      "key": "1-2",
@@ -630,7 +666,21 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Weaver went with Saddles \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Weaver went with Saddles \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Weaver goes with Saddles.",
+      "Weaver goes with Saddles, so it can't also go with Pottery.",
+      "In Trade \u00d7 Wares, Pottery must go with Blacksmith \u2014 every other Trade is already crossed out for it.",
+      "Pottery goes with Blacksmith, and 7 coins goes with Blacksmith, so Pottery goes with 7 coins.",
+      "7 coins goes with Pottery, so Candles can't go with 7 coins.",
+      "Saddles goes with Weaver, and 9 coins goes with Weaver, so Saddles goes with 9 coins.",
+      "Saddles goes with 9 coins, so it can't also go with 11 coins.",
+      "From the clue \u201cThe artisan who makes Saddles' levy is higher than both Cedric and the artisan with the Mallet\u201d \u2014 Cedric can't go with 9 coins.",
+      "From the clue \u201c7 coins goes with exactly four of Wulfric, Blacksmith, Mallet, Candles, and Oldwall\u201d \u2014 Wulfric must go with 7 coins.",
+      "7 coins goes with Wulfric, so Cedric can't go with 7 coins.",
+      "\u2026but now Cedric has no possible Levy left at all \u2014 a contradiction.",
+      "So Weaver does not go with Saddles."
+     ]
     },
     {
      "key": "3-5",
@@ -1860,7 +1910,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tanner didn't go with Highrow \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Tanner didn't go with Highrow \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Tanner does not go with Highrow.",
+      "Loom goes with Tanner, but Highrow doesn't, so Loom doesn't go with Highrow.",
+      "From the clue \u201cHighrow goes with at least two of Edmund, Blacksmith, Loom, Pottery, and 9 coins\u201d \u2014 Edmund must go with Highrow.",
+      "From the clue \u201cHighrow goes with at least two of Edmund, Blacksmith, Loom, Pottery, and 9 coins\u201d \u2014 Blacksmith must go with Highrow.",
+      "Highrow goes with Edmund, but Blacksmith doesn't, so Blacksmith doesn't go with Highrow. But Blacksmith was already shown to go with Highrow \u2014 a contradiction.",
+      "So Tanner goes with Highrow."
+     ]
     },
     {
      "key": "1-4",
@@ -3004,7 +3062,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Nightcrawler went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Nightcrawler went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Nightcrawler goes with 15 lb.",
+      "Nightcrawler goes with 15 lb, so it can't also go with 13 lb.",
+      "Nightcrawler goes with 15 lb, so it can't also go with 14 lb.",
+      "\u2026but now the clue \u201cBass, Swimbait, and Nightcrawler go with 12 lb, 13 lb, and 14 lb, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Nightcrawler does not go with 15 lb."
+     ]
     },
     {
      "key": "0-5",
@@ -3074,7 +3139,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Swimbait went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Swimbait went with 15 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Swimbait goes with 15 lb.",
+      "Swimbait goes with 15 lb, so it can't also go with 13 lb.",
+      "Swimbait goes with 15 lb, so it can't also go with 14 lb.",
+      "\u2026but now the clue \u201cBass, Swimbait, and Nightcrawler go with 12 lb, 13 lb, and 14 lb, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Swimbait does not go with 15 lb."
+     ]
     },
     {
      "key": "1-2",
@@ -3084,7 +3156,27 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Bass didn't go with Spoon \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Bass didn't go with Spoon \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Bass does not go with Spoon.",
+      "In Species \u00d7 Lure, Spoon must go with Trout \u2014 every other Species is already crossed out for it.",
+      "Trout goes with Spoon, so it can't also go with Popper.",
+      "Trout goes with Spoon, so it can't also go with Spinnerbait.",
+      "Trout goes with Spoon, so it can't also go with Swimbait.",
+      "12 lb goes with Bass, but Spoon doesn't, so Spoon doesn't go with 12 lb.",
+      "In Lure \u00d7 Weight, Spoon must go with 13 lb \u2014 every other Weight is already crossed out for it.",
+      "13 lb goes with Spoon, so Popper can't go with 13 lb.",
+      "13 lb goes with Spoon, so Spinnerbait can't go with 13 lb.",
+      "13 lb goes with Spoon, so Swimbait can't go with 13 lb.",
+      "In Lure \u00d7 Weight, Swimbait must go with 14 lb \u2014 every other Weight is already crossed out for it.",
+      "14 lb goes with Swimbait, so Popper can't go with 14 lb.",
+      "14 lb goes with Swimbait, so Spinnerbait can't go with 14 lb.",
+      "Swimbait goes with 14 lb, but Dough doesn't, so Swimbait doesn't go with Dough.",
+      "From the clue \u201cThe angler fishing with Nightcrawler's weight is higher than both Boone and the angler using the Spoon\u201d \u2014 Nightcrawler can't go with 13 lb.",
+      "In Bait \u00d7 Weight, Nightcrawler must go with 14 lb \u2014 every other Weight is already crossed out for it.",
+      "\u2026but now the clue \u201cBass, Swimbait, and Nightcrawler go with 12 lb, 13 lb, and 14 lb, in some order\u201d can no longer hold \u2014 a contradiction.",
+      "So Bass goes with Spoon."
+     ]
     },
     {
      "key": "1-2",
@@ -3174,7 +3266,21 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Trout went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Trout went with Nightcrawler \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Trout goes with Nightcrawler.",
+      "Trout goes with Nightcrawler, so it can't also go with Dough.",
+      "In Species \u00d7 Bait, Dough must go with Bass \u2014 every other Species is already crossed out for it.",
+      "Dough goes with Bass, and 12 lb goes with Bass, so Dough goes with 12 lb.",
+      "12 lb goes with Dough, so Corn can't go with 12 lb.",
+      "Nightcrawler goes with Trout, and 13 lb goes with Trout, so Nightcrawler goes with 13 lb.",
+      "Nightcrawler goes with 13 lb, so it can't also go with 14 lb.",
+      "From the clue \u201cThe angler fishing with Nightcrawler's weight is higher than both Boone and the angler using the Spoon\u201d \u2014 Boone can't go with 13 lb.",
+      "From the clue \u201c12 lb goes with exactly four of Wade, Bass, Spoon, Corn, and Pinehollow\u201d \u2014 Wade must go with 12 lb.",
+      "12 lb goes with Wade, so Boone can't go with 12 lb.",
+      "\u2026but now Boone has no possible Weight left at all \u2014 a contradiction.",
+      "So Trout does not go with Nightcrawler."
+     ]
     },
     {
      "key": "3-5",
@@ -4404,7 +4510,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pike didn't go with Foxglen \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Pike didn't go with Foxglen \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Pike does not go with Foxglen.",
+      "Spinnerbait goes with Pike, but Foxglen doesn't, so Spinnerbait doesn't go with Foxglen.",
+      "From the clue \u201cFoxglen goes with at least two of Esther, Bass, Spinnerbait, Dough, and 13 lb\u201d \u2014 Esther must go with Foxglen.",
+      "From the clue \u201cFoxglen goes with at least two of Esther, Bass, Spinnerbait, Dough, and 13 lb\u201d \u2014 Bass must go with Foxglen.",
+      "Foxglen goes with Esther, but Bass doesn't, so Bass doesn't go with Foxglen. But Bass was already shown to go with Foxglen \u2014 a contradiction.",
+      "So Pike goes with Foxglen."
+     ]
     },
     {
      "key": "1-4",

@@ -41,6 +41,7 @@ from .clues import (
     Neither,
     NextTo,
     Positive,
+    RanksApart,
     SetCount,
     Xor,
     clue_cost,
@@ -359,6 +360,25 @@ def build_clue_pool(
             if lows and highs:
                 a, b, c = refs_for([rng.choice(lows), rng.choice(highs), mid])
                 comparisons.append(Between(cn, a, b, c))
+
+        if cat.values is None:
+            # Rank-only dial: ranged proximity in RANK space ("within two
+            # periods of", "at least three placings apart") — the valued
+            # branch below already says this in the category's own units, so
+            # the rank family only generates where values are absent. k >= 2
+            # keeps it distinct from NextTo and from the trivial gap >= 1.
+            for e1 in range(n):
+                for e2 in range(e1 + 1, n):
+                    g = abs(rank[e1] - rank[e2])
+                    a, b = refs_for([e1, e2])
+                    if g >= 2:
+                        comparisons.append(
+                            RanksApart(cn, a, b, rng.randint(2, g), True)
+                        )
+                    if 2 <= g <= n - 2:
+                        comparisons.append(
+                            RanksApart(cn, a, b, rng.randint(g, n - 2), False)
+                        )
 
         if cat.values is not None:
             # Deltas come from the ACTUAL value gaps, never step-times-rank:

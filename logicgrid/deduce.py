@@ -401,6 +401,19 @@ def _prop_greater(board, clue) -> int:  # rank(a) > rank(b)
     return changed
 
 
+def _prop_ranks_apart(board, clue) -> int:  # |rank(a) - rank(b)| >= / <= k
+    p, k = clue.cat, clue.k
+    pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
+    ok = (lambda g: g >= k) if clue.at_least else (lambda g: g <= k)
+    changed = _rule_out(board, clue.a, p, [
+        qa for qa in pa if not any(qa != qb and ok(abs(qa - qb)) for qb in pb)
+    ])
+    changed += _rule_out(board, clue.b, p, [
+        qb for qb in pb if not any(qa != qb and ok(abs(qa - qb)) for qa in pa)
+    ])
+    return changed
+
+
 def _prop_order_agree(board, clue) -> int:
     """Cross-dial coupling: once the pair's order is DECIDED on either dial
     (their possible-rank sets separate), force the matching (or, for
@@ -799,6 +812,7 @@ _PROPAGATORS = {
     "NextTo": _prop_next_to,
     "AtLeastApart": _prop_at_least_apart,
     "AbsApart": _prop_abs_apart,
+    "RanksApart": _prop_ranks_apart,
     "MultiCompare": _prop_multi_compare,
     "AtMost": _prop_count,
 }
@@ -813,7 +827,7 @@ _PROPAGATORS = {
 # group membership narrowing) are the everyday tier-3 moves.
 _EXPERT_CLUES = frozenset({
     "SetCount", "GroupCount", "GroupOrder", "GroupGroupCount",
-    "GroupGroupCompare", "Between", "AbsApart", "OrderAgree",
+    "GroupGroupCompare", "Between", "AbsApart", "RanksApart", "OrderAgree",
 })
 
 

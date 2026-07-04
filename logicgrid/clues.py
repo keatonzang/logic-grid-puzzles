@@ -304,6 +304,43 @@ class AbsApart(Clue):
         )
 
 
+class RanksApart(Clue):
+    """Entities of `a` and `b` sit at least / at most `k` RANKS apart in
+    ordered category `cat` — ranged proximity for rank-only dials ("within
+    two periods of", "at least three placings apart"). The rank-space
+    sibling of AbsApart, which needs values; on a valued dial AbsApart
+    already says this in the category's own units, so this family only
+    generates where values are absent. k >= 2 keeps it distinct from
+    NextTo (k == 1) and from the trivial "some gap exists"."""
+
+    removal_class = 1
+
+    def __init__(self, cat: int, a: Term, b: Term, k: int, at_least: bool):
+        self.cat, self.a, self.b = cat, a, b
+        self.k = k
+        self.at_least = at_least
+        self.involved = frozenset({cat, a[0], b[0]})
+
+    def holds(self, X) -> bool:
+        gap = abs(
+            X[entity_of(X, self.a)][self.cat] - X[entity_of(X, self.b)][self.cat]
+        )
+        return gap >= self.k if self.at_least else gap <= self.k
+
+    def text(self, theme: Theme) -> str:
+        cat = theme.categories[self.cat]
+        cn = _low(cat.name)
+        if self.at_least:
+            return (
+                f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} at least "
+                f"{self.k} {_plural(cn)} away from {_side(theme, self.b, self.cat)}."
+            )
+        return (
+            f"{_cap(_poss(theme, self.a))} {cn} {cat.verb} within "
+            f"{self.k} {_plural(cn)} of {_side(theme, self.b, self.cat)}."
+        )
+
+
 class MultiCompare(Clue):
     """Entity of `c` ranks above (greater) or below ALL of `others` in ordered
     category `cat` — e.g. "less than both A and B"."""
@@ -1414,7 +1451,7 @@ def clue_cost(clue: Clue) -> float:
         return 2.2
     if isinstance(clue, Between):
         return 2.8
-    if isinstance(clue, (Diff, AtLeastApart, AbsApart)):
+    if isinstance(clue, (Diff, AtLeastApart, AbsApart, RanksApart)):
         return 2.6
     if isinstance(clue, MultiCompare):
         return 2.4 + 0.5 * len(clue.others)

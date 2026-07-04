@@ -225,6 +225,27 @@ def test_order_agree_semantics_gating_and_retheme():
     assert all("whoever has the" in c.text(target) for c in rethemed)
 
 
+def test_ranks_apart_rank_only_proximity():
+    from logicgrid.clues import RanksApart
+    from logicgrid.generate import _EXTREME_POOL, build_clue_pool, random_solution
+
+    theme = build_theme(THEMES["school"], random.Random(9), 5, 4,
+                        n_numeric=2, clamp=False)
+    rng = random.Random(9)
+    X = random_solution(theme, rng)
+    pool = build_clue_pool(theme, X, rng, **_EXTREME_POOL)
+    ra = [c for c in pool if isinstance(c, RanksApart)]
+    assert ra and all(c.holds(X) for c in ra)
+    # only where values are absent (valued dials speak in their own units)
+    assert all(theme.categories[c.cat].values is None for c in ra)
+    assert all(c.k >= 2 for c in ra)
+    assert any(not c.at_least for c in ra) and any(c.at_least for c in ra)
+    # pure ranks: re-themes with no translation, still true
+    target = bigpuzzles.dress("chess", 9, theme)
+    rethemed = bigpuzzles.retheme_clues(ra[:2], target)
+    assert all(c.holds(X) for c in rethemed)
+
+
 def test_double_sequential_compat_and_dress():
     # two dials: only school (Grade+Period) and chess (Rating+Placing) qualify
     assert set(bigpuzzles.compatible_themes(4, 5, 2)) == {"school", "chess"}
