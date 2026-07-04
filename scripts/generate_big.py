@@ -71,6 +71,11 @@ def _group_blocks(bundle: dict) -> int:
     )
 
 
+def _group_categories(bundle: dict) -> int:
+    default = bundle["themes"][bundle["default_theme"]]
+    return sum(1 for c in default["categories"] if c.get("groups"))
+
+
 def _sequential_clues(bundle: dict) -> int:
     if "sequential_clues" in bundle:
         return bundle["sequential_clues"]
@@ -103,6 +108,12 @@ def rebuild_index() -> int:
             "adjusted": b.get("adjusted", False),
             "family": family,
             "siblings": [pid for pid in members[family] if pid != b["id"]],
+            # our big puzzles always carry exactly one ordered category when
+            # has_ordered — a safe backfill for bundles predating the field
+            "group_categories": b.get("group_categories", _group_categories(b)),
+            "sequential_categories": b.get(
+                "sequential_categories", 1 if b.get("has_ordered") else 0
+            ),
             "group_blocks": b.get("group_blocks", _group_blocks(b)),
             "sequential_clues": _sequential_clues(b),
             "clue_count": len(b["themes"][b["default_theme"]]["clues"]),

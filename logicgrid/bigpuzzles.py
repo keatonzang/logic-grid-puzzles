@@ -463,8 +463,10 @@ def bundle_candidate(puzzle_id: str, seed: int, requested: str,
         "has_ordered": needs_ordered,
         "grouped": n_grouped + n_nested > 0,
         "nested": n_nested > 0,
-        # catalog tags: how many named blocks the hierarchies carry (both
-        # levels), and how many clues run through the sequential category
+        # catalog tags: counts by CATEGORY (what the player sees on the board)
+        # plus the finer-grained data (blocks, ordered-clue volume) for later
+        "group_categories": sum(1 for c in theme_obj.categories if c.has_groups),
+        "sequential_categories": sum(1 for c in theme_obj.categories if c.ordered),
         "group_blocks": sum(
             len(c.groups) + len(c.supergroups) for c in theme_obj.categories
         ),

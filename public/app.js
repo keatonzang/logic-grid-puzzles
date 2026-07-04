@@ -1605,9 +1605,10 @@ function bigTile(e) {
   };
   if (e.adjusted) tag("adjusted", "tag-adjusted");
   if (e.nested) tag("nested groups");
-  if (e.group_blocks) tag(`${e.group_blocks} groups`);
-  if (e.sequential_clues) tag(`${e.sequential_clues} sequential`);
-  tag(`${Object.keys(e.themes).length} ${Object.keys(e.themes).length === 1 ? "theme" : "themes"}`);
+  if (e.group_categories) {
+    tag(`${e.group_categories} group ${e.group_categories === 1 ? "category" : "categories"}`);
+  }
+  if (e.sequential_categories) tag(`${e.sequential_categories} sequential`);
   tile.appendChild(tags);
 
   if (e.siblings && e.siblings.length) {
