@@ -401,6 +401,32 @@ def _prop_greater(board, clue) -> int:  # rank(a) > rank(b)
     return changed
 
 
+def _prop_order_agree(board, clue) -> int:
+    """Cross-dial coupling: once the pair's order is DECIDED on either dial
+    (their possible-rank sets separate), force the matching (or, for
+    disagree, the opposite) order on the other dial with Greater-style
+    pruning. Sound both directions; does nothing while both dials are open."""
+    changed = 0
+    for src, dst in ((clue.cat1, clue.cat2), (clue.cat2, clue.cat1)):
+        pa, pb = _poss(board, clue.a, src), _poss(board, clue.b, src)
+        if not pa or not pb:
+            return changed
+        if min(pa) > max(pb):
+            a_high = True
+        elif max(pa) < min(pb):
+            a_high = False
+        else:
+            continue  # this dial's order for the pair is still open
+        want_a_high = a_high if clue.agree else not a_high
+        hi, lo = (clue.a, clue.b) if want_a_high else (clue.b, clue.a)
+        qh, ql = _poss(board, hi, dst), _poss(board, lo, dst)
+        if not qh or not ql:
+            return changed
+        changed += _rule_out(board, hi, dst, [q for q in qh if q <= min(ql)])
+        changed += _rule_out(board, lo, dst, [q for q in ql if q >= max(qh)])
+    return changed
+
+
 def _prop_diff(board, clue) -> int:  # value(a) - value(b) == delta
     p, v, d = clue.cat, clue._values, clue.delta
     pa, pb = _poss(board, clue.a, p), _poss(board, clue.b, p)
@@ -766,6 +792,7 @@ _PROPAGATORS = {
     "GroupGroupCompare": _prop_group_group_compare,
     "GroupMatch": _prop_group_match,
     "Greater": _prop_greater,
+    "OrderAgree": _prop_order_agree,
     "Diff": _prop_diff,
     "Between": _prop_between,
     "Adjacent": _prop_adjacent,
@@ -786,7 +813,7 @@ _PROPAGATORS = {
 # group membership narrowing) are the everyday tier-3 moves.
 _EXPERT_CLUES = frozenset({
     "SetCount", "GroupCount", "GroupOrder", "GroupGroupCount",
-    "GroupGroupCompare", "Between", "AbsApart",
+    "GroupGroupCompare", "Between", "AbsApart", "OrderAgree",
 })
 
 

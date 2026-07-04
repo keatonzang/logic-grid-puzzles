@@ -1,0 +1,5120 @@
+{
+ "id": "6x4-hard-008",
+ "seed": 574807,
+ "categories": 6,
+ "items": 4,
+ "requested": "hard",
+ "difficulty": "hard",
+ "has_ordered": true,
+ "grouped": true,
+ "nested": false,
+ "group_categories": 2,
+ "sequential_categories": 1,
+ "group_blocks": 4,
+ "sequential_clues": 8,
+ "family": "6x4-hard-008",
+ "derived_from": null,
+ "adjusted": false,
+ "rating": {
+  "ceiling": 4,
+  "steps": {
+   "0": 0,
+   "1": 44,
+   "2": 159,
+   "3": 20,
+   "4": 17,
+   "5": 0,
+   "6": 0
+  },
+  "total_steps": 240
+ },
+ "default_theme": "kings_guild",
+ "themes": {
+  "kings_guild": {
+   "name": "The King's Guild",
+   "description": "Master artisans of the King's Guild each ply a different trade in a different quarter of the city. Work out who's who.",
+   "entity_noun": "artisan",
+   "categories": [
+    {
+     "name": "Artisan",
+     "items": [
+      "Aldric",
+      "Beatrix",
+      "Godfrey",
+      "Wulfric"
+     ]
+    },
+    {
+     "name": "Trade",
+     "items": [
+      "Blacksmith",
+      "Fletcher",
+      "Potter",
+      "Weaver"
+     ],
+     "group_noun": "guild",
+     "groups": [
+      {
+       "label": "Clothiers' Guild",
+       "items": [
+        "Blacksmith",
+        "Weaver"
+       ]
+      },
+      {
+       "label": "Ironmongers' Guild",
+       "items": [
+        "Fletcher",
+        "Potter"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Wares",
+     "items": [
+      "Horseshoes",
+      "Pottery",
+      "Rope",
+      "Tapestries"
+     ]
+    },
+    {
+     "name": "Quarter",
+     "items": [
+      "Kingsford",
+      "Millpond",
+      "Oldwall",
+      "Southgate"
+     ],
+     "group_noun": "ward",
+     "groups": [
+      {
+       "label": "Hill Ward",
+       "items": [
+        "Oldwall",
+        "Southgate"
+       ]
+      },
+      {
+       "label": "River Ward",
+       "items": [
+        "Kingsford",
+        "Millpond"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Patron",
+     "items": [
+      "Countess",
+      "Duke",
+      "Knight",
+      "Sheriff"
+     ]
+    },
+    {
+     "name": "Levy",
+     "items": [
+      "8 coins",
+      "9 coins",
+      "10 coins",
+      "11 coins"
+     ]
+    }
+   ],
+   "clues": [
+    "The artisan serving the Knight and the artisan in Southgate are in different guilds.",
+    "Godfrey goes with at least one of Tapestries, Duke, or Knight.",
+    "Aldric's levy is between the Fletcher and the artisan serving the Duke.",
+    "Beatrix's levy is higher than both the artisan who makes Horseshoes and the artisan serving the Countess.",
+    "The artisan who makes Pottery's levy is exactly 2 coins more than the Potter.",
+    "The artisan in Southgate's levy is exactly 2 coins more than the artisan serving the Countess.",
+    "The Blacksmith's levy is immediately next to Wulfric.",
+    "The artisan serving the Countess' levy is lower than both the artisan who makes Pottery and the artisan in Millpond.",
+    "The artisan serving the Duke's levy is between the artisan in Millpond and the Weaver.",
+    "Everyone in the Hill Ward ranks higher in levy than everyone in the River Ward."
+   ],
+   "solution": [
+    [
+     "Aldric",
+     "Potter",
+     "Horseshoes",
+     "Millpond",
+     "Knight",
+     "9 coins"
+    ],
+    [
+     "Beatrix",
+     "Blacksmith",
+     "Rope",
+     "Southgate",
+     "Duke",
+     "10 coins"
+    ],
+    [
+     "Godfrey",
+     "Fletcher",
+     "Tapestries",
+     "Kingsford",
+     "Countess",
+     "8 coins"
+    ],
+    [
+     "Wulfric",
+     "Weaver",
+     "Pottery",
+     "Oldwall",
+     "Sheriff",
+     "11 coins"
+    ]
+   ],
+   "hints": [
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBeatrix's levy is higher than both the artisan who makes Horseshoes and the artisan serving the Countess\u201d \u2014 Beatrix can't go with 8 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBeatrix's levy is higher than both the artisan who makes Horseshoes and the artisan serving the Countess\u201d \u2014 Horseshoes can't go with 11 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBeatrix's levy is higher than both the artisan who makes Horseshoes and the artisan serving the Countess\u201d \u2014 Countess can't go with 11 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan who makes Pottery's levy is exactly 2 coins more than the Potter\u201d \u2014 Potter can't go with 10 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan who makes Pottery's levy is exactly 2 coins more than the Potter\u201d \u2014 Potter can't go with 11 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan who makes Pottery's levy is exactly 2 coins more than the Potter\u201d \u2014 Pottery can't go with 8 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan who makes Pottery's levy is exactly 2 coins more than the Potter\u201d \u2014 Pottery can't go with 9 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan in Southgate's levy is exactly 2 coins more than the artisan serving the Countess\u201d \u2014 Southgate can't go with 8 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan in Southgate's levy is exactly 2 coins more than the artisan serving the Countess\u201d \u2014 Southgate can't go with 9 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan in Southgate's levy is exactly 2 coins more than the artisan serving the Countess\u201d \u2014 Countess can't go with 10 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan serving the Countess' levy is lower than both the artisan who makes Pottery and the artisan in Millpond\u201d \u2014 Millpond can't go with 8 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cAldric's levy is between the Fletcher and the artisan serving the Duke\u201d \u2014 Aldric can't go with 8 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cAldric's levy is between the Fletcher and the artisan serving the Duke\u201d \u2014 Aldric can't go with 11 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe artisan serving the Duke's levy is between the artisan in Millpond and the Weaver\u201d \u2014 Weaver can't go with 10 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe artisan serving the Duke's levy is between the artisan in Millpond and the Weaver\u201d \u2014 Duke can't go with 8 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe artisan serving the Duke's levy is between the artisan in Millpond and the Weaver\u201d \u2014 Duke can't go with 11 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cAldric's levy is between the Fletcher and the artisan serving the Duke\u201d \u2014 Fletcher can't go with 9 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cAldric's levy is between the Fletcher and the artisan serving the Duke\u201d \u2014 Fletcher can't go with 10 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Trade \u00d7 Levy, 10 coins must go with Blacksmith \u2014 every other Trade is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Blacksmith goes with 10 coins, so it can't also go with 8 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Blacksmith goes with 10 coins, so it can't also go with 9 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Blacksmith goes with 10 coins, so it can't also go with 11 coins."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, but Countess doesn't, so Blacksmith doesn't go with Countess."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe Blacksmith's levy is immediately next to Wulfric\u201d \u2014 Wulfric can't go with 8 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe Blacksmith's levy is immediately next to Wulfric\u201d \u2014 Wulfric can't go with 10 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Artisan \u00d7 Levy, 8 coins must go with Godfrey \u2014 every other Artisan is already crossed out for it."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with 8 coins, so it can't also go with 9 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with 8 coins, so it can't also go with 10 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with 8 coins, so it can't also go with 11 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Blacksmith doesn't, so Godfrey doesn't go with Blacksmith."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, but Wulfric doesn't, so Wulfric doesn't go with Blacksmith."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Pottery doesn't, so Godfrey doesn't go with Pottery."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Millpond doesn't, so Godfrey doesn't go with Millpond."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Southgate doesn't, so Godfrey doesn't go with Southgate."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Duke doesn't, so Godfrey doesn't go with Duke."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the Hill Ward ranks higher in levy than everyone in the River Ward\u201d \u2014 Kingsford can't go with 10 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the Hill Ward ranks higher in levy than everyone in the River Ward\u201d \u2014 Kingsford can't go with 11 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the Hill Ward ranks higher in levy than everyone in the River Ward\u201d \u2014 Millpond can't go with 10 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the Hill Ward ranks higher in levy than everyone in the River Ward\u201d \u2014 Millpond can't go with 11 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the Hill Ward ranks higher in levy than everyone in the River Ward\u201d \u2014 Oldwall can't go with 8 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the Hill Ward ranks higher in levy than everyone in the River Ward\u201d \u2014 Oldwall can't go with 9 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Levy, 8 coins must go with Kingsford \u2014 every other Quarter is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Levy, Millpond must go with 9 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Kingsford goes with 8 coins, so it can't also go with 9 coins."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Aldric doesn't, so Aldric doesn't go with Kingsford."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Beatrix doesn't, so Beatrix doesn't go with Kingsford."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, and Kingsford goes with 8 coins, so Godfrey goes with Kingsford."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Oldwall doesn't, so Godfrey doesn't go with Oldwall."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Wulfric doesn't, so Wulfric doesn't go with Kingsford."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Blacksmith doesn't, so Blacksmith doesn't go with Kingsford."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Blacksmith doesn't, so Blacksmith doesn't go with Millpond."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Fletcher doesn't, so Fletcher doesn't go with Millpond."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Pottery doesn't, so Pottery doesn't go with Kingsford."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Pottery doesn't, so Pottery doesn't go with Millpond."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Duke doesn't, so Kingsford doesn't go with Duke."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan serving the Countess' levy is lower than both the artisan who makes Pottery and the artisan in Millpond\u201d \u2014 Countess can't go with 9 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Patron \u00d7 Levy, Countess must go with 8 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Countess, so Knight can't go with 8 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 coins goes with Countess, so Sheriff can't go with 8 coins."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Aldric doesn't, so Aldric doesn't go with Countess."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Beatrix doesn't, so Beatrix doesn't go with Countess."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, and Countess goes with 8 coins, so Godfrey goes with Countess."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Knight doesn't, so Godfrey doesn't go with Knight."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Sheriff doesn't, so Godfrey doesn't go with Sheriff."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Wulfric doesn't, so Wulfric doesn't go with Countess."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Pottery doesn't, so Pottery doesn't go with Countess."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, and Countess goes with 8 coins, so Kingsford goes with Countess."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Knight doesn't, so Kingsford doesn't go with Knight."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Sheriff doesn't, so Kingsford doesn't go with Sheriff."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Millpond doesn't, so Millpond doesn't go with Countess."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Oldwall doesn't, so Oldwall doesn't go with Countess."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Southgate doesn't, so Southgate doesn't go with Countess."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGodfrey goes with at least one of Tapestries, Duke, or Knight\u201d \u2014 Godfrey must go with Tapestries."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Tapestries goes with Godfrey, so Aldric can't go with Tapestries."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Tapestries goes with Godfrey, so Beatrix can't go with Tapestries."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with Tapestries, so it can't also go with Horseshoes."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Godfrey goes with Tapestries, so it can't also go with Rope."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Tapestries goes with Godfrey, so Wulfric can't go with Tapestries."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but Blacksmith doesn't, so Blacksmith doesn't go with Tapestries."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with Godfrey, but Horseshoes doesn't, so Horseshoes doesn't go with Kingsford."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with Godfrey, but Rope doesn't, so Rope doesn't go with Kingsford."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, and Kingsford goes with Godfrey, so Tapestries goes with Kingsford."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but Millpond doesn't, so Tapestries doesn't go with Millpond."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but Oldwall doesn't, so Tapestries doesn't go with Oldwall."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but Southgate doesn't, so Tapestries doesn't go with Southgate."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with Godfrey, but Horseshoes doesn't, so Horseshoes doesn't go with Countess."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with Godfrey, but Rope doesn't, so Rope doesn't go with Countess."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, and Countess goes with Godfrey, so Tapestries goes with Countess."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but Duke doesn't, so Tapestries doesn't go with Duke."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but Knight doesn't, so Tapestries doesn't go with Knight."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but Sheriff doesn't, so Tapestries doesn't go with Sheriff."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "8 coins goes with Godfrey, but Horseshoes doesn't, so Horseshoes doesn't go with 8 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "8 coins goes with Godfrey, but Rope doesn't, so Rope doesn't go with 8 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, and 8 coins goes with Godfrey, so Tapestries goes with 8 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but 9 coins doesn't, so Tapestries doesn't go with 9 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but 10 coins doesn't, so Tapestries doesn't go with 10 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with Godfrey, but 11 coins doesn't, so Tapestries doesn't go with 11 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBeatrix's levy is higher than both the artisan who makes Horseshoes and the artisan serving the Countess\u201d \u2014 Beatrix can't go with 9 coins."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Beatrix doesn't, so Beatrix doesn't go with Millpond."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan in Southgate's levy is exactly 2 coins more than the artisan serving the Countess\u201d \u2014 Southgate can't go with 11 coins."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Levy, 11 coins must go with Oldwall \u2014 every other Quarter is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Levy, Southgate must go with 10 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Oldwall goes with 11 coins, so it can't also go with 10 coins."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Oldwall goes with 11 coins, but Aldric doesn't, so Aldric doesn't go with Oldwall."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with 10 coins, but Wulfric doesn't, so Wulfric doesn't go with Southgate."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, but Oldwall doesn't, so Blacksmith doesn't go with Oldwall."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, and Southgate goes with 10 coins, so Blacksmith goes with Southgate."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with 10 coins, but Fletcher doesn't, so Fletcher doesn't go with Southgate."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Oldwall goes with 11 coins, but Potter doesn't, so Potter doesn't go with Oldwall."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with 10 coins, but Potter doesn't, so Potter doesn't go with Southgate."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with 10 coins, but Weaver doesn't, so Weaver doesn't go with Southgate."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Oldwall goes with 11 coins, but Horseshoes doesn't, so Horseshoes doesn't go with Oldwall."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Oldwall goes with 11 coins, but Duke doesn't, so Oldwall doesn't go with Duke."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan serving the Knight and the artisan in Southgate are in different guilds\u201d \u2014 Blacksmith can't go with Knight."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan serving the Knight and the artisan in Southgate are in different guilds\u201d \u2014 Weaver can't go with Knight."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with Blacksmith, but Knight doesn't, so Southgate doesn't go with Knight."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "10 coins goes with Blacksmith, but Knight doesn't, so Knight doesn't go with 10 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe artisan serving the Duke's levy is between the artisan in Millpond and the Weaver\u201d \u2014 Weaver can't go with 8 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe artisan serving the Duke's levy is between the artisan in Millpond and the Weaver\u201d \u2014 Weaver can't go with 9 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe artisan serving the Duke's levy is between the artisan in Millpond and the Weaver\u201d \u2014 Duke can't go with 9 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Trade \u00d7 Levy, 9 coins must go with Potter \u2014 every other Trade is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Trade \u00d7 Levy, Weaver must go with 11 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Patron \u00d7 Levy, Duke must go with 10 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Trade \u00d7 Levy, 8 coins must go with Fletcher \u2014 every other Trade is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "11 coins goes with Weaver, so Fletcher can't go with 11 coins."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Potter goes with 9 coins, so it can't also go with 8 coins."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "10 coins goes with Duke, so Sheriff can't go with 10 coins."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Aldric doesn't, so Aldric doesn't go with Fletcher."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Weaver goes with 11 coins, but Aldric doesn't, so Aldric doesn't go with Weaver."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Beatrix doesn't, so Beatrix doesn't go with Fletcher."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Potter goes with 9 coins, but Beatrix doesn't, so Beatrix doesn't go with Potter."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, and Fletcher goes with 8 coins, so Godfrey goes with Fletcher."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Potter doesn't, so Godfrey doesn't go with Potter."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Godfrey goes with 8 coins, but Weaver doesn't, so Godfrey doesn't go with Weaver."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Wulfric doesn't, so Wulfric doesn't go with Fletcher."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Duke goes with 10 coins, but Wulfric doesn't, so Wulfric doesn't go with Duke."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Horseshoes doesn't, so Fletcher doesn't go with Horseshoes."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Pottery doesn't, so Fletcher doesn't go with Pottery."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Rope doesn't, so Fletcher doesn't go with Rope."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, and Tapestries goes with 8 coins, so Fletcher goes with Tapestries."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Potter goes with 9 coins, but Pottery doesn't, so Potter doesn't go with Pottery."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with 8 coins, but Potter doesn't, so Potter doesn't go with Tapestries."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Weaver goes with 11 coins, but Horseshoes doesn't, so Weaver doesn't go with Horseshoes."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Tapestries goes with 8 coins, but Weaver doesn't, so Weaver doesn't go with Tapestries."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, and Kingsford goes with 8 coins, so Fletcher goes with Kingsford."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Oldwall doesn't, so Fletcher doesn't go with Oldwall."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Potter doesn't, so Potter doesn't go with Kingsford."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Potter goes with 9 coins, and Millpond goes with 9 coins, so Potter goes with Millpond."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Kingsford goes with 8 coins, but Weaver doesn't, so Weaver doesn't go with Kingsford."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Weaver doesn't, so Weaver doesn't go with Millpond."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Weaver goes with 11 coins, and Oldwall goes with 11 coins, so Weaver goes with Oldwall."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, and Duke goes with 10 coins, so Blacksmith goes with Duke."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, but Sheriff doesn't, so Blacksmith doesn't go with Sheriff."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, and Countess goes with 8 coins, so Fletcher goes with Countess."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Duke doesn't, so Fletcher doesn't go with Duke."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Knight doesn't, so Fletcher doesn't go with Knight."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fletcher goes with 8 coins, but Sheriff doesn't, so Fletcher doesn't go with Sheriff."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Potter doesn't, so Potter doesn't go with Countess."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Potter goes with 9 coins, but Duke doesn't, so Potter doesn't go with Duke."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Countess goes with 8 coins, but Weaver doesn't, so Weaver doesn't go with Countess."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Duke goes with 10 coins, but Weaver doesn't, so Weaver doesn't go with Duke."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Duke doesn't, so Millpond doesn't go with Duke."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, Oldwall doesn't go with Knight."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with 10 coins, and Duke goes with 10 coins, so Southgate goes with Duke."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with 10 coins, but Sheriff doesn't, so Southgate doesn't go with Sheriff."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "11 coins goes with Weaver, but Knight doesn't, so Knight doesn't go with 11 coins."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Trade \u00d7 Patron, Knight must go with Potter \u2014 every other Trade is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Trade \u00d7 Patron, Weaver must go with Sheriff \u2014 every other Patron is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Patron, Knight must go with Millpond \u2014 every other Quarter is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Quarter \u00d7 Patron, Oldwall must go with Sheriff \u2014 every other Patron is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Patron \u00d7 Levy, Knight must go with 9 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Patron \u00d7 Levy, 11 coins must go with Sheriff \u2014 every other Patron is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Potter goes with Knight, so it can't also go with Sheriff."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Millpond goes with Knight, so it can't also go with Sheriff."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sheriff goes with 11 coins, so it can't also go with 9 coins."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Sheriff goes with Weaver, but Aldric doesn't, so Aldric doesn't go with Sheriff."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Knight goes with Potter, but Beatrix doesn't, so Beatrix doesn't go with Knight."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Sheriff goes with Weaver, but Horseshoes doesn't, so Horseshoes doesn't go with Sheriff."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Knight goes with Potter, but Pottery doesn't, so Pottery doesn't go with Knight."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe artisan who makes Pottery's levy is exactly 2 coins more than the Potter\u201d \u2014 Pottery can't go with 10 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Wares \u00d7 Levy, Pottery must go with 11 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "11 coins goes with Pottery, so Rope can't go with 11 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pottery goes with 11 coins, but Aldric doesn't, so Aldric doesn't go with Pottery."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, but Pottery doesn't, so Blacksmith doesn't go with Pottery."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Weaver goes with 11 coins, and Pottery goes with 11 coins, so Weaver goes with Pottery."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Weaver goes with 11 coins, but Rope doesn't, so Weaver doesn't go with Rope."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pottery goes with 11 coins, and Oldwall goes with 11 coins, so Pottery goes with Oldwall."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Southgate goes with 10 coins, but Pottery doesn't, so Pottery doesn't go with Southgate."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Oldwall goes with 11 coins, but Rope doesn't, so Rope doesn't go with Oldwall."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Duke goes with 10 coins, but Pottery doesn't, so Pottery doesn't go with Duke."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pottery goes with 11 coins, and Sheriff goes with 11 coins, so Pottery goes with Sheriff."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Sheriff goes with 11 coins, but Rope doesn't, so Rope doesn't go with Sheriff."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cAldric's levy is between the Fletcher and the artisan serving the Duke\u201d \u2014 Aldric can't go with 10 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Artisan \u00d7 Levy, Aldric must go with 9 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Artisan \u00d7 Levy, 10 coins must go with Beatrix \u2014 every other Artisan is already crossed out for it."
+    },
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Beatrix goes with 10 coins, so it can't also go with 11 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "9 coins goes with Aldric, so Wulfric can't go with 9 coins."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Artisan \u00d7 Levy, 11 coins must go with Wulfric \u2014 every other Artisan is already crossed out for it."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, but Blacksmith doesn't, so Aldric doesn't go with Blacksmith."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, and Potter goes with 9 coins, so Aldric goes with Potter."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, and Blacksmith goes with 10 coins, so Beatrix goes with Blacksmith."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, but Weaver doesn't, so Beatrix doesn't go with Weaver."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Potter goes with 9 coins, but Wulfric doesn't, so Wulfric doesn't go with Potter."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 11 coins, and Weaver goes with 11 coins, so Wulfric goes with Weaver."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, but Pottery doesn't, so Beatrix doesn't go with Pottery."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 11 coins, but Horseshoes doesn't, so Wulfric doesn't go with Horseshoes."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 11 coins, and Pottery goes with 11 coins, so Wulfric goes with Pottery."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 11 coins, but Rope doesn't, so Wulfric doesn't go with Rope."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, and Millpond goes with 9 coins, so Aldric goes with Millpond."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, but Southgate doesn't, so Aldric doesn't go with Southgate."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, but Oldwall doesn't, so Beatrix doesn't go with Oldwall."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, and Southgate goes with 10 coins, so Beatrix goes with Southgate."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Wulfric doesn't, so Wulfric doesn't go with Millpond."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 11 coins, and Oldwall goes with 11 coins, so Wulfric goes with Oldwall."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, but Duke doesn't, so Aldric doesn't go with Duke."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, and Knight goes with 9 coins, so Aldric goes with Knight."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, and Duke goes with 10 coins, so Beatrix goes with Duke."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, but Sheriff doesn't, so Beatrix doesn't go with Sheriff."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Knight goes with 9 coins, but Wulfric doesn't, so Wulfric doesn't go with Knight."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wulfric goes with 11 coins, and Sheriff goes with 11 coins, so Wulfric goes with Sheriff."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBeatrix's levy is higher than both the artisan who makes Horseshoes and the artisan serving the Countess\u201d \u2014 Horseshoes can't go with 10 coins."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Wares \u00d7 Levy, Horseshoes must go with 9 coins \u2014 every other Levy is already crossed out for it."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Wares \u00d7 Levy, 10 coins must go with Rope \u2014 every other Wares is already crossed out for it."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Rope goes with 10 coins, so it can't also go with 9 coins."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, and Horseshoes goes with 9 coins, so Aldric goes with Horseshoes."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Aldric goes with 9 coins, but Rope doesn't, so Aldric doesn't go with Rope."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Horseshoes goes with 9 coins, but Beatrix doesn't, so Beatrix doesn't go with Horseshoes."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Beatrix goes with 10 coins, and Rope goes with 10 coins, so Beatrix goes with Rope."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Horseshoes goes with 9 coins, but Blacksmith doesn't, so Blacksmith doesn't go with Horseshoes."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Blacksmith goes with 10 coins, and Rope goes with 10 coins, so Blacksmith goes with Rope."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Potter goes with 9 coins, and Horseshoes goes with 9 coins, so Potter goes with Horseshoes."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Potter goes with 9 coins, but Rope doesn't, so Potter doesn't go with Rope."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Horseshoes goes with 9 coins, and Millpond goes with 9 coins, so Horseshoes goes with Millpond."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Horseshoes goes with 9 coins, but Southgate doesn't, so Horseshoes doesn't go with Southgate."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Millpond goes with 9 coins, but Rope doesn't, so Rope doesn't go with Millpond."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rope goes with 10 coins, and Southgate goes with 10 coins, so Rope goes with Southgate."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Horseshoes goes with 9 coins, but Duke doesn't, so Horseshoes doesn't go with Duke."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Horseshoes goes with 9 coins, and Knight goes with 9 coins, so Horseshoes goes with Knight."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rope goes with 10 coins, and Duke goes with 10 coins, so Rope goes with Duke."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Knight goes with 9 coins, but Rope doesn't, so Rope doesn't go with Knight."
+    }
+   ]
+  },
+  "fishing": {
+   "name": "The Fishing Derby",
+   "description": "Anglers at the lake-country derby each landed a different fish from a different pond on a different lure. Work out who caught what, and where.",
+   "entity_noun": "catch",
+   "categories": [
+    {
+     "name": "Angler",
+     "items": [
+      "Cody",
+      "Dale",
+      "Gus",
+      "Royce"
+     ]
+    },
+    {
+     "name": "Species",
+     "items": [
+      "Bass",
+      "Catfish",
+      "Crappie",
+      "Perch"
+     ],
+     "group_noun": "family",
+     "groups": [
+      {
+       "label": "Pike Family",
+       "items": [
+        "Bass",
+        "Perch"
+       ]
+      },
+      {
+       "label": "Sunfish Family",
+       "items": [
+        "Catfish",
+        "Crappie"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Lure",
+     "items": [
+      "Crankbait",
+      "Spinnerbait",
+      "Spoon",
+      "Wobbler"
+     ]
+    },
+    {
+     "name": "Pond",
+     "items": [
+      "Mossbank",
+      "Pinehollow",
+      "Stillwater",
+      "Willowmere"
+     ],
+     "group_noun": "watershed",
+     "groups": [
+      {
+       "label": "North Watershed",
+       "items": [
+        "Mossbank",
+        "Pinehollow"
+       ]
+      },
+      {
+       "label": "South Watershed",
+       "items": [
+        "Stillwater",
+        "Willowmere"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Bait",
+     "items": [
+      "Leech",
+      "Minnow",
+      "Nightcrawler",
+      "Shrimp"
+     ]
+    },
+    {
+     "name": "Weight",
+     "items": [
+      "4 lb",
+      "6 lb",
+      "8 lb",
+      "10 lb"
+     ]
+    }
+   ],
+   "clues": [
+    "The angler fishing with Nightcrawler and the angler at Willowmere are in different families.",
+    "Gus goes with at least one of Wobbler, Minnow, or Nightcrawler.",
+    "Cody's weight is between the angler who landed the Catfish and the angler fishing with Minnow.",
+    "Dale's weight is higher than both the angler using the Crankbait and the angler fishing with Leech.",
+    "The angler using the Spinnerbait's weight is exactly 4 lb more than the angler who landed the Crappie.",
+    "The angler at Willowmere's weight is exactly 4 lb more than the angler fishing with Leech.",
+    "The angler who landed the Bass' weight is immediately next to Royce.",
+    "The angler fishing with Leech's weight is lower than both the angler using the Spinnerbait and the angler at Pinehollow.",
+    "The angler fishing with Minnow's weight is between the angler at Pinehollow and the angler who landed the Perch.",
+    "Everyone in the South Watershed ranks higher in weight than everyone in the North Watershed."
+   ],
+   "solution": [
+    [
+     "Cody",
+     "Crappie",
+     "Crankbait",
+     "Pinehollow",
+     "Nightcrawler",
+     "6 lb"
+    ],
+    [
+     "Dale",
+     "Bass",
+     "Spoon",
+     "Willowmere",
+     "Minnow",
+     "8 lb"
+    ],
+    [
+     "Gus",
+     "Catfish",
+     "Wobbler",
+     "Mossbank",
+     "Leech",
+     "4 lb"
+    ],
+    [
+     "Royce",
+     "Perch",
+     "Spinnerbait",
+     "Stillwater",
+     "Shrimp",
+     "10 lb"
+    ]
+   ],
+   "hints": [
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cDale's weight is higher than both the angler using the Crankbait and the angler fishing with Leech\u201d \u2014 Dale can't go with 4 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cDale's weight is higher than both the angler using the Crankbait and the angler fishing with Leech\u201d \u2014 Crankbait can't go with 10 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cDale's weight is higher than both the angler using the Crankbait and the angler fishing with Leech\u201d \u2014 Leech can't go with 10 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler using the Spinnerbait's weight is exactly 4 lb more than the angler who landed the Crappie\u201d \u2014 Crappie can't go with 8 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler using the Spinnerbait's weight is exactly 4 lb more than the angler who landed the Crappie\u201d \u2014 Crappie can't go with 10 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler using the Spinnerbait's weight is exactly 4 lb more than the angler who landed the Crappie\u201d \u2014 Spinnerbait can't go with 4 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler using the Spinnerbait's weight is exactly 4 lb more than the angler who landed the Crappie\u201d \u2014 Spinnerbait can't go with 6 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler at Willowmere's weight is exactly 4 lb more than the angler fishing with Leech\u201d \u2014 Willowmere can't go with 4 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler at Willowmere's weight is exactly 4 lb more than the angler fishing with Leech\u201d \u2014 Willowmere can't go with 6 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler at Willowmere's weight is exactly 4 lb more than the angler fishing with Leech\u201d \u2014 Leech can't go with 8 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler fishing with Leech's weight is lower than both the angler using the Spinnerbait and the angler at Pinehollow\u201d \u2014 Pinehollow can't go with 4 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cCody's weight is between the angler who landed the Catfish and the angler fishing with Minnow\u201d \u2014 Cody can't go with 4 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cCody's weight is between the angler who landed the Catfish and the angler fishing with Minnow\u201d \u2014 Cody can't go with 10 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe angler fishing with Minnow's weight is between the angler at Pinehollow and the angler who landed the Perch\u201d \u2014 Perch can't go with 8 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe angler fishing with Minnow's weight is between the angler at Pinehollow and the angler who landed the Perch\u201d \u2014 Minnow can't go with 4 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe angler fishing with Minnow's weight is between the angler at Pinehollow and the angler who landed the Perch\u201d \u2014 Minnow can't go with 10 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cCody's weight is between the angler who landed the Catfish and the angler fishing with Minnow\u201d \u2014 Catfish can't go with 6 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cCody's weight is between the angler who landed the Catfish and the angler fishing with Minnow\u201d \u2014 Catfish can't go with 8 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Species \u00d7 Weight, 8 lb must go with Bass \u2014 every other Species is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Bass goes with 8 lb, so it can't also go with 4 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Bass goes with 8 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Bass goes with 8 lb, so it can't also go with 10 lb."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, but Leech doesn't, so Bass doesn't go with Leech."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler who landed the Bass' weight is immediately next to Royce\u201d \u2014 Royce can't go with 4 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler who landed the Bass' weight is immediately next to Royce\u201d \u2014 Royce can't go with 8 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Angler \u00d7 Weight, 4 lb must go with Gus \u2014 every other Angler is already crossed out for it."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gus goes with 4 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gus goes with 4 lb, so it can't also go with 8 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gus goes with 4 lb, so it can't also go with 10 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Bass doesn't, so Gus doesn't go with Bass."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, but Royce doesn't, so Royce doesn't go with Bass."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Spinnerbait doesn't, so Gus doesn't go with Spinnerbait."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Pinehollow doesn't, so Gus doesn't go with Pinehollow."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Willowmere doesn't, so Gus doesn't go with Willowmere."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Minnow doesn't, so Gus doesn't go with Minnow."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the South Watershed ranks higher in weight than everyone in the North Watershed\u201d \u2014 Mossbank can't go with 8 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the South Watershed ranks higher in weight than everyone in the North Watershed\u201d \u2014 Mossbank can't go with 10 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the South Watershed ranks higher in weight than everyone in the North Watershed\u201d \u2014 Pinehollow can't go with 8 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the South Watershed ranks higher in weight than everyone in the North Watershed\u201d \u2014 Pinehollow can't go with 10 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the South Watershed ranks higher in weight than everyone in the North Watershed\u201d \u2014 Stillwater can't go with 4 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cEveryone in the South Watershed ranks higher in weight than everyone in the North Watershed\u201d \u2014 Stillwater can't go with 6 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Weight, 4 lb must go with Mossbank \u2014 every other Pond is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Weight, Pinehollow must go with 6 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mossbank goes with 4 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Cody doesn't, so Cody doesn't go with Mossbank."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Dale doesn't, so Dale doesn't go with Mossbank."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, and Mossbank goes with 4 lb, so Gus goes with Mossbank."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Stillwater doesn't, so Gus doesn't go with Stillwater."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Royce doesn't, so Royce doesn't go with Mossbank."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Bass doesn't, so Bass doesn't go with Mossbank."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Bass doesn't, so Bass doesn't go with Pinehollow."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Catfish doesn't, so Catfish doesn't go with Pinehollow."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Spinnerbait doesn't, so Spinnerbait doesn't go with Mossbank."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Spinnerbait doesn't, so Spinnerbait doesn't go with Pinehollow."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Minnow doesn't, so Mossbank doesn't go with Minnow."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler fishing with Leech's weight is lower than both the angler using the Spinnerbait and the angler at Pinehollow\u201d \u2014 Leech can't go with 6 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Bait \u00d7 Weight, Leech must go with 4 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Leech, so Nightcrawler can't go with 4 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4 lb goes with Leech, so Shrimp can't go with 4 lb."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Cody doesn't, so Cody doesn't go with Leech."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Dale doesn't, so Dale doesn't go with Leech."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, and Leech goes with 4 lb, so Gus goes with Leech."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Nightcrawler doesn't, so Gus doesn't go with Nightcrawler."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Shrimp doesn't, so Gus doesn't go with Shrimp."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Royce doesn't, so Royce doesn't go with Leech."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Spinnerbait doesn't, so Spinnerbait doesn't go with Leech."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, and Leech goes with 4 lb, so Mossbank goes with Leech."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Nightcrawler doesn't, so Mossbank doesn't go with Nightcrawler."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Shrimp doesn't, so Mossbank doesn't go with Shrimp."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Pinehollow doesn't, so Pinehollow doesn't go with Leech."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Stillwater doesn't, so Stillwater doesn't go with Leech."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Willowmere doesn't, so Willowmere doesn't go with Leech."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cGus goes with at least one of Wobbler, Minnow, or Nightcrawler\u201d \u2014 Gus must go with Wobbler."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Wobbler goes with Gus, so Cody can't go with Wobbler."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Wobbler goes with Gus, so Dale can't go with Wobbler."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gus goes with Wobbler, so it can't also go with Crankbait."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gus goes with Wobbler, so it can't also go with Spoon."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Wobbler goes with Gus, so Royce can't go with Wobbler."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but Bass doesn't, so Bass doesn't go with Wobbler."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with Gus, but Crankbait doesn't, so Crankbait doesn't go with Mossbank."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with Gus, but Spoon doesn't, so Spoon doesn't go with Mossbank."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, and Mossbank goes with Gus, so Wobbler goes with Mossbank."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but Pinehollow doesn't, so Wobbler doesn't go with Pinehollow."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but Stillwater doesn't, so Wobbler doesn't go with Stillwater."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but Willowmere doesn't, so Wobbler doesn't go with Willowmere."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with Gus, but Crankbait doesn't, so Crankbait doesn't go with Leech."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with Gus, but Spoon doesn't, so Spoon doesn't go with Leech."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, and Leech goes with Gus, so Wobbler goes with Leech."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but Minnow doesn't, so Wobbler doesn't go with Minnow."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but Nightcrawler doesn't, so Wobbler doesn't go with Nightcrawler."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but Shrimp doesn't, so Wobbler doesn't go with Shrimp."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "4 lb goes with Gus, but Crankbait doesn't, so Crankbait doesn't go with 4 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "4 lb goes with Gus, but Spoon doesn't, so Spoon doesn't go with 4 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, and 4 lb goes with Gus, so Wobbler goes with 4 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but 6 lb doesn't, so Wobbler doesn't go with 6 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but 8 lb doesn't, so Wobbler doesn't go with 8 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with Gus, but 10 lb doesn't, so Wobbler doesn't go with 10 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cDale's weight is higher than both the angler using the Crankbait and the angler fishing with Leech\u201d \u2014 Dale can't go with 6 lb."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Dale doesn't, so Dale doesn't go with Pinehollow."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler at Willowmere's weight is exactly 4 lb more than the angler fishing with Leech\u201d \u2014 Willowmere can't go with 10 lb."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Weight, 10 lb must go with Stillwater \u2014 every other Pond is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Weight, Willowmere must go with 8 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "3-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Stillwater goes with 10 lb, so it can't also go with 8 lb."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Stillwater goes with 10 lb, but Cody doesn't, so Cody doesn't go with Stillwater."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with 8 lb, but Royce doesn't, so Royce doesn't go with Willowmere."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, but Stillwater doesn't, so Bass doesn't go with Stillwater."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, and Willowmere goes with 8 lb, so Bass goes with Willowmere."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with 8 lb, but Catfish doesn't, so Catfish doesn't go with Willowmere."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Stillwater goes with 10 lb, but Crappie doesn't, so Crappie doesn't go with Stillwater."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with 8 lb, but Crappie doesn't, so Crappie doesn't go with Willowmere."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with 8 lb, but Perch doesn't, so Perch doesn't go with Willowmere."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Stillwater goes with 10 lb, but Crankbait doesn't, so Crankbait doesn't go with Stillwater."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Stillwater goes with 10 lb, but Minnow doesn't, so Stillwater doesn't go with Minnow."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler fishing with Nightcrawler and the angler at Willowmere are in different families\u201d \u2014 Bass can't go with Nightcrawler."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler fishing with Nightcrawler and the angler at Willowmere are in different families\u201d \u2014 Perch can't go with Nightcrawler."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with Bass, but Nightcrawler doesn't, so Willowmere doesn't go with Nightcrawler."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "8 lb goes with Bass, but Nightcrawler doesn't, so Nightcrawler doesn't go with 8 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe angler fishing with Minnow's weight is between the angler at Pinehollow and the angler who landed the Perch\u201d \u2014 Perch can't go with 4 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe angler fishing with Minnow's weight is between the angler at Pinehollow and the angler who landed the Perch\u201d \u2014 Perch can't go with 6 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cThe angler fishing with Minnow's weight is between the angler at Pinehollow and the angler who landed the Perch\u201d \u2014 Minnow can't go with 6 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Species \u00d7 Weight, 6 lb must go with Crappie \u2014 every other Species is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Species \u00d7 Weight, Perch must go with 10 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Bait \u00d7 Weight, Minnow must go with 8 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Species \u00d7 Weight, 4 lb must go with Catfish \u2014 every other Species is already crossed out for it."
+    },
+    {
+     "key": "1-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "10 lb goes with Perch, so Catfish can't go with 10 lb."
+    },
+    {
+     "key": "1-5",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Crappie goes with 6 lb, so it can't also go with 4 lb."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "8 lb goes with Minnow, so Shrimp can't go with 8 lb."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Cody doesn't, so Cody doesn't go with Catfish."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Perch goes with 10 lb, but Cody doesn't, so Cody doesn't go with Perch."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Dale doesn't, so Dale doesn't go with Catfish."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crappie goes with 6 lb, but Dale doesn't, so Dale doesn't go with Crappie."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, and Catfish goes with 4 lb, so Gus goes with Catfish."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Crappie doesn't, so Gus doesn't go with Crappie."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gus goes with 4 lb, but Perch doesn't, so Gus doesn't go with Perch."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Royce doesn't, so Royce doesn't go with Catfish."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Minnow goes with 8 lb, but Royce doesn't, so Royce doesn't go with Minnow."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Crankbait doesn't, so Catfish doesn't go with Crankbait."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Spinnerbait doesn't, so Catfish doesn't go with Spinnerbait."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Spoon doesn't, so Catfish doesn't go with Spoon."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, and Wobbler goes with 4 lb, so Catfish goes with Wobbler."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crappie goes with 6 lb, but Spinnerbait doesn't, so Crappie doesn't go with Spinnerbait."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with 4 lb, but Crappie doesn't, so Crappie doesn't go with Wobbler."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Perch goes with 10 lb, but Crankbait doesn't, so Perch doesn't go with Crankbait."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Wobbler goes with 4 lb, but Perch doesn't, so Perch doesn't go with Wobbler."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, and Mossbank goes with 4 lb, so Catfish goes with Mossbank."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Stillwater doesn't, so Catfish doesn't go with Stillwater."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Crappie doesn't, so Crappie doesn't go with Mossbank."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crappie goes with 6 lb, and Pinehollow goes with 6 lb, so Crappie goes with Pinehollow."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mossbank goes with 4 lb, but Perch doesn't, so Perch doesn't go with Mossbank."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Perch doesn't, so Perch doesn't go with Pinehollow."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Perch goes with 10 lb, and Stillwater goes with 10 lb, so Perch goes with Stillwater."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, and Minnow goes with 8 lb, so Bass goes with Minnow."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, but Shrimp doesn't, so Bass doesn't go with Shrimp."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, and Leech goes with 4 lb, so Catfish goes with Leech."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Minnow doesn't, so Catfish doesn't go with Minnow."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Nightcrawler doesn't, so Catfish doesn't go with Nightcrawler."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Catfish goes with 4 lb, but Shrimp doesn't, so Catfish doesn't go with Shrimp."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Crappie doesn't, so Crappie doesn't go with Leech."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crappie goes with 6 lb, but Minnow doesn't, so Crappie doesn't go with Minnow."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Leech goes with 4 lb, but Perch doesn't, so Perch doesn't go with Leech."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Minnow goes with 8 lb, but Perch doesn't, so Perch doesn't go with Minnow."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Minnow doesn't, so Pinehollow doesn't go with Minnow."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, Stillwater doesn't go with Nightcrawler."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with 8 lb, and Minnow goes with 8 lb, so Willowmere goes with Minnow."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with 8 lb, but Shrimp doesn't, so Willowmere doesn't go with Shrimp."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "10 lb goes with Perch, but Nightcrawler doesn't, so Nightcrawler doesn't go with 10 lb."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Species \u00d7 Bait, Nightcrawler must go with Crappie \u2014 every other Species is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Species \u00d7 Bait, Perch must go with Shrimp \u2014 every other Bait is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Bait, Nightcrawler must go with Pinehollow \u2014 every other Pond is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Pond \u00d7 Bait, Stillwater must go with Shrimp \u2014 every other Bait is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Bait \u00d7 Weight, Nightcrawler must go with 6 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Bait \u00d7 Weight, 10 lb must go with Shrimp \u2014 every other Bait is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Crappie goes with Nightcrawler, so it can't also go with Shrimp."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Pinehollow goes with Nightcrawler, so it can't also go with Shrimp."
+    },
+    {
+     "key": "4-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Shrimp goes with 10 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Shrimp goes with Perch, but Cody doesn't, so Cody doesn't go with Shrimp."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nightcrawler goes with Crappie, but Dale doesn't, so Dale doesn't go with Nightcrawler."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Shrimp goes with Perch, but Crankbait doesn't, so Crankbait doesn't go with Shrimp."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nightcrawler goes with Crappie, but Spinnerbait doesn't, so Spinnerbait doesn't go with Nightcrawler."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe angler using the Spinnerbait's weight is exactly 4 lb more than the angler who landed the Crappie\u201d \u2014 Spinnerbait can't go with 8 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Lure \u00d7 Weight, Spinnerbait must go with 10 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "10 lb goes with Spinnerbait, so Spoon can't go with 10 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Spinnerbait goes with 10 lb, but Cody doesn't, so Cody doesn't go with Spinnerbait."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, but Spinnerbait doesn't, so Bass doesn't go with Spinnerbait."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Perch goes with 10 lb, and Spinnerbait goes with 10 lb, so Perch goes with Spinnerbait."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Perch goes with 10 lb, but Spoon doesn't, so Perch doesn't go with Spoon."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Spinnerbait goes with 10 lb, and Stillwater goes with 10 lb, so Spinnerbait goes with Stillwater."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Willowmere goes with 8 lb, but Spinnerbait doesn't, so Spinnerbait doesn't go with Willowmere."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Stillwater goes with 10 lb, but Spoon doesn't, so Spoon doesn't go with Stillwater."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Minnow goes with 8 lb, but Spinnerbait doesn't, so Spinnerbait doesn't go with Minnow."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Spinnerbait goes with 10 lb, and Shrimp goes with 10 lb, so Spinnerbait goes with Shrimp."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Shrimp goes with 10 lb, but Spoon doesn't, so Spoon doesn't go with Shrimp."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "From the clue \u201cCody's weight is between the angler who landed the Catfish and the angler fishing with Minnow\u201d \u2014 Cody can't go with 8 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Angler \u00d7 Weight, Cody must go with 6 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Angler \u00d7 Weight, 8 lb must go with Dale \u2014 every other Angler is already crossed out for it."
+    },
+    {
+     "key": "0-5",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Dale goes with 8 lb, so it can't also go with 10 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "6 lb goes with Cody, so Royce can't go with 6 lb."
+    },
+    {
+     "key": "0-5",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Angler \u00d7 Weight, 10 lb must go with Royce \u2014 every other Angler is already crossed out for it."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, but Bass doesn't, so Cody doesn't go with Bass."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, and Crappie goes with 6 lb, so Cody goes with Crappie."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, and Bass goes with 8 lb, so Dale goes with Bass."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, but Perch doesn't, so Dale doesn't go with Perch."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crappie goes with 6 lb, but Royce doesn't, so Royce doesn't go with Crappie."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 10 lb, and Perch goes with 10 lb, so Royce goes with Perch."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, but Spinnerbait doesn't, so Dale doesn't go with Spinnerbait."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 10 lb, but Crankbait doesn't, so Royce doesn't go with Crankbait."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 10 lb, and Spinnerbait goes with 10 lb, so Royce goes with Spinnerbait."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 10 lb, but Spoon doesn't, so Royce doesn't go with Spoon."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, and Pinehollow goes with 6 lb, so Cody goes with Pinehollow."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, but Willowmere doesn't, so Cody doesn't go with Willowmere."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, but Stillwater doesn't, so Dale doesn't go with Stillwater."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, and Willowmere goes with 8 lb, so Dale goes with Willowmere."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Royce doesn't, so Royce doesn't go with Pinehollow."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 10 lb, and Stillwater goes with 10 lb, so Royce goes with Stillwater."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, but Minnow doesn't, so Cody doesn't go with Minnow."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, and Nightcrawler goes with 6 lb, so Cody goes with Nightcrawler."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, and Minnow goes with 8 lb, so Dale goes with Minnow."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, but Shrimp doesn't, so Dale doesn't go with Shrimp."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nightcrawler goes with 6 lb, but Royce doesn't, so Royce doesn't go with Nightcrawler."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Royce goes with 10 lb, and Shrimp goes with 10 lb, so Royce goes with Shrimp."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cDale's weight is higher than both the angler using the Crankbait and the angler fishing with Leech\u201d \u2014 Crankbait can't go with 8 lb."
+    },
+    {
+     "key": "2-5",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Lure \u00d7 Weight, Crankbait must go with 6 lb \u2014 every other Weight is already crossed out for it."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Lure \u00d7 Weight, 8 lb must go with Spoon \u2014 every other Lure is already crossed out for it."
+    },
+    {
+     "key": "2-5",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Spoon goes with 8 lb, so it can't also go with 6 lb."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, and Crankbait goes with 6 lb, so Cody goes with Crankbait."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cody goes with 6 lb, but Spoon doesn't, so Cody doesn't go with Spoon."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crankbait goes with 6 lb, but Dale doesn't, so Dale doesn't go with Crankbait."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dale goes with 8 lb, and Spoon goes with 8 lb, so Dale goes with Spoon."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crankbait goes with 6 lb, but Bass doesn't, so Bass doesn't go with Crankbait."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Bass goes with 8 lb, and Spoon goes with 8 lb, so Bass goes with Spoon."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crappie goes with 6 lb, and Crankbait goes with 6 lb, so Crappie goes with Crankbait."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crappie goes with 6 lb, but Spoon doesn't, so Crappie doesn't go with Spoon."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crankbait goes with 6 lb, and Pinehollow goes with 6 lb, so Crankbait goes with Pinehollow."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crankbait goes with 6 lb, but Willowmere doesn't, so Crankbait doesn't go with Willowmere."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pinehollow goes with 6 lb, but Spoon doesn't, so Spoon doesn't go with Pinehollow."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Spoon goes with 8 lb, and Willowmere goes with 8 lb, so Spoon goes with Willowmere."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crankbait goes with 6 lb, but Minnow doesn't, so Crankbait doesn't go with Minnow."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Crankbait goes with 6 lb, and Nightcrawler goes with 6 lb, so Crankbait goes with Nightcrawler."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Spoon goes with 8 lb, and Minnow goes with 8 lb, so Spoon goes with Minnow."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nightcrawler goes with 6 lb, but Spoon doesn't, so Spoon doesn't go with Nightcrawler."
+    }
+   ]
+  }
+ }
+}

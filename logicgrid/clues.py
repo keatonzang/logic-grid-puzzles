@@ -364,6 +364,41 @@ def _plural(noun: str) -> str:
     return noun + "s"
 
 
+class OrderAgree(Clue):
+    """Cross-dial coupling: for the entities of `a` and `b`, their order in
+    ordered category `cat1` and their order in ordered category `cat2` either
+    match (`agree=True`: "whoever has the higher grade also sits in the later
+    period") or oppose (`agree=False`: "... sits in the earlier period").
+
+    A constraint on the JOIN of two orderings that no per-dial clue (or
+    conditional over links) can express: learn either dial's order for the
+    pair and the other dial's follows. Only meaningful — and only generated —
+    when a puzzle carries two ordered categories."""
+
+    removal_class = 2
+
+    def __init__(self, cat1: int, cat2: int, a: Term, b: Term, agree: bool):
+        self.cat1, self.cat2 = cat1, cat2
+        self.a, self.b = a, b
+        self.agree = agree
+        self.involved = frozenset({cat1, cat2, a[0], b[0]})
+
+    def holds(self, X) -> bool:
+        ea, eb = entity_of(X, self.a), entity_of(X, self.b)
+        same = (X[ea][self.cat1] > X[eb][self.cat1]) == (
+            X[ea][self.cat2] > X[eb][self.cat2]
+        )
+        return same == self.agree
+
+    def text(self, theme: Theme) -> str:
+        c1, c2 = theme.categories[self.cat1], theme.categories[self.cat2]
+        second = c2.more_word if self.agree else c2.less_word
+        return (
+            f"Of {_ref(theme, self.a)} and {_ref(theme, self.b)}, whoever has "
+            f"the {c1.more_word} {_low(c1.name)} has the {second} {_low(c2.name)}."
+        )
+
+
 class Count(Clue):
     """The unifying cardinality engine: between `lo` and `hi` of the given term
     pairs share an entity.
@@ -1383,6 +1418,8 @@ def clue_cost(clue: Clue) -> float:
         return 2.6
     if isinstance(clue, MultiCompare):
         return 2.4 + 0.5 * len(clue.others)
+    if isinstance(clue, OrderAgree):
+        return 3.2  # two dials held in mind at once — compound comparison
     if isinstance(clue, (Among, EitherOr, Neither, AtMost, Exactly)):
         return 1.6 + 0.6 * len(clue.options)  # disjunction over N options
     if isinstance(clue, AllDifferent):

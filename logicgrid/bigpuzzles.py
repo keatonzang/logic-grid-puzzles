@@ -52,6 +52,7 @@ from .clues import (
     Negative,
     NextTo,
     NotInGroup,
+    OrderAgree,
     Positive,
     SameGroup,
     SetCount,
@@ -89,7 +90,7 @@ _VALUE_CLUES = (Diff, AtLeastApart, AbsApart)
 # — the "sequential clues" count surfaced as a catalog tag.
 _ORDERED_CLUES = (
     Greater, Diff, Between, Adjacent, NextTo, AtLeastApart, AbsApart,
-    MultiCompare, GroupOrder,
+    MultiCompare, GroupOrder, OrderAgree,
 )
 
 _BANDS = ("normal", "hard", "mega", "giga", "tera")

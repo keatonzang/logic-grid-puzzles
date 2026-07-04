@@ -36,6 +36,7 @@ from .clues import (
     Or,
     SameGroup,
     MultiCompare,
+    OrderAgree,
     Negative,
     Neither,
     NextTo,
@@ -256,6 +257,7 @@ def build_clue_pool(
     enable_groups: bool = False,
     enable_group_instances: bool = False,
     enable_set_count: bool = False,
+    enable_cross_dial: bool = False,
     include_sequential: bool = False,
 ) -> list:
     """Every positive link plus sampled negatives, comparisons, and "one of N"
@@ -396,6 +398,29 @@ def build_clue_pool(
                 o1, o2 = rng.sample(lows, 2)
                 tc, t1, t2 = refs_for([c, o1, o2])
                 comparisons.append(MultiCompare(cn, tc, [t1, t2], True))
+
+    # Cross-dial order coupling (extreme tiers, needs two ordered categories):
+    # for a pair of entities, whether their order on one dial matches their
+    # order on the other. Refs avoid both dials so neither side is given away;
+    # kept sparse — each instance is a compound comparison to hold in mind.
+    cross_dial: list = []
+    if enable_cross_dial:
+        dials = [c for c in range(k) if theme.categories[c].ordered]
+        for di in range(len(dials)):
+            for dj in range(di + 1, len(dials)):
+                c1, c2 = dials[di], dials[dj]
+                refs = [c for c in range(k) if c not in (c1, c2)]
+                if not refs:
+                    continue
+                for e1 in range(n):
+                    for e2 in range(e1 + 1, n):
+                        cats = (rng.sample(refs, 2) if len(refs) >= 2
+                                else [refs[0], refs[0]])
+                        a, b = (cats[0], X[e1][cats[0]]), (cats[1], X[e2][cats[1]])
+                        agree = ((X[e1][c1] > X[e2][c1])
+                                 == (X[e1][c2] > X[e2][c2]))
+                        cross_dial.append(OrderAgree(c1, c2, a, b, agree))
+        rng.shuffle(cross_dial)
 
     # "One of N" disjunctions over option terms. For each anchor entity e a term
     # (co, io) with co != ca is *true* iff it is e's real item there.
@@ -1090,6 +1115,7 @@ def build_clue_pool(
         positives
         + negatives[:max_negatives]
         + comparisons[:max_comparisons]
+        + cross_dial[: 2 * n]
         + among[:max_among]
         + either[:max_either]
         + neither[:max_neither]
@@ -1147,7 +1173,8 @@ _RICH_POOL = dict(
 # giga/tera additionally roll compound conditional sides ("if both A and B, then
 # …") — the heaviest clue to read — and "exactly two of these three" pairings,
 # reserved for the most extreme tiers.
-_EXTREME_POOL = {**_RICH_POOL, "conditional_compound_prob": 0.28, "pairing_two_prob": 0.3}
+_EXTREME_POOL = {**_RICH_POOL, "conditional_compound_prob": 0.28, "pairing_two_prob": 0.3,
+                 "enable_cross_dial": True}  # order-coupling across two dials
 _DIFFICULTY_POOL = {
     "normal": _NORMAL_POOL,
     "hard": _HARD_POOL,

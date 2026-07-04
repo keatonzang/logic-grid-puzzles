@@ -200,6 +200,28 @@ def test_group_clues_relabel_under_target_vocabulary():
         assert "Guild" not in txt and "Ward" not in txt and "Side" not in txt
 
 
+def test_order_agree_semantics_gating_and_retheme():
+    from logicgrid.clues import OrderAgree
+    from logicgrid.generate import _EXTREME_POOL, _HARD_POOL, build_clue_pool, random_solution
+
+    theme = build_theme(THEMES["school"], random.Random(9), 5, 4,
+                        n_numeric=2, clamp=False)
+    rng = random.Random(9)
+    X = random_solution(theme, rng)
+    pool = build_clue_pool(theme, X, rng, **_EXTREME_POOL)
+    cross = [c for c in pool if isinstance(c, OrderAgree)]
+    assert cross and all(c.holds(X) for c in cross)
+    assert "whoever has the" in cross[0].text(theme)
+    # gated out below the extreme tiers
+    hard_pool = build_clue_pool(theme, X, random.Random(9), **_HARD_POOL)
+    assert not any(isinstance(c, OrderAgree) for c in hard_pool)
+    # index-based: re-theming needs no translation and stays true
+    target = bigpuzzles.dress("chess", 9, theme)
+    rethemed = bigpuzzles.retheme_clues(cross[:3], target)
+    assert all(c.holds(X) for c in rethemed)
+    assert all("whoever has the" in c.text(target) for c in rethemed)
+
+
 def test_double_sequential_compat_and_dress():
     # two dials: only school (Grade+Period) and chess (Rating+Placing) qualify
     assert set(bigpuzzles.compatible_themes(4, 5, 2)) == {"school", "chess"}
