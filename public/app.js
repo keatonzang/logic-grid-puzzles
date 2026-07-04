@@ -1565,20 +1565,120 @@ function setBigTheme(key, { fresh } = {}) {
   render();
 }
 
-function bigOptionLabel(e) {
-  const shape = `${e.categories} × ${e.items}`;
-  const extras = [
-    e.difficulty,
-    e.nested ? "nested groups" : e.grouped ? "groups" : null,
-  ].filter(Boolean).join(" · ");
-  return `${shape} · ${extras} · #${e.id.split("-").pop()}`;
+// --- The catalog: difficulty tabs -> size layers -> puzzle tiles --------------
+const BIG_BAND_STORE = "lg.big.band";
+const BIG_BANDS = ["normal", "hard", "mega", "giga", "tera"];
+let bigById = {};   // id -> index entry
+
+function bigShowCatalog() {
+  $("puzzle").hidden = true;
+  $("big-back").hidden = true;
+  $("big-theme-wrap").hidden = true;
+  $("catalog").hidden = false;
+  stopTimer(false);
+  if (location.hash) history.replaceState(null, "", location.pathname);
 }
 
-async function loadBigPuzzle(id) {
+function bigActiveBand() {
+  const present = BIG_BANDS.filter((b) => bigIndex.some((e) => e.difficulty === b));
+  let band = null;
+  try { band = localStorage.getItem(BIG_BAND_STORE); } catch (e) { /* fine */ }
+  return present.includes(band) ? band : present[0];
+}
+
+function bigTile(e) {
+  const tile = document.createElement("button");
+  tile.type = "button";
+  tile.className = "tile" + (e.adjusted ? " adjusted" : "");
+  const num = document.createElement("span");
+  num.className = "tile-id";
+  num.textContent = "#" + e.id.split("-").pop();
+  tile.appendChild(num);
+
+  const tags = document.createElement("span");
+  tags.className = "tile-tags";
+  const tag = (text, cls) => {
+    const s = document.createElement("span");
+    s.className = "tag" + (cls ? " " + cls : "");
+    s.textContent = text;
+    tags.appendChild(s);
+  };
+  if (e.adjusted) tag("adjusted", "tag-adjusted");
+  if (e.nested) tag("nested groups");
+  if (e.group_blocks) tag(`${e.group_blocks} groups`);
+  if (e.sequential_clues) tag(`${e.sequential_clues} sequential`);
+  tag(`${Object.keys(e.themes).length} ${Object.keys(e.themes).length === 1 ? "theme" : "themes"}`);
+  tile.appendChild(tags);
+
+  if (e.siblings && e.siblings.length) {
+    const kin = document.createElement("span");
+    kin.className = "tile-kin";
+    kin.appendChild(document.createTextNode("same solution: "));
+    e.siblings.forEach((sid, i) => {
+      if (i) kin.appendChild(document.createTextNode(" · "));
+      const s = bigById[sid];
+      const a = document.createElement("a");
+      a.href = "#" + sid;
+      a.textContent = s ? s.difficulty + (s.adjusted ? " (adj.)" : "") : sid;
+      a.title = sid;
+      a.addEventListener("click", (ev) => { ev.stopPropagation(); ev.preventDefault(); openBigPuzzle(sid); });
+      kin.appendChild(a);
+    });
+    tile.appendChild(kin);
+  }
+  tile.addEventListener("click", () => openBigPuzzle(e.id));
+  return tile;
+}
+
+function renderCatalog() {
+  const active = bigActiveBand();
+  const tabs = $("band-tabs");
+  tabs.innerHTML = "";
+  for (const band of BIG_BANDS) {
+    const count = bigIndex.filter((e) => e.difficulty === band).length;
+    if (!count) continue;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "band-tab" + (band === active ? " active" : "");
+    btn.textContent = `${band} (${count})`;
+    btn.addEventListener("click", () => {
+      try { localStorage.setItem(BIG_BAND_STORE, band); } catch (e) { /* fine */ }
+      renderCatalog();
+    });
+    tabs.appendChild(btn);
+  }
+
+  const body = $("catalog-body");
+  body.innerHTML = "";
+  const entries = bigIndex.filter((e) => e.difficulty === active);
+  const shapes = [...new Set(entries.map((e) => `${e.categories}x${e.items}`))]
+    .sort((a, b2) => {
+      const [ac, ai] = a.split("x").map(Number);
+      const [bc, bi] = b2.split("x").map(Number);
+      return ac * ai - bc * bi || ac - bc;
+    });
+  for (const shape of shapes) {
+    const [c, n] = shape.split("x");
+    const h = document.createElement("h3");
+    h.className = "layer-head";
+    h.textContent = `${c} categories × ${n} items`;
+    body.appendChild(h);
+    const grid = document.createElement("div");
+    grid.className = "tiles";
+    entries
+      .filter((e) => `${e.categories}x${e.items}` === shape)
+      .sort((a, b2) => a.id.localeCompare(b2.id))
+      .forEach((e) => grid.appendChild(bigTile(e)));
+    body.appendChild(grid);
+  }
+}
+
+async function openBigPuzzle(id) {
   $("error").hidden = true;
   $("loading").hidden = false;
   $("loading").textContent = "Fetching the puzzle…";
   $("puzzle").hidden = true;
+  $("catalog").hidden = true;
   try {
     bigBundle = await fetchJSON(`/big/${encodeURIComponent(id)}.json`);
     const sel = $("big-theme");
@@ -1594,14 +1694,17 @@ async function loadBigPuzzle(id) {
       const pref = localStorage.getItem(BIG_THEME_STORE);
       if (pref && bigBundle.themes[pref]) key = pref;
     } catch (e) { /* fine */ }
-    location.hash = id; // shareable link straight to this puzzle
+    if (location.hash.slice(1) !== id) location.hash = id; // shareable deep link
     setBigTheme(key, { fresh: true });
+    $("big-back").hidden = false;
+    $("big-theme-wrap").hidden = false;
     $("puzzle").hidden = false;
     fitBoard();
     startTimer();
   } catch (err) {
     $("error").textContent = err.message;
     $("error").hidden = false;
+    $("catalog").hidden = false;
   } finally {
     $("loading").hidden = true;
   }
@@ -1613,29 +1716,27 @@ async function loadBig() {
   } catch (err) {
     bigIndex = [];
   }
+  $("loading").hidden = true;
   if (!bigIndex.length) {
-    $("loading").hidden = true;
     $("error").textContent = "No big puzzles are published yet — check back soon.";
     $("error").hidden = false;
     return;
   }
-  const sel = $("big-puzzle");
-  sel.innerHTML = "";
-  for (const e of bigIndex) {
-    const opt = document.createElement("option");
-    opt.value = e.id;
-    opt.textContent = bigOptionLabel(e);
-    sel.appendChild(opt);
-  }
+  bigById = Object.fromEntries(bigIndex.map((e) => [e.id, e]));
+  renderCatalog();
   const wanted = location.hash.slice(1);
-  const first = bigIndex.some((e) => e.id === wanted) ? wanted : bigIndex[0].id;
-  sel.value = first;
-  await loadBigPuzzle(first);
+  if (wanted && bigById[wanted]) await openBigPuzzle(wanted);
+  else bigShowCatalog();
 }
 
 if (BIG) {
-  $("big-puzzle").addEventListener("change", (e) => loadBigPuzzle(e.target.value));
   $("big-theme").addEventListener("change", (e) => setBigTheme(e.target.value));
+  $("big-back").addEventListener("click", (e) => { e.preventDefault(); bigShowCatalog(); });
+  window.addEventListener("hashchange", () => {
+    const id = location.hash.slice(1);
+    if (!id) bigShowCatalog();
+    else if (bigById[id] && (!bigBundle || bigBundle.id !== id)) openBigPuzzle(id);
+  });
 }
 
 $("generate").addEventListener("click", generate);

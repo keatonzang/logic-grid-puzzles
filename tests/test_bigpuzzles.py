@@ -200,6 +200,26 @@ def test_group_clues_relabel_under_target_vocabulary():
         assert "Guild" not in txt and "Ward" not in txt and "Side" not in txt
 
 
+def test_downgrade_hits_exact_band_and_keeps_solution():
+    # seed 777 at 3x5 deterministically measures giga; the downgrade must land
+    # exactly on the target band with the same solution, every clue true
+    theme, puzzle, report = bigpuzzles.generate_big(777, "giga", 3, 5)
+    assert report["band"] == "giga"
+    got = bigpuzzles.downgrade(theme, puzzle, "hard")
+    assert got is not None
+    variant, rep = got
+    assert rep["band"] == "hard"
+    assert variant.solution == puzzle.solution
+    assert all(c.holds(puzzle.solution) for c in variant.clues)
+    # the parent is untouched
+    assert grade_band(theme, puzzle) == "giga"
+
+
+def grade_band(theme, puzzle):
+    from logicgrid.deduce import grade
+    return grade(theme, puzzle.clues)["band"]
+
+
 def test_walk_byproducts_are_collected_and_bundlable():
     # every logic-solvable candidate a walk grades is collectable; a byproduct
     # bundles under its MEASURED band with the request recorded honestly

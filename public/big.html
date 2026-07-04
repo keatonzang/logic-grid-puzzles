@@ -15,15 +15,18 @@
   </header>
 
   <section class="controls">
-    <label>Puzzle
-      <select id="big-puzzle"></select>
-    </label>
-    <label>Theme
+    <a id="big-back" href="#" hidden>← All puzzles</a>
+    <label id="big-theme-wrap" hidden>Theme
       <select id="big-theme"></select>
     </label>
     <label class="check" title="Color-blind-friendly palette: blue/orange marks instead of green/red">
       <input id="cblind" type="checkbox" /> Colorblind
     </label>
+  </section>
+
+  <section id="catalog" class="catalog" hidden>
+    <nav id="band-tabs" class="band-tabs" aria-label="Difficulty"></nav>
+    <div id="catalog-body"></div>
   </section>
 
   <!-- Free-play controls app.js expects to exist; the big page fixes them all. -->

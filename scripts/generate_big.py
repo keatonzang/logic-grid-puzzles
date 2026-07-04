@@ -54,13 +54,44 @@ def next_id(cats: int, items: int, band: str) -> str:
     return f"{stem}{n:03d}"
 
 
+# Ordered-logic phrasing, for bundles from before exact sequential-clue
+# counts were stored — a text heuristic good enough for a catalog tag.
+_SEQ_HINT = re.compile(
+    r"higher|lower|more than|less than|immediately|between .+ and|"
+    r"at least .+ more|at most|away from|ranks",
+    re.IGNORECASE,
+)
+
+
+def _group_blocks(bundle: dict) -> int:
+    default = bundle["themes"][bundle["default_theme"]]
+    return sum(
+        len(c.get("groups", [])) + len(c.get("supergroups", []))
+        for c in default["categories"]
+    )
+
+
+def _sequential_clues(bundle: dict) -> int:
+    if "sequential_clues" in bundle:
+        return bundle["sequential_clues"]
+    default = bundle["themes"][bundle["default_theme"]]
+    return sum(1 for c in default["clues"] if _SEQ_HINT.search(c))
+
+
 def rebuild_index() -> int:
-    entries = []
+    bundles = []
     for path in sorted(OUT.glob("*.json")):
         if path.name == "index.json":
             continue
-        b = json.loads(path.read_text())
-        default = b["themes"][b["default_theme"]]
+        bundles.append(json.loads(path.read_text()))
+    # family = the root puzzle a variant's solution came from; every member
+    # lists its siblings so the catalog can cross-link them
+    members: dict[str, list] = {}
+    for b in bundles:
+        members.setdefault(b.get("family") or b["id"], []).append(b["id"])
+    entries = []
+    for b in bundles:
+        family = b.get("family") or b["id"]
         entries.append({
             "id": b["id"],
             "categories": b["categories"],
@@ -69,7 +100,12 @@ def rebuild_index() -> int:
             "grouped": b.get("grouped", False),
             "nested": b.get("nested", False),
             "has_ordered": b.get("has_ordered", False),
-            "clue_count": len(default["clues"]),
+            "adjusted": b.get("adjusted", False),
+            "family": family,
+            "siblings": [pid for pid in members[family] if pid != b["id"]],
+            "group_blocks": b.get("group_blocks", _group_blocks(b)),
+            "sequential_clues": _sequential_clues(b),
+            "clue_count": len(b["themes"][b["default_theme"]]["clues"]),
             "themes": {key: t["name"] for key, t in b["themes"].items()},
         })
     entries.sort(key=lambda e: (e["categories"] * e["items"], e["id"]))
@@ -77,12 +113,60 @@ def rebuild_index() -> int:
     return len(entries)
 
 
+_DERIVE = re.compile(r"^([a-z0-9-]+):((?:normal|hard|mega|giga|tera)(?:,(?:normal|hard|mega|giga|tera))*)$")
+
+
+def parse_derive(text: str) -> tuple[str, list[str]]:
+    m = _DERIVE.match(text.strip())
+    if not m:
+        raise argparse.ArgumentTypeError(
+            f"bad derive {text!r} (want PARENT_ID:BAND[,BAND...], "
+            "e.g. 5x5-tera-001:mega,hard)"
+        )
+    return m[1], m[2].split(",")
+
+
+def run_derive(parent_id: str, targets: list[str]) -> None:
+    src = OUT / f"{parent_id}.json"
+    bundle = json.loads(src.read_text())
+    print(f"{parent_id}: replaying its walk to derive {','.join(targets)} ...",
+          flush=True)
+    t0 = time.monotonic()
+    variants = bigpuzzles.derive_variants(bundle, targets)
+    for target, theme_obj, variant, report in variants:
+        pid = next_id(bundle["categories"], bundle["items"], report["band"])
+        out = bigpuzzles.bundle_candidate(
+            pid, bundle["seed"], bundle["requested"], theme_obj, variant,
+            report, donor=bundle["default_theme"],
+            family=bundle.get("family") or bundle["id"],
+            derived_from=bundle["id"],
+        )
+        OUT.joinpath(f"{pid}.json").write_text(json.dumps(out, indent=1))
+        print(f"{pid}: adjusted {report['band']} from {parent_id} | "
+              f"{len(out['themes'][out['default_theme']]['clues'])} clues",
+              flush=True)
+    missed = set(targets) - {t for t, *_ in variants}
+    if missed:
+        print(f"{parent_id}: note — {','.join(sorted(missed))} not exactly "
+              "reachable from this parent", flush=True)
+    print(f"{parent_id}: derivation done in {time.monotonic() - t0:.0f}s",
+          flush=True)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--spec", type=parse_spec, action="append", required=True,
+    ap.add_argument("--spec", type=parse_spec, action="append", default=[],
                     help="CATxITEMS:BAND:COUNT[:g], repeatable")
+    ap.add_argument("--derive", type=parse_derive, action="append", default=[],
+                    help="PARENT_ID:BAND[,BAND...] — downgraded same-solution "
+                         "variants of a shipped puzzle, repeatable")
     args = ap.parse_args()
+    if not args.spec and not args.derive:
+        ap.error("nothing to do: pass --spec and/or --derive")
     OUT.mkdir(parents=True, exist_ok=True)
+
+    for parent_id, targets in args.derive:
+        run_derive(parent_id, targets)
 
     for cats, items, band, count, groups in args.spec:
         donor = bigpuzzles.GROUP_DONOR if groups else bigpuzzles.DONOR

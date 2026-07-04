@@ -35,9 +35,12 @@ import random
 
 from .clues import (
     AbsApart,
+    Adjacent,
     AtLeastApart,
+    Between,
     Diff,
     DiffGroup,
+    Greater,
     GroupCount,
     GroupGroupCompare,
     GroupGroupCount,
@@ -45,12 +48,18 @@ from .clues import (
     GroupOrder,
     GroupSubset,
     InGroup,
+    MultiCompare,
+    Negative,
+    NextTo,
     NotInGroup,
+    Positive,
     SameGroup,
     SetCount,
 )
+from .deduce import grade
 from .generate import generate_rated
 from .hint import trace
+from .solver import count_solutions
 from .model import Category, Theme
 from .webapi import (
     _MAX_SEED,
@@ -71,6 +80,15 @@ DONOR = "dnd"
 GROUP_DONOR = "kings_guild"
 
 _VALUE_CLUES = (Diff, AtLeastApart, AbsApart)
+
+# The clue families whose logic runs through an ordered (sequential) category
+# — the "sequential clues" count surfaced as a catalog tag.
+_ORDERED_CLUES = (
+    Greater, Diff, Between, Adjacent, NextTo, AtLeastApart, AbsApart,
+    MultiCompare, GroupOrder,
+)
+
+_BANDS = ("normal", "hard", "mega", "giga", "tera")
 
 
 # --- Compatibility ----------------------------------------------------------
@@ -403,11 +421,17 @@ def _theme_payload(theme: Theme, clues: list, X) -> dict:
 
 def bundle_candidate(puzzle_id: str, seed: int, requested: str,
                      theme_obj, puzzle, report,
-                     donor: str | None = None) -> dict:
+                     donor: str | None = None,
+                     family: str | None = None,
+                     derived_from: str | None = None) -> dict:
     """The complete static bundle for one generated candidate: shape +
     rating, plus a ready-to-play rendering (categories, clues, solution,
     hint path) under every compatible theme. Every re-render is verified
-    against the solution before it ships."""
+    against the solution before it ships.
+
+    ``derived_from`` marks an adjusted (downgraded) variant; ``family`` ties
+    every variant sharing one solution to its root puzzle id, so the catalog
+    can cross-link them."""
     categories, items = theme_obj.k, theme_obj.n
     donor = donor or DONOR
     X = puzzle.solution
@@ -439,6 +463,17 @@ def bundle_candidate(puzzle_id: str, seed: int, requested: str,
         "has_ordered": needs_ordered,
         "grouped": n_grouped + n_nested > 0,
         "nested": n_nested > 0,
+        # catalog tags: how many named blocks the hierarchies carry (both
+        # levels), and how many clues run through the sequential category
+        "group_blocks": sum(
+            len(c.groups) + len(c.supergroups) for c in theme_obj.categories
+        ),
+        "sequential_clues": sum(
+            1 for c in puzzle.clues if isinstance(c, _ORDERED_CLUES)
+        ),
+        "family": family or puzzle_id,
+        "derived_from": derived_from,
+        "adjusted": bool(derived_from),
         "rating": {
             "ceiling": report["ceiling"],
             "steps": report["steps"],
@@ -447,6 +482,83 @@ def bundle_candidate(puzzle_id: str, seed: int, requested: str,
         "default_theme": donor,
         "themes": themes,
     }
+
+
+def downgrade(theme_obj: Theme, puzzle, target: str, max_additions: int = 24):
+    """A same-solution variant of ``puzzle`` measured exactly at ``target``,
+    or None when the exact band can't be hit.
+
+    Works backwards from the solve path: a puzzle sits above ``target``
+    because somewhere in its trace the solver must open a what-if. Each round
+    finds the deepest such step and hands the player that step's fact
+    directly (a Positive/Negative on the very cell the hypothetical would
+    have derived), which defuses the contradiction — adding a true clue can
+    only ever make a puzzle easier, so the walk down is monotone. A candidate
+    addition that overshoots below ``target`` is discarded and the next deep
+    cell is tried instead. Once the band lands, a band-pinned cleanup drops
+    every clue that became redundant (uniqueness and the exact band are both
+    re-verified per drop), so the variant carries no dead weight.
+
+    Returns ``(puzzle_variant, report)``.
+    """
+    if target not in _BANDS:
+        raise ValueError(f"unknown band: {target!r}")
+    want = _BANDS.index(target)
+
+    def idx(rep):
+        return _BANDS.index(rep["band"]) if rep["band"] in _BANDS else len(_BANDS)
+
+    X = puzzle.solution
+    n = theme_obj.n
+    clues = list(puzzle.clues)
+    report = grade(theme_obj, clues)
+    tried: set = set()
+    for _ in range(max_additions):
+        if idx(report) <= want:
+            break
+        steps = trace(theme_obj, clues)
+        deep = [s for s in steps if s.get("tier", 0) >= 5]
+        pick = next(
+            (s for s in deep if (s["key"], s["a"], s["b"]) not in tried), None
+        )
+        if pick is None:
+            break
+        tried.add((pick["key"], pick["a"], pick["b"]))
+        i, j = (int(x) for x in pick["key"].split("-"))
+        a, b = pick["a"], pick["b"]
+        # Candidate interventions, strongest first: the traced fact itself,
+        # then — because pinning a whole cell can collapse the cascade and
+        # overshoot the target — strictly weaker single eliminations along
+        # the same line (each rules out ONE alternative the what-if had to
+        # test, easing the puzzle by a smaller step).
+        cands = [Positive((i, a), (j, b)) if pick["value"] == 1
+                 else Negative((i, a), (j, b))]
+        if pick["value"] == 1:
+            cands.extend(Negative((i, a), (j, bb)) for bb in range(n) if bb != b)
+        for clue in cands:
+            assert clue.holds(X)  # every candidate is a fact of the solution
+            rep2 = grade(theme_obj, clues + [clue])
+            if idx(rep2) < want:
+                continue  # this one overshoots — try a weaker intervention
+            clues, report = clues + [clue], rep2
+            break
+    if report["band"] != target:
+        return None
+
+    for c in list(clues):  # band-pinned cleanup (see docstring)
+        if len(clues) <= 2:
+            break
+        trial = [x for x in clues if x is not c]
+        if count_solutions(theme_obj, trial, cap=2, max_nodes=20000) != 1:
+            continue
+        rep2 = grade(theme_obj, trial)
+        if rep2["band"] != target:
+            continue
+        clues, report = trial, rep2
+
+    variant = copy.copy(puzzle)
+    variant.clues = clues
+    return variant, report
 
 
 def build_big_bundle(puzzle_id: str, seed: int, difficulty: str,
@@ -461,6 +573,37 @@ def build_big_bundle(puzzle_id: str, seed: int, difficulty: str,
     )
     return bundle_candidate(puzzle_id, seed, difficulty, theme_obj, puzzle,
                             report, donor)
+
+
+def find_candidate(bundle: dict):
+    """Replay a shipped bundle's walk and return its exact live
+    ``(theme, puzzle, report)``. Generation is deterministic in the walk
+    inputs, and byproducts are identified among the candidates by matching
+    the donor rendering's solution rows."""
+    donor = bundle["default_theme"]
+    cands = generate_big_all(
+        bundle["seed"], bundle["requested"], bundle["categories"],
+        bundle["items"], ordered=bundle.get("has_ordered", True),
+        groups=donor == GROUP_DONOR, donor=donor,
+    )
+    want = bundle["themes"][donor]["solution"]
+    for theme_obj, puzzle, report in cands:
+        if _solution_rows(theme_obj, puzzle.solution) == want:
+            return theme_obj, puzzle, report
+    raise ValueError(f"replaying {bundle['id']} did not reproduce its solution")
+
+
+def derive_variants(bundle: dict, targets: list) -> list:
+    """Downgraded variants of a shipped bundle: one replay, then one
+    ``downgrade`` per target band. Returns ``(target, theme, variant,
+    report)`` tuples for every band that was exactly reachable."""
+    theme_obj, puzzle, _report = find_candidate(bundle)
+    out = []
+    for target in targets:
+        got = downgrade(theme_obj, puzzle, target)
+        if got is not None:
+            out.append((target, theme_obj, got[0], got[1]))
+    return out
 
 
 def random_seed() -> int:

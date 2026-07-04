@@ -181,6 +181,12 @@ categories). They are pre-generated offline into static JSON bundles under
 
     python scripts/generate_big.py --spec 4x6:mega:2 --spec 3x8:giga:1:g
 
+Nothing a walk grades is thrown away: every logic-solvable candidate ships
+under its *measured* band (the requested band is recorded inside), so one
+expensive hunt can yield several puzzles. Measured bands skew heavy as
+items grow — hunting a scarce band (e.g. hard at 4×6) is the volume play,
+since the whole chain's byproducts ship.
+
 Each bundle carries the SAME logical puzzle rendered under **every
 compatible theme** — abstract clues hold (category, item) indices, so
 re-theming is a deterministic re-render (`logicgrid/bigpuzzles.py`):

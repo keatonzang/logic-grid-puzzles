@@ -682,6 +682,55 @@ footer .src:hover { color: var(--accent); }
 .claim-note { margin: 0 0 .75rem; font-size: .82rem; color: var(--muted); }
 .claim-note a { color: var(--accent); }
 
+/* Big-puzzles catalog: difficulty tabs, size layers, puzzle tiles. */
+.catalog { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+.band-tabs { display: flex; gap: .4rem; flex-wrap: wrap; justify-content: center; margin: .5rem 0 1rem; }
+.band-tab {
+  background: var(--panel);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .35rem .9rem;
+  font-size: .85rem;
+  cursor: pointer;
+}
+.band-tab:hover { color: var(--ink); border-color: var(--accent); }
+.band-tab.active { color: var(--ink); border-color: var(--accent); background: var(--panel-2); font-weight: 600; }
+.layer-head { margin: 1.1rem 0 .5rem; font-size: .95rem; color: var(--muted); font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .6rem; }
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .45rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .7rem .8rem;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink);
+  font: inherit;
+}
+.tile:hover { border-color: var(--accent); }
+.tile-id { font-weight: 700; font-size: 1.05rem; }
+.tile.adjusted .tile-id::after { content: " · adjusted"; color: var(--muted); font-weight: 400; font-size: .78rem; }
+.tile-tags { display: flex; flex-wrap: wrap; gap: .3rem; }
+.tile-tags .tag {
+  font-size: .7rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .1rem .5rem;
+  white-space: nowrap;
+}
+.tile-tags .tag-adjusted { color: var(--accent); border-color: var(--accent); }
+.tile-kin { font-size: .74rem; color: var(--muted); }
+.tile-kin a { color: var(--accent); text-decoration: none; }
+.tile-kin a:hover { text-decoration: underline; }
+#big-back { color: var(--accent); text-decoration: none; font-size: .9rem; align-self: center; }
+#big-back:hover { text-decoration: underline; }
+
 /* Daily controls bar: only text + the colorblind switch live here, so center
    the row. The label's own align-self:end + bottom padding exist to line it
    up with free play's taller pickers — both must go here too, or they win
