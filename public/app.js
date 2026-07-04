@@ -1612,12 +1612,14 @@ function bigTile(e) {
     s.className = "tag" + (cls ? " " + cls : "");
     s.textContent = text;
     tags.appendChild(s);
+    return s;
   };
   if (e.adjusted) {
-    // say what actually happened: this is the same puzzle, tuned down from
-    // its parent's measured band to this one
+    // short marker; the "same solution:" row below carries the origin band.
+    // Full context on hover.
     const parent = bigById[e.family];
-    tag(parent ? `tuned down from ${parent.difficulty}` : "tuned down", "tag-adjusted");
+    const t = tag("downtuned", "tag-adjusted");
+    if (parent) t.title = `tuned down from ${parent.difficulty} ${parent.id}`;
   }
   if (e.nested) tag("nested groups");
   if (e.group_categories) {
