@@ -61,6 +61,20 @@ def next_id(cats: int, items: int, band: str) -> str:
     return f"{stem}{n:03d}"
 
 
+def claim_id(cats: int, items: int, band: str) -> str:
+    """An id no other process can also win: scan-then-write races when
+    parallel lanes share a (shape, band) namespace, so the id is claimed by
+    atomically creating its file (O_EXCL) — the loser just takes the next
+    number. rebuild_index skips claimed-but-unwritten placeholders."""
+    while True:
+        pid = next_id(cats, items, band)
+        try:
+            OUT.joinpath(f"{pid}.json").touch(exist_ok=False)
+            return pid
+        except FileExistsError:
+            continue  # another lane won this number between scan and claim
+
+
 # Ordered-logic phrasing, for bundles from before exact sequential-clue
 # counts were stored — a text heuristic good enough for a catalog tag.
 _SEQ_HINT = re.compile(
@@ -95,7 +109,10 @@ def rebuild_index() -> int:
     for path in sorted(OUT.glob("*.json")):
         if path.name == "index.json":
             continue
-        bundles.append(json.loads(path.read_text()))
+        try:
+            bundles.append(json.loads(path.read_text()))
+        except json.JSONDecodeError:
+            continue  # a claim_id placeholder another lane is still filling
     # family = the root puzzle a variant's solution came from; every member
     # lists its siblings so the catalog can cross-link them
     members: dict[str, list] = {}
@@ -159,7 +176,7 @@ def run_derive(parent_id: str, targets: list[str]) -> None:
     t0 = time.monotonic()
     variants = bigpuzzles.derive_variants(bundle, targets)
     for target, theme_obj, variant, report in variants:
-        pid = next_id(bundle["categories"], bundle["items"], report["band"])
+        pid = claim_id(bundle["categories"], bundle["items"], report["band"])
         out = bigpuzzles.bundle_candidate(
             pid, bundle["seed"], bundle["requested"], theme_obj, variant,
             report, donor=bundle["default_theme"],
@@ -210,7 +227,7 @@ def main() -> int:
             )
             took = time.monotonic() - t0
             for theme_obj, puzzle, report in candidates:
-                pid = next_id(cats, items, report["band"])
+                pid = claim_id(cats, items, report["band"])
                 bundle = bigpuzzles.bundle_candidate(
                     pid, seed, band, theme_obj, puzzle, report, donor
                 )
