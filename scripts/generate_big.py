@@ -128,7 +128,9 @@ def rebuild_index() -> int:
             "themes": {key: t["name"] for key, t in b["themes"].items()},
         })
     entries.sort(key=lambda e: (e["categories"] * e["items"], e["id"]))
-    OUT.joinpath("index.json").write_text(json.dumps(entries, indent=1))
+    OUT.joinpath("index.json").write_text(json.dumps(
+        {"themes": bigpuzzles.theme_capabilities(), "puzzles": entries}, indent=1
+    ))
     return len(entries)
 
 

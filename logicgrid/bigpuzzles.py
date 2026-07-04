@@ -645,5 +645,23 @@ def derive_variants(bundle: dict, targets: list) -> list:
     return out
 
 
+def theme_capabilities() -> dict:
+    """Per registry theme, what it can wear — the catalog's at-a-glance
+    dressing-room card: nested vocabulary or not, how many hierarchy-capable
+    categories (imposable flavor only; fixed factual partitions don't count),
+    and how many sequential dials."""
+    out = {}
+    for spec in THEME_SPECS:
+        groupable = {gd[0] for gd in _flavor_group_defs(spec)}
+        groupable |= {nd[0] for nd in spec.nested_group_defs}
+        out[spec.key] = {
+            "name": spec.name,
+            "nested": len(spec.nested_group_defs) > 0,
+            "group_categories": len(groupable),
+            "sequential_categories": len(spec.numerics),
+        }
+    return out
+
+
 def random_seed() -> int:
     return random.randrange(_MAX_SEED)

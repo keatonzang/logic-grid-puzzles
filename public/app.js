@@ -1731,8 +1731,13 @@ async function openBigPuzzle(id) {
 }
 
 async function loadBig() {
+  let themeMeta = null;
   try {
-    bigIndex = await fetchJSON("/big/index.json");
+    const data = await fetchJSON("/big/index.json");
+    // the index is {themes, puzzles}; tolerate the older bare array while
+    // long-running generation lanes may still rewrite it in that shape
+    bigIndex = Array.isArray(data) ? data : data.puzzles;
+    if (!Array.isArray(data)) themeMeta = data.themes;
   } catch (err) {
     bigIndex = [];
   }
@@ -1743,14 +1748,18 @@ async function loadBig() {
     return;
   }
   bigById = Object.fromEntries(bigIndex.map((e) => [e.id, e]));
-  // theme filter options: every theme any puzzle can wear
+  // theme filter options: every theme any puzzle can wear, with an
+  // at-a-glance capability card when the index carries one
   const names = {};
   for (const e of bigIndex) Object.assign(names, e.themes);
   const fsel = $("big-filter-theme");
   for (const key of Object.keys(names).sort()) {
     const opt = document.createElement("option");
     opt.value = key;
-    opt.textContent = names[key];
+    const meta = themeMeta && themeMeta[key];
+    opt.textContent = meta
+      ? `${names[key]} — nested: ${meta.nested ? "yes" : "no"} · groups: ${meta.group_categories} · seq: ${meta.sequential_categories}`
+      : names[key];
     fsel.appendChild(opt);
   }
   try {

@@ -1,0 +1,5250 @@
+{
+ "id": "5x5-tera-031",
+ "seed": 220530,
+ "categories": 5,
+ "items": 5,
+ "requested": "giga",
+ "difficulty": "tera",
+ "has_ordered": true,
+ "grouped": false,
+ "nested": false,
+ "group_categories": 0,
+ "sequential_categories": 2,
+ "group_blocks": 0,
+ "sequential_clues": 2,
+ "family": "5x5-tera-031",
+ "derived_from": null,
+ "adjusted": false,
+ "rating": {
+  "ceiling": 5,
+  "steps": {
+   "0": 0,
+   "1": 86,
+   "2": 122,
+   "3": 18,
+   "4": 1,
+   "5": 23,
+   "6": 0
+  },
+  "total_steps": 250
+ },
+ "default_theme": "school",
+ "themes": {
+  "school": {
+   "name": "The Schoolhouse",
+   "description": "Each teacher at the schoolhouse leads a different class in a different room. Work out who teaches what, and where.",
+   "entity_noun": "class",
+   "categories": [
+    {
+     "name": "Teacher",
+     "items": [
+      "Ames",
+      "Dunn",
+      "Ellis",
+      "Hale",
+      "Nash"
+     ]
+    },
+    {
+     "name": "Room",
+     "items": [
+      "Bungalow",
+      "Greenhouse",
+      "Library",
+      "Pavilion",
+      "Workshop"
+     ]
+    },
+    {
+     "name": "Club",
+     "items": [
+      "Chess",
+      "Drama",
+      "Robotics",
+      "Rowing",
+      "Yearbook"
+     ]
+    },
+    {
+     "name": "Grade",
+     "items": [
+      "75%",
+      "77%",
+      "79%",
+      "81%",
+      "83%"
+     ]
+    },
+    {
+     "name": "Period",
+     "items": [
+      "Period 1",
+      "Period 2",
+      "Period 3",
+      "Period 4",
+      "Period 5"
+     ]
+    }
+   ],
+   "clues": [
+    "Ames' grade is exactly 4% more than the class in Period 2's grade.",
+    "Either Period 3 goes with Chess or 75% does not go with Period 5 (but not both) if and only if 79% goes with Yearbook.",
+    "Hale goes with exactly two of Pavilion, Yearbook, 77%, and Period 5.",
+    "Exactly one of these is true: Ames goes with 77%; Ellis goes with 79%; Workshop goes with Rowing.",
+    "Between 81% and Period 4, one goes with Ellis and the other with Bungalow.",
+    "Workshop goes with exactly two of Ellis, 83%, and Period 3.",
+    "The class in the Library's grade is lower than both Ames' grade and the class in Period 5's grade.",
+    "Between Chess and Drama, one goes with Pavilion and the other with 79%.",
+    "Nash goes with at least three of Library, Yearbook, 75%, and Period 3.",
+    "Either Library goes with Period 4 or 79% goes with Period 1."
+   ],
+   "solution": [
+    [
+     "Ames",
+     "Greenhouse",
+     "Drama",
+     "79%",
+     "Period 1"
+    ],
+    [
+     "Dunn",
+     "Bungalow",
+     "Robotics",
+     "81%",
+     "Period 5"
+    ],
+    [
+     "Ellis",
+     "Workshop",
+     "Rowing",
+     "83%",
+     "Period 4"
+    ],
+    [
+     "Hale",
+     "Pavilion",
+     "Chess",
+     "77%",
+     "Period 3"
+    ],
+    [
+     "Nash",
+     "Library",
+     "Yearbook",
+     "75%",
+     "Period 2"
+    ]
+   ],
+   "hints": [
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cAmes' grade is exactly 4% more than the class in Period 2's grade\u201d \u2014 Ames can't go with 75%."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cAmes' grade is exactly 4% more than the class in Period 2's grade\u201d \u2014 Ames can't go with 77%."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cAmes' grade is exactly 4% more than the class in Period 2's grade\u201d \u2014 81% can't go with Period 2."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cAmes' grade is exactly 4% more than the class in Period 2's grade\u201d \u2014 83% can't go with Period 2."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe class in the Library's grade is lower than both Ames' grade and the class in Period 5's grade\u201d \u2014 Library can't go with 83%."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe class in the Library's grade is lower than both Ames' grade and the class in Period 5's grade\u201d \u2014 75% can't go with Period 5."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "the difference clues pin Ames and Period 2 to a different grade."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash went with Period 5 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Pavilion went with Robotics \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Pavilion went with Yearbook \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Pavilion went with Rowing \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Ellis went with Period 2 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash went with Pavilion \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Workshop went with Period 2 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Robotics went with 79% \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Rowing went with 79% \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Yearbook went with 79% \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cEither Period 3 goes with Chess or 75% does not go with Period 5 (but not both) if and only if 79% goes with Yearbook\u201d \u2014 Chess must go with Period 3."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Chess goes with Period 3, so it can't also go with Period 1."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Chess goes with Period 3, so it can't also go with Period 2."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Chess goes with Period 3, so it can't also go with Period 4."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Chess goes with Period 3, so it can't also go with Period 5."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 3 goes with Chess, so Drama can't go with Period 3."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 3 goes with Chess, so Robotics can't go with Period 3."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 3 goes with Chess, so Rowing can't go with Period 3."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 3 goes with Chess, so Yearbook can't go with Period 3."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash went with Robotics \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash went with Rowing \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash went with 79% \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Bungalow went with Period 2 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash went with 83% \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash went with Workshop \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash didn't go with Library \u2014 that hits a contradiction, so it does."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Library goes with Nash, so Ames can't go with Library."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Library goes with Nash, so Dunn can't go with Library."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Library goes with Nash, so Ellis can't go with Library."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Library goes with Nash, so Hale can't go with Library."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Nash goes with Library, so it can't also go with Bungalow."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Nash goes with Library, so it can't also go with Greenhouse."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with Nash, but Robotics doesn't, so Library doesn't go with Robotics."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with Nash, but Rowing doesn't, so Library doesn't go with Rowing."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with Nash, but 79% doesn't, so Library doesn't go with 79%."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with Nash, but Period 5 doesn't, so Library doesn't go with Period 5."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Nash didn't go with 75% \u2014 that hits a contradiction, so it does."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "75% goes with Nash, so Dunn can't go with 75%."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "75% goes with Nash, so Ellis can't go with 75%."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "75% goes with Nash, so Hale can't go with 75%."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Nash goes with 75%, so it can't also go with 77%."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Nash goes with 75%, so it can't also go with 81%."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "75% goes with Nash, but Bungalow doesn't, so Bungalow doesn't go with 75%."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "75% goes with Nash, but Greenhouse doesn't, so Greenhouse doesn't go with 75%."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with Nash, and 75% goes with Nash, so Library goes with 75%."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with Nash, but 77% doesn't, so Library doesn't go with 77%."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with Nash, but 81% doesn't, so Library doesn't go with 81%."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "75% goes with Nash, but Pavilion doesn't, so Pavilion doesn't go with 75%."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "75% goes with Nash, but Workshop doesn't, so Workshop doesn't go with 75%."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "75% goes with Nash, but Robotics doesn't, so Robotics doesn't go with 75%."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "75% goes with Nash, but Rowing doesn't, so Rowing doesn't go with 75%."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Ellis went with Robotics \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Workshop went with Robotics \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose 79% went with Period 4 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Ellis went with 79% \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cExactly one of these is true: Ames goes with 77%; Ellis goes with 79%; Workshop goes with Rowing\u201d \u2014 Workshop must go with Rowing."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Rowing goes with Workshop, so Bungalow can't go with Rowing."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Rowing goes with Workshop, so Greenhouse can't go with Rowing."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with Rowing, so it can't also go with Chess."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with Rowing, so it can't also go with Drama."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with Rowing, so it can't also go with Yearbook."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Workshop goes with Rowing, but 79% doesn't, so Workshop doesn't go with 79%."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 3 goes with Chess, but Workshop doesn't, so Workshop doesn't go with Period 3."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Workshop, but Period 2 doesn't, so Rowing doesn't go with Period 2."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWorkshop goes with exactly two of Ellis, 83%, and Period 3\u201d \u2014 Ellis must go with Workshop."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cWorkshop goes with exactly two of Ellis, 83%, and Period 3\u201d \u2014 Workshop must go with 83%."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with Ellis, so Ames can't go with Workshop."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with Ellis, so Dunn can't go with Workshop."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Ellis goes with Workshop, so it can't also go with Bungalow."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Ellis goes with Workshop, so it can't also go with Greenhouse."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Ellis goes with Workshop, so it can't also go with Pavilion."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with Ellis, so Hale can't go with Workshop."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "83% goes with Workshop, so Bungalow can't go with 83%."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "83% goes with Workshop, so Greenhouse can't go with 83%."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "83% goes with Workshop, so Pavilion can't go with 83%."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with 83%, so it can't also go with 77%."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Workshop goes with 83%, so it can't also go with 81%."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Workshop, but Ames doesn't, so Ames doesn't go with Rowing."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Workshop, but Dunn doesn't, so Dunn doesn't go with Rowing."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, but Chess doesn't, so Ellis doesn't go with Chess."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, but Drama doesn't, so Ellis doesn't go with Drama."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, and Rowing goes with Workshop, so Ellis goes with Rowing."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, but Yearbook doesn't, so Ellis doesn't go with Yearbook."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Workshop, but Hale doesn't, so Hale doesn't go with Rowing."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Ames doesn't, so Ames doesn't go with 83%."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Dunn doesn't, so Dunn doesn't go with 83%."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, but 77% doesn't, so Ellis doesn't go with 77%."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, but 81% doesn't, so Ellis doesn't go with 81%."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, and 83% goes with Workshop, so Ellis goes with 83%."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Hale doesn't, so Hale doesn't go with 83%."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ellis goes with Workshop, but Period 3 doesn't, so Ellis doesn't go with Period 3."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Chess doesn't, so Chess doesn't go with 83%."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Drama doesn't, so Drama doesn't go with 83%."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Robotics doesn't, so Robotics doesn't go with 83%."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Workshop, but 77% doesn't, so Rowing doesn't go with 77%."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Workshop, but 81% doesn't, so Rowing doesn't go with 81%."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Workshop, and 83% goes with Workshop, so Rowing goes with 83%."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Yearbook doesn't, so Yearbook doesn't go with 83%."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Workshop, but Period 3 doesn't, so 83% doesn't go with Period 3."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cAmes' grade is exactly 4% more than the class in Period 2's grade\u201d \u2014 79% can't go with Period 2."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween 81% and Period 4, one goes with Ellis and the other with Bungalow\u201d \u2014 Ellis must go with Period 4."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween 81% and Period 4, one goes with Ellis and the other with Bungalow\u201d \u2014 Bungalow must go with 81%."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween 81% and Period 4, one goes with Ellis and the other with Bungalow\u201d \u2014 Bungalow can't go with Period 4."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 4 goes with Ellis, so Ames can't go with Period 4."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 4 goes with Ellis, so Dunn can't go with Period 4."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Ellis goes with Period 4, so it can't also go with Period 1."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Ellis goes with Period 4, so it can't also go with Period 5."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 4 goes with Ellis, so Hale can't go with Period 4."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 4 goes with Ellis, so Nash can't go with Period 4."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Bungalow goes with 81%, so it can't also go with 77%."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Bungalow goes with 81%, so it can't also go with 79%."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "81% goes with Bungalow, so Greenhouse can't go with 81%."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "81% goes with Bungalow, so Pavilion can't go with 81%."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but Greenhouse doesn't, so Greenhouse doesn't go with Period 4."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but Library doesn't, so Library doesn't go with Period 4."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but Pavilion doesn't, so Pavilion doesn't go with Period 4."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Workshop goes with Ellis, but Period 1 doesn't, so Workshop doesn't go with Period 1."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Workshop goes with Ellis, and Period 4 goes with Ellis, so Workshop goes with Period 4."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Workshop goes with Ellis, but Period 5 doesn't, so Workshop doesn't go with Period 5."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but Drama doesn't, so Drama doesn't go with Period 4."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but Robotics doesn't, so Robotics doesn't go with Period 4."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Ellis, but Period 1 doesn't, so Rowing doesn't go with Period 1."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Ellis, and Period 4 goes with Ellis, so Rowing goes with Period 4."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Rowing goes with Ellis, but Period 5 doesn't, so Rowing doesn't go with Period 5."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but Yearbook doesn't, so Yearbook doesn't go with Period 4."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but 75% doesn't, so 75% doesn't go with Period 4."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but 77% doesn't, so 77% doesn't go with Period 4."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 4 goes with Ellis, but 81% doesn't, so 81% doesn't go with Period 4."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Ellis, but Period 1 doesn't, so 83% doesn't go with Period 1."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Ellis, and Period 4 goes with Ellis, so 83% goes with Period 4."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "83% goes with Ellis, but Period 5 doesn't, so 83% doesn't go with Period 5."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cEither Library goes with Period 4 or 79% goes with Period 1\u201d \u2014 79% must go with Period 1."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 1 goes with 79%, so 75% can't go with Period 1."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 1 goes with 79%, so 77% can't go with Period 1."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "79% goes with Period 1, so it can't also go with Period 3."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "79% goes with Period 1, so it can't also go with Period 5."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 1 goes with 79%, so 81% can't go with Period 1."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nash goes with 75%, but Period 1 doesn't, so Nash doesn't go with Period 1."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 1 goes with 79%, but Bungalow doesn't, so Bungalow doesn't go with Period 1."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with 75%, but Period 1 doesn't, so Library doesn't go with Period 1."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "79% goes with Period 1, but Chess doesn't, so Chess doesn't go with 79%."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 1 goes with 79%, but Robotics doesn't, so Robotics doesn't go with Period 1."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 1 goes with 79%, but Yearbook doesn't, so Yearbook doesn't go with Period 1."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Club \u00d7 Grade, 79% must go with Drama \u2014 every other Club is already crossed out for it."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Club \u00d7 Period, Period 1 must go with Drama \u2014 every other Club is already crossed out for it."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Drama goes with 79%, so it can't also go with 75%."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Drama goes with 79%, so it can't also go with 77%."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Drama goes with 79%, so it can't also go with 81%."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Drama goes with Period 1, so it can't also go with Period 2."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Drama goes with Period 1, so it can't also go with Period 5."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nash goes with 75%, but Drama doesn't, so Nash doesn't go with Drama."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Drama goes with 79%, but Bungalow doesn't, so Bungalow doesn't go with Drama."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Library goes with 75%, but Drama doesn't, so Library doesn't go with Drama."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween Chess and Drama, one goes with Pavilion and the other with 79%\u201d \u2014 Pavilion must go with Chess."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween Chess and Drama, one goes with Pavilion and the other with 79%\u201d \u2014 Pavilion can't go with Drama."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Chess goes with Pavilion, so Bungalow can't go with Chess."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Chess goes with Pavilion, so Greenhouse can't go with Chess."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Room \u00d7 Club, Drama must go with Greenhouse \u2014 every other Room is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Chess goes with Pavilion, so Library can't go with Chess."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Room \u00d7 Club, Yearbook must go with Library \u2014 every other Room is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Room \u00d7 Club, Robotics must go with Bungalow \u2014 every other Room is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Yearbook goes with Library, so Bungalow can't go with Yearbook."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Greenhouse goes with Drama, so it can't also go with Robotics."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Greenhouse goes with Drama, so it can't also go with Yearbook."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Yearbook goes with Library, but Ames doesn't, so Ames doesn't go with Yearbook."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Yearbook goes with Library, but Dunn doesn't, so Dunn doesn't go with Yearbook."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Yearbook goes with Library, but Hale doesn't, so Hale doesn't go with Yearbook."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nash goes with Library, but Chess doesn't, so Nash doesn't go with Chess."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nash goes with Library, and Yearbook goes with Library, so Nash goes with Yearbook."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, Nash doesn't go with Period 3."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Greenhouse goes with Drama, but 77% doesn't, so Greenhouse doesn't go with 77%."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Greenhouse goes with Drama, and 79% goes with Drama, so Greenhouse goes with 79%."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pavilion goes with Chess, but 79% doesn't, so Pavilion doesn't go with 79%."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 3 goes with Chess, but Bungalow doesn't, so Bungalow doesn't go with Period 3."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Greenhouse goes with Drama, and Period 1 goes with Drama, so Greenhouse goes with Period 1."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Greenhouse goes with Drama, but Period 2 doesn't, so Greenhouse doesn't go with Period 2."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 3 goes with Chess, but Greenhouse doesn't, so Greenhouse doesn't go with Period 3."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Greenhouse goes with Drama, but Period 5 doesn't, so Greenhouse doesn't go with Period 5."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 3 goes with Chess, but Library doesn't, so Library doesn't go with Period 3."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pavilion goes with Chess, but Period 1 doesn't, so Pavilion doesn't go with Period 1."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pavilion goes with Chess, but Period 2 doesn't, so Pavilion doesn't go with Period 2."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pavilion goes with Chess, and Period 3 goes with Chess, so Pavilion goes with Period 3."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pavilion goes with Chess, but Period 5 doesn't, so Pavilion doesn't go with Period 5."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "75% goes with Library, but Chess doesn't, so Chess doesn't go with 75%."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "81% goes with Bungalow, but Chess doesn't, so Chess doesn't go with 81%."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Robotics goes with Bungalow, but 77% doesn't, so Robotics doesn't go with 77%."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Robotics goes with Bungalow, and 81% goes with Bungalow, so Robotics goes with 81%."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Yearbook goes with Library, and 75% goes with Library, so Yearbook goes with 75%."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Yearbook goes with Library, but 77% doesn't, so Yearbook doesn't go with 77%."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "81% goes with Bungalow, but Yearbook doesn't, so Yearbook doesn't go with 81%."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Robotics goes with Bungalow, but Period 2 doesn't, so Robotics doesn't go with Period 2."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Yearbook goes with Library, but Period 5 doesn't, so Yearbook doesn't go with Period 5."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, 75% doesn't go with Period 3."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, 81% doesn't go with Period 3."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Teacher \u00d7 Period, Nash must go with Period 2 \u2014 every other Period is already crossed out for it."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Room \u00d7 Grade, Pavilion must go with 77% \u2014 every other Grade is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Room \u00d7 Period, Bungalow must go with Period 5 \u2014 every other Period is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Room \u00d7 Period, Library must go with Period 2 \u2014 every other Period is already crossed out for it."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Club \u00d7 Grade, Chess must go with 77% \u2014 every other Grade is already crossed out for it."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Club \u00d7 Period, Robotics must go with Period 5 \u2014 every other Period is already crossed out for it."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Club \u00d7 Period, Yearbook must go with Period 2 \u2014 every other Period is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Grade \u00d7 Period, 75% must go with Period 2 \u2014 every other Period is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Grade \u00d7 Period, Period 3 must go with 77% \u2014 every other Grade is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Grade \u00d7 Period, 81% must go with Period 5 \u2014 every other Period is already crossed out for it."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 2 goes with Nash, so Dunn can't go with Period 2."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Period 2 goes with Nash, so Hale can't go with Period 2."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "77% goes with Period 3, so it can't also go with Period 2."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "77% goes with Period 3, so it can't also go with Period 5."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pavilion goes with 77%, but Ames doesn't, so Ames doesn't go with Pavilion."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Chess goes with 77%, but Ames doesn't, so Ames doesn't go with Chess."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 3 goes with 77%, but Ames doesn't, so Ames doesn't go with Period 3."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cAmes' grade is exactly 4% more than the class in Period 2's grade\u201d \u2014 Ames can't go with 81%."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Teacher \u00d7 Grade, Ames must go with 79% \u2014 every other Grade is already crossed out for it."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "79% goes with Ames, so Dunn can't go with 79%."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "79% goes with Ames, so Hale can't go with 79%."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ames goes with 79%, but Bungalow doesn't, so Ames doesn't go with Bungalow."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ames goes with 79%, and Greenhouse goes with 79%, so Ames goes with Greenhouse."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Greenhouse goes with 79%, but Dunn doesn't, so Dunn doesn't go with Greenhouse."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Greenhouse goes with 79%, but Hale doesn't, so Hale doesn't go with Greenhouse."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ames goes with 79%, and Drama goes with 79%, so Ames goes with Drama."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ames goes with 79%, but Robotics doesn't, so Ames doesn't go with Robotics."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Drama goes with 79%, but Dunn doesn't, so Dunn doesn't go with Drama."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Drama goes with 79%, but Hale doesn't, so Hale doesn't go with Drama."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ames goes with 79%, and Period 1 goes with 79%, so Ames goes with Period 1."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Ames goes with 79%, but Period 5 doesn't, so Ames doesn't go with Period 5."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 1 goes with 79%, but Dunn doesn't, so Dunn doesn't go with Period 1."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 1 goes with 79%, but Hale doesn't, so Hale doesn't go with Period 1."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Dunn didn't go with Bungalow \u2014 that hits a contradiction, so it does."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Dunn goes with Bungalow, so it can't also go with Pavilion."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Bungalow goes with Dunn, so Hale can't go with Bungalow."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Teacher \u00d7 Room, Pavilion must go with Hale \u2014 every other Teacher is already crossed out for it."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dunn goes with Bungalow, but Chess doesn't, so Dunn doesn't go with Chess."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dunn goes with Bungalow, and Robotics goes with Bungalow, so Dunn goes with Robotics."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Hale goes with Pavilion, and Chess goes with Pavilion, so Hale goes with Chess."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Robotics goes with Bungalow, but Hale doesn't, so Hale doesn't go with Robotics."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dunn goes with Bungalow, but 77% doesn't, so Dunn doesn't go with 77%."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dunn goes with Bungalow, and 81% goes with Bungalow, so Dunn goes with 81%."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Hale goes with Pavilion, and 77% goes with Pavilion, so Hale goes with 77%."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "81% goes with Bungalow, but Hale doesn't, so Hale doesn't go with 81%."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dunn goes with Bungalow, but Period 3 doesn't, so Dunn doesn't go with Period 3."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Dunn goes with Bungalow, and Period 5 goes with Bungalow, so Dunn goes with Period 5."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Hale goes with Pavilion, and Period 3 goes with Pavilion, so Hale goes with Period 3."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Period 5 goes with Bungalow, but Hale doesn't, so Hale doesn't go with Period 5."
+    }
+   ]
+  },
+  "chess": {
+   "name": "The Chess Club",
+   "description": "Regulars at the chess club each swear by a different opening, a favourite tactic, and a prized set. Work out who plays what.",
+   "entity_noun": "player",
+   "categories": [
+    {
+     "name": "Player",
+     "items": [
+      "Boris",
+      "Magnus",
+      "Mikhail",
+      "Nadia",
+      "Vera"
+     ]
+    },
+    {
+     "name": "Opening",
+     "items": [
+      "Benoni",
+      "French",
+      "London",
+      "Pirc",
+      "Sicilian"
+     ]
+    },
+    {
+     "name": "Tactic",
+     "items": [
+      "Fork",
+      "Gambit",
+      "Pin",
+      "Skewer",
+      "Zugzwang"
+     ]
+    },
+    {
+     "name": "Rating",
+     "items": [
+      "1793",
+      "1843",
+      "1893",
+      "1943",
+      "1993"
+     ]
+    },
+    {
+     "name": "Placing",
+     "items": [
+      "5th",
+      "4th",
+      "3rd",
+      "2nd",
+      "1st"
+     ]
+    }
+   ],
+   "clues": [
+    "Boris' rating is exactly 100 more than the player who placed 4th's rating.",
+    "Either 3rd goes with Fork or 1793 does not go with 1st (but not both) if and only if 1893 goes with Zugzwang.",
+    "Nadia goes with exactly two of Pirc, Zugzwang, 1843, and 1st.",
+    "Exactly one of these is true: Boris goes with 1843; Mikhail goes with 1893; Sicilian goes with Skewer.",
+    "Between 1943 and 2nd, one goes with Mikhail and the other with Benoni.",
+    "Sicilian goes with exactly two of Mikhail, 1993, and 3rd.",
+    "The London player's rating is lower than both Boris' rating and the player who placed 1st's rating.",
+    "Between Fork and Gambit, one goes with Pirc and the other with 1893.",
+    "Vera goes with at least three of London, Zugzwang, 1793, and 3rd.",
+    "Either London goes with 2nd or 1893 goes with 5th."
+   ],
+   "solution": [
+    [
+     "Boris",
+     "French",
+     "Gambit",
+     "1893",
+     "5th"
+    ],
+    [
+     "Magnus",
+     "Benoni",
+     "Pin",
+     "1943",
+     "1st"
+    ],
+    [
+     "Mikhail",
+     "Sicilian",
+     "Skewer",
+     "1993",
+     "2nd"
+    ],
+    [
+     "Nadia",
+     "Pirc",
+     "Fork",
+     "1843",
+     "3rd"
+    ],
+    [
+     "Vera",
+     "London",
+     "Zugzwang",
+     "1793",
+     "4th"
+    ]
+   ],
+   "hints": [
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBoris' rating is exactly 100 more than the player who placed 4th's rating\u201d \u2014 Boris can't go with 1793."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBoris' rating is exactly 100 more than the player who placed 4th's rating\u201d \u2014 Boris can't go with 1843."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBoris' rating is exactly 100 more than the player who placed 4th's rating\u201d \u2014 1943 can't go with 4th."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBoris' rating is exactly 100 more than the player who placed 4th's rating\u201d \u2014 1993 can't go with 4th."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe London player's rating is lower than both Boris' rating and the player who placed 1st's rating\u201d \u2014 London can't go with 1993."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cThe London player's rating is lower than both Boris' rating and the player who placed 1st's rating\u201d \u2014 1793 can't go with 1st."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 4,
+     "tier_name": "Advanced logic",
+     "text": "the difference clues pin Boris and 4th to a different rating."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera went with 1st \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Pirc went with Pin \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Pirc went with Zugzwang \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Pirc went with Skewer \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Mikhail went with 4th \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera went with Pirc \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Sicilian went with 4th \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Pin went with 1893 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Skewer went with 1893 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Zugzwang went with 1893 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cEither 3rd goes with Fork or 1793 does not go with 1st (but not both) if and only if 1893 goes with Zugzwang\u201d \u2014 Fork must go with 3rd."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Fork goes with 3rd, so it can't also go with 5th."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Fork goes with 3rd, so it can't also go with 4th."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Fork goes with 3rd, so it can't also go with 2nd."
+    },
+    {
+     "key": "2-4",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Fork goes with 3rd, so it can't also go with 1st."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "3rd goes with Fork, so Gambit can't go with 3rd."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "3rd goes with Fork, so Pin can't go with 3rd."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "3rd goes with Fork, so Skewer can't go with 3rd."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "3rd goes with Fork, so Zugzwang can't go with 3rd."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera went with Pin \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera went with Skewer \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera went with 1893 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Benoni went with 4th \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera went with 1993 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera went with Sicilian \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera didn't go with London \u2014 that hits a contradiction, so it does."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "London goes with Vera, so Boris can't go with London."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "London goes with Vera, so Magnus can't go with London."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "London goes with Vera, so Mikhail can't go with London."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "London goes with Vera, so Nadia can't go with London."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Vera goes with London, so it can't also go with Benoni."
+    },
+    {
+     "key": "0-1",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Vera goes with London, so it can't also go with French."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with Vera, but Pin doesn't, so London doesn't go with Pin."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with Vera, but Skewer doesn't, so London doesn't go with Skewer."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with Vera, but 1893 doesn't, so London doesn't go with 1893."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with Vera, but 1st doesn't, so London doesn't go with 1st."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Vera didn't go with 1793 \u2014 that hits a contradiction, so it does."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1793 goes with Vera, so Magnus can't go with 1793."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1793 goes with Vera, so Mikhail can't go with 1793."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1793 goes with Vera, so Nadia can't go with 1793."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Vera goes with 1793, so it can't also go with 1843."
+    },
+    {
+     "key": "0-3",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Vera goes with 1793, so it can't also go with 1943."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1793 goes with Vera, but Benoni doesn't, so Benoni doesn't go with 1793."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1793 goes with Vera, but French doesn't, so French doesn't go with 1793."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with Vera, and 1793 goes with Vera, so London goes with 1793."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with Vera, but 1843 doesn't, so London doesn't go with 1843."
+    },
+    {
+     "key": "1-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with Vera, but 1943 doesn't, so London doesn't go with 1943."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1793 goes with Vera, but Pirc doesn't, so Pirc doesn't go with 1793."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1793 goes with Vera, but Sicilian doesn't, so Sicilian doesn't go with 1793."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1793 goes with Vera, but Pin doesn't, so Pin doesn't go with 1793."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1793 goes with Vera, but Skewer doesn't, so Skewer doesn't go with 1793."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Mikhail went with Pin \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Sicilian went with Pin \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose 1893 went with 2nd \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Mikhail went with 1893 \u2014 following the clues from there hits a contradiction, so it doesn't."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cExactly one of these is true: Boris goes with 1843; Mikhail goes with 1893; Sicilian goes with Skewer\u201d \u2014 Sicilian must go with Skewer."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Skewer goes with Sicilian, so Benoni can't go with Skewer."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Skewer goes with Sicilian, so French can't go with Skewer."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with Skewer, so it can't also go with Fork."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with Skewer, so it can't also go with Gambit."
+    },
+    {
+     "key": "1-2",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with Skewer, so it can't also go with Zugzwang."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Sicilian goes with Skewer, but 1893 doesn't, so Sicilian doesn't go with 1893."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "3rd goes with Fork, but Sicilian doesn't, so Sicilian doesn't go with 3rd."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Sicilian, but 4th doesn't, so Skewer doesn't go with 4th."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cSicilian goes with exactly two of Mikhail, 1993, and 3rd\u201d \u2014 Mikhail must go with Sicilian."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cSicilian goes with exactly two of Mikhail, 1993, and 3rd\u201d \u2014 Sicilian must go with 1993."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with Mikhail, so Boris can't go with Sicilian."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with Mikhail, so Magnus can't go with Sicilian."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mikhail goes with Sicilian, so it can't also go with Benoni."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mikhail goes with Sicilian, so it can't also go with French."
+    },
+    {
+     "key": "0-1",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mikhail goes with Sicilian, so it can't also go with Pirc."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with Mikhail, so Nadia can't go with Sicilian."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1993 goes with Sicilian, so Benoni can't go with 1993."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1993 goes with Sicilian, so French can't go with 1993."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1993 goes with Sicilian, so Pirc can't go with 1993."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with 1993, so it can't also go with 1843."
+    },
+    {
+     "key": "1-3",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Sicilian goes with 1993, so it can't also go with 1943."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Sicilian, but Boris doesn't, so Boris doesn't go with Skewer."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Sicilian, but Magnus doesn't, so Magnus doesn't go with Skewer."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, but Fork doesn't, so Mikhail doesn't go with Fork."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, but Gambit doesn't, so Mikhail doesn't go with Gambit."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, and Skewer goes with Sicilian, so Mikhail goes with Skewer."
+    },
+    {
+     "key": "0-2",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, but Zugzwang doesn't, so Mikhail doesn't go with Zugzwang."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Sicilian, but Nadia doesn't, so Nadia doesn't go with Skewer."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but Boris doesn't, so Boris doesn't go with 1993."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but Magnus doesn't, so Magnus doesn't go with 1993."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, but 1843 doesn't, so Mikhail doesn't go with 1843."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, but 1943 doesn't, so Mikhail doesn't go with 1943."
+    },
+    {
+     "key": "0-3",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, and 1993 goes with Sicilian, so Mikhail goes with 1993."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but Nadia doesn't, so Nadia doesn't go with 1993."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Mikhail goes with Sicilian, but 3rd doesn't, so Mikhail doesn't go with 3rd."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but Fork doesn't, so Fork doesn't go with 1993."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but Gambit doesn't, so Gambit doesn't go with 1993."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but Pin doesn't, so Pin doesn't go with 1993."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Sicilian, but 1843 doesn't, so Skewer doesn't go with 1843."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Sicilian, but 1943 doesn't, so Skewer doesn't go with 1943."
+    },
+    {
+     "key": "2-3",
+     "a": 3,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Sicilian, and 1993 goes with Sicilian, so Skewer goes with 1993."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but Zugzwang doesn't, so Zugzwang doesn't go with 1993."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Sicilian, but 3rd doesn't, so 1993 doesn't go with 3rd."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBoris' rating is exactly 100 more than the player who placed 4th's rating\u201d \u2014 1893 can't go with 4th."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween 1943 and 2nd, one goes with Mikhail and the other with Benoni\u201d \u2014 Mikhail must go with 2nd."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween 1943 and 2nd, one goes with Mikhail and the other with Benoni\u201d \u2014 Benoni must go with 1943."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween 1943 and 2nd, one goes with Mikhail and the other with Benoni\u201d \u2014 Benoni can't go with 2nd."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "2nd goes with Mikhail, so Boris can't go with 2nd."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "2nd goes with Mikhail, so Magnus can't go with 2nd."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mikhail goes with 2nd, so it can't also go with 5th."
+    },
+    {
+     "key": "0-4",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Mikhail goes with 2nd, so it can't also go with 1st."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "2nd goes with Mikhail, so Nadia can't go with 2nd."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "2nd goes with Mikhail, so Vera can't go with 2nd."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Benoni goes with 1943, so it can't also go with 1843."
+    },
+    {
+     "key": "1-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Benoni goes with 1943, so it can't also go with 1893."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1943 goes with Benoni, so French can't go with 1943."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1943 goes with Benoni, so Pirc can't go with 1943."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but French doesn't, so French doesn't go with 2nd."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but London doesn't, so London doesn't go with 2nd."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but Pirc doesn't, so Pirc doesn't go with 2nd."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Sicilian goes with Mikhail, but 5th doesn't, so Sicilian doesn't go with 5th."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Sicilian goes with Mikhail, and 2nd goes with Mikhail, so Sicilian goes with 2nd."
+    },
+    {
+     "key": "1-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Sicilian goes with Mikhail, but 1st doesn't, so Sicilian doesn't go with 1st."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but Gambit doesn't, so Gambit doesn't go with 2nd."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but Pin doesn't, so Pin doesn't go with 2nd."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Mikhail, but 5th doesn't, so Skewer doesn't go with 5th."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Mikhail, and 2nd goes with Mikhail, so Skewer goes with 2nd."
+    },
+    {
+     "key": "2-4",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Skewer goes with Mikhail, but 1st doesn't, so Skewer doesn't go with 1st."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but Zugzwang doesn't, so Zugzwang doesn't go with 2nd."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but 1793 doesn't, so 1793 doesn't go with 2nd."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but 1843 doesn't, so 1843 doesn't go with 2nd."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "2nd goes with Mikhail, but 1943 doesn't, so 1943 doesn't go with 2nd."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Mikhail, but 5th doesn't, so 1993 doesn't go with 5th."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Mikhail, and 2nd goes with Mikhail, so 1993 goes with 2nd."
+    },
+    {
+     "key": "3-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1993 goes with Mikhail, but 1st doesn't, so 1993 doesn't go with 1st."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cEither London goes with 2nd or 1893 goes with 5th\u201d \u2014 1893 must go with 5th."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "5th goes with 1893, so 1793 can't go with 5th."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "5th goes with 1893, so 1843 can't go with 5th."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1893 goes with 5th, so it can't also go with 3rd."
+    },
+    {
+     "key": "3-4",
+     "a": 2,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1893 goes with 5th, so it can't also go with 1st."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "5th goes with 1893, so 1943 can't go with 5th."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Vera goes with 1793, but 5th doesn't, so Vera doesn't go with 5th."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "5th goes with 1893, but Benoni doesn't, so Benoni doesn't go with 5th."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with 1793, but 5th doesn't, so London doesn't go with 5th."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1893 goes with 5th, but Fork doesn't, so Fork doesn't go with 1893."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "5th goes with 1893, but Pin doesn't, so Pin doesn't go with 5th."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "5th goes with 1893, but Zugzwang doesn't, so Zugzwang doesn't go with 5th."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Tactic \u00d7 Rating, 1893 must go with Gambit \u2014 every other Tactic is already crossed out for it."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Tactic \u00d7 Placing, 5th must go with Gambit \u2014 every other Tactic is already crossed out for it."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gambit goes with 1893, so it can't also go with 1793."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gambit goes with 1893, so it can't also go with 1843."
+    },
+    {
+     "key": "2-3",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gambit goes with 1893, so it can't also go with 1943."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gambit goes with 5th, so it can't also go with 4th."
+    },
+    {
+     "key": "2-4",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Gambit goes with 5th, so it can't also go with 1st."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Vera goes with 1793, but Gambit doesn't, so Vera doesn't go with Gambit."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gambit goes with 1893, but Benoni doesn't, so Benoni doesn't go with Gambit."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "London goes with 1793, but Gambit doesn't, so London doesn't go with Gambit."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween Fork and Gambit, one goes with Pirc and the other with 1893\u201d \u2014 Pirc must go with Fork."
+    },
+    {
+     "key": "1-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBetween Fork and Gambit, one goes with Pirc and the other with 1893\u201d \u2014 Pirc can't go with Gambit."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Fork goes with Pirc, so Benoni can't go with Fork."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Fork goes with Pirc, so French can't go with Fork."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Opening \u00d7 Tactic, Gambit must go with French \u2014 every other Opening is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Fork goes with Pirc, so London can't go with Fork."
+    },
+    {
+     "key": "1-2",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Opening \u00d7 Tactic, Zugzwang must go with London \u2014 every other Opening is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Opening \u00d7 Tactic, Pin must go with Benoni \u2014 every other Opening is already crossed out for it."
+    },
+    {
+     "key": "1-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Zugzwang goes with London, so Benoni can't go with Zugzwang."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "French goes with Gambit, so it can't also go with Pin."
+    },
+    {
+     "key": "1-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "French goes with Gambit, so it can't also go with Zugzwang."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Zugzwang goes with London, but Boris doesn't, so Boris doesn't go with Zugzwang."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Zugzwang goes with London, but Magnus doesn't, so Magnus doesn't go with Zugzwang."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Zugzwang goes with London, but Nadia doesn't, so Nadia doesn't go with Zugzwang."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Vera goes with London, but Fork doesn't, so Vera doesn't go with Fork."
+    },
+    {
+     "key": "0-2",
+     "a": 4,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Vera goes with London, and Zugzwang goes with London, so Vera goes with Zugzwang."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, Vera doesn't go with 3rd."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "French goes with Gambit, but 1843 doesn't, so French doesn't go with 1843."
+    },
+    {
+     "key": "1-3",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "French goes with Gambit, and 1893 goes with Gambit, so French goes with 1893."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pirc goes with Fork, but 1893 doesn't, so Pirc doesn't go with 1893."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "3rd goes with Fork, but Benoni doesn't, so Benoni doesn't go with 3rd."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "French goes with Gambit, and 5th goes with Gambit, so French goes with 5th."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "French goes with Gambit, but 4th doesn't, so French doesn't go with 4th."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "3rd goes with Fork, but French doesn't, so French doesn't go with 3rd."
+    },
+    {
+     "key": "1-4",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "French goes with Gambit, but 1st doesn't, so French doesn't go with 1st."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "3rd goes with Fork, but London doesn't, so London doesn't go with 3rd."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pirc goes with Fork, but 5th doesn't, so Pirc doesn't go with 5th."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pirc goes with Fork, but 4th doesn't, so Pirc doesn't go with 4th."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pirc goes with Fork, and 3rd goes with Fork, so Pirc goes with 3rd."
+    },
+    {
+     "key": "1-4",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pirc goes with Fork, but 1st doesn't, so Pirc doesn't go with 1st."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1793 goes with London, but Fork doesn't, so Fork doesn't go with 1793."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1943 goes with Benoni, but Fork doesn't, so Fork doesn't go with 1943."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pin goes with Benoni, but 1843 doesn't, so Pin doesn't go with 1843."
+    },
+    {
+     "key": "2-3",
+     "a": 2,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pin goes with Benoni, and 1943 goes with Benoni, so Pin goes with 1943."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Zugzwang goes with London, and 1793 goes with London, so Zugzwang goes with 1793."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Zugzwang goes with London, but 1843 doesn't, so Zugzwang doesn't go with 1843."
+    },
+    {
+     "key": "2-3",
+     "a": 4,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1943 goes with Benoni, but Zugzwang doesn't, so Zugzwang doesn't go with 1943."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pin goes with Benoni, but 4th doesn't, so Pin doesn't go with 4th."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Zugzwang goes with London, but 1st doesn't, so Zugzwang doesn't go with 1st."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, 1793 doesn't go with 3rd."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Cross-referencing the established links, 1943 doesn't go with 3rd."
+    },
+    {
+     "key": "0-4",
+     "a": 4,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Player \u00d7 Placing, Vera must go with 4th \u2014 every other Placing is already crossed out for it."
+    },
+    {
+     "key": "1-3",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Opening \u00d7 Rating, Pirc must go with 1843 \u2014 every other Rating is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 0,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Opening \u00d7 Placing, Benoni must go with 1st \u2014 every other Placing is already crossed out for it."
+    },
+    {
+     "key": "1-4",
+     "a": 2,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Opening \u00d7 Placing, London must go with 4th \u2014 every other Placing is already crossed out for it."
+    },
+    {
+     "key": "2-3",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Tactic \u00d7 Rating, Fork must go with 1843 \u2014 every other Rating is already crossed out for it."
+    },
+    {
+     "key": "2-4",
+     "a": 2,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Tactic \u00d7 Placing, Pin must go with 1st \u2014 every other Placing is already crossed out for it."
+    },
+    {
+     "key": "2-4",
+     "a": 4,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Tactic \u00d7 Placing, Zugzwang must go with 4th \u2014 every other Placing is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Rating \u00d7 Placing, 1793 must go with 4th \u2014 every other Placing is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Rating \u00d7 Placing, 3rd must go with 1843 \u2014 every other Rating is already crossed out for it."
+    },
+    {
+     "key": "3-4",
+     "a": 3,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Rating \u00d7 Placing, 1943 must go with 1st \u2014 every other Placing is already crossed out for it."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4th goes with Vera, so Magnus can't go with 4th."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "4th goes with Vera, so Nadia can't go with 4th."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1843 goes with 3rd, so it can't also go with 4th."
+    },
+    {
+     "key": "3-4",
+     "a": 1,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1843 goes with 3rd, so it can't also go with 1st."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pirc goes with 1843, but Boris doesn't, so Boris doesn't go with Pirc."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Fork goes with 1843, but Boris doesn't, so Boris doesn't go with Fork."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "3rd goes with 1843, but Boris doesn't, so Boris doesn't go with 3rd."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 3,
+     "tier_name": "Clue logic",
+     "text": "From the clue \u201cBoris' rating is exactly 100 more than the player who placed 4th's rating\u201d \u2014 Boris can't go with 1943."
+    },
+    {
+     "key": "0-3",
+     "a": 0,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Player \u00d7 Rating, Boris must go with 1893 \u2014 every other Rating is already crossed out for it."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1893 goes with Boris, so Magnus can't go with 1893."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "1893 goes with Boris, so Nadia can't go with 1893."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boris goes with 1893, but Benoni doesn't, so Boris doesn't go with Benoni."
+    },
+    {
+     "key": "0-1",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boris goes with 1893, and French goes with 1893, so Boris goes with French."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "French goes with 1893, but Magnus doesn't, so Magnus doesn't go with French."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "French goes with 1893, but Nadia doesn't, so Nadia doesn't go with French."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boris goes with 1893, and Gambit goes with 1893, so Boris goes with Gambit."
+    },
+    {
+     "key": "0-2",
+     "a": 0,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boris goes with 1893, but Pin doesn't, so Boris doesn't go with Pin."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gambit goes with 1893, but Magnus doesn't, so Magnus doesn't go with Gambit."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Gambit goes with 1893, but Nadia doesn't, so Nadia doesn't go with Gambit."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boris goes with 1893, and 5th goes with 1893, so Boris goes with 5th."
+    },
+    {
+     "key": "0-4",
+     "a": 0,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Boris goes with 1893, but 1st doesn't, so Boris doesn't go with 1st."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "5th goes with 1893, but Magnus doesn't, so Magnus doesn't go with 5th."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "5th goes with 1893, but Nadia doesn't, so Nadia doesn't go with 5th."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 5,
+     "tier_name": "What-if",
+     "text": "Suppose Magnus didn't go with Benoni \u2014 that hits a contradiction, so it does."
+    },
+    {
+     "key": "0-1",
+     "a": 1,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Magnus goes with Benoni, so it can't also go with Pirc."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "Benoni goes with Magnus, so Nadia can't go with Benoni."
+    },
+    {
+     "key": "0-1",
+     "a": 3,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 1,
+     "tier_name": "Elimination",
+     "text": "In Player \u00d7 Opening, Pirc must go with Nadia \u2014 every other Player is already crossed out for it."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 0,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Magnus goes with Benoni, but Fork doesn't, so Magnus doesn't go with Fork."
+    },
+    {
+     "key": "0-2",
+     "a": 1,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Magnus goes with Benoni, and Pin goes with Benoni, so Magnus goes with Pin."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 0,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nadia goes with Pirc, and Fork goes with Pirc, so Nadia goes with Fork."
+    },
+    {
+     "key": "0-2",
+     "a": 3,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Pin goes with Benoni, but Nadia doesn't, so Nadia doesn't go with Pin."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 1,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Magnus goes with Benoni, but 1843 doesn't, so Magnus doesn't go with 1843."
+    },
+    {
+     "key": "0-3",
+     "a": 1,
+     "b": 3,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Magnus goes with Benoni, and 1943 goes with Benoni, so Magnus goes with 1943."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 1,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nadia goes with Pirc, and 1843 goes with Pirc, so Nadia goes with 1843."
+    },
+    {
+     "key": "0-3",
+     "a": 3,
+     "b": 3,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1943 goes with Benoni, but Nadia doesn't, so Nadia doesn't go with 1943."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 2,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Magnus goes with Benoni, but 3rd doesn't, so Magnus doesn't go with 3rd."
+    },
+    {
+     "key": "0-4",
+     "a": 1,
+     "b": 4,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Magnus goes with Benoni, and 1st goes with Benoni, so Magnus goes with 1st."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 2,
+     "value": 1,
+     "link": true,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "Nadia goes with Pirc, and 3rd goes with Pirc, so Nadia goes with 3rd."
+    },
+    {
+     "key": "0-4",
+     "a": 3,
+     "b": 4,
+     "value": 2,
+     "link": false,
+     "tier": 2,
+     "tier_name": "Cross-reference",
+     "text": "1st goes with Benoni, but Nadia doesn't, so Nadia doesn't go with 1st."
+    }
+   ]
+  }
+ }
+}
