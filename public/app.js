@@ -5,6 +5,9 @@ const STATES = ["", "=", "×"]; // 0 blank, 1 link (=), 2 no-link (×)
 // Per-group accent colors, ordered by hue (amber → green → blue → violet →
 // pink) so alphabetically-sorted groups pick up an even spread across the wheel.
 const GROUP_COLORS = ["#ffc46e", "#51cf66", "#6ea8fe", "#c9a7ff", "#ff8fab"];
+// Supergroup bands (the coarse level of a nested hierarchy) use a muted,
+// clearly-different palette so the two tiers never read as one.
+const SUPER_COLORS = ["#9bb0d3", "#d3a98c"];
 const DESKTOP = window.matchMedia("(min-width: 821px)"); // staircase vs pairwise
 // Daily-challenge mode (/daily sets body[data-mode="daily"]): one shared
 // puzzle per day whose payload ships NO solution — checking happens server-
@@ -379,6 +382,28 @@ function groupSegments(ci) {
   });
 }
 
+// Contiguous supergroup runs over the display order: {label, color, start,
+// size}. catGroups already orders a nest's groups supergroup-contiguously,
+// so each supergroup is one run — the outer band tier above the group band.
+function supergroupSegments(ci) {
+  const c = puzzle.categories[ci];
+  const sgs = c.supergroups && c.supergroups.length ? c.supergroups : null;
+  if (!sgs) return null;
+  const segs = [];
+  displayOrder(ci).forEach((b, pos) => {
+    const gi = sgs.findIndex((s) => s.items.includes(c.items[b]));
+    if (gi < 0) return;
+    const last = segs[segs.length - 1];
+    if (last && last.gi === gi) { last.size += 1; return; }
+    segs.push({
+      gi, label: sgs[gi].label,
+      color: SUPER_COLORS[segs.length % SUPER_COLORS.length],
+      start: pos, size: 1,
+    });
+  });
+  return segs;
+}
+
 // Per display-position metadata for one axis: true item index `b`, display
 // position `pos`, and `grpEdge` (a new group starts here, and it isn't the first).
 function axisCells(ci) {
@@ -410,28 +435,6 @@ function buildState() {
 function render() {
   $("p-name").textContent = puzzle.name;
   $("p-desc").textContent = puzzle.description;
-  // Nested hierarchies (big puzzles): spell out which groups roll up into
-  // which supergroups — clues speak at both levels, so the rosters are part
-  // of the puzzle statement. The element only exists on pages that can host
-  // nested grids.
-  const hier = document.getElementById("p-hierarchy");
-  if (hier) {
-    const lines = [];
-    for (const c of puzzle.categories) {
-      if (!c.supergroups || !c.supergroups.length) continue;
-      const blocks = c.supergroups.map((s) => {
-        const subs = c.groups
-          .filter((g) => g.items.every((it) => s.items.includes(it)))
-          .map((g) => escapeHtml(g.label));
-        return `<b>${escapeHtml(s.label)}</b>: ${subs.join(", ")}`;
-      });
-      lines.push(
-        `${escapeHtml(c.name)} by ${escapeHtml(c.supergroup_noun)} — ${blocks.join(" · ")}`
-      );
-    }
-    hier.innerHTML = lines.join("<br>");
-    hier.hidden = !lines.length;
-  }
   const tier = puzzle.rating ? puzzle.rating.ceiling : null;
   const tierNote = tier != null
     ? ` · <span title="hardest deduction technique needed (4 = advanced forward logic, 5 = proof by contradiction, 6 = nested what-if)">logic tier ${tier}</span>`
@@ -659,12 +662,17 @@ function fitCells() {
 // .gl-i.scrollWidth, the full content width even while the column is still narrow.
 function sizeGuildColumns() {
   document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
-    const left = table.querySelectorAll("th.sc-rowguild .gl-i");
-    if (!left.length) return;
-    let need = 0;
-    left.forEach((el) => { el.style.removeProperty("--glfs"); need = Math.max(need, el.scrollWidth); });
-    const colEl = table.querySelector("col.sc-rowguild-col");
-    if (colEl && need) colEl.style.width = Math.ceil(need + 8) + "px"; // + padding + border
+    for (const [sel, colSel] of [
+      ["th.sc-rowguild .gl-i", "col.sc-rowguild-col"],
+      ["th.sc-rowsuper .gl-i", "col.sc-rowsuper-col"],
+    ]) {
+      const left = table.querySelectorAll(sel);
+      if (!left.length) continue;
+      let need = 0;
+      left.forEach((el) => { el.style.removeProperty("--glfs"); need = Math.max(need, el.scrollWidth); });
+      const colEl = table.querySelector(colSel);
+      if (colEl && need) colEl.style.width = Math.ceil(need + 8) + "px"; // + padding + border
+    }
   });
 }
 
@@ -688,7 +696,7 @@ function fitGuildBands() {
     }
   };
   document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
-    table.querySelectorAll("th.sc-rowguild .gl-i").forEach((el) => shrink(el, "height"));
+    table.querySelectorAll("th.sc-rowguild .gl-i, th.sc-rowsuper .gl-i").forEach((el) => shrink(el, "height"));
     const top = [...table.querySelectorAll("th.sc-guild .gl-i, th.g-band .gl-i")];
     if (!top.length) return;
     top.forEach((el) => shrink(el, "width"));
@@ -772,15 +780,33 @@ function renderGrid(i, j, cats) {
   const rowCells = axisCells(i);
   const colSegs = groupSegments(j);
   const rowSegs = groupSegments(i);
-  const leftCols = rowSegs ? 2 : 1;  // row-label (+ guild-label) column(s)
+  const colSuper = supergroupSegments(j);
+  const rowSuper = supergroupSegments(i);
+  // row-label (+ guild-label) (+ supergroup-label) column(s)
+  const leftCols = 1 + (rowSegs ? 1 : 0) + (rowSuper ? 1 : 0);
 
   const table = document.createElement("table");
   table.className = "grid";
   const colgroup = document.createElement("colgroup");
+  if (rowSuper) colgroup.appendChild(col("sc-rowsuper-col"));
   if (rowSegs) colgroup.appendChild(col("sc-rowguild-col"));
   colgroup.appendChild(col("rowlab-col"));
   colCells.forEach(() => colgroup.appendChild(col("cell-col")));
   table.appendChild(colgroup);
+
+  // supergroup band over the column category — the outer tier of a nest
+  if (colSuper) {
+    const sh = document.createElement("tr");
+    const s0 = cell("th", "", "corner");
+    s0.colSpan = leftCols;
+    sh.appendChild(s0);
+    colSuper.forEach((seg, si) => {
+      const th = guildCell("g-band g-superband" + (si > 0 ? " grp-left" : ""), seg.label, seg.color);
+      th.colSpan = seg.size;
+      sh.appendChild(th);
+    });
+    table.appendChild(sh);
+  }
 
   // guild band over the column category (its members are now contiguous)
   if (colSegs) {
@@ -807,6 +833,14 @@ function renderGrid(i, j, cats) {
 
   rowCells.forEach(({ b: a, pos: posI, grpEdge: grpEdgeI }) => {
     const tr = document.createElement("tr");
+    if (rowSuper) {  // left-axis supergroup band (outer tier)
+      const sseg = rowSuper.find((s) => s.start === posI);
+      if (sseg) {
+        const sth = guildCell("sc-rowsuper" + (sseg.start > 0 ? " grp-top" : ""), sseg.label, sseg.color);
+        sth.rowSpan = sseg.size;
+        tr.appendChild(sth);
+      }
+    }
     if (rowSegs) {  // left-axis guild band
       const seg = rowSegs.find((s) => s.start === posI);
       if (seg) {
@@ -850,13 +884,17 @@ function renderStaircase(cats) {
   const firstCol = colCats[0];
   const anyColGrouped = colCats.some((j) => catGroups(j));
   const anyRowGrouped = rowCats.some((i) => catGroups(i));
-  const leftCols = anyRowGrouped ? 3 : 2;  // cat-label (+ guild) + row-label
+  const anyColSuper = colCats.some((j) => supergroupSegments(j));
+  const anyRowSuper = rowCats.some((i) => supergroupSegments(i));
+  // cat-label (+ supergroup) (+ guild) + row-label
+  const leftCols = 2 + (anyRowGrouped ? 1 : 0) + (anyRowSuper ? 1 : 0);
 
   const table = document.createElement("table");
   table.className = "staircase";
 
   const cg = document.createElement("colgroup");
   cg.appendChild(col("sc-catcol"));
+  if (anyRowSuper) cg.appendChild(col("sc-rowsuper-col"));
   if (anyRowGrouped) cg.appendChild(col("sc-rowguild-col"));
   cg.appendChild(col("sc-rowlab-col"));
   colCats.forEach(() => cats[0].items.forEach(() => cg.appendChild(col("cell-col"))));
@@ -866,15 +904,34 @@ function renderStaircase(cats) {
   const h1 = document.createElement("tr");
   const corner = cell("th", "", "sc-corner");
   corner.colSpan = leftCols;
-  corner.rowSpan = anyColGrouped ? 3 : 2;
+  corner.rowSpan = 2 + (anyColGrouped ? 1 : 0) + (anyColSuper ? 1 : 0);
   h1.appendChild(corner);
   for (const j of colCats) {
     const th = cell("th", cats[j].name, "sc-colcat" + (j !== firstCol ? " blk-left" : ""));
     th.colSpan = N;
-    if (anyColGrouped && !catGroups(j)) th.rowSpan = 2;  // centre over the (absent) band row
+    // centre over whichever band rows this category doesn't fill
+    th.rowSpan = 1
+      + (anyColSuper && !supergroupSegments(j) ? 1 : 0)
+      + (anyColGrouped && !catGroups(j) ? 1 : 0);
     h1.appendChild(th);
   }
   table.appendChild(h1);
+
+  // header row 1a: supergroup band — the outer tier of a nested hierarchy.
+  if (anyColSuper) {
+    const hs = document.createElement("tr");
+    for (const j of colCats) {
+      const segs = supergroupSegments(j);
+      if (!segs) continue;
+      const catEdge = j !== firstCol ? " blk-left" : "";
+      segs.forEach((seg, si) => {
+        const th = guildCell("sc-guild sc-superband" + (si === 0 ? catEdge : " grp-left"), seg.label, seg.color);
+        th.colSpan = seg.size;
+        hs.appendChild(th);
+      });
+    }
+    table.appendChild(hs);
+  }
 
   // header row 1b: guild band — a labelled tinted cell per group. Ungrouped
   // categories skip it (their name cell rowspans down into this row instead), so
@@ -907,14 +964,27 @@ function renderStaircase(cats) {
   // body
   for (const i of rowCats) {
     const rowSegs = groupSegments(i);
+    const rowSuper = supergroupSegments(i);
     axisCells(i).forEach(({ b: a, pos: posI, grpEdge: grpEdgeI }) => {
       const tr = document.createElement("tr");
       const horizTop = posI === 0 ? (i > 0 ? " blk-top" : "") : (grpEdgeI ? " grp-top" : "");
       if (posI === 0) {
         const catTh = vlabel(cell("th", "", "sc-rowcat" + (i > 0 ? " blk-top" : "")), cats[i].name);
         catTh.rowSpan = N;
-        if (anyRowGrouped && !rowSegs) catTh.colSpan = 2;  // span the empty guild slot
+        // span whichever band columns this category doesn't fill
+        catTh.colSpan = 1
+          + (anyRowSuper && !rowSuper ? 1 : 0)
+          + (anyRowGrouped && !rowSegs ? 1 : 0);
         tr.appendChild(catTh);
+      }
+      if (rowSuper) {  // left-axis supergroup band: the outer tier of a nest
+        const sseg = rowSuper.find((s) => s.start === posI);
+        if (sseg) {
+          const sEdge = sseg.start === 0 ? (i > 0 ? " blk-top" : "") : " grp-top";
+          const sth = guildCell("sc-rowsuper" + sEdge, sseg.label, sseg.color);
+          sth.rowSpan = sseg.size;
+          tr.appendChild(sth);
+        }
       }
       if (rowSegs) {  // left-axis guild band: a rotated label per group
         const seg = rowSegs.find((s) => s.start === posI);
