@@ -1613,7 +1613,12 @@ function bigTile(e) {
     s.textContent = text;
     tags.appendChild(s);
   };
-  if (e.adjusted) tag("adjusted", "tag-adjusted");
+  if (e.adjusted) {
+    // say what actually happened: this is the same puzzle, tuned down from
+    // its parent's measured band to this one
+    const parent = bigById[e.family];
+    tag(parent ? `tuned down from ${parent.difficulty}` : "tuned down", "tag-adjusted");
+  }
   if (e.nested) tag("nested groups");
   if (e.group_categories) {
     tag(`${e.group_categories} group ${e.group_categories === 1 ? "category" : "categories"}`);
