@@ -661,6 +661,12 @@ function fitCells() {
 // base font — the left band's non-disruptive (free) dimension. Measured on
 // .gl-i.scrollWidth, the full content width even while the column is still narrow.
 function sizeGuildColumns() {
+  // Same clamp as the top band's height (fitGuildBands): a floor so short
+  // rotated labels get the same breathing room the top band enjoys, a cap so
+  // a heavily wrapped one can't blow the layout open (the font shrinker
+  // handles what the cap pinches).
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const MINW = 1.6 * rem, MAXW = 4.5 * rem;
   document.querySelectorAll("table.staircase, table.grid").forEach((table) => {
     for (const [sel, colSel] of [
       ["th.sc-rowguild .gl-i", "col.sc-rowguild-col"],
@@ -671,7 +677,9 @@ function sizeGuildColumns() {
       let need = 0;
       left.forEach((el) => { el.style.removeProperty("--glfs"); need = Math.max(need, el.scrollWidth); });
       const colEl = table.querySelector(colSel);
-      if (colEl && need) colEl.style.width = Math.ceil(need + 8) + "px"; // + padding + border
+      if (colEl && need) {
+        colEl.style.width = Math.min(MAXW, Math.max(MINW, Math.ceil(need + 8))) + "px";
+      }
     }
   });
 }

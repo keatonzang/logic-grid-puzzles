@@ -358,14 +358,14 @@ col.sc-rowguild-col, col.sc-rowsuper-col { width: 1.9rem; }   /* starting width;
   color: var(--ink);
 }
 th.sc-rowguild .gl-i, th.sc-rowsuper .gl-i { writing-mode: vertical-rl; transform: rotate(180deg); }  /* match the row-category label */
-/* No divider between adjacent group tags within a band — the color change marks
-   the split. Overrides both the base cell border and grp-left/grp-top (same
-   specificity, later in source). Category dividers (blk-left/blk-top) and each
-   band's colored edge (bottom for top, right for left) still show. */
-th.sc-guild, th.g-band,
-th.sc-guild.grp-left, th.g-band.grp-left { border-left-width: 0; border-right-width: 0; }
-th.sc-rowguild, th.sc-rowguild.grp-top,
-th.sc-rowsuper, th.sc-rowsuper.grp-top { border-top-width: 0; border-bottom-width: 0; }
+/* Band cells drop their base borders, but the thin grp-left/grp-top divider
+   between adjacent tags stays (the higher-specificity .grp-left/.grp-top
+   rules above win the border side they set) — with two stacked band tiers, a
+   color change alone doesn't mark a split as crisply as the divider running
+   through both tiers and the grid below. Category dividers (blk-left/blk-top)
+   and each band's colored edge (bottom for top, right for left) still show. */
+th.sc-guild, th.g-band { border-left-width: 0; border-right-width: 0; }
+th.sc-rowguild, th.sc-rowsuper { border-top-width: 0; border-bottom-width: 0; }
 
 .grid-block {
   display: flex;
