@@ -1,5 +1,6 @@
 {
  "id": "4x6-mega-001",
+ "hints_v": 2,
  "seed": 762240,
  "categories": 4,
  "items": 6,
@@ -8,6 +9,14 @@
  "has_ordered": true,
  "grouped": false,
  "nested": false,
+ "group_categories": 0,
+ "sequential_categories": 1,
+ "group_blocks": 0,
+ "sequential_clues": 6,
+ "cross_dial_clues": 0,
+ "family": "4x6-mega-001",
+ "derived_from": null,
+ "adjusted": false,
  "rating": {
   "ceiling": 5,
   "steps": {
@@ -565,7 +574,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Croissant didn't go with $18 \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Croissant didn't go with $18 \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Croissant does not go with $18.",
+      "In Pastry \u00d7 Price, Croissant must go with $20 \u2014 every other Price is already crossed out for it.",
+      "$20 goes with Croissant, so Bagel can't go with $20.",
+      "$20 goes with Croissant, so Brioche can't go with $20.",
+      "\u2026but now the clue \u201cBetween Cortado and $20, one goes with Bagel and the other with Brioche\u201d can no longer hold \u2014 a contradiction.",
+      "So Croissant goes with $18."
+     ]
     },
     {
      "key": "2-3",
@@ -675,7 +692,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Danish went with $20 \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Danish went with $20 \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Danish goes with $20.",
+      "$20 goes with Danish, so Bagel can't go with $20.",
+      "$20 goes with Danish, so Brioche can't go with $20.",
+      "\u2026but now the clue \u201cBetween Cortado and $20, one goes with Bagel and the other with Brioche\u201d can no longer hold \u2014 a contradiction.",
+      "So Danish does not go with $20."
+     ]
     },
     {
      "key": "2-3",
@@ -685,7 +709,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tart went with $20 \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Tart went with $20 \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Tart goes with $20.",
+      "Tart goes with $20, so it can't also go with $12.",
+      "Tart goes with $20, so it can't also go with $14.",
+      "Tart goes with $20, so it can't also go with $22.",
+      "$20 goes with Tart, so Bagel can't go with $20.",
+      "$20 goes with Tart, so Brioche can't go with $20.",
+      "Tart goes with $20, but Felix doesn't, so Felix doesn't go with Tart.",
+      "Tart goes with $20, but Ristretto doesn't, so Ristretto doesn't go with Tart.",
+      "\u2026but now the clue \u201cTart goes with exactly two of Felix, Ristretto, and $22\u201d can no longer hold \u2014 a contradiction.",
+      "So Tart does not go with $20."
+     ]
     },
     {
      "key": "2-3",
@@ -695,7 +731,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tart went with $22 \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Tart went with $22 \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Tart goes with $22.",
+      "Tart goes with $22, but Felix doesn't, so Felix doesn't go with Tart.",
+      "Tart goes with $22, but Ristretto doesn't, so Ristretto doesn't go with Tart.",
+      "\u2026but now the clue \u201cTart goes with exactly two of Felix, Ristretto, and $22\u201d can no longer hold \u2014 a contradiction.",
+      "So Tart does not go with $22."
+     ]
     },
     {
      "key": "0-2",
@@ -1305,7 +1348,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cortado went with Danish \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Cortado went with Danish \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Cortado goes with Danish.",
+      "Cortado goes with Danish, so it can't also go with Bagel.",
+      "Cortado goes with Danish, so it can't also go with Brioche.",
+      "\u2026but now the clue \u201cBetween Cortado and $20, one goes with Bagel and the other with Brioche\u201d can no longer hold \u2014 a contradiction.",
+      "So Cortado does not go with Danish."
+     ]
     },
     {
      "key": "0-1",
@@ -1315,7 +1365,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Edith went with Latte \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Edith went with Latte \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Edith goes with Latte.",
+      "Edith goes with Latte, so it can't also go with Cortado.",
+      "Latte goes with Edith, but $12 doesn't, so Latte doesn't go with $12.",
+      "Latte goes with Edith, but $16 doesn't, so Latte doesn't go with $16.",
+      "From the clue \u201cCortado does not go with Edith if and only if $22 goes with Macchiato\u201d \u2014 Macchiato must go with $22.",
+      "Macchiato goes with $22, so it can't also go with $12.",
+      "Macchiato goes with $22, so it can't also go with $16.",
+      "In Drink \u00d7 Price, $12 must go with Americano \u2014 every other Drink is already crossed out for it.",
+      "In Drink \u00d7 Price, $16 must go with Americano \u2014 every other Drink is already crossed out for it.",
+      "Americano goes with $12, so it can't also go with $16. But Americano was already shown to go with $16 \u2014 a contradiction.",
+      "So Edith does not go with Latte."
+     ]
     },
     {
      "key": "0-2",
@@ -1325,7 +1388,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Ben didn't go with Brioche \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Ben didn't go with Brioche \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Ben does not go with Brioche.",
+      "In Customer, Cortado must be Ben or Edith, but Brioche can be none of those, so they can't be the same.",
+      "In Customer, Brioche must be Cara, Dane, or Hugo, but $20 can be none of those, so they can't be the same.",
+      "In Customer, Brioche must be Cara, Dane, or Hugo, but $22 can be none of those, so they can't be the same.",
+      "In Drink \u00d7 Pastry, Cortado must go with Bagel \u2014 every other Pastry is already crossed out for it.",
+      "In Pastry \u00d7 Price, Brioche must go with $12 \u2014 every other Price is already crossed out for it.",
+      "In Pastry \u00d7 Price, $20 must go with Bagel \u2014 every other Pastry is already crossed out for it.",
+      "Bagel goes with Cortado, so Americano can't go with Bagel.",
+      "Bagel goes with Cortado, so Espresso can't go with Bagel.",
+      "Bagel goes with Cortado, so Latte can't go with Bagel.",
+      "Bagel goes with Cortado, so Macchiato can't go with Bagel.",
+      "Bagel goes with $20, so it can't also go with $12.",
+      "Bagel goes with $20, so it can't also go with $22.",
+      "$12 goes with Brioche, so Danish can't go with $12.",
+      "In Pastry \u00d7 Price, Danish must go with $22 \u2014 every other Price is already crossed out for it.",
+      "Cortado goes with Bagel, and $20 goes with Bagel, so Cortado goes with $20.",
+      "Cortado goes with $20, so it can't also go with $22.",
+      "$20 goes with Cortado, so Americano can't go with $20.",
+      "$20 goes with Cortado, so Espresso can't go with $20.",
+      "$20 goes with Cortado, so Latte can't go with $20.",
+      "$20 goes with Cortado, so Macchiato can't go with $20.",
+      "$12 goes with Brioche, but Macchiato doesn't, so Macchiato doesn't go with $12.",
+      "Brioche goes with $12, but Espresso doesn't, so Espresso doesn't go with Brioche.",
+      "In Drink \u00d7 Pastry, Espresso must go with Croissant \u2014 every other Pastry is already crossed out for it.",
+      "In Drink \u00d7 Price, Espresso must go with $18 \u2014 every other Price is already crossed out for it.",
+      "Croissant goes with Espresso, so Americano can't go with Croissant.",
+      "Croissant goes with Espresso, so Latte can't go with Croissant.",
+      "$18 goes with Espresso, so Americano can't go with $18.",
+      "$18 goes with Espresso, so Latte can't go with $18.",
+      "\u2026but now the clue \u201cBetween Cortado and $20, one goes with Bagel and the other with Brioche\u201d can no longer hold \u2014 a contradiction.",
+      "So Ben goes with Brioche."
+     ]
     },
     {
      "key": "0-2",
@@ -2831,7 +2927,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Candles didn't go with 18 coins \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Candles didn't go with 18 coins \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Candles does not go with 18 coins.",
+      "In Wares \u00d7 Levy, Candles must go with 20 coins \u2014 every other Levy is already crossed out for it.",
+      "20 coins goes with Candles, so Barrels can't go with 20 coins.",
+      "20 coins goes with Candles, so Boots can't go with 20 coins.",
+      "\u2026but now the clue \u201cBetween Chisel and 20 coins, one goes with Barrels and the other with Boots\u201d can no longer hold \u2014 a contradiction.",
+      "So Candles goes with 18 coins."
+     ]
     },
     {
      "key": "2-3",
@@ -2941,7 +3045,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Horseshoes went with 20 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Horseshoes went with 20 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Horseshoes goes with 20 coins.",
+      "20 coins goes with Horseshoes, so Barrels can't go with 20 coins.",
+      "20 coins goes with Horseshoes, so Boots can't go with 20 coins.",
+      "\u2026but now the clue \u201cBetween Chisel and 20 coins, one goes with Barrels and the other with Boots\u201d can no longer hold \u2014 a contradiction.",
+      "So Horseshoes does not go with 20 coins."
+     ]
     },
     {
      "key": "2-3",
@@ -2951,7 +3062,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tapestries went with 20 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Tapestries went with 20 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Tapestries goes with 20 coins.",
+      "Tapestries goes with 20 coins, so it can't also go with 12 coins.",
+      "Tapestries goes with 20 coins, so it can't also go with 14 coins.",
+      "Tapestries goes with 20 coins, so it can't also go with 22 coins.",
+      "20 coins goes with Tapestries, so Barrels can't go with 20 coins.",
+      "20 coins goes with Tapestries, so Boots can't go with 20 coins.",
+      "Tapestries goes with 20 coins, but Matilda doesn't, so Matilda doesn't go with Tapestries.",
+      "Tapestries goes with 20 coins, but Saw doesn't, so Saw doesn't go with Tapestries.",
+      "\u2026but now the clue \u201cTapestries goes with exactly two of Matilda, Saw, and 22 coins\u201d can no longer hold \u2014 a contradiction.",
+      "So Tapestries does not go with 20 coins."
+     ]
     },
     {
      "key": "2-3",
@@ -2961,7 +3084,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Tapestries went with 22 coins \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Tapestries went with 22 coins \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Tapestries goes with 22 coins.",
+      "Tapestries goes with 22 coins, but Matilda doesn't, so Matilda doesn't go with Tapestries.",
+      "Tapestries goes with 22 coins, but Saw doesn't, so Saw doesn't go with Tapestries.",
+      "\u2026but now the clue \u201cTapestries goes with exactly two of Matilda, Saw, and 22 coins\u201d can no longer hold \u2014 a contradiction.",
+      "So Tapestries does not go with 22 coins."
+     ]
     },
     {
      "key": "0-2",
@@ -3571,7 +3701,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Chisel went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Chisel went with Horseshoes \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Chisel goes with Horseshoes.",
+      "Chisel goes with Horseshoes, so it can't also go with Barrels.",
+      "Chisel goes with Horseshoes, so it can't also go with Boots.",
+      "\u2026but now the clue \u201cBetween Chisel and 20 coins, one goes with Barrels and the other with Boots\u201d can no longer hold \u2014 a contradiction.",
+      "So Chisel does not go with Horseshoes."
+     ]
     },
     {
      "key": "0-1",
@@ -3581,7 +3718,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Godfrey went with Loom \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Godfrey went with Loom \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Godfrey goes with Loom.",
+      "Godfrey goes with Loom, so it can't also go with Chisel.",
+      "Loom goes with Godfrey, but 12 coins doesn't, so Loom doesn't go with 12 coins.",
+      "Loom goes with Godfrey, but 16 coins doesn't, so Loom doesn't go with 16 coins.",
+      "From the clue \u201cChisel does not go with Godfrey if and only if 22 coins goes with Mallet\u201d \u2014 Mallet must go with 22 coins.",
+      "Mallet goes with 22 coins, so it can't also go with 12 coins.",
+      "Mallet goes with 22 coins, so it can't also go with 16 coins.",
+      "In Tool \u00d7 Levy, 12 coins must go with Anvil \u2014 every other Tool is already crossed out for it.",
+      "In Tool \u00d7 Levy, 16 coins must go with Anvil \u2014 every other Tool is already crossed out for it.",
+      "Anvil goes with 12 coins, so it can't also go with 16 coins. But Anvil was already shown to go with 16 coins \u2014 a contradiction.",
+      "So Godfrey does not go with Loom."
+     ]
     },
     {
      "key": "0-2",
@@ -3591,7 +3741,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Beatrix didn't go with Boots \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Beatrix didn't go with Boots \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Beatrix does not go with Boots.",
+      "In Artisan, Chisel must be Beatrix or Godfrey, but Boots can be none of those, so they can't be the same.",
+      "In Artisan, Boots must be Cedric, Edmund, or Wulfric, but 20 coins can be none of those, so they can't be the same.",
+      "In Artisan, Boots must be Cedric, Edmund, or Wulfric, but 22 coins can be none of those, so they can't be the same.",
+      "In Tool \u00d7 Wares, Chisel must go with Barrels \u2014 every other Wares is already crossed out for it.",
+      "In Wares \u00d7 Levy, Boots must go with 12 coins \u2014 every other Levy is already crossed out for it.",
+      "In Wares \u00d7 Levy, 20 coins must go with Barrels \u2014 every other Wares is already crossed out for it.",
+      "Barrels goes with Chisel, so Anvil can't go with Barrels.",
+      "Barrels goes with Chisel, so Hammer can't go with Barrels.",
+      "Barrels goes with Chisel, so Loom can't go with Barrels.",
+      "Barrels goes with Chisel, so Mallet can't go with Barrels.",
+      "Barrels goes with 20 coins, so it can't also go with 12 coins.",
+      "Barrels goes with 20 coins, so it can't also go with 22 coins.",
+      "12 coins goes with Boots, so Horseshoes can't go with 12 coins.",
+      "In Wares \u00d7 Levy, Horseshoes must go with 22 coins \u2014 every other Levy is already crossed out for it.",
+      "Chisel goes with Barrels, and 20 coins goes with Barrels, so Chisel goes with 20 coins.",
+      "Chisel goes with 20 coins, so it can't also go with 22 coins.",
+      "20 coins goes with Chisel, so Anvil can't go with 20 coins.",
+      "20 coins goes with Chisel, so Hammer can't go with 20 coins.",
+      "20 coins goes with Chisel, so Loom can't go with 20 coins.",
+      "20 coins goes with Chisel, so Mallet can't go with 20 coins.",
+      "12 coins goes with Boots, but Mallet doesn't, so Mallet doesn't go with 12 coins.",
+      "Boots goes with 12 coins, but Hammer doesn't, so Hammer doesn't go with Boots.",
+      "In Tool \u00d7 Wares, Hammer must go with Candles \u2014 every other Wares is already crossed out for it.",
+      "In Tool \u00d7 Levy, Hammer must go with 18 coins \u2014 every other Levy is already crossed out for it.",
+      "Candles goes with Hammer, so Anvil can't go with Candles.",
+      "Candles goes with Hammer, so Loom can't go with Candles.",
+      "18 coins goes with Hammer, so Anvil can't go with 18 coins.",
+      "18 coins goes with Hammer, so Loom can't go with 18 coins.",
+      "\u2026but now the clue \u201cBetween Chisel and 20 coins, one goes with Barrels and the other with Boots\u201d can no longer hold \u2014 a contradiction.",
+      "So Beatrix goes with Boots."
+     ]
     },
     {
      "key": "0-2",
@@ -5097,7 +5280,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Longbow didn't go with 73 gp \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Longbow didn't go with 73 gp \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Longbow does not go with 73 gp.",
+      "In Weapon \u00d7 Gold, Longbow must go with 83 gp \u2014 every other Gold is already crossed out for it.",
+      "83 gp goes with Longbow, so Dagger can't go with 83 gp.",
+      "83 gp goes with Longbow, so Greataxe can't go with 83 gp.",
+      "\u2026but now the clue \u201cBetween Bard and 83 gp, one goes with Dagger and the other with Greataxe\u201d can no longer hold \u2014 a contradiction.",
+      "So Longbow goes with 73 gp."
+     ]
     },
     {
      "key": "2-3",
@@ -5207,7 +5398,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Quarterstaff went with 83 gp \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Quarterstaff went with 83 gp \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Quarterstaff goes with 83 gp.",
+      "83 gp goes with Quarterstaff, so Dagger can't go with 83 gp.",
+      "83 gp goes with Quarterstaff, so Greataxe can't go with 83 gp.",
+      "\u2026but now the clue \u201cBetween Bard and 83 gp, one goes with Dagger and the other with Greataxe\u201d can no longer hold \u2014 a contradiction.",
+      "So Quarterstaff does not go with 83 gp."
+     ]
     },
     {
      "key": "2-3",
@@ -5217,7 +5415,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Warhammer went with 83 gp \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Warhammer went with 83 gp \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Warhammer goes with 83 gp.",
+      "Warhammer goes with 83 gp, so it can't also go with 43 gp.",
+      "Warhammer goes with 83 gp, so it can't also go with 53 gp.",
+      "Warhammer goes with 83 gp, so it can't also go with 93 gp.",
+      "83 gp goes with Warhammer, so Dagger can't go with 83 gp.",
+      "83 gp goes with Warhammer, so Greataxe can't go with 83 gp.",
+      "Warhammer goes with 83 gp, but Thorne doesn't, so Thorne doesn't go with Warhammer.",
+      "Warhammer goes with 83 gp, but Wizard doesn't, so Wizard doesn't go with Warhammer.",
+      "\u2026but now the clue \u201cWarhammer goes with exactly two of Thorne, Wizard, and 93 gp\u201d can no longer hold \u2014 a contradiction.",
+      "So Warhammer does not go with 83 gp."
+     ]
     },
     {
      "key": "2-3",
@@ -5227,7 +5437,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Warhammer went with 93 gp \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Warhammer went with 93 gp \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Warhammer goes with 93 gp.",
+      "Warhammer goes with 93 gp, but Thorne doesn't, so Thorne doesn't go with Warhammer.",
+      "Warhammer goes with 93 gp, but Wizard doesn't, so Wizard doesn't go with Warhammer.",
+      "\u2026but now the clue \u201cWarhammer goes with exactly two of Thorne, Wizard, and 93 gp\u201d can no longer hold \u2014 a contradiction.",
+      "So Warhammer does not go with 93 gp."
+     ]
     },
     {
      "key": "0-2",
@@ -5837,7 +6054,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Bard went with Quarterstaff \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Bard went with Quarterstaff \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Bard goes with Quarterstaff.",
+      "Bard goes with Quarterstaff, so it can't also go with Dagger.",
+      "Bard goes with Quarterstaff, so it can't also go with Greataxe.",
+      "\u2026but now the clue \u201cBetween Bard and 83 gp, one goes with Dagger and the other with Greataxe\u201d can no longer hold \u2014 a contradiction.",
+      "So Bard does not go with Quarterstaff."
+     ]
     },
     {
      "key": "0-1",
@@ -5847,7 +6071,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Orin went with Ranger \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Orin went with Ranger \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Orin goes with Ranger.",
+      "Orin goes with Ranger, so it can't also go with Bard.",
+      "Ranger goes with Orin, but 43 gp doesn't, so Ranger doesn't go with 43 gp.",
+      "Ranger goes with Orin, but 63 gp doesn't, so Ranger doesn't go with 63 gp.",
+      "From the clue \u201cBard does not go with Orin if and only if 93 gp goes with Rogue\u201d \u2014 Rogue must go with 93 gp.",
+      "Rogue goes with 93 gp, so it can't also go with 43 gp.",
+      "Rogue goes with 93 gp, so it can't also go with 63 gp.",
+      "In Class \u00d7 Gold, 43 gp must go with Barbarian \u2014 every other Class is already crossed out for it.",
+      "In Class \u00d7 Gold, 63 gp must go with Barbarian \u2014 every other Class is already crossed out for it.",
+      "Barbarian goes with 43 gp, so it can't also go with 63 gp. But Barbarian was already shown to go with 63 gp \u2014 a contradiction.",
+      "So Orin does not go with Ranger."
+     ]
     },
     {
      "key": "0-2",
@@ -5857,7 +6094,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Fenwick didn't go with Greataxe \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Fenwick didn't go with Greataxe \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Fenwick does not go with Greataxe.",
+      "In Adventurer, Bard must be Fenwick or Orin, but Greataxe can be none of those, so they can't be the same.",
+      "In Adventurer, Greataxe must be Kael, Lyra, or Wrenna, but 83 gp can be none of those, so they can't be the same.",
+      "In Adventurer, Greataxe must be Kael, Lyra, or Wrenna, but 93 gp can be none of those, so they can't be the same.",
+      "In Class \u00d7 Weapon, Bard must go with Dagger \u2014 every other Weapon is already crossed out for it.",
+      "In Weapon \u00d7 Gold, Greataxe must go with 43 gp \u2014 every other Gold is already crossed out for it.",
+      "In Weapon \u00d7 Gold, 83 gp must go with Dagger \u2014 every other Weapon is already crossed out for it.",
+      "Dagger goes with Bard, so Barbarian can't go with Dagger.",
+      "Dagger goes with Bard, so Paladin can't go with Dagger.",
+      "Dagger goes with Bard, so Ranger can't go with Dagger.",
+      "Dagger goes with Bard, so Rogue can't go with Dagger.",
+      "Dagger goes with 83 gp, so it can't also go with 43 gp.",
+      "Dagger goes with 83 gp, so it can't also go with 93 gp.",
+      "43 gp goes with Greataxe, so Quarterstaff can't go with 43 gp.",
+      "In Weapon \u00d7 Gold, Quarterstaff must go with 93 gp \u2014 every other Gold is already crossed out for it.",
+      "Bard goes with Dagger, and 83 gp goes with Dagger, so Bard goes with 83 gp.",
+      "Bard goes with 83 gp, so it can't also go with 93 gp.",
+      "83 gp goes with Bard, so Barbarian can't go with 83 gp.",
+      "83 gp goes with Bard, so Paladin can't go with 83 gp.",
+      "83 gp goes with Bard, so Ranger can't go with 83 gp.",
+      "83 gp goes with Bard, so Rogue can't go with 83 gp.",
+      "43 gp goes with Greataxe, but Rogue doesn't, so Rogue doesn't go with 43 gp.",
+      "Greataxe goes with 43 gp, but Paladin doesn't, so Paladin doesn't go with Greataxe.",
+      "In Class \u00d7 Weapon, Paladin must go with Longbow \u2014 every other Weapon is already crossed out for it.",
+      "In Class \u00d7 Gold, Paladin must go with 73 gp \u2014 every other Gold is already crossed out for it.",
+      "Longbow goes with Paladin, so Barbarian can't go with Longbow.",
+      "Longbow goes with Paladin, so Ranger can't go with Longbow.",
+      "73 gp goes with Paladin, so Barbarian can't go with 73 gp.",
+      "73 gp goes with Paladin, so Ranger can't go with 73 gp.",
+      "\u2026but now the clue \u201cBetween Bard and 83 gp, one goes with Dagger and the other with Greataxe\u201d can no longer hold \u2014 a contradiction.",
+      "So Fenwick goes with Greataxe."
+     ]
     },
     {
      "key": "0-2",
@@ -7363,7 +7633,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cortex didn't go with 20 ly \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Cortex didn't go with 20 ly \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Cortex does not go with 20 ly.",
+      "In Module \u00d7 Distance, Cortex must go with 22 ly \u2014 every other Distance is already crossed out for it.",
+      "22 ly goes with Cortex, so Aurora can't go with 22 ly.",
+      "22 ly goes with Cortex, so Beacon can't go with 22 ly.",
+      "\u2026but now the clue \u201cBetween Engineer and 22 ly, one goes with Aurora and the other with Beacon\u201d can no longer hold \u2014 a contradiction.",
+      "So Cortex goes with 20 ly."
+     ]
     },
     {
      "key": "2-3",
@@ -7473,7 +7751,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Drift went with 22 ly \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Drift went with 22 ly \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Drift goes with 22 ly.",
+      "22 ly goes with Drift, so Aurora can't go with 22 ly.",
+      "22 ly goes with Drift, so Beacon can't go with 22 ly.",
+      "\u2026but now the clue \u201cBetween Engineer and 22 ly, one goes with Aurora and the other with Beacon\u201d can no longer hold \u2014 a contradiction.",
+      "So Drift does not go with 22 ly."
+     ]
     },
     {
      "key": "2-3",
@@ -7483,7 +7768,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Lumen went with 22 ly \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Lumen went with 22 ly \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Lumen goes with 22 ly.",
+      "Lumen goes with 22 ly, so it can't also go with 14 ly.",
+      "Lumen goes with 22 ly, so it can't also go with 16 ly.",
+      "Lumen goes with 22 ly, so it can't also go with 24 ly.",
+      "22 ly goes with Lumen, so Aurora can't go with 22 ly.",
+      "22 ly goes with Lumen, so Beacon can't go with 22 ly.",
+      "Lumen goes with 22 ly, but Fontaine doesn't, so Fontaine doesn't go with Lumen.",
+      "Lumen goes with 22 ly, but Technician doesn't, so Technician doesn't go with Lumen.",
+      "\u2026but now the clue \u201cLumen goes with exactly two of Fontaine, Technician, and 24 ly\u201d can no longer hold \u2014 a contradiction.",
+      "So Lumen does not go with 22 ly."
+     ]
     },
     {
      "key": "2-3",
@@ -7493,7 +7790,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Lumen went with 24 ly \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Lumen went with 24 ly \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Lumen goes with 24 ly.",
+      "Lumen goes with 24 ly, but Fontaine doesn't, so Fontaine doesn't go with Lumen.",
+      "Lumen goes with 24 ly, but Technician doesn't, so Technician doesn't go with Lumen.",
+      "\u2026but now the clue \u201cLumen goes with exactly two of Fontaine, Technician, and 24 ly\u201d can no longer hold \u2014 a contradiction.",
+      "So Lumen does not go with 24 ly."
+     ]
     },
     {
      "key": "0-2",
@@ -8103,7 +8407,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Engineer went with Drift \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Engineer went with Drift \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Engineer goes with Drift.",
+      "Engineer goes with Drift, so it can't also go with Aurora.",
+      "Engineer goes with Drift, so it can't also go with Beacon.",
+      "\u2026but now the clue \u201cBetween Engineer and 22 ly, one goes with Aurora and the other with Beacon\u201d can no longer hold \u2014 a contradiction.",
+      "So Engineer does not go with Drift."
+     ]
     },
     {
      "key": "0-1",
@@ -8113,7 +8424,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Eklund went with Medic \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Eklund went with Medic \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Eklund goes with Medic.",
+      "Eklund goes with Medic, so it can't also go with Engineer.",
+      "Medic goes with Eklund, but 14 ly doesn't, so Medic doesn't go with 14 ly.",
+      "Medic goes with Eklund, but 18 ly doesn't, so Medic doesn't go with 18 ly.",
+      "From the clue \u201cEngineer does not go with Eklund if and only if 24 ly goes with Navigator\u201d \u2014 Navigator must go with 24 ly.",
+      "Navigator goes with 24 ly, so it can't also go with 14 ly.",
+      "Navigator goes with 24 ly, so it can't also go with 18 ly.",
+      "In Role \u00d7 Distance, 14 ly must go with Botanist \u2014 every other Role is already crossed out for it.",
+      "In Role \u00d7 Distance, 18 ly must go with Botanist \u2014 every other Role is already crossed out for it.",
+      "Botanist goes with 14 ly, so it can't also go with 18 ly. But Botanist was already shown to go with 18 ly \u2014 a contradiction.",
+      "So Eklund does not go with Medic."
+     ]
     },
     {
      "key": "0-2",
@@ -8123,7 +8447,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Bauer didn't go with Beacon \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Bauer didn't go with Beacon \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Bauer does not go with Beacon.",
+      "In Colonist, Engineer must be Bauer or Eklund, but Beacon can be none of those, so they can't be the same.",
+      "In Colonist, Beacon must be Cho, Dasari, or Rios, but 22 ly can be none of those, so they can't be the same.",
+      "In Colonist, Beacon must be Cho, Dasari, or Rios, but 24 ly can be none of those, so they can't be the same.",
+      "In Role \u00d7 Module, Engineer must go with Aurora \u2014 every other Module is already crossed out for it.",
+      "In Module \u00d7 Distance, Beacon must go with 14 ly \u2014 every other Distance is already crossed out for it.",
+      "In Module \u00d7 Distance, 22 ly must go with Aurora \u2014 every other Module is already crossed out for it.",
+      "Aurora goes with Engineer, so Botanist can't go with Aurora.",
+      "Aurora goes with Engineer, so Geologist can't go with Aurora.",
+      "Aurora goes with Engineer, so Medic can't go with Aurora.",
+      "Aurora goes with Engineer, so Navigator can't go with Aurora.",
+      "Aurora goes with 22 ly, so it can't also go with 14 ly.",
+      "Aurora goes with 22 ly, so it can't also go with 24 ly.",
+      "14 ly goes with Beacon, so Drift can't go with 14 ly.",
+      "In Module \u00d7 Distance, Drift must go with 24 ly \u2014 every other Distance is already crossed out for it.",
+      "Engineer goes with Aurora, and 22 ly goes with Aurora, so Engineer goes with 22 ly.",
+      "Engineer goes with 22 ly, so it can't also go with 24 ly.",
+      "22 ly goes with Engineer, so Botanist can't go with 22 ly.",
+      "22 ly goes with Engineer, so Geologist can't go with 22 ly.",
+      "22 ly goes with Engineer, so Medic can't go with 22 ly.",
+      "22 ly goes with Engineer, so Navigator can't go with 22 ly.",
+      "14 ly goes with Beacon, but Navigator doesn't, so Navigator doesn't go with 14 ly.",
+      "Beacon goes with 14 ly, but Geologist doesn't, so Geologist doesn't go with Beacon.",
+      "In Role \u00d7 Module, Geologist must go with Cortex \u2014 every other Module is already crossed out for it.",
+      "In Role \u00d7 Distance, Geologist must go with 20 ly \u2014 every other Distance is already crossed out for it.",
+      "Cortex goes with Geologist, so Botanist can't go with Cortex.",
+      "Cortex goes with Geologist, so Medic can't go with Cortex.",
+      "20 ly goes with Geologist, so Botanist can't go with 20 ly.",
+      "20 ly goes with Geologist, so Medic can't go with 20 ly.",
+      "\u2026but now the clue \u201cBetween Engineer and 22 ly, one goes with Aurora and the other with Beacon\u201d can no longer hold \u2014 a contradiction.",
+      "So Bauer goes with Beacon."
+     ]
     },
     {
      "key": "0-2",
@@ -9629,7 +9986,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pipeline didn't go with $67k \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Pipeline didn't go with $67k \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Pipeline does not go with $67k.",
+      "In Project \u00d7 Budget, Pipeline must go with $77k \u2014 every other Budget is already crossed out for it.",
+      "$77k goes with Pipeline, so Bridge can't go with $77k.",
+      "$77k goes with Pipeline, so Dam can't go with $77k.",
+      "\u2026but now the clue \u201cBetween Civil and $77k, one goes with Bridge and the other with Dam\u201d can no longer hold \u2014 a contradiction.",
+      "So Pipeline goes with $67k."
+     ]
     },
     {
      "key": "2-3",
@@ -9739,7 +10104,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Reactor went with $77k \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Reactor went with $77k \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Reactor goes with $77k.",
+      "$77k goes with Reactor, so Bridge can't go with $77k.",
+      "$77k goes with Reactor, so Dam can't go with $77k.",
+      "\u2026but now the clue \u201cBetween Civil and $77k, one goes with Bridge and the other with Dam\u201d can no longer hold \u2014 a contradiction.",
+      "So Reactor does not go with $77k."
+     ]
     },
     {
      "key": "2-3",
@@ -9749,7 +10121,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Turbine went with $77k \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Turbine went with $77k \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Turbine goes with $77k.",
+      "Turbine goes with $77k, so it can't also go with $37k.",
+      "Turbine goes with $77k, so it can't also go with $47k.",
+      "Turbine goes with $77k, so it can't also go with $87k.",
+      "$77k goes with Turbine, so Bridge can't go with $77k.",
+      "$77k goes with Turbine, so Dam can't go with $77k.",
+      "Turbine goes with $77k, but Otis doesn't, so Otis doesn't go with Turbine.",
+      "Turbine goes with $77k, but Structural doesn't, so Structural doesn't go with Turbine.",
+      "\u2026but now the clue \u201cTurbine goes with exactly two of Otis, Structural, and $87k\u201d can no longer hold \u2014 a contradiction.",
+      "So Turbine does not go with $77k."
+     ]
     },
     {
      "key": "2-3",
@@ -9759,7 +10143,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Turbine went with $87k \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Turbine went with $87k \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Turbine goes with $87k.",
+      "Turbine goes with $87k, but Otis doesn't, so Otis doesn't go with Turbine.",
+      "Turbine goes with $87k, but Structural doesn't, so Structural doesn't go with Turbine.",
+      "\u2026but now the clue \u201cTurbine goes with exactly two of Otis, Structural, and $87k\u201d can no longer hold \u2014 a contradiction.",
+      "So Turbine does not go with $87k."
+     ]
     },
     {
      "key": "0-2",
@@ -10369,7 +10760,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Civil went with Reactor \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Civil went with Reactor \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Civil goes with Reactor.",
+      "Civil goes with Reactor, so it can't also go with Bridge.",
+      "Civil goes with Reactor, so it can't also go with Dam.",
+      "\u2026but now the clue \u201cBetween Civil and $77k, one goes with Bridge and the other with Dam\u201d can no longer hold \u2014 a contradiction.",
+      "So Civil does not go with Reactor."
+     ]
     },
     {
      "key": "0-1",
@@ -10379,7 +10777,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Hertz went with Mechanical \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Hertz went with Mechanical \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Hertz goes with Mechanical.",
+      "Hertz goes with Mechanical, so it can't also go with Civil.",
+      "Mechanical goes with Hertz, but $37k doesn't, so Mechanical doesn't go with $37k.",
+      "Mechanical goes with Hertz, but $57k doesn't, so Mechanical doesn't go with $57k.",
+      "From the clue \u201cCivil does not go with Hertz if and only if $87k goes with Robotics\u201d \u2014 Robotics must go with $87k.",
+      "Robotics goes with $87k, so it can't also go with $37k.",
+      "Robotics goes with $87k, so it can't also go with $57k.",
+      "In Discipline \u00d7 Budget, $37k must go with Aerospace \u2014 every other Discipline is already crossed out for it.",
+      "In Discipline \u00d7 Budget, $57k must go with Aerospace \u2014 every other Discipline is already crossed out for it.",
+      "Aerospace goes with $37k, so it can't also go with $57k. But Aerospace was already shown to go with $57k \u2014 a contradiction.",
+      "So Hertz does not go with Mechanical."
+     ]
     },
     {
      "key": "0-2",
@@ -10389,7 +10800,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Diesel didn't go with Dam \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Diesel didn't go with Dam \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Diesel does not go with Dam.",
+      "In Engineer, Civil must be Diesel or Hertz, but Dam can be none of those, so they can't be the same.",
+      "In Engineer, Dam must be Edison, Ford, or Watt, but $77k can be none of those, so they can't be the same.",
+      "In Engineer, Dam must be Edison, Ford, or Watt, but $87k can be none of those, so they can't be the same.",
+      "In Discipline \u00d7 Project, Civil must go with Bridge \u2014 every other Project is already crossed out for it.",
+      "In Project \u00d7 Budget, Dam must go with $37k \u2014 every other Budget is already crossed out for it.",
+      "In Project \u00d7 Budget, $77k must go with Bridge \u2014 every other Project is already crossed out for it.",
+      "Bridge goes with Civil, so Aerospace can't go with Bridge.",
+      "Bridge goes with Civil, so Electrical can't go with Bridge.",
+      "Bridge goes with Civil, so Mechanical can't go with Bridge.",
+      "Bridge goes with Civil, so Robotics can't go with Bridge.",
+      "Bridge goes with $77k, so it can't also go with $37k.",
+      "Bridge goes with $77k, so it can't also go with $87k.",
+      "$37k goes with Dam, so Reactor can't go with $37k.",
+      "In Project \u00d7 Budget, Reactor must go with $87k \u2014 every other Budget is already crossed out for it.",
+      "Civil goes with Bridge, and $77k goes with Bridge, so Civil goes with $77k.",
+      "Civil goes with $77k, so it can't also go with $87k.",
+      "$77k goes with Civil, so Aerospace can't go with $77k.",
+      "$77k goes with Civil, so Electrical can't go with $77k.",
+      "$77k goes with Civil, so Mechanical can't go with $77k.",
+      "$77k goes with Civil, so Robotics can't go with $77k.",
+      "$37k goes with Dam, but Robotics doesn't, so Robotics doesn't go with $37k.",
+      "Dam goes with $37k, but Electrical doesn't, so Electrical doesn't go with Dam.",
+      "In Discipline \u00d7 Project, Electrical must go with Pipeline \u2014 every other Project is already crossed out for it.",
+      "In Discipline \u00d7 Budget, Electrical must go with $67k \u2014 every other Budget is already crossed out for it.",
+      "Pipeline goes with Electrical, so Aerospace can't go with Pipeline.",
+      "Pipeline goes with Electrical, so Mechanical can't go with Pipeline.",
+      "$67k goes with Electrical, so Aerospace can't go with $67k.",
+      "$67k goes with Electrical, so Mechanical can't go with $67k.",
+      "\u2026but now the clue \u201cBetween Civil and $77k, one goes with Bridge and the other with Dam\u201d can no longer hold \u2014 a contradiction.",
+      "So Diesel goes with Dam."
+     ]
     },
     {
      "key": "0-2",
@@ -11895,7 +12339,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cloister didn't go with 95% \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Cloister didn't go with 95% \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Cloister does not go with 95%.",
+      "In Room \u00d7 Grade, Cloister must go with 100% \u2014 every other Grade is already crossed out for it.",
+      "100% goes with Cloister, so Annex can't go with 100%.",
+      "100% goes with Cloister, so Bungalow can't go with 100%.",
+      "\u2026but now the clue \u201cBetween Chemistry and 100%, one goes with Annex and the other with Bungalow\u201d can no longer hold \u2014 a contradiction.",
+      "So Cloister goes with 95%."
+     ]
     },
     {
      "key": "2-3",
@@ -12005,7 +12457,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Greenhouse went with 100% \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Greenhouse went with 100% \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Greenhouse goes with 100%.",
+      "100% goes with Greenhouse, so Annex can't go with 100%.",
+      "100% goes with Greenhouse, so Bungalow can't go with 100%.",
+      "\u2026but now the clue \u201cBetween Chemistry and 100%, one goes with Annex and the other with Bungalow\u201d can no longer hold \u2014 a contradiction.",
+      "So Greenhouse does not go with 100%."
+     ]
     },
     {
      "key": "2-3",
@@ -12015,7 +12474,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Workshop went with 100% \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Workshop went with 100% \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Workshop goes with 100%.",
+      "Workshop goes with 100%, so it can't also go with 80%.",
+      "Workshop goes with 100%, so it can't also go with 85%.",
+      "Workshop goes with 100%, so it can't also go with 105%.",
+      "100% goes with Workshop, so Annex can't go with 100%.",
+      "100% goes with Workshop, so Bungalow can't go with 100%.",
+      "Workshop goes with 100%, but Frost doesn't, so Frost doesn't go with Workshop.",
+      "Workshop goes with 100%, but Music doesn't, so Music doesn't go with Workshop.",
+      "\u2026but now the clue \u201cWorkshop goes with exactly two of Frost, Music, and 105%\u201d can no longer hold \u2014 a contradiction.",
+      "So Workshop does not go with 100%."
+     ]
     },
     {
      "key": "2-3",
@@ -12025,7 +12496,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Workshop went with 105% \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Workshop went with 105% \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Workshop goes with 105%.",
+      "Workshop goes with 105%, but Frost doesn't, so Frost doesn't go with Workshop.",
+      "Workshop goes with 105%, but Music doesn't, so Music doesn't go with Workshop.",
+      "\u2026but now the clue \u201cWorkshop goes with exactly two of Frost, Music, and 105%\u201d can no longer hold \u2014 a contradiction.",
+      "So Workshop does not go with 105%."
+     ]
     },
     {
      "key": "0-2",
@@ -12635,7 +13113,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Chemistry went with Greenhouse \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Chemistry went with Greenhouse \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Chemistry goes with Greenhouse.",
+      "Chemistry goes with Greenhouse, so it can't also go with Annex.",
+      "Chemistry goes with Greenhouse, so it can't also go with Bungalow.",
+      "\u2026but now the clue \u201cBetween Chemistry and 100%, one goes with Annex and the other with Bungalow\u201d can no longer hold \u2014 a contradiction.",
+      "So Chemistry does not go with Greenhouse."
+     ]
     },
     {
      "key": "0-1",
@@ -12645,7 +13130,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Ellis went with French \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Ellis went with French \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Ellis goes with French.",
+      "Ellis goes with French, so it can't also go with Chemistry.",
+      "French goes with Ellis, but 80% doesn't, so French doesn't go with 80%.",
+      "French goes with Ellis, but 90% doesn't, so French doesn't go with 90%.",
+      "From the clue \u201cChemistry does not go with Ellis if and only if 105% goes with Geography\u201d \u2014 Geography must go with 105%.",
+      "Geography goes with 105%, so it can't also go with 80%.",
+      "Geography goes with 105%, so it can't also go with 90%.",
+      "In Subject \u00d7 Grade, 80% must go with Art \u2014 every other Subject is already crossed out for it.",
+      "In Subject \u00d7 Grade, 90% must go with Art \u2014 every other Subject is already crossed out for it.",
+      "Art goes with 80%, so it can't also go with 90%. But Art was already shown to go with 90% \u2014 a contradiction.",
+      "So Ellis does not go with French."
+     ]
     },
     {
      "key": "0-2",
@@ -12655,7 +13153,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boyd didn't go with Bungalow \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Boyd didn't go with Bungalow \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Boyd does not go with Bungalow.",
+      "In Teacher, Chemistry must be Boyd or Ellis, but Bungalow can be none of those, so they can't be the same.",
+      "In Teacher, Bungalow must be Carver, Dunn, or Nash, but 100% can be none of those, so they can't be the same.",
+      "In Teacher, Bungalow must be Carver, Dunn, or Nash, but 105% can be none of those, so they can't be the same.",
+      "In Subject \u00d7 Room, Chemistry must go with Annex \u2014 every other Room is already crossed out for it.",
+      "In Room \u00d7 Grade, Bungalow must go with 80% \u2014 every other Grade is already crossed out for it.",
+      "In Room \u00d7 Grade, 100% must go with Annex \u2014 every other Room is already crossed out for it.",
+      "Annex goes with Chemistry, so Art can't go with Annex.",
+      "Annex goes with Chemistry, so English can't go with Annex.",
+      "Annex goes with Chemistry, so French can't go with Annex.",
+      "Annex goes with Chemistry, so Geography can't go with Annex.",
+      "Annex goes with 100%, so it can't also go with 80%.",
+      "Annex goes with 100%, so it can't also go with 105%.",
+      "80% goes with Bungalow, so Greenhouse can't go with 80%.",
+      "In Room \u00d7 Grade, Greenhouse must go with 105% \u2014 every other Grade is already crossed out for it.",
+      "Chemistry goes with Annex, and 100% goes with Annex, so Chemistry goes with 100%.",
+      "Chemistry goes with 100%, so it can't also go with 105%.",
+      "100% goes with Chemistry, so Art can't go with 100%.",
+      "100% goes with Chemistry, so English can't go with 100%.",
+      "100% goes with Chemistry, so French can't go with 100%.",
+      "100% goes with Chemistry, so Geography can't go with 100%.",
+      "80% goes with Bungalow, but Geography doesn't, so Geography doesn't go with 80%.",
+      "Bungalow goes with 80%, but English doesn't, so English doesn't go with Bungalow.",
+      "In Subject \u00d7 Room, English must go with Cloister \u2014 every other Room is already crossed out for it.",
+      "In Subject \u00d7 Grade, English must go with 95% \u2014 every other Grade is already crossed out for it.",
+      "Cloister goes with English, so Art can't go with Cloister.",
+      "Cloister goes with English, so French can't go with Cloister.",
+      "95% goes with English, so Art can't go with 95%.",
+      "95% goes with English, so French can't go with 95%.",
+      "\u2026but now the clue \u201cBetween Chemistry and 100%, one goes with Annex and the other with Bungalow\u201d can no longer hold \u2014 a contradiction.",
+      "So Boyd goes with Bungalow."
+     ]
     },
     {
      "key": "0-2",
@@ -14161,7 +14692,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Dough didn't go with 18 lb \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Dough didn't go with 18 lb \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Dough does not go with 18 lb.",
+      "In Bait \u00d7 Weight, Dough must go with 20 lb \u2014 every other Weight is already crossed out for it.",
+      "20 lb goes with Dough, so Corn can't go with 20 lb.",
+      "20 lb goes with Dough, so Cricket can't go with 20 lb.",
+      "\u2026but now the clue \u201cBetween Jig and 20 lb, one goes with Corn and the other with Cricket\u201d can no longer hold \u2014 a contradiction.",
+      "So Dough goes with 18 lb."
+     ]
     },
     {
      "key": "2-3",
@@ -14271,7 +14810,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Leech went with 20 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Leech went with 20 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Leech goes with 20 lb.",
+      "20 lb goes with Leech, so Corn can't go with 20 lb.",
+      "20 lb goes with Leech, so Cricket can't go with 20 lb.",
+      "\u2026but now the clue \u201cBetween Jig and 20 lb, one goes with Corn and the other with Cricket\u201d can no longer hold \u2014 a contradiction.",
+      "So Leech does not go with 20 lb."
+     ]
     },
     {
      "key": "2-3",
@@ -14281,7 +14827,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Shrimp went with 20 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Shrimp went with 20 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Shrimp goes with 20 lb.",
+      "Shrimp goes with 20 lb, so it can't also go with 12 lb.",
+      "Shrimp goes with 20 lb, so it can't also go with 14 lb.",
+      "Shrimp goes with 20 lb, so it can't also go with 22 lb.",
+      "20 lb goes with Shrimp, so Corn can't go with 20 lb.",
+      "20 lb goes with Shrimp, so Cricket can't go with 20 lb.",
+      "Shrimp goes with 20 lb, but Mabel doesn't, so Mabel doesn't go with Shrimp.",
+      "Shrimp goes with 20 lb, but Wobbler doesn't, so Wobbler doesn't go with Shrimp.",
+      "\u2026but now the clue \u201cShrimp goes with exactly two of Mabel, Wobbler, and 22 lb\u201d can no longer hold \u2014 a contradiction.",
+      "So Shrimp does not go with 20 lb."
+     ]
     },
     {
      "key": "2-3",
@@ -14291,7 +14849,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Shrimp went with 22 lb \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Shrimp went with 22 lb \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Shrimp goes with 22 lb.",
+      "Shrimp goes with 22 lb, but Mabel doesn't, so Mabel doesn't go with Shrimp.",
+      "Shrimp goes with 22 lb, but Wobbler doesn't, so Wobbler doesn't go with Shrimp.",
+      "\u2026but now the clue \u201cShrimp goes with exactly two of Mabel, Wobbler, and 22 lb\u201d can no longer hold \u2014 a contradiction.",
+      "So Shrimp does not go with 22 lb."
+     ]
     },
     {
      "key": "0-2",
@@ -14901,7 +15466,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Jig went with Leech \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Jig went with Leech \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Jig goes with Leech.",
+      "Jig goes with Leech, so it can't also go with Corn.",
+      "Jig goes with Leech, so it can't also go with Cricket.",
+      "\u2026but now the clue \u201cBetween Jig and 20 lb, one goes with Corn and the other with Cricket\u201d can no longer hold \u2014 a contradiction.",
+      "So Jig does not go with Leech."
+     ]
     },
     {
      "key": "0-1",
@@ -14911,7 +15483,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Gus went with Spinnerbait \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Gus went with Spinnerbait \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Gus goes with Spinnerbait.",
+      "Gus goes with Spinnerbait, so it can't also go with Jig.",
+      "Spinnerbait goes with Gus, but 12 lb doesn't, so Spinnerbait doesn't go with 12 lb.",
+      "Spinnerbait goes with Gus, but 16 lb doesn't, so Spinnerbait doesn't go with 16 lb.",
+      "From the clue \u201cJig does not go with Gus if and only if 22 lb goes with Spoon\u201d \u2014 Spoon must go with 22 lb.",
+      "Spoon goes with 22 lb, so it can't also go with 12 lb.",
+      "Spoon goes with 22 lb, so it can't also go with 16 lb.",
+      "In Lure \u00d7 Weight, 12 lb must go with Buzzbait \u2014 every other Lure is already crossed out for it.",
+      "In Lure \u00d7 Weight, 16 lb must go with Buzzbait \u2014 every other Lure is already crossed out for it.",
+      "Buzzbait goes with 12 lb, so it can't also go with 16 lb. But Buzzbait was already shown to go with 16 lb \u2014 a contradiction.",
+      "So Gus does not go with Spinnerbait."
+     ]
     },
     {
      "key": "0-2",
@@ -14921,7 +15506,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Cody didn't go with Cricket \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Cody didn't go with Cricket \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Cody does not go with Cricket.",
+      "In Angler, Jig must be Cody or Gus, but Cricket can be none of those, so they can't be the same.",
+      "In Angler, Cricket must be Dale, Esther, or Wade, but 20 lb can be none of those, so they can't be the same.",
+      "In Angler, Cricket must be Dale, Esther, or Wade, but 22 lb can be none of those, so they can't be the same.",
+      "In Lure \u00d7 Bait, Jig must go with Corn \u2014 every other Bait is already crossed out for it.",
+      "In Bait \u00d7 Weight, Cricket must go with 12 lb \u2014 every other Weight is already crossed out for it.",
+      "In Bait \u00d7 Weight, 20 lb must go with Corn \u2014 every other Bait is already crossed out for it.",
+      "Corn goes with Jig, so Buzzbait can't go with Corn.",
+      "Corn goes with Jig, so Popper can't go with Corn.",
+      "Corn goes with Jig, so Spinnerbait can't go with Corn.",
+      "Corn goes with Jig, so Spoon can't go with Corn.",
+      "Corn goes with 20 lb, so it can't also go with 12 lb.",
+      "Corn goes with 20 lb, so it can't also go with 22 lb.",
+      "12 lb goes with Cricket, so Leech can't go with 12 lb.",
+      "In Bait \u00d7 Weight, Leech must go with 22 lb \u2014 every other Weight is already crossed out for it.",
+      "Jig goes with Corn, and 20 lb goes with Corn, so Jig goes with 20 lb.",
+      "Jig goes with 20 lb, so it can't also go with 22 lb.",
+      "20 lb goes with Jig, so Buzzbait can't go with 20 lb.",
+      "20 lb goes with Jig, so Popper can't go with 20 lb.",
+      "20 lb goes with Jig, so Spinnerbait can't go with 20 lb.",
+      "20 lb goes with Jig, so Spoon can't go with 20 lb.",
+      "12 lb goes with Cricket, but Spoon doesn't, so Spoon doesn't go with 12 lb.",
+      "Cricket goes with 12 lb, but Popper doesn't, so Popper doesn't go with Cricket.",
+      "In Lure \u00d7 Bait, Popper must go with Dough \u2014 every other Bait is already crossed out for it.",
+      "In Lure \u00d7 Weight, Popper must go with 18 lb \u2014 every other Weight is already crossed out for it.",
+      "Dough goes with Popper, so Buzzbait can't go with Dough.",
+      "Dough goes with Popper, so Spinnerbait can't go with Dough.",
+      "18 lb goes with Popper, so Buzzbait can't go with 18 lb.",
+      "18 lb goes with Popper, so Spinnerbait can't go with 18 lb.",
+      "\u2026but now the clue \u201cBetween Jig and 20 lb, one goes with Corn and the other with Cricket\u201d can no longer hold \u2014 a contradiction.",
+      "So Cody goes with Cricket."
+     ]
     },
     {
      "key": "0-2",
@@ -15913,14 +16531,14 @@
      ]
     },
     {
-     "name": "Tactic",
+     "name": "Set",
      "items": [
-      "Discovery",
-      "Fork",
-      "Gambit",
-      "Pin",
-      "Sacrifice",
-      "Zwischenzug"
+      "Boxwood",
+      "Ebony",
+      "Glass",
+      "Maple",
+      "Marble",
+      "Walnut"
      ]
     },
     {
@@ -15936,55 +16554,55 @@
     }
    ],
    "clues": [
-    "The Slav player's rating is between Garry and the player who loves the Fork.",
-    "Magnus, Pirc, Fork, and 2193 belong to different players.",
-    "The player who loves the Gambit's rating is lower than both Boris and the French player.",
-    "Either Vera goes with Sacrifice, or Pirc goes with 1893 \u2014 but not both.",
+    "The Slav player's rating is between Garry and the player with the Ebony set.",
+    "Magnus, Pirc, Ebony, and 2193 belong to different players.",
+    "The player with the Glass set's rating is lower than both Boris and the French player.",
+    "Either Vera goes with Marble, or Pirc goes with 1893 \u2014 but not both.",
     "The London player's rating is at most 300 away from Judit.",
     "The Italian player has a higher rating than Mikhail.",
     "French does not go with Magnus if and only if 2393 goes with Pirc.",
-    "Zwischenzug goes with exactly two of Mikhail, Slav, and 2393.",
-    "Between French and 2293, one goes with Discovery and the other with Fork.",
+    "Walnut goes with exactly two of Mikhail, Slav, and 2393.",
+    "Between French and 2293, one goes with Boxwood and the other with Ebony.",
     "The Italian player's rating is immediately below Magnus.",
-    "Sacrifice goes with 2093.",
-    "Pin goes with at least one of Boris or London.",
-    "The player who loves the Gambit's rating is at least 100 more than the Slav player."
+    "Marble goes with 2093.",
+    "Maple goes with at least one of Boris or London.",
+    "The player with the Glass set's rating is at least 100 more than the Slav player."
    ],
    "solution": [
     [
      "Boris",
      "Italian",
-     "Fork",
+     "Ebony",
      "2293"
     ],
     [
      "Garry",
      "London",
-     "Pin",
+     "Maple",
      "1893"
     ],
     [
      "Judit",
      "Benoni",
-     "Gambit",
+     "Glass",
      "2193"
     ],
     [
      "Magnus",
      "French",
-     "Discovery",
+     "Boxwood",
      "2393"
     ],
     [
      "Mikhail",
      "Slav",
-     "Zwischenzug",
+     "Walnut",
      "1993"
     ],
     [
      "Vera",
      "Pirc",
-     "Sacrifice",
+     "Marble",
      "2093"
     ]
    ],
@@ -15997,7 +16615,7 @@
      "link": false,
      "tier": 0,
      "tier_name": "Given",
-     "text": "From the clue \u201cMagnus, Pirc, Fork, and 2193 belong to different players\u201d \u2014 Magnus can't go with Pirc."
+     "text": "From the clue \u201cMagnus, Pirc, Ebony, and 2193 belong to different players\u201d \u2014 Magnus can't go with Pirc."
     },
     {
      "key": "0-2",
@@ -16007,7 +16625,7 @@
      "link": false,
      "tier": 0,
      "tier_name": "Given",
-     "text": "From the clue \u201cMagnus, Pirc, Fork, and 2193 belong to different players\u201d \u2014 Magnus can't go with Fork."
+     "text": "From the clue \u201cMagnus, Pirc, Ebony, and 2193 belong to different players\u201d \u2014 Magnus can't go with Ebony."
     },
     {
      "key": "0-3",
@@ -16017,7 +16635,7 @@
      "link": false,
      "tier": 0,
      "tier_name": "Given",
-     "text": "From the clue \u201cMagnus, Pirc, Fork, and 2193 belong to different players\u201d \u2014 Magnus can't go with 2193."
+     "text": "From the clue \u201cMagnus, Pirc, Ebony, and 2193 belong to different players\u201d \u2014 Magnus can't go with 2193."
     },
     {
      "key": "1-2",
@@ -16027,7 +16645,7 @@
      "link": false,
      "tier": 0,
      "tier_name": "Given",
-     "text": "From the clue \u201cMagnus, Pirc, Fork, and 2193 belong to different players\u201d \u2014 Pirc can't go with Fork."
+     "text": "From the clue \u201cMagnus, Pirc, Ebony, and 2193 belong to different players\u201d \u2014 Pirc can't go with Ebony."
     },
     {
      "key": "1-3",
@@ -16037,7 +16655,7 @@
      "link": false,
      "tier": 0,
      "tier_name": "Given",
-     "text": "From the clue \u201cMagnus, Pirc, Fork, and 2193 belong to different players\u201d \u2014 Pirc can't go with 2193."
+     "text": "From the clue \u201cMagnus, Pirc, Ebony, and 2193 belong to different players\u201d \u2014 Pirc can't go with 2193."
     },
     {
      "key": "2-3",
@@ -16047,7 +16665,7 @@
      "link": false,
      "tier": 0,
      "tier_name": "Given",
-     "text": "From the clue \u201cMagnus, Pirc, Fork, and 2193 belong to different players\u201d \u2014 Fork can't go with 2193."
+     "text": "From the clue \u201cMagnus, Pirc, Ebony, and 2193 belong to different players\u201d \u2014 Ebony can't go with 2193."
     },
     {
      "key": "2-3",
@@ -16057,7 +16675,7 @@
      "link": true,
      "tier": 0,
      "tier_name": "Given",
-     "text": "From the clue \u201cSacrifice goes with 2093\u201d \u2014 Sacrifice must go with 2093."
+     "text": "From the clue \u201cMarble goes with 2093\u201d \u2014 Marble must go with 2093."
     },
     {
      "key": "2-3",
@@ -16067,7 +16685,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2093 goes with Sacrifice, so Discovery can't go with 2093."
+     "text": "2093 goes with Marble, so Boxwood can't go with 2093."
     },
     {
      "key": "2-3",
@@ -16077,7 +16695,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2093 goes with Sacrifice, so Fork can't go with 2093."
+     "text": "2093 goes with Marble, so Ebony can't go with 2093."
     },
     {
      "key": "2-3",
@@ -16087,7 +16705,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2093 goes with Sacrifice, so Gambit can't go with 2093."
+     "text": "2093 goes with Marble, so Glass can't go with 2093."
     },
     {
      "key": "2-3",
@@ -16097,7 +16715,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2093 goes with Sacrifice, so Pin can't go with 2093."
+     "text": "2093 goes with Marble, so Maple can't go with 2093."
     },
     {
      "key": "2-3",
@@ -16107,7 +16725,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with 2093, so it can't also go with 1893."
+     "text": "Marble goes with 2093, so it can't also go with 1893."
     },
     {
      "key": "2-3",
@@ -16117,7 +16735,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with 2093, so it can't also go with 1993."
+     "text": "Marble goes with 2093, so it can't also go with 1993."
     },
     {
      "key": "2-3",
@@ -16127,7 +16745,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with 2093, so it can't also go with 2193."
+     "text": "Marble goes with 2093, so it can't also go with 2193."
     },
     {
      "key": "2-3",
@@ -16137,7 +16755,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with 2093, so it can't also go with 2293."
+     "text": "Marble goes with 2093, so it can't also go with 2293."
     },
     {
      "key": "2-3",
@@ -16147,7 +16765,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with 2093, so it can't also go with 2393."
+     "text": "Marble goes with 2093, so it can't also go with 2393."
     },
     {
      "key": "2-3",
@@ -16157,7 +16775,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2093 goes with Sacrifice, so Zwischenzug can't go with 2093."
+     "text": "2093 goes with Marble, so Walnut can't go with 2093."
     },
     {
      "key": "0-3",
@@ -16167,7 +16785,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 1893."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 1893."
     },
     {
      "key": "1-3",
@@ -16177,7 +16795,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 1893."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 1893."
     },
     {
      "key": "2-3",
@@ -16187,7 +16805,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 Gambit can't go with 2393."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 Glass can't go with 2393."
     },
     {
      "key": "0-3",
@@ -16257,7 +16875,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Sacrifice goes with 2093, but Italian doesn't, so Italian doesn't go with Sacrifice."
+     "text": "Marble goes with 2093, but Italian doesn't, so Italian doesn't go with Marble."
     },
     {
      "key": "0-3",
@@ -16277,7 +16895,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is at least 100 more than the Slav player\u201d \u2014 Slav can't go with 2293."
+     "text": "From the clue \u201cThe player with the Glass set's rating is at least 100 more than the Slav player\u201d \u2014 Slav can't go with 2293."
     },
     {
      "key": "1-3",
@@ -16287,7 +16905,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is at least 100 more than the Slav player\u201d \u2014 Slav can't go with 2393."
+     "text": "From the clue \u201cThe player with the Glass set's rating is at least 100 more than the Slav player\u201d \u2014 Slav can't go with 2393."
     },
     {
      "key": "2-3",
@@ -16297,7 +16915,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is at least 100 more than the Slav player\u201d \u2014 Gambit can't go with 1893."
+     "text": "From the clue \u201cThe player with the Glass set's rating is at least 100 more than the Slav player\u201d \u2014 Glass can't go with 1893."
     },
     {
      "key": "0-3",
@@ -16307,7 +16925,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 1993."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 1993."
     },
     {
      "key": "1-3",
@@ -16317,7 +16935,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 1993."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 1993."
     },
     {
      "key": "1-3",
@@ -16327,7 +16945,7 @@
      "link": false,
      "tier": 4,
      "tier_name": "Advanced logic",
-     "text": "From the clue \u201cThe Slav player's rating is between Garry and the player who loves the Fork\u201d \u2014 Slav can't go with 1893."
+     "text": "From the clue \u201cThe Slav player's rating is between Garry and the player with the Ebony set\u201d \u2014 Slav can't go with 1893."
     },
     {
      "key": "2-3",
@@ -16337,7 +16955,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is at least 100 more than the Slav player\u201d \u2014 Gambit can't go with 1993."
+     "text": "From the clue \u201cThe player with the Glass set's rating is at least 100 more than the Slav player\u201d \u2014 Glass can't go with 1993."
     },
     {
      "key": "0-3",
@@ -16347,7 +16965,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 2093."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 2093."
     },
     {
      "key": "0-3",
@@ -16357,7 +16975,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 2193."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 Boris can't go with 2193."
     },
     {
      "key": "1-3",
@@ -16367,7 +16985,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 2093."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 2093."
     },
     {
      "key": "1-3",
@@ -16377,7 +16995,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 2193."
+     "text": "From the clue \u201cThe player with the Glass set's rating is lower than both Boris and the French player\u201d \u2014 French can't go with 2193."
     },
     {
      "key": "0-2",
@@ -16387,7 +17005,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Sacrifice goes with 2093, but Boris doesn't, so Boris doesn't go with Sacrifice."
+     "text": "Marble goes with 2093, but Boris doesn't, so Boris doesn't go with Marble."
     },
     {
      "key": "1-2",
@@ -16397,7 +17015,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Sacrifice goes with 2093, but French doesn't, so French doesn't go with Sacrifice."
+     "text": "Marble goes with 2093, but French doesn't, so French doesn't go with Marble."
     },
     {
      "key": "0-1",
@@ -16427,7 +17045,15 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Gambit didn't go with 2193 \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Glass didn't go with 2193 \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Glass does not go with 2193.",
+      "In Set \u00d7 Rating, Glass must go with 2293 \u2014 every other Rating is already crossed out for it.",
+      "2293 goes with Glass, so Boxwood can't go with 2293.",
+      "2293 goes with Glass, so Ebony can't go with 2293.",
+      "\u2026but now the clue \u201cBetween French and 2293, one goes with Boxwood and the other with Ebony\u201d can no longer hold \u2014 a contradiction.",
+      "So Glass goes with 2193."
+     ]
     },
     {
      "key": "2-3",
@@ -16437,7 +17063,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2193 goes with Gambit, so Discovery can't go with 2193."
+     "text": "2193 goes with Glass, so Boxwood can't go with 2193."
     },
     {
      "key": "2-3",
@@ -16447,7 +17073,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Gambit goes with 2193, so it can't also go with 2293."
+     "text": "Glass goes with 2193, so it can't also go with 2293."
     },
     {
      "key": "2-3",
@@ -16457,7 +17083,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2193 goes with Gambit, so Pin can't go with 2193."
+     "text": "2193 goes with Glass, so Maple can't go with 2193."
     },
     {
      "key": "2-3",
@@ -16467,7 +17093,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "2193 goes with Gambit, so Zwischenzug can't go with 2193."
+     "text": "2193 goes with Glass, so Walnut can't go with 2193."
     },
     {
      "key": "0-2",
@@ -16477,7 +17103,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Gambit goes with 2193, but Boris doesn't, so Boris doesn't go with Gambit."
+     "text": "Glass goes with 2193, but Boris doesn't, so Boris doesn't go with Glass."
     },
     {
      "key": "0-2",
@@ -16487,7 +17113,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Gambit goes with 2193, but Magnus doesn't, so Magnus doesn't go with Gambit."
+     "text": "Glass goes with 2193, but Magnus doesn't, so Magnus doesn't go with Glass."
     },
     {
      "key": "1-2",
@@ -16497,7 +17123,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Gambit goes with 2193, but French doesn't, so French doesn't go with Gambit."
+     "text": "Glass goes with 2193, but French doesn't, so French doesn't go with Glass."
     },
     {
      "key": "1-2",
@@ -16507,7 +17133,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Gambit goes with 2193, but Pirc doesn't, so Pirc doesn't go with Gambit."
+     "text": "Glass goes with 2193, but Pirc doesn't, so Pirc doesn't go with Glass."
     },
     {
      "key": "1-3",
@@ -16517,7 +17143,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cThe player who loves the Gambit's rating is at least 100 more than the Slav player\u201d \u2014 Slav can't go with 2193."
+     "text": "From the clue \u201cThe player with the Glass set's rating is at least 100 more than the Slav player\u201d \u2014 Slav can't go with 2193."
     },
     {
      "key": "1-2",
@@ -16527,7 +17153,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Gambit goes with 2193, but Slav doesn't, so Slav doesn't go with Gambit."
+     "text": "Glass goes with 2193, but Slav doesn't, so Slav doesn't go with Glass."
     },
     {
      "key": "2-3",
@@ -16537,7 +17163,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Pin went with 2293 \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Maple went with 2293 \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Maple goes with 2293.",
+      "2293 goes with Maple, so Boxwood can't go with 2293.",
+      "2293 goes with Maple, so Ebony can't go with 2293.",
+      "\u2026but now the clue \u201cBetween French and 2293, one goes with Boxwood and the other with Ebony\u201d can no longer hold \u2014 a contradiction.",
+      "So Maple does not go with 2293."
+     ]
     },
     {
      "key": "2-3",
@@ -16547,7 +17180,19 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Zwischenzug went with 2293 \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Walnut went with 2293 \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Walnut goes with 2293.",
+      "Walnut goes with 2293, so it can't also go with 1893.",
+      "Walnut goes with 2293, so it can't also go with 1993.",
+      "Walnut goes with 2293, so it can't also go with 2393.",
+      "2293 goes with Walnut, so Boxwood can't go with 2293.",
+      "2293 goes with Walnut, so Ebony can't go with 2293.",
+      "Walnut goes with 2293, but Mikhail doesn't, so Mikhail doesn't go with Walnut.",
+      "Walnut goes with 2293, but Slav doesn't, so Slav doesn't go with Walnut.",
+      "\u2026but now the clue \u201cWalnut goes with exactly two of Mikhail, Slav, and 2393\u201d can no longer hold \u2014 a contradiction.",
+      "So Walnut does not go with 2293."
+     ]
     },
     {
      "key": "2-3",
@@ -16557,7 +17202,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Zwischenzug went with 2393 \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Walnut went with 2393 \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Walnut goes with 2393.",
+      "Walnut goes with 2393, but Mikhail doesn't, so Mikhail doesn't go with Walnut.",
+      "Walnut goes with 2393, but Slav doesn't, so Slav doesn't go with Walnut.",
+      "\u2026but now the clue \u201cWalnut goes with exactly two of Mikhail, Slav, and 2393\u201d can no longer hold \u2014 a contradiction.",
+      "So Walnut does not go with 2393."
+     ]
     },
     {
      "key": "0-2",
@@ -16567,7 +17219,7 @@
      "link": true,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cZwischenzug goes with exactly two of Mikhail, Slav, and 2393\u201d \u2014 Mikhail must go with Zwischenzug."
+     "text": "From the clue \u201cWalnut goes with exactly two of Mikhail, Slav, and 2393\u201d \u2014 Mikhail must go with Walnut."
     },
     {
      "key": "1-2",
@@ -16577,7 +17229,7 @@
      "link": true,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cZwischenzug goes with exactly two of Mikhail, Slav, and 2393\u201d \u2014 Slav must go with Zwischenzug."
+     "text": "From the clue \u201cWalnut goes with exactly two of Mikhail, Slav, and 2393\u201d \u2014 Slav must go with Walnut."
     },
     {
      "key": "0-2",
@@ -16587,7 +17239,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Mikhail, so Boris can't go with Zwischenzug."
+     "text": "Walnut goes with Mikhail, so Boris can't go with Walnut."
     },
     {
      "key": "0-2",
@@ -16597,7 +17249,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Mikhail, so Garry can't go with Zwischenzug."
+     "text": "Walnut goes with Mikhail, so Garry can't go with Walnut."
     },
     {
      "key": "0-2",
@@ -16607,7 +17259,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Mikhail, so Judit can't go with Zwischenzug."
+     "text": "Walnut goes with Mikhail, so Judit can't go with Walnut."
     },
     {
      "key": "0-2",
@@ -16617,7 +17269,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Mikhail, so Magnus can't go with Zwischenzug."
+     "text": "Walnut goes with Mikhail, so Magnus can't go with Walnut."
     },
     {
      "key": "0-2",
@@ -16627,7 +17279,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Mikhail goes with Zwischenzug, so it can't also go with Discovery."
+     "text": "Mikhail goes with Walnut, so it can't also go with Boxwood."
     },
     {
      "key": "0-2",
@@ -16637,7 +17289,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Mikhail goes with Zwischenzug, so it can't also go with Fork."
+     "text": "Mikhail goes with Walnut, so it can't also go with Ebony."
     },
     {
      "key": "0-2",
@@ -16647,7 +17299,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Mikhail goes with Zwischenzug, so it can't also go with Gambit."
+     "text": "Mikhail goes with Walnut, so it can't also go with Glass."
     },
     {
      "key": "0-2",
@@ -16657,7 +17309,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Mikhail goes with Zwischenzug, so it can't also go with Pin."
+     "text": "Mikhail goes with Walnut, so it can't also go with Maple."
     },
     {
      "key": "0-2",
@@ -16667,7 +17319,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Mikhail goes with Zwischenzug, so it can't also go with Sacrifice."
+     "text": "Mikhail goes with Walnut, so it can't also go with Marble."
     },
     {
      "key": "0-2",
@@ -16677,7 +17329,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Mikhail, so Vera can't go with Zwischenzug."
+     "text": "Walnut goes with Mikhail, so Vera can't go with Walnut."
     },
     {
      "key": "1-2",
@@ -16687,7 +17339,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Slav, so Benoni can't go with Zwischenzug."
+     "text": "Walnut goes with Slav, so Benoni can't go with Walnut."
     },
     {
      "key": "1-2",
@@ -16697,7 +17349,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Slav, so French can't go with Zwischenzug."
+     "text": "Walnut goes with Slav, so French can't go with Walnut."
     },
     {
      "key": "1-2",
@@ -16707,7 +17359,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Slav, so Italian can't go with Zwischenzug."
+     "text": "Walnut goes with Slav, so Italian can't go with Walnut."
     },
     {
      "key": "1-2",
@@ -16717,7 +17369,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Slav, so London can't go with Zwischenzug."
+     "text": "Walnut goes with Slav, so London can't go with Walnut."
     },
     {
      "key": "1-2",
@@ -16727,7 +17379,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Zwischenzug goes with Slav, so Pirc can't go with Zwischenzug."
+     "text": "Walnut goes with Slav, so Pirc can't go with Walnut."
     },
     {
      "key": "1-2",
@@ -16737,7 +17389,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Slav goes with Zwischenzug, so it can't also go with Discovery."
+     "text": "Slav goes with Walnut, so it can't also go with Boxwood."
     },
     {
      "key": "1-2",
@@ -16747,7 +17399,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Slav goes with Zwischenzug, so it can't also go with Fork."
+     "text": "Slav goes with Walnut, so it can't also go with Ebony."
     },
     {
      "key": "1-2",
@@ -16757,7 +17409,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Slav goes with Zwischenzug, so it can't also go with Pin."
+     "text": "Slav goes with Walnut, so it can't also go with Maple."
     },
     {
      "key": "1-2",
@@ -16767,7 +17419,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Slav goes with Zwischenzug, so it can't also go with Sacrifice."
+     "text": "Slav goes with Walnut, so it can't also go with Marble."
     },
     {
      "key": "0-1",
@@ -16777,7 +17429,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Slav goes with Zwischenzug, but Garry doesn't, so Garry doesn't go with Slav."
+     "text": "Slav goes with Walnut, but Garry doesn't, so Garry doesn't go with Slav."
     },
     {
      "key": "0-1",
@@ -16787,7 +17439,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Slav goes with Zwischenzug, but Judit doesn't, so Judit doesn't go with Slav."
+     "text": "Slav goes with Walnut, but Judit doesn't, so Judit doesn't go with Slav."
     },
     {
      "key": "0-1",
@@ -16797,7 +17449,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Slav goes with Zwischenzug, but Magnus doesn't, so Magnus doesn't go with Slav."
+     "text": "Slav goes with Walnut, but Magnus doesn't, so Magnus doesn't go with Slav."
     },
     {
      "key": "0-1",
@@ -16807,7 +17459,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Mikhail goes with Zwischenzug, but Benoni doesn't, so Mikhail doesn't go with Benoni."
+     "text": "Mikhail goes with Walnut, but Benoni doesn't, so Mikhail doesn't go with Benoni."
     },
     {
      "key": "0-1",
@@ -16817,7 +17469,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Mikhail goes with Zwischenzug, but Italian doesn't, so Mikhail doesn't go with Italian."
+     "text": "Mikhail goes with Walnut, but Italian doesn't, so Mikhail doesn't go with Italian."
     },
     {
      "key": "0-1",
@@ -16827,7 +17479,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Mikhail goes with Zwischenzug, but London doesn't, so Mikhail doesn't go with London."
+     "text": "Mikhail goes with Walnut, but London doesn't, so Mikhail doesn't go with London."
     },
     {
      "key": "0-1",
@@ -16837,7 +17489,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Mikhail goes with Zwischenzug, but Pirc doesn't, so Mikhail doesn't go with Pirc."
+     "text": "Mikhail goes with Walnut, but Pirc doesn't, so Mikhail doesn't go with Pirc."
     },
     {
      "key": "0-1",
@@ -16847,7 +17499,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Mikhail goes with Zwischenzug, and Slav goes with Zwischenzug, so Mikhail goes with Slav."
+     "text": "Mikhail goes with Walnut, and Slav goes with Walnut, so Mikhail goes with Slav."
     },
     {
      "key": "0-1",
@@ -16857,7 +17509,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Slav goes with Zwischenzug, but Vera doesn't, so Vera doesn't go with Slav."
+     "text": "Slav goes with Walnut, but Vera doesn't, so Vera doesn't go with Slav."
     },
     {
      "key": "0-3",
@@ -16877,7 +17529,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2093 goes with Sacrifice, but Mikhail doesn't, so Mikhail doesn't go with 2093."
+     "text": "2093 goes with Marble, but Mikhail doesn't, so Mikhail doesn't go with 2093."
     },
     {
      "key": "0-3",
@@ -16887,7 +17539,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2193 goes with Gambit, but Mikhail doesn't, so Mikhail doesn't go with 2193."
+     "text": "2193 goes with Glass, but Mikhail doesn't, so Mikhail doesn't go with 2193."
     },
     {
      "key": "1-3",
@@ -16897,7 +17549,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2093 goes with Sacrifice, but Slav doesn't, so Slav doesn't go with 2093."
+     "text": "2093 goes with Marble, but Slav doesn't, so Slav doesn't go with 2093."
     },
     {
      "key": "2-3",
@@ -16907,7 +17559,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Zwischenzug goes with Slav, but 1893 doesn't, so Zwischenzug doesn't go with 1893."
+     "text": "Walnut goes with Slav, but 1893 doesn't, so Walnut doesn't go with 1893."
     },
     {
      "key": "0-3",
@@ -16937,7 +17589,7 @@
      "link": true,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "In Tactic \u00d7 Rating, Zwischenzug must go with 1993 \u2014 every other Rating is already crossed out for it."
+     "text": "In Set \u00d7 Rating, Walnut must go with 1993 \u2014 every other Rating is already crossed out for it."
     },
     {
      "key": "0-3",
@@ -17017,7 +17669,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "1993 goes with Zwischenzug, so Discovery can't go with 1993."
+     "text": "1993 goes with Walnut, so Boxwood can't go with 1993."
     },
     {
      "key": "2-3",
@@ -17027,7 +17679,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "1993 goes with Zwischenzug, so Fork can't go with 1993."
+     "text": "1993 goes with Walnut, so Ebony can't go with 1993."
     },
     {
      "key": "2-3",
@@ -17037,7 +17689,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "1993 goes with Zwischenzug, so Pin can't go with 1993."
+     "text": "1993 goes with Walnut, so Maple can't go with 1993."
     },
     {
      "key": "0-3",
@@ -17057,7 +17709,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Sacrifice goes with 2093, but Magnus doesn't, so Magnus doesn't go with Sacrifice."
+     "text": "Marble goes with 2093, but Magnus doesn't, so Magnus doesn't go with Marble."
     },
     {
      "key": "1-2",
@@ -17067,7 +17719,7 @@
      "link": false,
      "tier": 4,
      "tier_name": "Advanced logic",
-     "text": "in Rating, Italian must be 2193 or 2293, but Pin can be none of those, so they can't be the same."
+     "text": "in Rating, Italian must be 2193 or 2293, but Maple can be none of those, so they can't be the same."
     },
     {
      "key": "0-3",
@@ -17167,7 +17819,14 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose French went with Pin \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose French went with Maple \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming French goes with Maple.",
+      "French goes with Maple, so it can't also go with Boxwood.",
+      "French goes with Maple, so it can't also go with Ebony.",
+      "\u2026but now the clue \u201cBetween French and 2293, one goes with Boxwood and the other with Ebony\u201d can no longer hold \u2014 a contradiction.",
+      "So French does not go with Maple."
+     ]
     },
     {
      "key": "0-1",
@@ -17177,7 +17836,20 @@
      "link": false,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Magnus went with London \u2014 following the clues from there hits a contradiction, so it doesn't."
+     "text": "Suppose Magnus went with London \u2014 following the clues from there hits a contradiction, so it doesn't.",
+     "chain": [
+      "Start by assuming Magnus goes with London.",
+      "Magnus goes with London, so it can't also go with French.",
+      "London goes with Magnus, but 1893 doesn't, so London doesn't go with 1893.",
+      "London goes with Magnus, but 2093 doesn't, so London doesn't go with 2093.",
+      "From the clue \u201cFrench does not go with Magnus if and only if 2393 goes with Pirc\u201d \u2014 Pirc must go with 2393.",
+      "Pirc goes with 2393, so it can't also go with 1893.",
+      "Pirc goes with 2393, so it can't also go with 2093.",
+      "In Opening \u00d7 Rating, 1893 must go with Benoni \u2014 every other Opening is already crossed out for it.",
+      "In Opening \u00d7 Rating, 2093 must go with Benoni \u2014 every other Opening is already crossed out for it.",
+      "Benoni goes with 1893, so it can't also go with 2093. But Benoni was already shown to go with 2093 \u2014 a contradiction.",
+      "So Magnus does not go with London."
+     ]
     },
     {
      "key": "0-2",
@@ -17187,7 +17859,40 @@
      "link": true,
      "tier": 5,
      "tier_name": "What-if",
-     "text": "Suppose Boris didn't go with Fork \u2014 that hits a contradiction, so it does."
+     "text": "Suppose Boris didn't go with Ebony \u2014 that hits a contradiction, so it does.",
+     "chain": [
+      "Start by assuming Boris does not go with Ebony.",
+      "In Player, French must be Boris or Magnus, but Ebony can be none of those, so they can't be the same.",
+      "In Player, Ebony must be Garry, Judit, or Vera, but 2293 can be none of those, so they can't be the same.",
+      "In Player, Ebony must be Garry, Judit, or Vera, but 2393 can be none of those, so they can't be the same.",
+      "In Opening \u00d7 Set, French must go with Boxwood \u2014 every other Set is already crossed out for it.",
+      "In Set \u00d7 Rating, Ebony must go with 1893 \u2014 every other Rating is already crossed out for it.",
+      "In Set \u00d7 Rating, 2293 must go with Boxwood \u2014 every other Set is already crossed out for it.",
+      "Boxwood goes with French, so Benoni can't go with Boxwood.",
+      "Boxwood goes with French, so Italian can't go with Boxwood.",
+      "Boxwood goes with French, so London can't go with Boxwood.",
+      "Boxwood goes with French, so Pirc can't go with Boxwood.",
+      "Boxwood goes with 2293, so it can't also go with 1893.",
+      "Boxwood goes with 2293, so it can't also go with 2393.",
+      "1893 goes with Ebony, so Maple can't go with 1893.",
+      "In Set \u00d7 Rating, Maple must go with 2393 \u2014 every other Rating is already crossed out for it.",
+      "French goes with Boxwood, and 2293 goes with Boxwood, so French goes with 2293.",
+      "French goes with 2293, so it can't also go with 2393.",
+      "2293 goes with French, so Benoni can't go with 2293.",
+      "2293 goes with French, so Italian can't go with 2293.",
+      "2293 goes with French, so London can't go with 2293.",
+      "2293 goes with French, so Pirc can't go with 2293.",
+      "1893 goes with Ebony, but Pirc doesn't, so Pirc doesn't go with 1893.",
+      "Ebony goes with 1893, but Italian doesn't, so Italian doesn't go with Ebony.",
+      "In Opening \u00d7 Set, Italian must go with Glass \u2014 every other Set is already crossed out for it.",
+      "In Opening \u00d7 Rating, Italian must go with 2193 \u2014 every other Rating is already crossed out for it.",
+      "Glass goes with Italian, so Benoni can't go with Glass.",
+      "Glass goes with Italian, so London can't go with Glass.",
+      "2193 goes with Italian, so Benoni can't go with 2193.",
+      "2193 goes with Italian, so London can't go with 2193.",
+      "\u2026but now the clue \u201cBetween French and 2293, one goes with Boxwood and the other with Ebony\u201d can no longer hold \u2014 a contradiction.",
+      "So Boris goes with Ebony."
+     ]
     },
     {
      "key": "0-2",
@@ -17197,7 +17902,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Boris goes with Fork, so it can't also go with Discovery."
+     "text": "Boris goes with Ebony, so it can't also go with Boxwood."
     },
     {
      "key": "0-2",
@@ -17207,7 +17912,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Boris goes with Fork, so it can't also go with Pin."
+     "text": "Boris goes with Ebony, so it can't also go with Maple."
     },
     {
      "key": "0-2",
@@ -17217,7 +17922,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Fork goes with Boris, so Garry can't go with Fork."
+     "text": "Ebony goes with Boris, so Garry can't go with Ebony."
     },
     {
      "key": "0-2",
@@ -17227,7 +17932,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Fork goes with Boris, so Judit can't go with Fork."
+     "text": "Ebony goes with Boris, so Judit can't go with Ebony."
     },
     {
      "key": "0-2",
@@ -17237,7 +17942,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Fork goes with Boris, so Vera can't go with Fork."
+     "text": "Ebony goes with Boris, so Vera can't go with Ebony."
     },
     {
      "key": "0-1",
@@ -17247,7 +17952,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Boris goes with Fork, but Pirc doesn't, so Boris doesn't go with Pirc."
+     "text": "Boris goes with Ebony, but Pirc doesn't, so Boris doesn't go with Pirc."
     },
     {
      "key": "2-3",
@@ -17257,7 +17962,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Fork goes with Boris, but 1893 doesn't, so Fork doesn't go with 1893."
+     "text": "Ebony goes with Boris, but 1893 doesn't, so Ebony doesn't go with 1893."
     },
     {
      "key": "1-2",
@@ -17267,7 +17972,7 @@
      "link": true,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cPin goes with at least one of Boris or London\u201d \u2014 London must go with Pin."
+     "text": "From the clue \u201cMaple goes with at least one of Boris or London\u201d \u2014 London must go with Maple."
     },
     {
      "key": "1-2",
@@ -17277,7 +17982,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Pin goes with London, so Benoni can't go with Pin."
+     "text": "Maple goes with London, so Benoni can't go with Maple."
     },
     {
      "key": "1-2",
@@ -17287,7 +17992,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "London goes with Pin, so it can't also go with Discovery."
+     "text": "London goes with Maple, so it can't also go with Boxwood."
     },
     {
      "key": "1-2",
@@ -17297,7 +18002,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "London goes with Pin, so it can't also go with Fork."
+     "text": "London goes with Maple, so it can't also go with Ebony."
     },
     {
      "key": "1-2",
@@ -17307,7 +18012,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "London goes with Pin, so it can't also go with Gambit."
+     "text": "London goes with Maple, so it can't also go with Glass."
     },
     {
      "key": "1-2",
@@ -17317,7 +18022,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "London goes with Pin, so it can't also go with Sacrifice."
+     "text": "London goes with Maple, so it can't also go with Marble."
     },
     {
      "key": "1-2",
@@ -17327,7 +18032,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Pin goes with London, so Pirc can't go with Pin."
+     "text": "Maple goes with London, so Pirc can't go with Maple."
     },
     {
      "key": "0-1",
@@ -17337,7 +18042,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Boris goes with Fork, but London doesn't, so Boris doesn't go with London."
+     "text": "Boris goes with Ebony, but London doesn't, so Boris doesn't go with London."
     },
     {
      "key": "0-2",
@@ -17347,7 +18052,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Pin goes with London, but Magnus doesn't, so Magnus doesn't go with Pin."
+     "text": "Maple goes with London, but Magnus doesn't, so Magnus doesn't go with Maple."
     },
     {
      "key": "1-3",
@@ -17357,7 +18062,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "London goes with Pin, but 2093 doesn't, so London doesn't go with 2093."
+     "text": "London goes with Maple, but 2093 doesn't, so London doesn't go with 2093."
     },
     {
      "key": "1-3",
@@ -17367,7 +18072,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2193 goes with Gambit, but London doesn't, so London doesn't go with 2193."
+     "text": "2193 goes with Glass, but London doesn't, so London doesn't go with 2193."
     },
     {
      "key": "1-3",
@@ -17377,7 +18082,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "London goes with Pin, but 2293 doesn't, so London doesn't go with 2293."
+     "text": "London goes with Maple, but 2293 doesn't, so London doesn't go with 2293."
     },
     {
      "key": "0-2",
@@ -17387,7 +18092,7 @@
      "link": true,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "In Player \u00d7 Tactic, Magnus must go with Discovery \u2014 every other Tactic is already crossed out for it."
+     "text": "In Player \u00d7 Set, Magnus must go with Boxwood \u2014 every other Set is already crossed out for it."
     },
     {
      "key": "0-2",
@@ -17397,7 +18102,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Discovery goes with Magnus, so Garry can't go with Discovery."
+     "text": "Boxwood goes with Magnus, so Garry can't go with Boxwood."
     },
     {
      "key": "0-2",
@@ -17407,7 +18112,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Discovery goes with Magnus, so Judit can't go with Discovery."
+     "text": "Boxwood goes with Magnus, so Judit can't go with Boxwood."
     },
     {
      "key": "0-2",
@@ -17417,7 +18122,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Discovery goes with Magnus, so Vera can't go with Discovery."
+     "text": "Boxwood goes with Magnus, so Vera can't go with Boxwood."
     },
     {
      "key": "1-2",
@@ -17427,7 +18132,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Discovery goes with Magnus, but Pirc doesn't, so Pirc doesn't go with Discovery."
+     "text": "Boxwood goes with Magnus, but Pirc doesn't, so Pirc doesn't go with Boxwood."
     },
     {
      "key": "2-3",
@@ -17437,7 +18142,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Discovery goes with Magnus, but 1893 doesn't, so Discovery doesn't go with 1893."
+     "text": "Boxwood goes with Magnus, but 1893 doesn't, so Boxwood doesn't go with 1893."
     },
     {
      "key": "1-2",
@@ -17447,7 +18152,7 @@
      "link": true,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "In Opening \u00d7 Tactic, Pirc must go with Sacrifice \u2014 every other Tactic is already crossed out for it."
+     "text": "In Opening \u00d7 Set, Pirc must go with Marble \u2014 every other Set is already crossed out for it."
     },
     {
      "key": "2-3",
@@ -17457,7 +18162,7 @@
      "link": true,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "In Tactic \u00d7 Rating, 1893 must go with Pin \u2014 every other Tactic is already crossed out for it."
+     "text": "In Set \u00d7 Rating, 1893 must go with Maple \u2014 every other Set is already crossed out for it."
     },
     {
      "key": "1-2",
@@ -17467,7 +18172,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with Pirc, so Benoni can't go with Sacrifice."
+     "text": "Marble goes with Pirc, so Benoni can't go with Marble."
     },
     {
      "key": "2-3",
@@ -17477,7 +18182,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Pin goes with 1893, so it can't also go with 2393."
+     "text": "Maple goes with 1893, so it can't also go with 2393."
     },
     {
      "key": "1-3",
@@ -17487,7 +18192,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "1893 goes with Pin, but Benoni doesn't, so Benoni doesn't go with 1893."
+     "text": "1893 goes with Maple, but Benoni doesn't, so Benoni doesn't go with 1893."
     },
     {
      "key": "1-3",
@@ -17497,7 +18202,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2093 goes with Sacrifice, but Benoni doesn't, so Benoni doesn't go with 2093."
+     "text": "2093 goes with Marble, but Benoni doesn't, so Benoni doesn't go with 2093."
     },
     {
      "key": "1-3",
@@ -17507,7 +18212,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "London goes with Pin, and 1893 goes with Pin, so London goes with 1893."
+     "text": "London goes with Maple, and 1893 goes with Maple, so London goes with 1893."
     },
     {
      "key": "1-3",
@@ -17517,7 +18222,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "London goes with Pin, but 2393 doesn't, so London doesn't go with 2393."
+     "text": "London goes with Maple, but 2393 doesn't, so London doesn't go with 2393."
     },
     {
      "key": "1-3",
@@ -17527,7 +18232,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "1893 goes with Pin, but Pirc doesn't, so Pirc doesn't go with 1893."
+     "text": "1893 goes with Maple, but Pirc doesn't, so Pirc doesn't go with 1893."
     },
     {
      "key": "1-3",
@@ -17537,7 +18242,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Pirc goes with Sacrifice, and 2093 goes with Sacrifice, so Pirc goes with 2093."
+     "text": "Pirc goes with Marble, and 2093 goes with Marble, so Pirc goes with 2093."
     },
     {
      "key": "1-3",
@@ -17547,7 +18252,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Pirc goes with Sacrifice, but 2293 doesn't, so Pirc doesn't go with 2293."
+     "text": "Pirc goes with Marble, but 2293 doesn't, so Pirc doesn't go with 2293."
     },
     {
      "key": "1-3",
@@ -17557,7 +18262,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Pirc goes with Sacrifice, but 2393 doesn't, so Pirc doesn't go with 2393."
+     "text": "Pirc goes with Marble, but 2393 doesn't, so Pirc doesn't go with 2393."
     },
     {
      "key": "0-2",
@@ -17567,7 +18272,7 @@
      "link": true,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cEither Vera goes with Sacrifice, or Pirc goes with 1893 \u2014 but not both\u201d \u2014 Vera must go with Sacrifice."
+     "text": "From the clue \u201cEither Vera goes with Marble, or Pirc goes with 1893 \u2014 but not both\u201d \u2014 Vera must go with Marble."
     },
     {
      "key": "0-2",
@@ -17577,7 +18282,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with Vera, so Garry can't go with Sacrifice."
+     "text": "Marble goes with Vera, so Garry can't go with Marble."
     },
     {
      "key": "0-2",
@@ -17587,7 +18292,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Sacrifice goes with Vera, so Judit can't go with Sacrifice."
+     "text": "Marble goes with Vera, so Judit can't go with Marble."
     },
     {
      "key": "0-2",
@@ -17597,7 +18302,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Vera goes with Sacrifice, so it can't also go with Gambit."
+     "text": "Vera goes with Marble, so it can't also go with Glass."
     },
     {
      "key": "0-2",
@@ -17607,7 +18312,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Vera goes with Sacrifice, so it can't also go with Pin."
+     "text": "Vera goes with Marble, so it can't also go with Maple."
     },
     {
      "key": "0-1",
@@ -17617,7 +18322,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Pirc goes with Sacrifice, but Garry doesn't, so Garry doesn't go with Pirc."
+     "text": "Pirc goes with Marble, but Garry doesn't, so Garry doesn't go with Pirc."
     },
     {
      "key": "0-1",
@@ -17627,7 +18332,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Pirc goes with Sacrifice, but Judit doesn't, so Judit doesn't go with Pirc."
+     "text": "Pirc goes with Marble, but Judit doesn't, so Judit doesn't go with Pirc."
     },
     {
      "key": "0-1",
@@ -17637,7 +18342,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Vera goes with Sacrifice, but Benoni doesn't, so Vera doesn't go with Benoni."
+     "text": "Vera goes with Marble, but Benoni doesn't, so Vera doesn't go with Benoni."
     },
     {
      "key": "0-1",
@@ -17647,7 +18352,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Vera goes with Sacrifice, but Italian doesn't, so Vera doesn't go with Italian."
+     "text": "Vera goes with Marble, but Italian doesn't, so Vera doesn't go with Italian."
     },
     {
      "key": "0-1",
@@ -17657,7 +18362,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "London goes with Pin, but Vera doesn't, so Vera doesn't go with London."
+     "text": "London goes with Maple, but Vera doesn't, so Vera doesn't go with London."
     },
     {
      "key": "0-1",
@@ -17667,7 +18372,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Vera goes with Sacrifice, and Pirc goes with Sacrifice, so Vera goes with Pirc."
+     "text": "Vera goes with Marble, and Pirc goes with Marble, so Vera goes with Pirc."
     },
     {
      "key": "0-3",
@@ -17677,7 +18382,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2093 goes with Sacrifice, but Garry doesn't, so Garry doesn't go with 2093."
+     "text": "2093 goes with Marble, but Garry doesn't, so Garry doesn't go with 2093."
     },
     {
      "key": "0-3",
@@ -17687,7 +18392,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2093 goes with Sacrifice, but Judit doesn't, so Judit doesn't go with 2093."
+     "text": "2093 goes with Marble, but Judit doesn't, so Judit doesn't go with 2093."
     },
     {
      "key": "0-3",
@@ -17697,7 +18402,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "1893 goes with Pin, but Vera doesn't, so Vera doesn't go with 1893."
+     "text": "1893 goes with Maple, but Vera doesn't, so Vera doesn't go with 1893."
     },
     {
      "key": "0-3",
@@ -17707,7 +18412,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Vera goes with Sacrifice, and 2093 goes with Sacrifice, so Vera goes with 2093."
+     "text": "Vera goes with Marble, and 2093 goes with Marble, so Vera goes with 2093."
     },
     {
      "key": "0-3",
@@ -17717,7 +18422,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2193 goes with Gambit, but Vera doesn't, so Vera doesn't go with 2193."
+     "text": "2193 goes with Glass, but Vera doesn't, so Vera doesn't go with 2193."
     },
     {
      "key": "0-1",
@@ -17767,7 +18472,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Discovery goes with Magnus, but Benoni doesn't, so Benoni doesn't go with Discovery."
+     "text": "Boxwood goes with Magnus, but Benoni doesn't, so Benoni doesn't go with Boxwood."
     },
     {
      "key": "1-2",
@@ -17777,7 +18482,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "French goes with Magnus, and Discovery goes with Magnus, so French goes with Discovery."
+     "text": "French goes with Magnus, and Boxwood goes with Magnus, so French goes with Boxwood."
     },
     {
      "key": "1-2",
@@ -17787,7 +18492,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Fork goes with Boris, but French doesn't, so French doesn't go with Fork."
+     "text": "Ebony goes with Boris, but French doesn't, so French doesn't go with Ebony."
     },
     {
      "key": "1-2",
@@ -17797,7 +18502,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Discovery goes with Magnus, but Italian doesn't, so Italian doesn't go with Discovery."
+     "text": "Boxwood goes with Magnus, but Italian doesn't, so Italian doesn't go with Boxwood."
     },
     {
      "key": "2-3",
@@ -17807,7 +18512,7 @@
      "link": false,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cBetween French and 2293, one goes with Discovery and the other with Fork\u201d \u2014 Discovery can't go with 2293."
+     "text": "From the clue \u201cBetween French and 2293, one goes with Boxwood and the other with Ebony\u201d \u2014 Boxwood can't go with 2293."
     },
     {
      "key": "2-3",
@@ -17817,7 +18522,7 @@
      "link": true,
      "tier": 3,
      "tier_name": "Clue logic",
-     "text": "From the clue \u201cBetween French and 2293, one goes with Discovery and the other with Fork\u201d \u2014 Fork must go with 2293."
+     "text": "From the clue \u201cBetween French and 2293, one goes with Boxwood and the other with Ebony\u201d \u2014 Ebony must go with 2293."
     },
     {
      "key": "2-3",
@@ -17827,7 +18532,7 @@
      "link": true,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "In Tactic \u00d7 Rating, Discovery must go with 2393 \u2014 every other Rating is already crossed out for it."
+     "text": "In Set \u00d7 Rating, Boxwood must go with 2393 \u2014 every other Rating is already crossed out for it."
     },
     {
      "key": "2-3",
@@ -17837,7 +18542,7 @@
      "link": false,
      "tier": 1,
      "tier_name": "Elimination",
-     "text": "Fork goes with 2293, so it can't also go with 2393."
+     "text": "Ebony goes with 2293, so it can't also go with 2393."
     },
     {
      "key": "0-3",
@@ -17847,7 +18552,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Boris goes with Fork, and 2293 goes with Fork, so Boris goes with 2293."
+     "text": "Boris goes with Ebony, and 2293 goes with Ebony, so Boris goes with 2293."
     },
     {
      "key": "0-3",
@@ -17857,7 +18562,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2393 goes with Discovery, but Boris doesn't, so Boris doesn't go with 2393."
+     "text": "2393 goes with Boxwood, but Boris doesn't, so Boris doesn't go with 2393."
     },
     {
      "key": "0-3",
@@ -17867,7 +18572,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Magnus goes with Discovery, but 2293 doesn't, so Magnus doesn't go with 2293."
+     "text": "Magnus goes with Boxwood, but 2293 doesn't, so Magnus doesn't go with 2293."
     },
     {
      "key": "0-3",
@@ -17877,7 +18582,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Magnus goes with Discovery, and 2393 goes with Discovery, so Magnus goes with 2393."
+     "text": "Magnus goes with Boxwood, and 2393 goes with Boxwood, so Magnus goes with 2393."
     },
     {
      "key": "1-3",
@@ -17887,7 +18592,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "2393 goes with Discovery, but Benoni doesn't, so Benoni doesn't go with 2393."
+     "text": "2393 goes with Boxwood, but Benoni doesn't, so Benoni doesn't go with 2393."
     },
     {
      "key": "1-3",
@@ -17897,7 +18602,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "French goes with Discovery, but 2293 doesn't, so French doesn't go with 2293."
+     "text": "French goes with Boxwood, but 2293 doesn't, so French doesn't go with 2293."
     },
     {
      "key": "1-3",
@@ -17907,7 +18612,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "French goes with Discovery, and 2393 goes with Discovery, so French goes with 2393."
+     "text": "French goes with Boxwood, and 2393 goes with Boxwood, so French goes with 2393."
     },
     {
      "key": "1-3",
@@ -17997,7 +18702,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Benoni goes with 2193, but Fork doesn't, so Benoni doesn't go with Fork."
+     "text": "Benoni goes with 2193, but Ebony doesn't, so Benoni doesn't go with Ebony."
     },
     {
      "key": "1-2",
@@ -18007,7 +18712,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Benoni goes with 2193, and Gambit goes with 2193, so Benoni goes with Gambit."
+     "text": "Benoni goes with 2193, and Glass goes with 2193, so Benoni goes with Glass."
     },
     {
      "key": "1-2",
@@ -18017,7 +18722,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Italian goes with 2293, and Fork goes with 2293, so Italian goes with Fork."
+     "text": "Italian goes with 2293, and Ebony goes with 2293, so Italian goes with Ebony."
     },
     {
      "key": "1-2",
@@ -18027,7 +18732,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Gambit goes with 2193, but Italian doesn't, so Italian doesn't go with Gambit."
+     "text": "Glass goes with 2193, but Italian doesn't, so Italian doesn't go with Glass."
     },
     {
      "key": "0-3",
@@ -18037,7 +18742,7 @@
      "link": false,
      "tier": 4,
      "tier_name": "Advanced logic",
-     "text": "From the clue \u201cThe Slav player's rating is between Garry and the player who loves the Fork\u201d \u2014 Garry can't go with 2193."
+     "text": "From the clue \u201cThe Slav player's rating is between Garry and the player with the Ebony set\u201d \u2014 Garry can't go with 2193."
     },
     {
      "key": "0-3",
@@ -18117,7 +18822,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Garry goes with 1893, but Gambit doesn't, so Garry doesn't go with Gambit."
+     "text": "Garry goes with 1893, but Glass doesn't, so Garry doesn't go with Glass."
     },
     {
      "key": "0-2",
@@ -18127,7 +18832,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Garry goes with 1893, and Pin goes with 1893, so Garry goes with Pin."
+     "text": "Garry goes with 1893, and Maple goes with 1893, so Garry goes with Maple."
     },
     {
      "key": "0-2",
@@ -18137,7 +18842,7 @@
      "link": true,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Judit goes with 2193, and Gambit goes with 2193, so Judit goes with Gambit."
+     "text": "Judit goes with 2193, and Glass goes with 2193, so Judit goes with Glass."
     },
     {
      "key": "0-2",
@@ -18147,7 +18852,7 @@
      "link": false,
      "tier": 2,
      "tier_name": "Cross-reference",
-     "text": "Pin goes with 1893, but Judit doesn't, so Judit doesn't go with Pin."
+     "text": "Maple goes with 1893, but Judit doesn't, so Judit doesn't go with Maple."
     }
    ]
   }
