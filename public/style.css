@@ -45,6 +45,7 @@ h1 { margin: 0 0 .25rem; font-size: clamp(1.6rem, 4vw, 2.4rem); }
   max-width: 1100px;
   margin: 0 auto 1.5rem;
 }
+.controls label[hidden] { display: none; }  /* flex below would defeat [hidden] */
 .controls label {
   display: flex;
   flex-direction: column;
@@ -727,8 +728,8 @@ footer .src:hover { color: var(--accent); }
 .tile-kin { font-size: .74rem; color: var(--muted); }
 .tile-kin a { color: var(--accent); text-decoration: none; }
 .tile-kin a:hover { text-decoration: underline; }
-#big-back { color: var(--accent); text-decoration: none; font-size: .9rem; align-self: center; }
-#big-back:hover { text-decoration: underline; }
+#big-back { align-self: center; }
+#big-back[hidden] { display: none; }
 
 /* Daily controls bar: only text + the colorblind switch live here, so center
    the row. The label's own align-self:end + bottom padding exist to line it
