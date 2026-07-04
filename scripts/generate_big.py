@@ -123,7 +123,11 @@ def rebuild_index() -> int:
             ),
             "group_blocks": b.get("group_blocks", _group_blocks(b)),
             "sequential_clues": _sequential_clues(b),
-            "cross_dial_clues": b.get("cross_dial_clues", 0),
+            # older bundles predate the counter — the phrasing is distinctive
+            "cross_dial_clues": b.get("cross_dial_clues", sum(
+                "whoever has the" in c
+                for c in b["themes"][b["default_theme"]]["clues"]
+            )),
             "clue_count": len(b["themes"][b["default_theme"]]["clues"]),
             "themes": {key: t["name"] for key, t in b["themes"].items()},
         })
