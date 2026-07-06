@@ -1147,6 +1147,7 @@ function puzzleShapeLabel() {
 // Shared by free-play and big (DAILY has its own share, further down — it has
 // no user-chosen seed/theme to link back to).
 function sharePuzzle() {
+  if (!puzzle) return; // free-play's button lives in the always-visible controls bar
   shareOrCopy({
     text: `${puzzle.name} — a ${puzzleShapeLabel()} logic grid puzzle`,
     url: BIG ? bigShareUrl() : location.href,
@@ -1681,6 +1682,7 @@ function bigShowCatalog() {
   $("big-back").hidden = true;
   $("big-theme-wrap").hidden = true;
   $("big-filter-wrap").hidden = false;
+  $("cblind-wrap").hidden = true; // colorblind mode only matters once a grid is on screen
   $("catalog").hidden = false;
   stopTimer(false);
   if (location.hash) window.history.replaceState(null, "", location.pathname); // pre-existing shadowing bug: `history` is the undo/redo stack here
@@ -1830,6 +1832,7 @@ async function openBigPuzzle(id, { theme } = {}) {
     $("big-back").hidden = false;
     $("big-theme-wrap").hidden = false;
     $("big-filter-wrap").hidden = true;
+    $("cblind-wrap").hidden = false;
     $("puzzle").hidden = false;
     fitBoard();
     startTimer();
