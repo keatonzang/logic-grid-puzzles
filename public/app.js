@@ -32,6 +32,9 @@ let pendingHint = null;   // a fetched hint awaiting its "reveal tile" click
 let timerStart = 0;
 let timerRAF = null;
 let timerDone = false;
+// Captured once, on the checking run that first solves the puzzle — reused by
+// "Share result" even if the player clicks Check again afterward.
+let solvedElapsedMs = null;
 
 // Undo/redo. Rapid repeat clicks on one cell within this window count as a
 // single gesture (so a double-click blank → × → = undoes in one step); slower
@@ -194,6 +197,28 @@ async function postJSON(url, body) {
   );
 }
 
+// --- Sharing ------------------------------------------------------------
+// The native share sheet on mobile (email/SMS/social all show up for free);
+// desktop browsers mostly lack navigator.share, so clipboard is the fallback.
+// Reuses the existing feedback banner rather than adding a new toast component.
+async function shareOrCopy({ text, url }) {
+  const full = url ? `${text}\n${url}` : text;
+  if (navigator.share) {
+    try {
+      await navigator.share({ text: full });
+      return;
+    } catch (e) {
+      if (e.name === "AbortError") return; // the user dismissed the share sheet
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(full);
+    setFeedback("Copied to clipboard!", "good");
+  } catch (e) {
+    setFeedback("Couldn't copy automatically — link: " + (url || ""), "warn");
+  }
+}
+
 // --- Custom (user-authored) themes -------------------------------------------
 // A theme document is the single-file JSON the /builder page exports. The main
 // page plays it via POST /api/puzzle (the doc travels in the body), and every
@@ -245,6 +270,38 @@ const REROLL_CAP = 6;
 // Bumped on every generate() call so a slower earlier request can detect that a
 // newer one has superseded it and bail out instead of clobbering its puzzle.
 let genToken = 0;
+
+// A generated puzzle is fully reproducible from theme+difficulty+categories+
+// items+seed (the server seeds one random.Random up front), so every generate()
+// reflects those into the URL — a "Share puzzle" link is just the address bar.
+function reflectPuzzleURL() {
+  const p = new URLSearchParams({
+    theme: puzzle.theme,
+    difficulty: puzzle.requested,
+    categories: String(puzzle.categories.length),
+    items: String(puzzle.items),
+    seed: String(puzzle.seed),
+  });
+  window.history.replaceState(null, "", `?${p}`); // `history` here is the undo/redo stack, not window.history
+}
+
+// The read-back half of reflectPuzzleURL(): a shared link arrives with these
+// params, so pin the controls to them before the first generate() fires.
+function applySharedPuzzleParams() {
+  const p = new URLSearchParams(location.search);
+  const seed = p.get("seed");
+  if (!seed) return;
+  const theme = p.get("theme");
+  if (theme && $("theme").querySelector(`option[value="${theme}"]`)) $("theme").value = theme;
+  const difficulty = p.get("difficulty");
+  if (difficulty && BANDS.includes(difficulty)) $("difficulty").value = difficulty;
+  const categories = p.get("categories");
+  if (categories) $("categories").value = categories;
+  syncItemOptions();
+  const items = p.get("items");
+  if (items) $("items").value = items;
+  $("seed").value = seed;
+}
 
 async function generate() {
   const myGen = ++genToken;
@@ -314,6 +371,7 @@ async function generate() {
       puzzle = best;
     }
     puzzleDoc = doc; // hints must re-send exactly what this puzzle was built from
+    if (!doc) reflectPuzzleURL(); // a custom theme doc has no short URL form
     buildState();
     render();
     $("puzzle").hidden = false;
@@ -418,6 +476,8 @@ function buildState() {
   manual = {};
   linked = {};
   history.reset(); // a fresh puzzle starts with an empty undo stack
+  solvedElapsedMs = null;
+  $("share-result").hidden = true; // a new attempt hasn't earned a result to share yet
   const cats = puzzle.categories;
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
@@ -1080,6 +1140,26 @@ function clearHighlights() {
   });
 }
 
+function puzzleShapeLabel() {
+  return `${puzzle.categories.length}×${puzzle.items} ${puzzle.difficulty}`;
+}
+
+// Shared by free-play and big (DAILY has its own share, further down — it has
+// no user-chosen seed/theme to link back to).
+function sharePuzzle() {
+  shareOrCopy({
+    text: `${puzzle.name} — a ${puzzleShapeLabel()} logic grid puzzle`,
+    url: BIG ? bigShareUrl() : location.href,
+  });
+}
+
+function shareResult() {
+  shareOrCopy({
+    text: `Solved "${puzzle.name}" (${puzzleShapeLabel()}) in ${fmtTime(solvedElapsedMs)} — Logic Grid Puzzles`,
+    url: BIG ? bigShareUrl() : location.href,
+  });
+}
+
 function check() {
   if (DAILY) { dailySubmit(); return; } // no per-cell feedback on the competitive board
   clearHighlights();
@@ -1108,9 +1188,10 @@ function check() {
   if (mistakes === 0 && complete) {
     const first = !timerDone; // only the checking run that solves it reports the stats
     if (first && timerStart) {
+      solvedElapsedMs = performance.now() - timerStart;
       const steps = history.size();
       const stats =
-        `<b>${fmtTime(performance.now() - timerStart)}</b>` +
+        `<b>${fmtTime(solvedElapsedMs)}</b>` +
         ` · <b>${steps}</b> step${steps === 1 ? "" : "s"}`;
       stopTimer(true);
       setFeedback(`<b>Solved!</b> The whole table checks out — ${stats}.`, "good");
@@ -1118,6 +1199,7 @@ function check() {
       stopTimer(true);
       setFeedback("<b>Solved!</b> The whole table checks out.", "good");
     }
+    $("share-result").hidden = false;
   } else if (mistakes === 0) {
     setFeedback(`No mistakes so far — <b>${remaining}</b> more to work out.`, "warn");
   } else {
@@ -1338,6 +1420,17 @@ $("cblind").addEventListener("change", (e) => {
 let dailyDate = null;   // "YYYY-MM-DD" of the loaded puzzle
 let dailyToken = null;  // signed session token from GET /api/daily
 let dailyResult = null; // {time_ms, result_token} after a verified solve
+let dailyRank = null;   // set once claimSpot() succeeds; upgrades the share text
+
+// No seed/theme to link back to (the daily is the same puzzle for everyone),
+// so this only ever shares the *result* — time, and rank once claimed.
+function shareDailyResult() {
+  const rankBit = dailyRank ? `, rank #${dailyRank} today` : "";
+  shareOrCopy({
+    text: `Solved the Logic Grid Puzzles daily (${puzzleShapeLabel()}) in ${fmtTime(dailyResult.time_ms)}${rankBit}`,
+    url: `${location.origin}/daily`,
+  });
+}
 
 const playedKey = () => `lg.daily.played.${dailyDate}`;
 function playedName() {
@@ -1401,6 +1494,7 @@ async function dailySubmit() {
     dailyResult = res;
     stopTimer(true);
     $("timer").textContent = fmtTime(res.time_ms); // sync the readout to the official time
+    $("share-result").hidden = false;
     if (playedName()) {
       setFeedback(`<b>Correct</b> in ${fmtTime(res.time_ms)} — but you've already posted a time today, so the board stands.`, "good");
     } else {
@@ -1442,6 +1536,7 @@ async function claimSpot() {
     });
     markPlayed(res.name);
     try { localStorage.setItem(NAME_STORE, res.name); } catch (e) { /* fine */ }
+    dailyRank = res.rank || null;
     $("claim").hidden = true;
     renderLeaderboard(res.leaderboard, res.rank);
     const spot = res.rank ? `<b>#${res.rank}</b> today` : "On the board";
@@ -1555,6 +1650,15 @@ function bigNextHint() {
   return { done: true };
 }
 
+// A shared big-puzzle link: the existing #id deep link (openBigPuzzle already
+// maintains it) plus the viewer's current theme as a query param, so a friend
+// opens the same story — still free to swap it, same as any other visit.
+function bigShareUrl() {
+  const u = new URL(location.href);
+  u.search = new URLSearchParams({ theme: bigThemeKey }).toString();
+  return u.toString();
+}
+
 function setBigTheme(key, { fresh } = {}) {
   bigThemeKey = key;
   $("big-theme").value = key;
@@ -1579,7 +1683,7 @@ function bigShowCatalog() {
   $("big-filter-wrap").hidden = false;
   $("catalog").hidden = false;
   stopTimer(false);
-  if (location.hash) history.replaceState(null, "", location.pathname);
+  if (location.hash) window.history.replaceState(null, "", location.pathname); // pre-existing shadowing bug: `history` is the undo/redo stack here
 }
 
 function bigVisible() {
@@ -1696,7 +1800,7 @@ function renderCatalog() {
   }
 }
 
-async function openBigPuzzle(id) {
+async function openBigPuzzle(id, { theme } = {}) {
   $("error").hidden = true;
   $("loading").hidden = false;
   $("loading").textContent = "Fetching the puzzle…";
@@ -1717,8 +1821,10 @@ async function openBigPuzzle(id) {
       const pref = localStorage.getItem(BIG_THEME_STORE);
       if (pref && bigBundle.themes[pref]) key = pref;
     } catch (e) { /* fine */ }
-    // an active catalog filter is the strongest statement of theme intent
+    // an active catalog filter is the strongest statement of theme intent...
     if (bigThemeFilter && bigBundle.themes[bigThemeFilter]) key = bigThemeFilter;
+    // ...except an explicit shared link, which beats even that.
+    if (theme && bigBundle.themes[theme]) key = theme;
     if (location.hash.slice(1) !== id) location.hash = id; // shareable deep link
     setBigTheme(key, { fresh: true });
     $("big-back").hidden = false;
@@ -1775,8 +1881,12 @@ async function loadBig() {
   fsel.value = bigThemeFilter;
   renderCatalog();
   const wanted = location.hash.slice(1);
-  if (wanted && bigById[wanted]) await openBigPuzzle(wanted);
-  else bigShowCatalog();
+  if (wanted && bigById[wanted]) {
+    const theme = new URLSearchParams(location.search).get("theme");
+    await openBigPuzzle(wanted, { theme });
+  } else {
+    bigShowCatalog();
+  }
 }
 
 if (BIG) {
@@ -1802,6 +1912,8 @@ $("reveal").addEventListener("click", reveal);
 $("clear").addEventListener("click", clearGrids);
 $("undo").addEventListener("click", undoEdit);
 $("redo").addEventListener("click", redoEdit);
+if (!DAILY) $("share-puzzle").addEventListener("click", sharePuzzle); // the daily has nothing to parameterize
+$("share-result").addEventListener("click", DAILY ? shareDailyResult : shareResult);
 
 // Standard editor shortcuts: Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z or Ctrl+Y redo.
 document.addEventListener("keydown", (e) => {
@@ -1873,6 +1985,7 @@ window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
   if (location.hash === "#custom" && customDoc) {
     $("theme").value = CUSTOM_KEY; // arrived from the builder's "Play this theme"
   }
+  applySharedPuzzleParams(); // a shared puzzle link pins the controls before the first generate()
   syncCustomControls();
   try {
     await generate();
