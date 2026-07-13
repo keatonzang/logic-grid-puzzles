@@ -385,7 +385,11 @@ def build_clue_pool(
             # registry themes space values evenly, but custom themes may not
             # ("9 am, 10 am, 1 pm, 2 pm"), and a step-based delta can then
             # understate the true gap and emit a clue that is FALSE under X.
+            # Ranged deltas additionally SNAP to the value lattice — the set of
+            # realizable pairwise gaps — so a $2-stepped dial never reads
+            # "at least $5 more" (a bound no pair of values can sit exactly on).
             span = cat.values[-1] - cat.values[0]  # full value range
+            lattice = sorted({hi - lo for lo in cat.values for hi in cat.values if hi > lo})
             for e1 in range(n):
                 for e2 in range(n):
                     if e1 == e2:
@@ -395,17 +399,21 @@ def build_clue_pool(
                     # at-least-apart / at-least-away: a loose bound at or below
                     # the true gap, >= 2 so it differs from plain "more than".
                     if m >= 2 and gv >= 2:
-                        a, b = refs_for([e1, e2])
-                        delta = rng.randint(2, gv)
-                        comparisons.append(AtLeastApart(cn, a, b, delta, cat.values))  # directional
-                        comparisons.append(AbsApart(cn, a, b, delta, True, cat.values))  # symmetric
+                        snapped = [d for d in lattice if 2 <= d <= gv]
+                        if snapped:  # gv itself is on the lattice, so only an
+                            a, b = refs_for([e1, e2])  # all-gaps-below-2 dial skips
+                            delta = rng.choice(snapped)
+                            comparisons.append(AtLeastApart(cn, a, b, delta, cat.values))  # directional
+                            comparisons.append(AbsApart(cn, a, b, delta, True, cat.values))  # symmetric
                     # at-most-away: |gap| <= delta, with delta >= the true gap but
                     # below the full span, so it bounds the two items *close*.
                     g = abs(gv)
                     if e1 < e2 and 1 <= g <= span - 1:
-                        a, b = refs_for([e1, e2])
-                        delta = rng.randint(g, span - 1)
-                        comparisons.append(AbsApart(cn, a, b, delta, False, cat.values))
+                        snapped = [d for d in lattice if g <= d <= span - 1]
+                        if snapped:  # g is on the lattice and below span, so never empty
+                            a, b = refs_for([e1, e2])
+                            delta = rng.choice(snapped)
+                            comparisons.append(AbsApart(cn, a, b, delta, False, cat.values))
 
         for c in range(n):  # less/more than both of two others
             highs = [e for e in range(n) if rank[e] > rank[c]]
@@ -1203,12 +1211,6 @@ _DIFFICULTY_POOL = {
     "tera": _EXTREME_POOL,
 }
 
-# Extra redundant clues as a fraction of the minimal set. `normal` hands back more
-# (shorter chains); every harder tier stays minimal so the reasoning bites. The
-# actual difficulty is *measured* by `grade`, so generate-and-grade selects by band.
-_DIFFICULTY_EXTRA = {"normal": 0.6, "hard": 0.0, "mega": 0.0, "giga": 0.0, "tera": 0.0}
-
-
 # Cap the uniqueness search per drop-attempt so minimize stays fast even on
 # large grids; if a drop can't be confirmed unique within budget we keep the
 # clue (the result stays unique, just slightly less minimal).
@@ -1302,14 +1304,7 @@ def generate_puzzle(theme: Theme, rng: random.Random, difficulty: str = "normal"
         raise RuntimeError("clue pool failed to yield a unique solution (internal error)")
 
     depth, complexity_last = _RESERVE[difficulty]
-    best = minimize(theme, pool, rng, reserve=depth, complexity_last=complexity_last)
-    clues = list(best)
-    extra_frac = _DIFFICULTY_EXTRA[difficulty]
-    if extra_frac > 0:  # easy: hand back extra true clues so less inference is needed
-        chosen = {id(c) for c in best}
-        extras = [c for c in pool if id(c) not in chosen]
-        rng.shuffle(extras)
-        clues += extras[: round(extra_frac * len(best))]
+    clues = minimize(theme, pool, rng, reserve=depth, complexity_last=complexity_last)
     rng.shuffle(clues)
     return Puzzle(theme=theme, solution=X, clues=clues)
 

@@ -365,25 +365,58 @@ def test_compound_conditionals_are_extreme_tiers_only(plain_theme):
     assert seen[0.28]     # the extreme-tier prob does (over several seeds)
 
 
-def test_difficulty_controls_clue_palette_and_size(plain_theme):
-    from logicgrid.clues import ExactlyKLinks, GroupMatch
+def test_difficulty_controls_clue_palette(plain_theme):
     from logicgrid.generate import DIFFICULTIES
 
-    sizes = {}
     for d in DIFFICULTIES:
         seen = set()
-        total = 0
         for s in range(12):
             p = generate_puzzle(plain_theme, random.Random(s), difficulty=d)
             seen.update(type(c).__name__ for c in p.clues)
-            total += len(p.clues)
-        sizes[d] = total
         if d == "normal":
             assert seen <= {"Positive", "Negative"}  # is / is-not only
         if d == "mega":
             assert "GroupMatch" in seen or "ExactlyKLinks" in seen  # trickiest unlocked
-    # normal hands back more clues than the leanest rich tier (extra given vs minimal)
-    assert sizes["normal"] > sizes["mega"]
+
+
+def test_ranged_deltas_snap_to_the_value_lattice():
+    # On a $2-stepped dial no clue may bound with an off-lattice number
+    # ("at least $5 more"): every ranged delta must be a realizable pairwise gap.
+    from logicgrid.clues import AbsApart, AtLeastApart, Diff
+    from logicgrid.model import Category, Theme
+
+    theme = Theme(
+        name="Stepped",
+        description="an evenly $2-stepped dial",
+        entity_noun="order",
+        categories=[
+            Category("Name", ["Al", "Bea", "Coe", "Dee"]),
+            Category("Dish", ["Kale", "Miso", "Naan", "Orzo"]),
+            Category("Price", ["2", "4", "6", "8"], ordered=True, values=[2, 4, 6, 8]),
+        ],
+    )
+    values = theme.categories[2].values
+    lattice = {hi - lo for lo in values for hi in values if hi > lo}  # {2, 4, 6}
+    for s in range(20):
+        rng = random.Random(s)
+        X = random_solution(theme, rng)
+        pool = build_clue_pool(theme, X, rng, include_sequential=True)
+        deltas = [c.delta for c in pool if isinstance(c, (Diff, AtLeastApart, AbsApart))]
+        assert deltas
+        assert all(d in lattice for d in deltas)
+
+
+def test_normal_puzzles_carry_no_redundant_clues(plain_theme):
+    # Every tier ships the minimized set — for normal in particular, dropping
+    # ANY single clue must break uniqueness (no padding, no cross-clue slack).
+    for s in range(6):
+        p = generate_puzzle(plain_theme, random.Random(s), difficulty="normal")
+        assert is_unique(plain_theme, p.clues)
+        for cl in p.clues:
+            trial = [c for c in p.clues if c is not cl]
+            assert not is_unique(plain_theme, trial), (
+                f"seed {s}: clue {cl.text(plain_theme)!r} is redundant"
+            )
 
 
 def test_unknown_difficulty_raises(plain_theme):

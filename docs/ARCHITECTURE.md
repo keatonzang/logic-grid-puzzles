@@ -125,7 +125,10 @@ operate on ranks (with `values` for the numeric ones): `Greater`, `Diff`
 (exact difference), `Between`, `Adjacent` (directional neighbour), `NextTo`
 (undirected neighbour), `AtLeastApart` (directional minimum gap), `AbsApart`
 (symmetric distance, `at least` or `at most` — the only clue that bounds two
-items *close*), and `MultiCompare` (above/below all of several others). When a
+items *close*), and `MultiCompare` (above/below all of several others). Every
+stated delta — exact or ranged — sits on the category's value lattice (the set
+of realizable pairwise gaps), so a $2-stepped dial never reads "at least $5
+more than", a bound no pair of its values can sit exactly on. When a
 theme carries two ordered categories, clue text restates the dimension
 possessively ("Dasari's distance") so multiple dials stay unambiguous.
 
@@ -266,9 +269,10 @@ type, mega 1 (complexity-last), giga and tera 2 (complexity-last). Reserved
 clues still carry real deductive weight, so the reserve doesn't soften the
 measured band.
 
-The `normal` tier alone gets deliberate cross-clue redundancy after
-minimization: `_DIFFICULTY_EXTRA` hands back a fraction (0.6) of the dropped
-clues as padding, making entry-level boards forgiving.
+Every tier ships the minimized set as-is: no clue can be dropped without
+losing uniqueness, so even entry-level boards carry no redundant clues.
+(Earlier versions padded `normal` with a fraction of the dropped clues to
+shorten deduction chains; that padding has been removed.)
 
 ### 4.4 Generate-and-grade
 
