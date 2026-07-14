@@ -1255,14 +1255,22 @@ function clearGrids() {
 // A persistent status bar with a reserved height (CSS), so messages never shift
 // the grid below. With no message it shows a muted default tip rather than
 // collapsing.
+// Inline icon spans for the link/no-link marks (see .mk in style.css) — used
+// wherever the marks appear in message text, so they match the body font.
+const MK_YES = `<span class="mk mk-yes" role="img" aria-label="equals"></span>`;
+const MK_NO = `<span class="mk mk-no" role="img" aria-label="cross"></span>`;
+
 const DEFAULT_FEEDBACK = DAILY
-  ? "Click a cell to cycle ✓ / ✗. Fill the whole table, then <b>Submit</b> — the clock is running."
-  : "Click a cell to cycle ✓ / ✗. Press <b>Hint</b> for the next logical step.";
+  ? `Click a cell to cycle ${MK_YES} / ${MK_NO}. Fill the whole table, then <b>Submit</b> — the clock is running.`
+  : `Click a cell to cycle ${MK_YES} / ${MK_NO}. Press <b>Hint</b> for the next logical step.`;
 function setFeedback(html, cls) {
   const el = $("feedback");
   const empty = !html;
   el.className = "feedback" + (empty ? " empty" : "") + (cls ? " " + cls : "");
-  el.innerHTML = empty ? DEFAULT_FEEDBACK : html;
+  // Single wrapper div: .feedback is a flex box (vertical centering), and
+  // bare inline children would become separate flex items with their
+  // inter-word spaces dropped. One child keeps the text flowing normally.
+  el.innerHTML = `<div>${empty ? DEFAULT_FEEDBACK : html}</div>`;
 }
 
 // --- Hints: ask the server for the next single explained deduction ----------
@@ -1277,7 +1285,7 @@ function currentKnown() {
 
 function hintHtml(step, placed) {
   const tail = placed
-    ? `<span class="hint-placed">— placed ✓</span>`
+    ? `<span class="hint-placed">— placed ${MK_YES}</span>`
     : `<span class="hint-cta">Tap the glowing cell or “Reveal tile” to fill it in.</span>`;
   let chain = "";
   if (Array.isArray(step.chain) && step.chain.length) {

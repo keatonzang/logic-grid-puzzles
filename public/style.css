@@ -185,10 +185,12 @@ button.primary:hover { filter: brightness(1.08); }
   padding: .65rem .85rem;
   line-height: 1.5;
   font-size: .92rem;
+  /* Centers the single wrapper div setFeedback puts around every message.
+     The wrapper is load-bearing: bare inline children would each become
+     their own flex item, and flex swallows the spaces between items
+     ("Press Hint" hugged). Inside the div, text flows normally. */
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: .25rem .1rem;
 }
 /* persistent status bar even with no message (muted), so it never pops in/out */
 .feedback.empty { border-left-color: var(--line); color: var(--muted); }
@@ -519,9 +521,32 @@ footer .src:hover { color: var(--accent); }
 }
 .tip b { color: var(--ink); }
 
+/* Inline link (=) / cross icons, matching the marks on the puzzle grid:
+   masked squares that inherit the surrounding text's size, so they sit flush
+   in any font context (the raw unicode glyphs came from fallback fonts and
+   looked out of place). The = takes the grid's link color; the cross inherits
+   the text color around it. */
+.mk {
+  display: inline-block;
+  width: .85em; height: .85em;
+  background: currentColor;
+  /* sits a touch below the baseline so the glyph centers on the x-height of
+     the surrounding text (chips center it themselves, so this only matters
+     for icons free-floating in a line of text) */
+  vertical-align: -.125em;
+  -webkit-mask: var(--mk-icon) center / contain no-repeat;
+  mask: var(--mk-icon) center / contain no-repeat;
+}
+.mk-yes {
+  color: var(--good);
+  --mk-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 5.6h9.6M3.2 10.4h9.6' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+.mk-no  { --mk-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.7 3.7l8.6 8.6M12.3 3.7l-8.6 8.6' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+
 /* legend chips and inline ✓/✗ marks */
 .legend { list-style: none; padding: 0; margin: 0 0 .85rem; display: grid; gap: .5rem; }
-.legend li { line-height: 1.5; }
+/* chip + text wrapper: flex centers the chip against the text line(s) */
+.legend li { line-height: 1.5; display: flex; align-items: center; }
 .chip {
   display: inline-grid;
   place-items: center;

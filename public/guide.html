@@ -33,19 +33,19 @@
         relationship between one item and another:
       </p>
       <ul class="legend">
-        <li><span class="chip yes">✓</span> <b>Link.</b> These two items belong to the same entity.</li>
-        <li><span class="chip no">✗</span> <b>No link.</b> These two items belong to different entities.</li>
-        <li><span class="chip blank"></span> <b>Blank.</b> Not yet known.</li>
+        <li><span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span> <span><b>Link.</b> These two items belong to the same entity.</span></li>
+        <li><span class="chip no"><span class="mk mk-no" role="img" aria-label="cross"></span></span> <span><b>No link.</b> These two items belong to different entities.</span></li>
+        <li><span class="chip blank"></span> <span><b>Blank.</b> Not yet known.</span></li>
       </ul>
       <p>
         The one rule that powers everything: <b>each item links exactly one item in every other
-        category</b>. So the moment you place a <span class="chip yes">✓</span>, every other cell in
-        that row <em>and</em> that column becomes a <span class="chip no">✗</span> (the app fills these
-        dim auto-✗ marks for you). And if a whole line has all but one cell crossed out, the survivor
-        must be the <span class="chip yes">✓</span>.
+        category</b>. So the moment you place a <span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span>, every other cell in
+        that row <em>and</em> that column becomes a <span class="chip no"><span class="mk mk-no" role="img" aria-label="cross"></span></span> (the app fills these
+        dim auto-<span class="mk mk-no" role="img" aria-label="cross"></span> marks for you). And if a whole line has all but one cell crossed out, the survivor
+        must be the <span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span>.
       </p>
       <p class="tip">
-        In the app, click a cell to cycle <b>blank → ✗ → ✓</b>. Click a clue to cross it off once
+        In the app, click a cell to cycle <b>blank → <span class="mk mk-no" role="img" aria-label="cross"></span> → <span class="mk mk-yes" role="img" aria-label="equals"></span></b>. Click a clue to cross it off once
         you've used it, and hit <b>Hint</b> for the next logical step with an explanation.
       </p>
     </section>
@@ -60,8 +60,8 @@
           <h3>Is <span class="tag pos">positive</span></h3>
           <p class="eg">“Ava goes with Latte.”</p>
           <p><b>Parameters:</b> two items.</p>
-          <p><b>Means:</b> the two items share an entity — a <span class="chip yes">✓</span> in that cell.</p>
-          <p><b>On the grid:</b> place the ✓, then ✗ the rest of its row and column. This is the
+          <p><b>Means:</b> the two items share an entity — a <span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span> in that cell.</p>
+          <p><b>On the grid:</b> place the <span class="mk mk-yes" role="img" aria-label="equals"></span>, then <span class="mk mk-no" role="img" aria-label="cross"></span> the rest of its row and column. This is the
             strongest clue — one positive instantly fixes a whole line.</p>
         </article>
 
@@ -69,9 +69,9 @@
           <h3>Is not <span class="tag neg">negative</span></h3>
           <p class="eg">“Spade does not go with the Library.”</p>
           <p><b>Parameters:</b> two items.</p>
-          <p><b>Means:</b> the two items are on different entities — a <span class="chip no">✗</span>.</p>
-          <p><b>On the grid:</b> mark the single ✗. On its own it only removes one possibility, but
-            negatives stack: cross off enough of a line and the last cell is forced to ✓.</p>
+          <p><b>Means:</b> the two items are on different entities — a <span class="chip no"><span class="mk mk-no" role="img" aria-label="cross"></span></span>.</p>
+          <p><b>On the grid:</b> mark the single <span class="mk mk-no" role="img" aria-label="cross"></span>. On its own it only removes one possibility, but
+            negatives stack: cross off enough of a line and the last cell is forced to <span class="mk mk-yes" role="img" aria-label="equals"></span>.</p>
         </article>
       </div>
     </section>
@@ -193,7 +193,7 @@
           <p><b>Means:</b> at least K of the options share the anchor's entity. It's <i>inclusive</i> —
             it never tells you <em>which</em> ones, and K is always below N.</p>
           <p><b>On the grid:</b> when only K options are still possible (the rest crossed out), all K
-            must be ✓. For K ≥ 2 the options live in distinct categories, so at most one matches per category.</p>
+            must be <span class="mk mk-yes" role="img" aria-label="equals"></span>. For K ≥ 2 the options live in distinct categories, so at most one matches per category.</p>
         </article>
 
         <article class="rule">
@@ -203,15 +203,15 @@
           <p><b>Means:</b> <i>exactly one</i> option matches. Because two can't both match, the options
             must sit on different entities. When the two options span categories (so both
             <em>could</em> have matched), the clue says “but not both” out loud.</p>
-          <p><b>On the grid:</b> the instant one option turns ✓, ✗ all the others; the instant all but
-            one are ✗, that one is ✓.</p>
+          <p><b>On the grid:</b> the instant one option turns <span class="mk mk-yes" role="img" aria-label="equals"></span>, <span class="mk mk-no" role="img" aria-label="cross"></span> all the others; the instant all but
+            one are <span class="mk mk-no" role="img" aria-label="cross"></span>, that one is <span class="mk mk-yes" role="img" aria-label="equals"></span>.</p>
         </article>
 
         <article class="rule">
           <h3>Neither / nor <span class="tag neg">negative</span></h3>
           <p class="eg">“Ava goes with neither Bagel nor Latte.” · “…none of A, B, or C.”</p>
           <p><b>Parameters:</b> an anchor item and a list of options.</p>
-          <p><b>Means:</b> none of the options match — a batch of ✗ in one stroke.</p>
+          <p><b>Means:</b> none of the options match — a batch of <span class="mk mk-no" role="img" aria-label="cross"></span> in one stroke.</p>
           <p><b>On the grid:</b> cross off every option against the anchor at once.</p>
         </article>
 
@@ -220,7 +220,7 @@
           <p class="eg">“Vanilla goes with at most one of Ben, Rose, and $8.”</p>
           <p><b>Parameters:</b> an anchor item, a list of options, and a cap K.</p>
           <p><b>Means:</b> no more than K options match — the complement of “at least”.</p>
-          <p><b>On the grid:</b> once K options are confirmed ✓, the remaining options must be ✗.</p>
+          <p><b>On the grid:</b> once K options are confirmed <span class="mk mk-yes" role="img" aria-label="equals"></span>, the remaining options must be <span class="mk mk-no" role="img" aria-label="cross"></span>.</p>
         </article>
 
         <article class="rule">
@@ -229,8 +229,8 @@
           <p><b>Parameters:</b> an anchor item, a list of options (in distinct categories), and a count K.</p>
           <p><b>Means:</b> precisely K of the options match — both “at least K” and “at most K” at once.
             (K=0 is <i>neither</i>, K=1 is <i>either/or</i>, so this is used for K ≥ 2.)</p>
-          <p><b>On the grid:</b> the two-sided squeeze — once K options are ✓ the rest go ✗; and once only
-            K options remain un-crossed they must all be ✓.</p>
+          <p><b>On the grid:</b> the two-sided squeeze — once K options are <span class="mk mk-yes" role="img" aria-label="equals"></span> the rest go <span class="mk mk-no" role="img" aria-label="cross"></span>; and once only
+            K options remain un-crossed they must all be <span class="mk mk-yes" role="img" aria-label="equals"></span>.</p>
         </article>
 
         <article class="rule">
@@ -239,7 +239,7 @@
           <p><b>Parameters:</b> a list of three or more items, each from a different category.</p>
           <p><b>Means:</b> every listed item is on a distinct entity — the conjunction of all the
             pairwise “is not” facts among them.</p>
-          <p><b>On the grid:</b> ✗ each cross-category pair in the list. Great for thinning out a column fast.</p>
+          <p><b>On the grid:</b> <span class="mk mk-no" role="img" aria-label="cross"></span> each cross-category pair in the list. Great for thinning out a column fast.</p>
         </article>
 
         <article class="rule">
@@ -248,8 +248,8 @@
           <p><b>Parameters:</b> a list of candidate links, and how many of them (K) actually hold.</p>
           <p><b>Means:</b> exactly K of the listed links are true. The classic case (K=1 of 2) is an
             exclusive or — one holds, the other doesn't.</p>
-          <p><b>On the grid:</b> confirm a link and the quota may force the rest to ✗; cross off enough
-            and the remainder are forced to ✓.</p>
+          <p><b>On the grid:</b> confirm a link and the quota may force the rest to <span class="mk mk-no" role="img" aria-label="cross"></span>; cross off enough
+            and the remainder are forced to <span class="mk mk-yes" role="img" aria-label="equals"></span>.</p>
         </article>
 
         <article class="rule">
@@ -258,8 +258,8 @@
           <p><b>Parameters:</b> two equal-size groups of items.</p>
           <p><b>Means:</b> the two groups cover the same set of entities, paired one-to-one — but which
             pairs with which is hidden.</p>
-          <p><b>On the grid:</b> nobody outside the groups can hold those items; within them, a ✓ on one
-            pairing ✗-es the conflicting alternatives, narrowing the permutation.</p>
+          <p><b>On the grid:</b> nobody outside the groups can hold those items; within them, a <span class="mk mk-yes" role="img" aria-label="equals"></span> on one
+            pairing <span class="mk mk-no" role="img" aria-label="cross"></span>-es the conflicting alternatives, narrowing the permutation.</p>
         </article>
 
         <article class="rule">
@@ -269,9 +269,9 @@
             link, or a compound built with <em>and</em> / <em>either…or</em> / <em>not</em> (see below).</p>
           <p><b>Means:</b> whenever the antecedent holds, the consequent must too. It says <em>nothing</em> when
             the antecedent is false — a one-way conditional.</p>
-          <p><b>On the grid:</b> two moves. <i>Forward</i> (modus ponens): once the antecedent is fully ✓, the
+          <p><b>On the grid:</b> two moves. <i>Forward</i> (modus ponens): once the antecedent is fully <span class="mk mk-yes" role="img" aria-label="equals"></span>, the
             consequent must hold. <i>Backward</i> (contrapositive): once the consequent is ruled out, the
-            antecedent must be ✗. With a compound side, work it part by part — e.g. an <em>either…or</em>
+            antecedent must be <span class="mk mk-no" role="img" aria-label="cross"></span>. With a compound side, work it part by part — e.g. an <em>either…or</em>
             consequent forces its last option once the others are crossed.</p>
         </article>
 
@@ -319,7 +319,7 @@
           <p class="eg">“The artisan with the Millpond workshop belongs to the Ironmongers' Guild.”</p>
           <p><b>Parameters:</b> an item (the anchor) and one group.</p>
           <p><b>Means:</b> that entity's trade is one of the members of the named guild — but not which one.</p>
-          <p><b>On the grid:</b> ✗ every trade <em>outside</em> the guild for that entity; the survivors are
+          <p><b>On the grid:</b> <span class="mk mk-no" role="img" aria-label="cross"></span> every trade <em>outside</em> the guild for that entity; the survivors are
             its only candidates, which line elimination then whittles down.</p>
         </article>
 
@@ -328,7 +328,7 @@
           <p class="eg">“The artisan with the Millpond workshop does not belong to the Clothiers' Guild.”</p>
           <p><b>Parameters:</b> an item (the anchor) and one group.</p>
           <p><b>Means:</b> that entity's trade is <em>not</em> among the named guild's members.</p>
-          <p><b>On the grid:</b> ✗ every trade <em>inside</em> that guild for the entity — the mirror image of
+          <p><b>On the grid:</b> <span class="mk mk-no" role="img" aria-label="cross"></span> every trade <em>inside</em> that guild for the entity — the mirror image of
             “belongs to a group”.</p>
         </article>
 
@@ -399,13 +399,13 @@
       <ol class="techniques">
         <li>
           <span class="tier">1 · Givens</span>
-          <p>Mark everything the direct clues state outright — every “is” (✓) and “is not” (✗),
-            plus the batched ✗ from <i>neither</i> and <i>all different</i>. This is your starting board.</p>
+          <p>Mark everything the direct clues state outright — every “is” (<span class="mk mk-yes" role="img" aria-label="equals"></span>) and “is not” (<span class="mk mk-no" role="img" aria-label="cross"></span>),
+            plus the batched <span class="mk mk-no" role="img" aria-label="cross"></span> from <i>neither</i> and <i>all different</i>. This is your starting board.</p>
         </li>
         <li>
           <span class="tier">2 · Elimination</span>
-          <p>Within a block, each item links exactly one other. So a ✓ crosses out the rest of its row
-            and column, and a line with one blank left and everything else ✗ forces that blank to ✓.
+          <p>Within a block, each item links exactly one other. So a <span class="mk mk-yes" role="img" aria-label="equals"></span> crosses out the rest of its row
+            and column, and a line with one blank left and everything else <span class="mk mk-no" role="img" aria-label="cross"></span> forces that blank to <span class="mk mk-yes" role="img" aria-label="equals"></span>.
             Apply this after every single mark — it cascades.</p>
         </li>
         <li>
@@ -419,7 +419,7 @@
           <p>Re-read the counting, ordered, and conditional clues as the grid fills. An <i>either/or</i> with
             one side crossed out forces the other; a <i>between</i> tightens as its endpoints get placed; an
             <i>at least</i> resolves once only enough options remain; an <i>if–then</i> fires forward when its
-            trigger turns ✓ and backward when its result turns ✗. Loop back to elimination and
+            trigger turns <span class="mk mk-yes" role="img" aria-label="equals"></span> and backward when its result turns <span class="mk mk-no" role="img" aria-label="cross"></span>. Loop back to elimination and
             cross-reference after each.</p>
         </li>
         <li>
@@ -433,7 +433,7 @@
         </li>
         <li>
           <span class="tier">6 · What-if</span>
-          <p>For the hardest puzzles: tentatively assume a blank cell is ✓ (or ✗), follow the
+          <p>For the hardest puzzles: tentatively assume a blank cell is <span class="mk mk-yes" role="img" aria-label="equals"></span> (or <span class="mk mk-no" role="img" aria-label="cross"></span>), follow the
             consequences, and if they lead to a contradiction, the opposite must be true. Use this only
             when nothing else moves — every puzzle here is solvable without guessing, so a contradiction
             is always a valid deduction, not a gamble. <b>Mega</b> puzzles need at most a couple of
@@ -447,7 +447,7 @@
       <h2>Grid tricks &amp; logical tricks</h2>
       <p class="lead">
         The named patterns experienced solvers reach for. The <b>grid tricks</b> are about the geometry
-        of the ✓/✗ marks; the <b>logical tricks</b> are about the reasoning that links separate facts.
+        of the <span class="mk mk-yes" role="img" aria-label="equals"></span>/<span class="mk mk-no" role="img" aria-label="cross"></span> marks; the <b>logical tricks</b> are about the reasoning that links separate facts.
         Learn to spot these and most puzzles unravel without ever guessing.
       </p>
 
@@ -457,31 +457,31 @@
           <h3>The triangle rule <span class="tag logic">transitivity</span></h3>
           <p class="eg">Ava = Latte, and Latte = $5 ⟹ Ava = $5. Ava = Latte, but Latte ≠ $5 ⟹ Ava ≠ $5.</p>
           <p>Any three categories form a <b>triangle</b> of three blocks, and two sides force the third.
-            A shared ✓ carries a fact straight through; a ✓ on one side plus a ✗ on another lands a new ✗.
-            This is the single most productive move on the board — every time you place a ✓, walk that
+            A shared <span class="mk mk-yes" role="img" aria-label="equals"></span> carries a fact straight through; a <span class="mk mk-yes" role="img" aria-label="equals"></span> on one side plus a <span class="mk mk-no" role="img" aria-label="cross"></span> on another lands a new <span class="mk mk-no" role="img" aria-label="cross"></span>.
+            This is the single most productive move on the board — every time you place a <span class="mk mk-yes" role="img" aria-label="equals"></span>, walk that
             item through <em>every</em> other category looking for a third side to complete.</p>
         </article>
 
         <article class="rule">
-          <h3>Two ✗ tell you nothing <span class="tag neg">trap</span></h3>
+          <h3>Two <span class="mk mk-no" role="img" aria-label="cross"></span> tell you nothing <span class="tag neg">trap</span></h3>
           <p class="eg">Ava ≠ Latte and Latte ≠ $5 does <b>not</b> mean Ava = $5 (or ≠ $5).</p>
-          <p>The triangle rule only fires when at least one side is a ✓. Two “different” facts never
-            combine — a classic mistake. Don't try to chain ✗ through a shared item.</p>
+          <p>The triangle rule only fires when at least one side is a <span class="mk mk-yes" role="img" aria-label="equals"></span>. Two “different” facts never
+            combine — a classic mistake. Don't try to chain <span class="mk mk-no" role="img" aria-label="cross"></span> through a shared item.</p>
         </article>
 
         <article class="rule">
-          <h3>One ✓ per line <span class="tag pos">pigeonhole</span></h3>
-          <p class="eg">A row (or column) of a block with every cell ✗ but one — the survivor is ✓.</p>
+          <h3>One <span class="mk mk-yes" role="img" aria-label="equals"></span> per line <span class="tag pos">pigeonhole</span></h3>
+          <p class="eg">A row (or column) of a block with every cell <span class="mk mk-no" role="img" aria-label="cross"></span> but one — the survivor is <span class="mk mk-yes" role="img" aria-label="equals"></span>.</p>
           <p>Each item links exactly one item in the other category, so every row and every column of a
-            block holds exactly one ✓. Place a ✓ and the rest of its row <em>and</em> column become ✗;
-            cross a line down to a single blank and that blank is forced ✓. Hunt for the lines that are
-            already nearly full of ✗ — they're one mark from resolving.</p>
+            block holds exactly one <span class="mk mk-yes" role="img" aria-label="equals"></span>. Place a <span class="mk mk-yes" role="img" aria-label="equals"></span> and the rest of its row <em>and</em> column become <span class="mk mk-no" role="img" aria-label="cross"></span>;
+            cross a line down to a single blank and that blank is forced <span class="mk mk-yes" role="img" aria-label="equals"></span>. Hunt for the lines that are
+            already nearly full of <span class="mk mk-no" role="img" aria-label="cross"></span> — they're one mark from resolving.</p>
         </article>
 
         <article class="rule">
           <h3>Twins (naked pairs) <span class="tag logic">counting</span></h3>
           <p class="eg">If only Ava and Ben can be the $4 or $5 orders, those two prices are spoken for —
-            ✗ them against everyone else.</p>
+            <span class="mk mk-no" role="img" aria-label="cross"></span> them against everyone else.</p>
           <p>When two entities can each only be one of the same two items, that pair of items is used up by
             those two entities, even though you don't yet know which is which. The same works in reverse
             (two items that can only land on the same two entities). Borrowed straight from Sudoku, and a
@@ -502,8 +502,8 @@
       <div class="rules">
         <article class="rule">
           <h3>The counting squeeze <span class="tag logic">counting</span></h3>
-          <p class="eg">“Exactly two of A, B, C” — cross one off and the other two are ✓; confirm two and
-            the third is ✗.</p>
+          <p class="eg">“Exactly two of A, B, C” — cross one off and the other two are <span class="mk mk-yes" role="img" aria-label="equals"></span>; confirm two and
+            the third is <span class="mk mk-no" role="img" aria-label="cross"></span>.</p>
           <p>Counting clues (<i>at least / at most / exactly K of N</i>, <i>either-or</i>, <i>exclusive
             pairing</i>) do nothing on an empty board but turn decisive as options get crossed out.
             Re-read them after <em>every</em> elimination — an <i>either/or</i> collapses the instant one
@@ -533,7 +533,7 @@
         <article class="rule">
           <h3>What-if (proof by contradiction) <span class="tag logic">advanced</span></h3>
           <p class="eg">Suppose Ava = $5; follow the clues; if that forces two items into one slot, Ava ≠ $5.</p>
-          <p>When nothing else moves, tentatively assume a blank is ✓ (or ✗) and chase the consequences.
+          <p>When nothing else moves, tentatively assume a blank is <span class="mk mk-yes" role="img" aria-label="equals"></span> (or <span class="mk mk-no" role="img" aria-label="cross"></span>) and chase the consequences.
             A contradiction proves the opposite — and because every puzzle here is solvable by logic alone,
             a contradiction is a sound deduction, never a gamble. Keep the test short: assume, propagate,
             and back out the moment it breaks.</p>
@@ -545,8 +545,8 @@
     <section class="card">
       <h2>Practical strategy</h2>
       <ul class="strategy">
-        <li><b>Start with the positives and negatives.</b> They give you free ✓/✗ and seed the cascades.</li>
-        <li><b>Cross off aggressively.</b> Every ✗ you can justify shrinks the search; a line full of ✗ hands you a ✓.</li>
+        <li><b>Start with the positives and negatives.</b> They give you free <span class="mk mk-yes" role="img" aria-label="equals"></span>/<span class="mk mk-no" role="img" aria-label="cross"></span> and seed the cascades.</li>
+        <li><b>Cross off aggressively.</b> Every <span class="mk mk-no" role="img" aria-label="cross"></span> you can justify shrinks the search; a line full of <span class="mk mk-no" role="img" aria-label="cross"></span> hands you a <span class="mk mk-yes" role="img" aria-label="equals"></span>.</li>
         <li><b>Use the whole grid, not one block.</b> Most progress comes from cross-referencing facts between category pairs through a shared item.</li>
         <li><b>Mine the ordered column for extremes.</b> Comparison clues quickly fix who's lowest and highest; work inward from the ends.</li>
         <li><b>Revisit counting clues often.</b> They do nothing early but become decisive once a few options are crossed out.</li>
