@@ -133,6 +133,10 @@ button.primary:hover { filter: brightness(1.08); }
   padding: 1.25rem;
 }
 .clues-panel h3, .grids-panel h3 { margin: 0 0 .75rem; }
+.clues-head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; margin: 0 0 .75rem; }
+.clues-head h3 { margin: 0; }
+#uncross { font-size: .75rem; padding: .15rem .5rem; color: var(--muted); }
+#uncross:hover { color: var(--ink); }
 #clues { margin: 0; padding-left: 1.4rem; line-height: 1.7; }
 #clues li { padding-left: .2rem; cursor: pointer; border-radius: 4px; }
 #clues li:hover { color: #fff; }
@@ -617,7 +621,7 @@ footer .src:hover { color: var(--accent); }
 /* --- Print: clean black-on-white puzzle + a tear-off answer key page --- */
 @media print {
   body { background: #fff; color: #000; padding: .5rem; }
-  .controls, .grid-actions, #feedback, #progress, #claim, .board-panel, footer, .tagline, .nav-links, #loading, #error { display: none !important; }
+  .controls, .grid-actions, #uncross, #feedback, #progress, #claim, .board-panel, footer, .tagline, .nav-links, #loading, #error { display: none !important; }
   header { margin-bottom: .75rem; }
   header h1 { color: #000; font-size: 1.4rem; }
   #p-name, #p-desc, .meta, .meta code { color: #000; }

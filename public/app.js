@@ -495,6 +495,17 @@ function buildState() {
   }
 }
 
+// "Un-cross all" lives next to the Clues header and only shows once there is
+// something to undo — an always-visible button would just be noise.
+function updateUncrossUI() {
+  $("uncross").hidden = !document.querySelector("#clues li.done");
+}
+
+function uncrossAll() {
+  document.querySelectorAll("#clues li.done").forEach((li) => li.classList.remove("done"));
+  updateUncrossUI();
+}
+
 function render() {
   $("p-name").textContent = puzzle.name;
   $("p-desc").textContent = puzzle.description;
@@ -523,12 +534,14 @@ function render() {
     li.textContent = c;
     li.tabIndex = 0;
     li.title = "Click to cross off";
-    li.addEventListener("click", () => li.classList.toggle("done"));
+    const toggle = () => { li.classList.toggle("done"); updateUncrossUI(); };
+    li.addEventListener("click", toggle);
     li.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); li.classList.toggle("done"); }
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
     });
     ol.appendChild(li);
   }
+  updateUncrossUI();
 
   renderAnswerKey();
   renderBoard();
@@ -1275,7 +1288,7 @@ function clearGrids() {
   updateUndoUI();
   for (const key of Object.keys(manual)) paintGrid(key);
   // Also un-cross any clues the player struck through on the left.
-  document.querySelectorAll("#clues li.done").forEach((li) => li.classList.remove("done"));
+  uncrossAll();
   setFeedback("");
   renderProgress();
 }
@@ -1947,6 +1960,7 @@ $("generate").addEventListener("click", generate);
 $("hint").addEventListener("click", hint);
 $("print").addEventListener("click", () => window.print());
 $("check").addEventListener("click", check);
+$("uncross").addEventListener("click", uncrossAll);
 $("reveal").addEventListener("click", reveal);
 $("clear").addEventListener("click", clearGrids);
 $("undo").addEventListener("click", undoEdit);
