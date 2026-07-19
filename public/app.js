@@ -1172,20 +1172,26 @@ let checkStage = 0;
 function check() {
   if (DAILY) { dailySubmit(); return; } // no per-cell feedback on the competitive board
   clearHighlights();
-  // Flag any mark that contradicts the truth (a ✓ on a non-link, or a ✗ on a
-  // real link). The puzzle is done once the *table* is fully reconstructed — you
-  // needn't have placed every ✓ by hand — so completion is judged from the
-  // solution-so-far, not from counting explicit links on the board. Highlights
-  // are collected first and painted only when the stage allows it.
+  // Flag any HAND-PLACED mark that contradicts the truth (a ✓ on a non-link,
+  // or a bright ✗ on a real link). Auto-derived dim ✗ are deliberately never
+  // judged: flagging one as wrong would point straight at the real link — more
+  // than the player asked for — and it costs nothing to skip them, because a
+  // dim ✗ can only be wrong when the ✓ forcing its line is itself wrong (each
+  // line has exactly one true link), and that ✓ IS flagged. The puzzle is done
+  // once the *table* is fully reconstructed — you needn't have placed every ✓
+  // by hand — so completion is judged from the solution-so-far, not from
+  // counting explicit links on the board. Highlights are collected first and
+  // painted only when the stage allows it.
   let mistakes = 0;
   const marks = [];
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
-    const { display } = LG.derive(manual[key]);
-    for (let a = 0; a < display.length; a++) {
-      for (let b = 0; b < display[a].length; b++) {
+    const M = manual[key];
+    for (let a = 0; a < M.length; a++) {
+      for (let b = 0; b < M[a].length; b++) {
+        const state = M[a][b];
+        if (state === 0) continue; // blank or auto-derived — not a player claim
         const truth = linked[key].has(`${a},${b}`);
-        const state = display[a][b];
         const td = cellEl(key, a, b);
         if (!td) continue;
         if (state === 1 && truth) marks.push([td, "right"]);
@@ -1221,7 +1227,7 @@ function check() {
     setFeedback("At least one mark is wrong. Hit <b>Check</b> again to see how many.", "bad");
   } else if (checkStage === 2) {
     setFeedback(
-      `<b>${mistakes}</b> mistake${mistakes > 1 ? "s" : ""} on the board. ` +
+      `<b>${mistakes}</b> of your marks ${mistakes > 1 ? "are" : "is"} wrong. ` +
       `Hit <b>Check</b> again to highlight ${mistakes > 1 ? "them" : "it"}.`,
       "bad",
     );
