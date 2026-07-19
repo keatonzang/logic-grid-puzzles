@@ -71,10 +71,12 @@ function repaintCells(cells) {
   for (const key of keys) paintGrid(key);
 }
 
-// Shared tail for every board edit: a change invalidates a prior check and any
-// pending hint, and the live solution table must follow.
+// Shared tail for every board edit: a change invalidates a prior check (and
+// restarts Check's escalating-feedback ladder) and any pending hint, and the
+// live solution table must follow.
 function afterEdit() {
   clearHighlights();
+  checkStage = 0;
   resetHintButton();
   setFeedback("");
   renderProgress();
@@ -476,6 +478,7 @@ function buildState() {
   manual = {};
   linked = {};
   history.reset(); // a fresh puzzle starts with an empty undo stack
+  checkStage = 0;
   solvedElapsedMs = null;
   $("share-result").hidden = true; // a new attempt hasn't earned a result to share yet
   const cats = puzzle.categories;
@@ -1161,14 +1164,21 @@ function shareResult() {
   });
 }
 
+// Check escalates across repeat clicks so a peek doesn't give everything away:
+// the first click only admits errors exist, the second counts them, the third
+// highlights them. Any board change resets the ladder (see afterEdit).
+let checkStage = 0;
+
 function check() {
   if (DAILY) { dailySubmit(); return; } // no per-cell feedback on the competitive board
   clearHighlights();
   // Flag any mark that contradicts the truth (a ✓ on a non-link, or a ✗ on a
   // real link). The puzzle is done once the *table* is fully reconstructed — you
   // needn't have placed every ✓ by hand — so completion is judged from the
-  // solution-so-far, not from counting explicit links on the board.
+  // solution-so-far, not from counting explicit links on the board. Highlights
+  // are collected first and painted only when the stage allows it.
   let mistakes = 0;
+  const marks = [];
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
     const { display } = LG.derive(manual[key]);
@@ -1178,14 +1188,18 @@ function check() {
         const state = display[a][b];
         const td = cellEl(key, a, b);
         if (!td) continue;
-        if (state === 1 && truth) td.classList.add("right");
-        else if (state === 1 && !truth) { td.classList.add("wrong"); mistakes++; }
-        else if (state === 2 && truth) { td.classList.add("wrong"); mistakes++; }
+        if (state === 1 && truth) marks.push([td, "right"]);
+        else if (state === 1 && !truth) { marks.push([td, "wrong"]); mistakes++; }
+        else if (state === 2 && truth) { marks.push([td, "wrong"]); mistakes++; }
       }
     }
   }
   const { filled, total, complete } = tableProgress();
   const remaining = total - filled;
+  if (mistakes === 0) checkStage = 0; // nothing to hide — the ladder only spans error states
+  else checkStage = Math.min(checkStage + 1, 3);
+  if (checkStage === 0 || checkStage === 3)
+    for (const [td, cls] of marks) td.classList.add(cls);
   if (mistakes === 0 && complete) {
     const first = !timerDone; // only the checking run that solves it reports the stats
     if (first && timerStart) {
@@ -1203,6 +1217,14 @@ function check() {
     $("share-result").hidden = false;
   } else if (mistakes === 0) {
     setFeedback(`No mistakes so far — <b>${remaining}</b> more to work out.`, "warn");
+  } else if (checkStage === 1) {
+    setFeedback("At least one mark is wrong. Hit <b>Check</b> again to see how many.", "bad");
+  } else if (checkStage === 2) {
+    setFeedback(
+      `<b>${mistakes}</b> mistake${mistakes > 1 ? "s" : ""} on the board. ` +
+      `Hit <b>Check</b> again to highlight ${mistakes > 1 ? "them" : "it"}.`,
+      "bad",
+    );
   } else {
     const bits = [`<b>${mistakes}</b> mistake${mistakes > 1 ? "s" : ""} (highlighted)`];
     if (remaining > 0) bits.push(`<b>${remaining}</b> still to work out`);
