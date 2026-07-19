@@ -137,6 +137,9 @@ button.primary:hover { filter: brightness(1.08); }
 .clues-head h3 { margin: 0; }
 #uncross { font-size: .75rem; padding: .15rem .5rem; color: var(--muted); }
 #uncross:hover { color: var(--ink); }
+/* When hidden, keep the button's box in the layout (invisible, not gone) so
+   revealing it never changes the header row's height and bumps the clues. */
+#uncross[hidden] { display: inline-block; visibility: hidden; }
 #clues { margin: 0; padding-left: 1.4rem; line-height: 1.7; }
 #clues li { padding-left: .2rem; cursor: pointer; border-radius: 4px; }
 #clues li:hover { color: #fff; }
