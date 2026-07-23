@@ -68,6 +68,19 @@ h1 { margin: 0 0 .25rem; font-size: clamp(1.6rem, 4vw, 2.4rem); }
   cursor: pointer;
 }
 .controls label.check input { width: auto; padding: 0; margin: 0; accent-color: var(--accent); }
+/* Same row-checkbox look, reused in the grid-actions bar (Print's "include
+   solution" toggle) — no align-self/padding-bottom there since it's not
+   competing with taller flex-column pickers. */
+.grid-actions label.check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .45rem;
+  font-size: .95rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+.grid-actions label.check input { width: auto; padding: 0; margin: 0; accent-color: var(--accent); }
 
 select, input, button {
   font: inherit;
@@ -648,8 +661,10 @@ footer .src:hover { color: var(--accent); }
   th.sc-guild, th.g-band, th.sc-rowguild, th.sc-rowsuper { background: #eee !important; border-color: #000 !important; }
   td.cell { background: #fff !important; color: transparent !important; }
 
-  /* answer key starts a fresh page so it can be torn off */
+  /* answer key starts a fresh page so it can be torn off, unless the player
+     switched off "Include solution" (body.hide-print-solution) before printing */
   .answer-key { display: block !important; break-before: page; page-break-before: always; }
+  body.hide-print-solution .answer-key { display: none !important; }
   .answer-key h3 { color: #000; }
   .key-table th, .key-table td { border-color: #000; color: #000; }
   .key-table th { background: #eee; }
@@ -770,9 +785,11 @@ body[data-mode="daily"] .controls { align-items: center; }
 body[data-mode="daily"] .controls label.check { align-self: center; padding-bottom: 0; }
 .daily-info a { color: var(--accent); }
 
-/* --- Colorblind toggle: style the checkbox as a switch (both pages) --- */
-.controls label.check { cursor: pointer; }
-.controls label.check input[type="checkbox"] {
+/* --- Switch-style checkboxes: colorblind toggle (both pages) + the
+   grid-actions "include solution" print toggle --- */
+.controls label.check, .grid-actions label.check { cursor: pointer; }
+.controls label.check input[type="checkbox"],
+.grid-actions label.check input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
   width: 2.15rem;
@@ -786,7 +803,8 @@ body[data-mode="daily"] .controls label.check { align-self: center; padding-bott
   cursor: pointer;
   transition: background .15s, border-color .15s;
 }
-.controls label.check input[type="checkbox"]::after {
+.controls label.check input[type="checkbox"]::after,
+.grid-actions label.check input[type="checkbox"]::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -798,15 +816,18 @@ body[data-mode="daily"] .controls label.check { align-self: center; padding-bott
   background: var(--muted);
   transition: left .15s, background .15s;
 }
-.controls label.check input[type="checkbox"]:checked {
+.controls label.check input[type="checkbox"]:checked,
+.grid-actions label.check input[type="checkbox"]:checked {
   background: rgba(110, 168, 254, .28);
   border-color: var(--accent);
 }
-.controls label.check input[type="checkbox"]:checked::after {
+.controls label.check input[type="checkbox"]:checked::after,
+.grid-actions label.check input[type="checkbox"]:checked::after {
   left: calc(100% - .98rem);
   background: var(--accent);
 }
-.controls label.check input[type="checkbox"]:focus-visible {
+.controls label.check input[type="checkbox"]:focus-visible,
+.grid-actions label.check input[type="checkbox"]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
