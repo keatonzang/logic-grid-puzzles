@@ -546,6 +546,7 @@ function render() {
   renderAnswerKey();
   renderBoard();
   resetHintButton();
+  resetRevealButton();
   setFeedback("");
   renderProgress();
   updateUndoUI();
@@ -1251,10 +1252,18 @@ function check() {
   }
 }
 
+// Resets the Reveal button so it's only clickable while the solution isn't
+// already sitting on screen — re-armed whenever the board stops showing it
+// (a fresh puzzle, or Clear wiping the revealed marks back to blank).
+function resetRevealButton() {
+  if (!DAILY) $("reveal").disabled = false;
+}
+
 function reveal() {
   if (DAILY) return; // the daily has no reveal (and no solution client-side)
   clearHighlights();
   resetHintButton();
+  $("reveal").disabled = true; // it's all on screen now — nothing left to reveal
   for (const [i, j] of pairs()) {
     const key = `${i}-${j}`;
     const M = manual[key];
@@ -1289,6 +1298,7 @@ function clearGrids() {
   for (const key of Object.keys(manual)) paintGrid(key);
   // Also un-cross any clues the player struck through on the left.
   uncrossAll();
+  resetRevealButton(); // wiped a revealed solution back to blank — Reveal is live again
   setFeedback("");
   renderProgress();
 }
@@ -1959,6 +1969,17 @@ if (BIG) {
 $("generate").addEventListener("click", generate);
 $("hint").addEventListener("click", hint);
 $("print").addEventListener("click", () => window.print());
+// "Include solution" toggle: mirrored onto body.hide-print-solution (see the
+// @media print rule in style.css) so it takes effect however print is
+// triggered — the button above or the browser's own Ctrl/Cmd+P. Absent on
+// the daily page, which has no answer key to toggle.
+if ($("print-solution")) {
+  const applyPrintSolution = () => {
+    document.body.classList.toggle("hide-print-solution", !$("print-solution").checked);
+  };
+  $("print-solution").addEventListener("change", applyPrintSolution);
+  applyPrintSolution();
+}
 $("check").addEventListener("click", check);
 $("uncross").addEventListener("click", uncrossAll);
 $("reveal").addEventListener("click", reveal);
