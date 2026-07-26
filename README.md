@@ -249,6 +249,24 @@ trips from a serverless function is the difference between a page that opens
 and one that times out. Payloads are never selected — the calendar needs a
 shape and a theme, not a month of answer keys.
 
+**Replaying a past daily.** A day whose board has closed can be played for
+fun, and plays by free-play rules — per-cell **Check**, **Hint**, **Reveal**
+— because the reason to withhold any of that is gone: nothing can be posted
+to a closed day, so there is no position to protect.
+
+    GET /api/daily?play=YYYY-MM-DD
+
+The window is guarded strictly. Today is obviously off limits, and so is
+**yesterday**: a session token validates for today *or* yesterday (for solvers
+who started just before midnight UTC), so yesterday's board can still take
+entries. Only days beyond that are replayable. A replay is issued **no session
+token**, and a session for a day that old wouldn't validate anyway, so there
+is no route to the leaderboard rather than merely no button for it. A day with
+no stored row is a 404 — generating one would invent a daily retroactively.
+
+Replays save under their own key, so a for-fun run never overwrites the record
+of the run that counted.
+
 Scores live in Supabase (`supabase/migrations/`), reached only through
 `api/daily.py` with the service-role key — both tables have RLS enabled with
 no policies, and no key of any kind is shipped to the browser, so it can
