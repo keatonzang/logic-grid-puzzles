@@ -1,0 +1,60 @@
+# Top up the free-play puzzle pool (public/pool/) and commit the result.
+#
+# Generation is a rejection loop whose cost swings from under a second to half
+# a minute for the same request, so free play draws from puzzles hunted here
+# instead of generating in the request. Each run only fills buckets below
+# --per-bucket, so this grows the pool rather than rebuilding it; the client
+# skips puzzles a browser has already played, which is what makes a deeper
+# pool worth having.
+name: Top up the puzzle pool
+
+on:
+  schedule:
+    - cron: "17 4 * * 0" # Sundays, 04:17 UTC — off the daily's rollover
+  workflow_dispatch:
+    inputs:
+      per-bucket:
+        description: "Target puzzles per (theme, band, shape) bucket"
+        required: false
+        default: "8"
+      bands:
+        description: "Comma-separated bands to fill"
+        required: false
+        default: "normal,hard,mega,giga,tera"
+      budget-s:
+        description: "Stop starting new work after this many seconds"
+        required: false
+        default: "9000"
+
+concurrency:
+  group: puzzle-pool
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Fill buckets
+        run: |
+          python scripts/generate_pool.py \
+            --per-bucket "${{ inputs.per-bucket || 8 }}" \
+            --bands "${{ inputs.bands || 'normal,hard,mega,giga,tera' }}" \
+            --budget-s "${{ inputs.budget-s || 9000 }}"
+      - name: Commit new puzzles
+        run: |
+          git config user.name "puzzle-pool-bot"
+          git config user.email "noreply@github.com"
+          git add public/pool
+          git diff --staged --quiet && exit 0
+          git commit -m "Top up the free-play puzzle pool"
+          git pull --rebase origin main
+          git push origin main
