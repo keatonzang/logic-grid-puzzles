@@ -85,6 +85,14 @@ API, so the uniqueness guarantee is identical to the CLI. Solving aids:
   solution carries the whole solve path with it, so hints resolve in the
   browser with no round trip.
 - **Cross off clues** — click a clue to strike it through once you've used it.
+- **Maybe marks** — right-click a cell (or press and hold on a touchscreen) to
+  pencil in a `?`: a candidate worth remembering while you work toward proving
+  it. A maybe claims nothing, so it never forces another cell, never blocks a
+  ✓ in its line, and is never judged by **Check** or treated as known by
+  **Hint**; a deduction overrides it, and undoing that deduction brings it
+  back. Left-clicking one commits it into the normal cycle. Documented in the
+  [solver's guide](https://logic-grid-puzzles-beta.vercel.app/guide), not on
+  the main page.
 - **Your work is saved** — marks, crossed-off clues, the clock and the step
   count are written to `localStorage` on every edit and restored when you open
   the same puzzle again, so a refresh or a closed tab doesn't cost you an
@@ -216,6 +224,30 @@ Competitive integrity is server-side:
   size), sessions expire, result tokens are single-use (unique constraint),
   and entries per network per day are capped. Hint, Reveal, and per-cell
   Check don't exist on the daily.
+- An interrupted daily resumes, without a way to game the clock. The board is
+  saved like any other, but so is the **session token** — and it is the token,
+  not a fresh one, that goes back into play on reload. Since elapsed time is
+  measured from the `iat` inside it, a resumed run is still timed from when it
+  actually started: closing the tab costs you the wall-clock time you were
+  away, exactly as leaving it open would. A token past the server's session
+  window is dropped rather than reused, and the submitted step count spans
+  every session of the run, so the min-interactions floor still sees the whole
+  solve.
+
+### The archive
+
+`/daily` also shows a calendar of past dailies. Each cell is a day the daily
+actually ran — days come from the store, not the schedule, which would
+otherwise invent puzzles for dates before the site existed — tinted by the
+band that day's puzzle *measured*, so a month shows the weekly rhythm at a
+glance. Clicking a day opens the top of its board.
+
+    GET /api/daily?calendar=YYYY-MM
+
+One request covers the month: a calendar is thirty boards, and thirty round
+trips from a serverless function is the difference between a page that opens
+and one that times out. Payloads are never selected — the calendar needs a
+shape and a theme, not a month of answer keys.
 
 Scores live in Supabase (`supabase/migrations/`), reached only through
 `api/daily.py` with the service-role key — both tables have RLS enabled with
