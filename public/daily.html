@@ -31,11 +31,16 @@
     <select id="items"><option value="4" selected>4</option></select>
     <input id="seed" type="number" />
     <button id="generate"></button>
-    <button id="hint"></button>
-    <button id="reveal"></button>
   </div>
 
   <main id="puzzle" hidden>
+    <!-- Shown only while replaying a past daily: nothing here counts for the
+         board, so the solving aids the live daily withholds are all available. -->
+    <p id="replay-bar" class="replay-bar" hidden>
+      <span id="replay-note"></span>
+      <button id="replay-exit" type="button">Back to today's puzzle</button>
+    </p>
+
     <div class="puzzle-head">
       <h2 id="p-name"></h2>
       <p id="p-desc" class="desc"></p>
@@ -56,6 +61,8 @@
           <button id="undo" title="Undo (Ctrl+Z)" disabled>↶ Undo</button>
           <button id="redo" title="Redo (Ctrl+Shift+Z)" disabled>↷ Redo</button>
           <button id="check" class="primary">Submit solution</button>
+          <button id="hint" class="hint-btn" hidden>Hint</button>
+          <button id="reveal" hidden>Reveal solution</button>
           <button id="clear">Clear</button>
           <button id="print">Print</button>
           <button id="share-result" class="hint-btn" hidden>Share result</button>

@@ -17,6 +17,14 @@ const DAILY = document.body.dataset.mode === "daily";
 // JSON, each playable under several themes — same logic, swapped vocabulary.
 const BIG = document.body.dataset.mode === "big";
 
+// Replaying a closed daily ("YYYY-MM-DD"), or null on the live one. A replay
+// runs on the daily page but under free-play rules: its board is closed, so
+// there is no position to protect and every solving aid is available. Anywhere
+// competitive behaviour is gated, the question is not "is this the daily page"
+// but "is this the run that counts" — that's `liveDaily()`.
+let replayDate = null;
+const liveDaily = () => DAILY && !replayDate;
+
 let puzzle = null;        // current payload
 // `manual` is the source of truth: what the user explicitly set in each cell
 // (0 blank, 1 link "=", 2 no-link "×"). The displayed × marks are *derived*:
@@ -160,6 +168,7 @@ function hashString(s) {
 // The storage key for the puzzle on screen, or null if this one isn't saved.
 function saveId() {
   if (!puzzle) return null;
+  if (replayDate) return `replay:${replayDate}`; // never share a slot with the run that counted
   if (DAILY) return dailyDate ? `daily:${dailyDate}` : null;
   // Big puzzles key on the bundle, NOT the theme: swapping theme mid-solve is
   // a re-rendering of the same logical board and must keep the same marks.
@@ -219,7 +228,7 @@ function saveProgress() {
   // Nothing to come back to — drop the slot rather than banking an empty board.
   // The daily is the exception: its record also carries the session token, and
   // the clock is already running whether or not a mark has been made yet.
-  if (boardIsEmpty() && !done.length && !DAILY) {
+  if (boardIsEmpty() && !done.length && !liveDaily()) {
     if (id in store) { delete store[id]; writeStore(store); }
     return;
   }
@@ -235,7 +244,7 @@ function saveProgress() {
     solved: timerDone && solvedElapsedMs !== null,
     // The daily's clock lives in its signed token, not in `ms` — banking the
     // token is what lets a resumed run keep the time it has already spent.
-    ...(DAILY && dailyToken ? { token: dailyToken } : {}),
+    ...(liveDaily() && dailyToken ? { token: dailyToken } : {}),
   };
   writeStore(store);
 }
@@ -845,7 +854,9 @@ function render() {
   const reqNote = (puzzle.requested && puzzle.requested !== puzzle.difficulty)
     ? ` <span class="muted" title="you asked for ${puzzle.requested}; this grid could only reach ${puzzle.difficulty} — try more categories or items">(asked ${puzzle.requested})</span>`
     : "";
-  const tail = DAILY
+  const tail = replayDate
+    ? `daily for <b>${replayDate}</b> · <b>replay</b>`
+    : DAILY
     ? `daily for <b>${dailyDate}</b>` // no seed: it would reproduce the answer key
     : BIG
       ? `big puzzle <code>${bigBundle ? bigBundle.id : ""}</code>`
@@ -1612,7 +1623,7 @@ function shareResult() {
 let checkStage = 0;
 
 function check() {
-  if (DAILY) { dailySubmit(); return; } // no per-cell feedback on the competitive board
+  if (liveDaily()) { dailySubmit(); return; } // no per-cell feedback on the competitive board
   clearHighlights();
   // Flag any HAND-PLACED mark that contradicts the truth (a ✓ on a non-link,
   // or a bright ✗ on a real link). Auto-derived dim ✗ are deliberately never
@@ -1685,7 +1696,7 @@ function check() {
 }
 
 function reveal() {
-  if (DAILY) return; // the daily has no reveal (and no solution client-side)
+  if (liveDaily()) return; // the live daily has no reveal (and no solution client-side)
   clearHighlights();
   resetHintButton();
   for (const [i, j] of pairs()) {
@@ -1738,9 +1749,13 @@ function clearGrids() {
 const MK_YES = `<span class="mk mk-yes" role="img" aria-label="equals"></span>`;
 const MK_NO = `<span class="mk mk-no" role="img" aria-label="cross"></span>`;
 
-const DEFAULT_FEEDBACK = DAILY
-  ? `Click a cell to cycle ${MK_YES} / ${MK_NO}. Fill the whole table, then <b>Submit</b> — the clock is running.`
-  : `Click a cell to cycle ${MK_YES} / ${MK_NO}. Press <b>Hint</b> for the next logical step.`;
+// Computed per call rather than fixed at load: the daily page swaps between
+// the live run and a replay, and the two have different controls to point at.
+function defaultFeedback() {
+  const cycle = `Click a cell to cycle ${MK_YES} / ${MK_NO}.`;
+  if (liveDaily()) return `${cycle} Fill the whole table, then <b>Submit</b> — the clock is running.`;
+  return `${cycle} Press <b>Hint</b> for the next logical step.`;
+}
 function setFeedback(html, cls) {
   const el = $("feedback");
   const empty = !html;
@@ -1748,7 +1763,7 @@ function setFeedback(html, cls) {
   // Single wrapper div: .feedback is a flex box (vertical centering), and
   // bare inline children would become separate flex items with their
   // inter-word spaces dropped. One child keeps the text flowing normally.
-  el.innerHTML = `<div>${empty ? DEFAULT_FEEDBACK : html}</div>`;
+  el.innerHTML = `<div>${empty ? defaultFeedback() : html}</div>`;
 }
 
 // --- Hints ------------------------------------------------------------------
@@ -1833,7 +1848,7 @@ function resetHintButton() {
 }
 
 async function hint() {
-  if (!puzzle || DAILY) return; // hints would need the seed the daily withholds
+  if (!puzzle || liveDaily()) return; // hints would need the seed the live daily withholds
   if (pendingHint) {              // second click reveals the tile we explained
     const step = pendingHint;
     resetHintButton();
@@ -2172,6 +2187,15 @@ function mondayIndex(date) {
   return (date.getUTCDay() + 6) % 7;
 }
 
+// N days before the loaded daily, as "YYYY-MM-DD". Counted from `dailyDate`
+// (the server's idea of today, in UTC) rather than the device clock, so a
+// player in any timezone sees the same days offered.
+function isoDaysAgo(n) {
+  const [y, m, d] = (dailyDate || "").split("-").map(Number);
+  if (!y) return "";
+  return new Date(Date.UTC(y, m - 1, d - n)).toISOString().slice(0, 10);
+}
+
 function renderArchiveDay(iso) {
   const box = $("archive-day");
   const day = archiveDays[iso];
@@ -2185,6 +2209,19 @@ function renderArchiveDay(iso) {
     `<b>${iso}</b> · ${escapeHtml(day.theme_name)} · ${day.categories} × ${day.items} ` +
     `<b>${escapeHtml(day.difficulty)}</b>`;
   box.appendChild(head);
+
+  // A day is replayable once its board has closed. That takes two days, not
+  // one: a session opened just before midnight UTC stays valid through the
+  // following day, so yesterday's board can still take entries.
+  if (iso <= isoDaysAgo(2)) {
+    const play = document.createElement("button");
+    play.type = "button";
+    play.className = "archive-play";
+    play.textContent = iso === replayDate ? "Replaying this one" : "Play this one";
+    play.disabled = iso === replayDate;
+    play.addEventListener("click", () => startReplay(iso));
+    box.appendChild(play);
+  }
 
   if (!day.top.length) {
     const none = document.createElement("p");
@@ -2268,6 +2305,67 @@ function renderArchive() {
   renderArchiveDay(archiveSelected);
 }
 
+// --- Replaying a closed daily ---------------------------------------------------
+// A day whose board has closed can't be posted to, so there is nothing left to
+// protect: the server hands back the whole payload and the puzzle plays by
+// free-play rules — Check per cell, Hint, Reveal, all of it.
+//
+// Nothing here can reach the leaderboard, and not by politeness: a replay is
+// never issued a session token, and the server wouldn't validate one this old
+// even if it were. Submitting is simply not a thing a replay can do.
+
+// Which controls belong to the run on screen. The live daily hides the solving
+// aids and submits; a replay shows them and checks.
+function applyModeControls() {
+  const replaying = !!replayDate;
+  $("replay-bar").hidden = !replaying;
+  $("hint").hidden = !replaying;
+  $("reveal").hidden = !replaying;
+  $("check").textContent = replaying ? "Check" : "Submit solution";
+  $("claim").hidden = true; // a replay has no spot to claim
+  if (replaying) {
+    $("replay-note").innerHTML =
+      `Replaying the daily from <b>${replayDate}</b> — just for fun, ` +
+      `so hints are on and nothing posts to the board.`;
+  }
+}
+
+async function startReplay(iso) {
+  $("error").hidden = true;
+  $("loading").hidden = false;
+  $("loading").textContent = `Fetching the daily from ${iso}…`;
+  $("puzzle").hidden = true;
+  try {
+    const data = await fetchJSON(`/api/daily?play=${encodeURIComponent(iso)}`);
+    replayDate = iso;
+    dailyToken = null;   // a replay holds no session: there is nothing to submit
+    dailyResult = null;
+    puzzle = data.puzzle;
+    applyModeControls();
+    buildState();
+    render();
+    $("puzzle").hidden = false;
+    fitBoard();
+    startTimer();
+    resumeIfSaved(); // replays save under their own key, so a run can span visits
+    renderArchive();  // the day now on screen shouldn't still offer to be played
+    $("puzzle").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    $("error").textContent = err.message;
+    $("error").hidden = false;
+    $("puzzle").hidden = false; // leave the day's board on screen to go back to
+  } finally {
+    $("loading").hidden = true;
+  }
+}
+
+// Leaving a replay reloads the page rather than rebuilding today's state by
+// hand: the live daily has a session token, a clock and a claim form to put
+// back, and a reload restores all of it through the one path that is tested.
+function exitReplay() {
+  location.reload();
+}
+
 async function loadArchive(month) {
   let data;
   try {
@@ -2287,6 +2385,7 @@ async function loadArchive(month) {
 }
 
 if (DAILY) {
+  $("replay-exit").addEventListener("click", exitReplay);
   $("archive-prev").addEventListener("click", () => loadArchive(shiftMonth(archiveMonth, -1)));
   $("archive-next").addEventListener("click", () => loadArchive(shiftMonth(archiveMonth, +1)));
   $("claim-submit").addEventListener("click", claimSpot);
@@ -2593,7 +2692,8 @@ $("clear").addEventListener("click", clearGrids);
 $("undo").addEventListener("click", undoEdit);
 $("redo").addEventListener("click", redoEdit);
 if (!DAILY) $("share-puzzle").addEventListener("click", sharePuzzle); // the daily has nothing to parameterize
-$("share-result").addEventListener("click", DAILY ? shareDailyResult : shareResult);
+// A replay earns a free-play card (there is no rank to quote), the live run the daily one.
+$("share-result").addEventListener("click", () => (liveDaily() ? shareDailyResult() : shareResult()));
 
 // Standard editor shortcuts: Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z or Ctrl+Y redo.
 document.addEventListener("keydown", (e) => {
