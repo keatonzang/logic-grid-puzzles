@@ -6,6 +6,10 @@
     GET  /api/daily?calendar=YYYY-MM
                                -> that month's played days, each with its
                                   shape, theme and top of the board
+    GET  /api/daily?play=YYYY-MM-DD
+                               -> a past daily to replay for fun: the full
+                                  payload (solution included), no session
+                                  token, no route to the leaderboard
     POST /api/daily {"action": "finish", "token": ..., "rows": [[label,..],..],
                      "steps": N}
         -> verifies the solution server-side against the regenerated puzzle;
@@ -151,6 +155,51 @@ def _calendar(month: str) -> tuple[int, dict]:
     return 200, {"month": month, "today": today.isoformat(), "days": days}
 
 
+def _replay(day_text: str, secret: str) -> tuple[int, dict]:
+    """A past daily, served to be replayed for fun.
+
+    Everything today's payload withholds — the solution, the seed — comes back
+    here, because the reason for withholding it is gone: a closed day's board
+    can't be posted to, so there is no position to protect and the puzzle can
+    behave like free play (Check, Hint, Reveal all work client-side).
+
+    The window that makes that safe is narrow, so the guard is strict. Today is
+    obviously off limits. So is YESTERDAY: ``validate_session`` accepts a
+    session token for either day, so someone who opened yesterday's puzzle
+    before midnight UTC can still be holding a live session against a board
+    that is still accepting entries. Only days beyond that window are replays.
+
+    A day with no stored row is a day that never ran, and generating one here
+    would invent a daily retroactively — so that's a 404, not a fresh puzzle.
+    """
+    try:
+        day = daily.date.fromisoformat(day_text)
+    except (ValueError, TypeError):
+        return 400, {"error": "day must look like YYYY-MM-DD"}
+
+    newest_replayable = daily.today_utc() - daily.timedelta(days=2)
+    if day > newest_replayable:
+        return 403, {
+            "error": "that daily is still live — it can be replayed once its board closes"
+        }
+    if not dailystore.configured():
+        return 503, {"error": "past dailies are unavailable right now"}
+
+    try:
+        row = dailystore.get_daily_row(day)
+    except dailystore.StoreError:
+        return 503, {"error": "past dailies are unavailable right now"}
+    if not row:
+        return 404, {"error": "no daily was played on that day"}
+
+    payload = row.get("payload")
+    if not payload:  # a row from before the payload cache — rebuild from its seed
+        payload, _seed = daily.build_daily(day, secret, seed=row["seed"])
+    # No session token is issued, and none would validate for a day this old:
+    # a replay has no route to the leaderboard at all.
+    return 200, {"date": day.isoformat(), "puzzle": payload, "replay": True}
+
+
 def _build_get_response(query: dict, now: float | None = None) -> tuple[int, dict]:
     secret = _secret()
     if secret is None:
@@ -159,6 +208,9 @@ def _build_get_response(query: dict, now: float | None = None) -> tuple[int, dic
 
     if "calendar" in query:
         return _calendar(query["calendar"][0] or day.strftime("%Y-%m"))
+
+    if "play" in query:
+        return _replay(query["play"][0], secret)
 
     if "board" in query:
         try:

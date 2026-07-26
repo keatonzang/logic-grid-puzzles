@@ -520,3 +520,90 @@ def test_calendar_degrades_when_the_store_is_down(api, monkeypatch):
     status, body = api._build_get_response({"calendar": ["2026-07"]})
     assert status == 503
     assert "error" in body
+
+
+# --- Replaying a closed daily ---------------------------------------------------
+
+def _replay_store(monkeypatch, api, row):
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    monkeypatch.setattr(api.dailystore, "configured", lambda: True)
+    monkeypatch.setattr(api.dailystore, "get_daily_row", lambda day: row)
+
+
+def test_replay_refuses_today_and_yesterday(api, monkeypatch):
+    """The live board is obvious; yesterday matters just as much, because
+    validate_session accepts a token for either day — so yesterday's board can
+    still take entries, and handing out its answer key would be a way in."""
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    reached = []
+    monkeypatch.setattr(api.dailystore, "configured",
+                        lambda: reached.append(True) or True)
+    for offset in (0, 1):
+        day = DAY - daily.timedelta(days=offset)
+        status, body = api._build_get_response({"play": [day.isoformat()]})
+        assert status == 403, f"{day} must not be replayable"
+        assert "still live" in body["error"]
+    assert not reached, "a live day must be refused before the store is touched"
+
+
+def test_replay_refuses_the_future(api, monkeypatch):
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    status, _body = api._build_get_response({"play": ["2099-01-01"]})
+    assert status == 403
+
+
+def test_replay_allows_the_day_the_window_closes(api, monkeypatch):
+    """Two days back is the first replayable day — the boundary, so it's the
+    one worth pinning."""
+    day = DAY - daily.timedelta(days=2)
+    payload, seed = daily.build_daily(day, SECRET)
+    _replay_store(monkeypatch, api, {"seed": seed, "payload": payload})
+    status, body = api._build_get_response({"play": [day.isoformat()]})
+    assert status == 200
+    assert body["replay"] is True
+    assert body["date"] == day.isoformat()
+
+
+def test_replay_ships_the_answer_key_and_no_session(api, monkeypatch):
+    """A closed board has no position to protect, so a replay plays like free
+    play — but it must never come with a way to submit."""
+    day = DAY - daily.timedelta(days=5)
+    payload, seed = daily.build_daily(day, SECRET)
+    _replay_store(monkeypatch, api, {"seed": seed, "payload": payload})
+    _status, body = api._build_get_response({"play": [day.isoformat()]})
+    assert body["puzzle"]["solution"], "a replay needs its solution to be playable"
+    assert "token" not in body, "a replay must not be handed a session"
+
+
+def test_a_replay_day_would_not_validate_a_session_anyway(api):
+    """Belt and braces: even a forged session for a replayable day is rejected,
+    so the missing token isn't the only thing standing in the way."""
+    day = DAY - daily.timedelta(days=2)
+    now = time.time()
+    token = daily.verify_token(daily.issue_session(day, SECRET, now - 60), SECRET)
+    _session, err = daily.validate_session(token, now)
+    assert err, "a session for a closed day must not validate"
+
+
+def test_replay_404s_a_day_that_never_ran(api, monkeypatch):
+    """Generating one here would invent a daily retroactively."""
+    _replay_store(monkeypatch, api, None)
+    status, body = api._build_get_response({"play": ["2026-01-05"]})
+    assert status == 404
+    assert "no daily" in body["error"]
+
+
+def test_replay_rebuilds_a_row_that_predates_the_payload_cache(api, monkeypatch):
+    day = DAY - daily.timedelta(days=3)
+    _payload, seed = daily.build_daily(day, SECRET)
+    _replay_store(monkeypatch, api, {"seed": seed, "payload": None})
+    status, body = api._build_get_response({"play": [day.isoformat()]})
+    assert status == 200
+    assert body["puzzle"]["clues"]
+
+
+def test_replay_rejects_a_malformed_day(api, monkeypatch):
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    status, body = api._build_get_response({"play": ["not-a-day"]})
+    assert status == 400
+    assert "YYYY-MM-DD" in body["error"]
