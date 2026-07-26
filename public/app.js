@@ -80,6 +80,21 @@ function afterEdit() {
   resetHintButton();
   setFeedback("");
   renderProgress();
+  sampleProgress();
+  saveProgress();
+}
+
+// One [elapsed, filled] point per change in how much of the solution table is
+// reconstructed. It's the shape of the solve — fast stretches and stuck
+// stretches — and it's what the share card draws. Nothing about *which* cells
+// were filled is recorded, so it can't spoil the puzzle for anyone.
+const SAMPLE_CAP = 500; // far more than the ten slices need; undo churn can't bloat a save
+function sampleProgress() {
+  if (!timerStart || progressSamples.length >= SAMPLE_CAP) return;
+  const { filled } = tableProgress();
+  const last = progressSamples[progressSamples.length - 1];
+  if (last && last[1] === filled) return;
+  progressSamples.push([Math.round(performance.now() - timerStart), filled]);
 }
 
 function undoEdit() {
@@ -105,6 +120,175 @@ function updateUndoUI() {
   $("redo").disabled = !history.canRedo();
 }
 
+// --- Saved progress ----------------------------------------------------------
+// A part-solved board is worth more than the tab it happens to live in: a 4×6
+// giga is an evening's work, and a refresh used to wipe it. Every edit writes
+// the marks — plus crossed-off clues, the elapsed clock and the step count — to
+// localStorage under an id derived from the puzzle's identity, so re-opening
+// the same puzzle picks the run back up where it stopped.
+//
+// The DAILY is deliberately excluded. Its clock is server-authoritative and a
+// reload issues a *fresh* session token, so restoring a nearly-complete board
+// across a reload would hand out a near-zero time. Losing an interrupted daily
+// is what that guarantee costs.
+//
+// Undo history is not restored: a new session starts with an empty stack (you
+// can't undo into moves you made yesterday), so the saved step count carries
+// forward separately as `stepsBase`.
+const SAVE_STORE = "lg.progress.v1";
+const SAVE_CAP = 24; // newest first; older runs fall off the end
+
+let stepsBase = 0;        // steps completed in earlier sessions of this puzzle
+let hintsUsed = 0;        // hints taken this puzzle (across sessions)
+let progressSamples = []; // [elapsedMs, cellsFilled] — the share card's sparkline
+
+// A 32-bit string hash (FNV-1a), enough to tell two uploaded theme documents
+// apart in a storage key.
+function hashString(s) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(36);
+}
+
+// The storage key for the puzzle on screen, or null if this one isn't saved.
+function saveId() {
+  if (DAILY || !puzzle) return null;
+  // Big puzzles key on the bundle, NOT the theme: swapping theme mid-solve is
+  // a re-rendering of the same logical board and must keep the same marks.
+  if (BIG) return bigBundle ? `big:${bigBundle.id}` : null;
+  if (puzzle.seed === undefined || puzzle.seed === null) return null;
+  const theme = puzzle.theme === CUSTOM_KEY
+    ? `custom.${hashString(JSON.stringify(puzzleDoc || {}))}` // two uploads must not share a slot
+    : puzzle.theme;
+  const shape = `${puzzle.categories.length}x${puzzle.items}`;
+  return `p:${theme}:${puzzle.requested}:${shape}:${puzzle.seed}`;
+}
+
+function readStore() {
+  try {
+    const raw = localStorage.getItem(SAVE_STORE);
+    const doc = raw ? JSON.parse(raw) : null;
+    return doc && typeof doc === "object" ? doc : {};
+  } catch (e) {
+    return {}; // blocked storage or corrupt JSON — behave like a first visit
+  }
+}
+
+function writeStore(store) {
+  // Keep only the most recent runs, so a long history of one-off puzzles can't
+  // grow without bound (or blow the storage quota).
+  const ids = Object.keys(store).sort((a, b) => (store[b].t || 0) - (store[a].t || 0));
+  const trimmed = {};
+  for (const id of ids.slice(0, SAVE_CAP)) trimmed[id] = store[id];
+  try {
+    localStorage.setItem(SAVE_STORE, JSON.stringify(trimmed));
+  } catch (e) { /* quota or private mode — the run just isn't resumable */ }
+}
+
+// Marks travel as one digit per cell ("0" blank, "1" =, "2" ×), one string per
+// grid — a fraction of the size of nested JSON arrays.
+function encodeMarks() {
+  const out = {};
+  for (const key of Object.keys(manual)) out[key] = manual[key].map((row) => row.join("")).join("");
+  return out;
+}
+
+function boardIsEmpty() {
+  return Object.keys(manual).every((key) => manual[key].every((row) => row.every((v) => v === 0)));
+}
+
+function crossedClues() {
+  return [...document.querySelectorAll("#clues li")]
+    .map((li, i) => (li.classList.contains("done") ? i : -1))
+    .filter((i) => i >= 0);
+}
+
+function saveProgress() {
+  const id = saveId();
+  if (!id) return;
+  const store = readStore();
+  const done = crossedClues();
+  // Nothing to come back to — drop the slot rather than banking an empty board.
+  if (boardIsEmpty() && !done.length) {
+    if (id in store) { delete store[id]; writeStore(store); }
+    return;
+  }
+  store[id] = {
+    v: 1,
+    t: Date.now(),
+    marks: encodeMarks(),
+    done,
+    ms: timerStart ? performance.now() - timerStart : 0,
+    steps: stepsBase + history.size(),
+    hints: hintsUsed,
+    samples: progressSamples,
+    solved: timerDone && solvedElapsedMs !== null,
+  };
+  writeStore(store);
+}
+
+function forgetProgress() {
+  const id = saveId();
+  if (!id) return;
+  const store = readStore();
+  if (id in store) { delete store[id]; writeStore(store); }
+}
+
+// Rehydrate the board from a saved run. Returns true if anything was restored,
+// so the caller can tell the player their work came back.
+function restoreProgress() {
+  const id = saveId();
+  if (!id) return false;
+  const rec = readStore()[id];
+  if (!rec || rec.v !== 1 || !rec.marks) return false;
+  // A theme's item pool can change between deploys; a saved board whose shape
+  // no longer matches is stale, not restorable.
+  for (const key of Object.keys(manual)) {
+    const flat = rec.marks[key];
+    const rows = manual[key].length, cols = manual[key][0].length;
+    if (typeof flat !== "string" || flat.length !== rows * cols) return false;
+  }
+  for (const key of Object.keys(manual)) {
+    const flat = rec.marks[key];
+    const cols = manual[key][0].length;
+    for (let a = 0; a < manual[key].length; a++)
+      for (let b = 0; b < cols; b++) {
+        const v = +flat[a * cols + b];
+        manual[key][a][b] = v === 1 || v === 2 ? v : 0;
+      }
+    paintGrid(key);
+  }
+  const items = $("clues").children;
+  for (const i of rec.done || []) if (items[i]) items[i].classList.add("done");
+  updateUncrossUI();
+  stepsBase = rec.steps || 0;
+  hintsUsed = rec.hints || 0;
+  progressSamples = Array.isArray(rec.samples) ? rec.samples : [];
+  startTimer(rec.ms || 0); // the clock resumes rather than restarting
+  if (rec.solved) { solvedElapsedMs = rec.ms || 0; stopTimer(true); $("share-result").hidden = false; }
+  renderProgress();
+  return true;
+}
+
+// Restore (or don't) and say so. Called once per freshly-built board.
+function resumeIfSaved() {
+  if (!restoreProgress()) return;
+  const { filled, total, complete } = tableProgress();
+  if (complete && solvedElapsedMs !== null) {
+    setFeedback(`<b>Solved!</b> You finished this one in ${fmtTime(solvedElapsedMs)}.`, "good");
+    return;
+  }
+  // Early on a solve the table can still be empty while the board is covered in
+  // ×, so lead with the marks and only quote table progress once there is some.
+  const got = filled
+    ? `<b>${filled}</b> of <b>${total}</b> worked out`
+    : "your marks are back";
+  setFeedback(`Picked up where you left off — ${got}. <b>Clear</b> starts over.`, "");
+}
+
 function fmtTime(ms) {
   const tenths = Math.floor(ms / 100); // a tenth-of-a-second resolution
   const s = Math.floor(tenths / 10), d = tenths % 10;
@@ -123,9 +307,11 @@ function paintTimer() {
   $("timer").textContent = fmtTime(performance.now() - timerStart);
 }
 
-function startTimer() {
+// `elapsedMs` backdates t0, so a resumed run continues its clock instead of
+// restarting it (see restoreProgress).
+function startTimer(elapsedMs = 0) {
   if (timerRAF) cancelAnimationFrame(timerRAF);
-  timerStart = performance.now();
+  timerStart = performance.now() - elapsedMs;
   timerDone = false;
   const t = $("timer");
   t.classList.remove("done");
@@ -273,6 +459,80 @@ const REROLL_CAP = 6;
 // newer one has superseded it and bail out instead of clobbering its puzzle.
 let genToken = 0;
 
+// --- The pre-generated pool ---------------------------------------------------
+// Generating on demand is a rejection loop — the same mega 4×4 measured 0.8s
+// one time and 33s the next, and the re-roll below can spend several of those
+// in a row. So the everyday sizes are hunted offline and committed as static
+// JSON (scripts/generate_pool.py), exactly as /big already does for the
+// oversized ones, and the common case becomes one file fetch.
+//
+// The API is still the path for everything the pool can't answer: a pinned
+// seed, a custom theme document, a bucket that was never generated, or a
+// player who has worked through everything in one. Puzzles in a bucket are
+// graded to that bucket's band, so there is nothing to re-roll.
+const POOL_INDEX = "/pool/index.json";
+const POOL_SEEN = "lg.pool.seen";
+const POOL_SEEN_CAP = 300; // ids remembered before the oldest are forgotten
+let poolIndex = null;      // bucket -> how many puzzles it holds
+
+async function loadPool() {
+  try {
+    const data = await fetchJSON(POOL_INDEX);
+    poolIndex = data.buckets || {};
+  } catch (e) {
+    poolIndex = {}; // no pool published (or it failed to load) — the API covers it
+  }
+}
+
+function poolSeen() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(POOL_SEEN) || "[]");
+    return Array.isArray(raw) ? raw : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function markPoolSeen(id) {
+  try {
+    const seen = poolSeen().filter((x) => x !== id);
+    seen.push(id);
+    localStorage.setItem(POOL_SEEN, JSON.stringify(seen.slice(-POOL_SEEN_CAP)));
+  } catch (e) { /* no storage — the pool just repeats sooner */ }
+}
+
+// An id from the bucket the pickers currently describe that this browser
+// hasn't played, or null. Null deliberately covers "played them all": a
+// repeat is worse than a wait, and the API always has something new.
+function poolPick() {
+  if (!poolIndex) return null;
+  const bucket =
+    `${$("theme").value}-${$("difficulty").value}-${$("categories").value}x${$("items").value}`;
+  const count = poolIndex[bucket] || 0;
+  if (!count) return null;
+  const seen = new Set(poolSeen());
+  const fresh = [];
+  for (let n = 1; n <= count; n++) {
+    const id = `${bucket}-${String(n).padStart(3, "0")}`;
+    if (!seen.has(id)) fresh.push(id);
+  }
+  if (!fresh.length) return null;
+  return fresh[Math.floor(Math.random() * fresh.length)];
+}
+
+// The pooled puzzle for the current pickers, or null to fall through to the API.
+async function fetchPooled() {
+  const id = poolPick();
+  if (!id) return null;
+  try {
+    const payload = await fetchJSON(`/pool/${id}.json`);
+    markPoolSeen(id);
+    return payload;
+  } catch (e) {
+    return null; // a missing or malformed file must never block a generate
+  }
+}
+
 // A generated puzzle is fully reproducible from theme+difficulty+categories+
 // items+seed (the server seeds one random.Random up front), so every generate()
 // reflects those into the URL — a "Share puzzle" link is just the address bar.
@@ -342,7 +602,14 @@ async function generate() {
   $("loading").textContent = "Loading…";
   $("puzzle").hidden = true;
   try {
-    if (seed !== "") {
+    // The pool answers the ordinary case in one static fetch. It can't serve a
+    // pinned seed (that's a request for one specific puzzle) or a custom theme
+    // (nothing was pre-generated from a document only this browser has).
+    const pooled = seed === "" && !doc ? await fetchPooled() : null;
+    if (stale()) return; // a newer generate() took over while we awaited
+    if (pooled) {
+      puzzle = pooled;
+    } else if (seed !== "") {
       // Pinned seed: reproduce exactly that puzzle — never re-roll.
       const result = await fetchCand(seed);
       if (stale()) return; // a newer generate() took over while we awaited
@@ -379,6 +646,7 @@ async function generate() {
     $("puzzle").hidden = false;
     fitBoard(); // now the grid has a real width to measure against
     startTimer(); // time the solve from the moment the puzzle is on screen
+    resumeIfSaved(); // ...unless this puzzle has a run in progress, which resumes its clock
   } catch (err) {
     if (stale()) return; // don't surface a superseded request's failure
     $("error").textContent = err.message;
@@ -480,6 +748,9 @@ function buildState() {
   history.reset(); // a fresh puzzle starts with an empty undo stack
   checkStage = 0;
   solvedElapsedMs = null;
+  stepsBase = 0;
+  hintsUsed = 0;
+  progressSamples = [];
   $("share-result").hidden = true; // a new attempt hasn't earned a result to share yet
   const cats = puzzle.categories;
   for (const [i, j] of pairs()) {
@@ -504,6 +775,7 @@ function updateUncrossUI() {
 function uncrossAll() {
   document.querySelectorAll("#clues li.done").forEach((li) => li.classList.remove("done"));
   updateUncrossUI();
+  saveProgress();
 }
 
 function render() {
@@ -534,7 +806,7 @@ function render() {
     li.textContent = c;
     li.tabIndex = 0;
     li.title = "Click to cross off";
-    const toggle = () => { li.classList.toggle("done"); updateUncrossUI(); };
+    const toggle = () => { li.classList.toggle("done"); updateUncrossUI(); saveProgress(); };
     li.addEventListener("click", toggle);
     li.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
@@ -1170,9 +1442,54 @@ function sharePuzzle() {
   });
 }
 
+// --- The result card ---------------------------------------------------------
+// A solve is worth showing off, and a bare sentence isn't very shareable. The
+// card adds a picture of HOW the solve went: the board split into ten equal
+// slices of the elapsed time, each drawn at the height of how much of the
+// solution table got filled in during that slice. Fast stretches run tall,
+// stuck stretches run flat.
+//
+// It gives nothing away. The sparkline records only how many cells were filled
+// and when — never which cells, or what went in them — so posting it can't
+// spoil the puzzle for anyone who hasn't solved it.
+const SPARK = "▁▂▃▄▅▆▇█";
+const SPARK_SLICES = 10;
+
+function solveSparkline(totalMs) {
+  if (!totalMs || progressSamples.length < 2) return "";
+  const gains = new Array(SPARK_SLICES).fill(0);
+  let prevFilled = 0;
+  for (const [ms, filled] of progressSamples) {
+    const slice = Math.min(SPARK_SLICES - 1, Math.floor((ms / totalMs) * SPARK_SLICES));
+    gains[slice] += Math.max(0, filled - prevFilled);
+    prevFilled = filled;
+  }
+  const peak = Math.max(...gains);
+  if (!peak) return "";
+  return gains
+    .map((g) => (g === 0 ? SPARK[0] : SPARK[Math.min(SPARK.length - 1, Math.ceil((g / peak) * (SPARK.length - 1)))]))
+    .join("");
+}
+
+// "hint-free" is the badge worth earning, so it only appears when it's true.
+function hintNote() {
+  if (hintsUsed === 0) return "hint-free";
+  return `${hintsUsed} hint${hintsUsed === 1 ? "" : "s"}`;
+}
+
+function resultCard(title, facts, totalMs) {
+  const spark = solveSparkline(totalMs);
+  return [`Logic Grid Puzzles — ${title}`, facts, spark].filter(Boolean).join("\n");
+}
+
 function shareResult() {
+  const steps = stepsBase + history.size();
   shareOrCopy({
-    text: `Solved "${puzzle.name}" (${puzzleShapeLabel()}) in ${fmtTime(solvedElapsedMs)} — Logic Grid Puzzles`,
+    text: resultCard(
+      puzzle.name,
+      `${puzzleShapeLabel()} · ${fmtTime(solvedElapsedMs)} · ${steps} steps · ${hintNote()}`,
+      solvedElapsedMs,
+    ),
     url: BIG ? bigShareUrl() : location.href,
   });
 }
@@ -1223,7 +1540,7 @@ function check() {
     const first = !timerDone; // only the checking run that solves it reports the stats
     if (first && timerStart) {
       solvedElapsedMs = performance.now() - timerStart;
-      const steps = history.size();
+      const steps = stepsBase + history.size(); // includes earlier sessions of this puzzle
       const stats =
         `<b>${fmtTime(solvedElapsedMs)}</b>` +
         ` · <b>${steps}</b> step${steps === 1 ? "" : "s"}`;
@@ -1234,6 +1551,7 @@ function check() {
       setFeedback("<b>Solved!</b> The whole table checks out.", "good");
     }
     $("share-result").hidden = false;
+    saveProgress(); // bank the finished run, so a reload comes back solved
   } else if (mistakes === 0) {
     setFeedback(`No mistakes so far — <b>${remaining}</b> more to work out.`, "warn");
   } else if (checkStage === 1) {
@@ -1268,6 +1586,7 @@ function reveal() {
   stopTimer(false); // revealing the answer ends the run (no solve time earned)
   history.reset();  // the run is over — nothing left to undo back into
   updateUndoUI();
+  forgetProgress(); // a revealed board is finished, not something to resume into
   setFeedback("Solution revealed.", "");
   renderProgress();
 }
@@ -1285,10 +1604,13 @@ function clearGrids() {
     for (let a = 0; a < M.length; a++) M[a].fill(0);
   }
   history.reset();
+  stepsBase = 0;        // ...including any steps carried in from an earlier session
+  hintsUsed = 0;
+  progressSamples = [];
   updateUndoUI();
   for (const key of Object.keys(manual)) paintGrid(key);
   // Also un-cross any clues the player struck through on the left.
-  uncrossAll();
+  uncrossAll();         // (this saves, which drops the now-empty slot)
   setFeedback("");
   renderProgress();
 }
@@ -1314,14 +1636,35 @@ function setFeedback(html, cls) {
   el.innerHTML = `<div>${empty ? DEFAULT_FEEDBACK : html}</div>`;
 }
 
-// --- Hints: ask the server for the next single explained deduction ----------
+// --- Hints ------------------------------------------------------------------
+// Every payload that carries a solution also carries `hints`: the full ordered
+// solve path (see logicgrid/hint.py full_trace). So the next hint is found
+// right here — the first step the player hasn't already made — with no network
+// at all. Only the daily withholds it, and the daily has no Hint button.
+//
+// The server route stays for one case: a puzzle whose payload predates the
+// embedded path (a link shared before this shipped, or a bundle from an older
+// generation lane), where /api/hint regenerates from the seed as it always did.
+
 // The board the player can "see" — derived ✓/✗ per pair (auto-× included), so
-// the server skips anything they've already worked out. Matches a hint's value
+// a step they've already worked out is skipped. Matches a hint's value
 // encoding: 0 blank · 1 link (=) · 2 no-link (×).
 function currentKnown() {
   const out = {};
   for (const key of Object.keys(manual)) out[key] = LG.derive(manual[key]).display;
   return out;
+}
+
+// The first step of `steps` the player hasn't already made correctly (mirrors
+// the server's next_hint).
+function localNextHint(steps) {
+  const known = currentKnown();
+  for (const step of steps) {
+    const cur = known[step.key];
+    if (cur && cur[step.a] && cur[step.a][step.b] === step.value) continue;
+    return step;
+  }
+  return { done: true };
 }
 
 function hintHtml(step, placed) {
@@ -1379,27 +1722,32 @@ async function hint() {
     setFeedback(hintHtml(step, true), "hint");
     clearHighlights();
     renderProgress();
+    // A revealed tile is a board edit like any other, but it can't go through
+    // afterEdit() — that clears the very explanation we just put on screen.
+    sampleProgress();
+    saveProgress();
     return;
   }
   const btn = $("hint");
   btn.disabled = true;
   setFeedback("");
   try {
-    // Big puzzles ship their full solve path in the bundle, so the next hint
-    // is found client-side: the first step the player hasn't already made.
-    const step = BIG ? bigNextHint() : await postJSON("/api/hint", {
-      seed: puzzle.seed,
-      difficulty: puzzle.requested,
-      items: puzzle.items,
-      categories: puzzle.n_categories,
-      theme: puzzle.theme,
-      ...(puzzle.theme === CUSTOM_KEY && puzzleDoc ? { theme_doc: puzzleDoc } : {}),
-      known: currentKnown(),
-    });
+    const step = puzzle.hints
+      ? localNextHint(puzzle.hints)
+      : await postJSON("/api/hint", { // pre-embedded-path payload — regenerate server-side
+        seed: puzzle.seed,
+        difficulty: puzzle.requested,
+        items: puzzle.items,
+        categories: puzzle.n_categories,
+        theme: puzzle.theme,
+        ...(puzzle.theme === CUSTOM_KEY && puzzleDoc ? { theme_doc: puzzleDoc } : {}),
+        known: currentKnown(),
+      });
     if (step.done) {
       setFeedback("Every remaining tile follows from what you've got — you've effectively cracked it. Hit <b>Check</b>!", "good");
       return;
     }
+    hintsUsed++; // a real deduction was handed over — the share card says so
     pendingHint = step;
     setFeedback(hintHtml(step, false), "hint");
     btn.textContent = "Reveal tile";
@@ -1475,9 +1823,13 @@ let dailyRank = null;   // set once claimSpot() succeeds; upgrades the share tex
 // No seed/theme to link back to (the daily is the same puzzle for everyone),
 // so this only ever shares the *result* — time, and rank once claimed.
 function shareDailyResult() {
-  const rankBit = dailyRank ? `, rank #${dailyRank} today` : "";
+  const rankBit = dailyRank ? ` · rank #${dailyRank}` : "";
   shareOrCopy({
-    text: `Solved the Logic Grid Puzzles daily (${puzzleShapeLabel()}) in ${fmtTime(dailyResult.time_ms)}${rankBit}`,
+    text: resultCard(
+      `daily ${dailyDate}`,
+      `${puzzleShapeLabel()} · ${fmtTime(dailyResult.time_ms)}${rankBit}`,
+      dailyResult.time_ms,
+    ),
     url: `${location.origin}/daily`,
   });
 }
@@ -1687,19 +2039,6 @@ function bigPayload(key) {
   };
 }
 
-// The bundle carries the full ordered solve path; the next hint is simply the
-// first step the player hasn't already made correctly (mirrors the server's
-// next_hint, with zero network).
-function bigNextHint() {
-  const known = currentKnown();
-  for (const step of bigBundle.themes[bigThemeKey].hints) {
-    const cur = known[step.key];
-    if (cur && cur[step.a] && cur[step.a][step.b] === step.value) continue;
-    return step;
-  }
-  return { done: true };
-}
-
 // A shared big-puzzle link: the existing #id deep link (openBigPuzzle already
 // maintains it) plus the viewer's current theme as a query param, so a friend
 // opens the same story — still free to swap it, same as any other visit.
@@ -1715,8 +2054,16 @@ function setBigTheme(key, { fresh } = {}) {
   try { localStorage.setItem(BIG_THEME_STORE, key); } catch (e) { /* fine */ }
   puzzle = bigPayload(key);
   if (fresh) buildState(); // a new puzzle wipes marks; a theme swap keeps them
+  // render() rebuilds the clue list from scratch, so a swap would otherwise
+  // un-cross everything. Clue ORDER is identical across themes — the same
+  // abstract clues, re-worded — so the crossed-off set carries over by index,
+  // exactly as the marks carry over by cell index.
+  const wasCrossed = fresh ? [] : crossedClues();
   resetHintButton();       // a pending hint's text belongs to the old wording
   render();
+  const items = $("clues").children;
+  for (const i of wasCrossed) if (items[i]) items[i].classList.add("done");
+  updateUncrossUI();
 }
 
 // --- The catalog: difficulty tabs -> size layers -> puzzle tiles --------------
@@ -1885,6 +2232,7 @@ async function openBigPuzzle(id, { theme } = {}) {
     $("puzzle").hidden = false;
     fitBoard();
     startTimer();
+    resumeIfSaved(); // big puzzles are long — most visits here are a continuation
   } catch (err) {
     $("error").textContent = err.message;
     $("error").hidden = false;
@@ -2034,7 +2382,7 @@ window.addEventListener("resize", () => { if (puzzle) fitBoard(); });
   }
   syncItemOptions();
   loadStoredCustom();
-  await loadThemes();
+  await Promise.all([loadThemes(), loadPool()]);
   if (location.hash === "#custom" && customDoc) {
     $("theme").value = CUSTOM_KEY; // arrived from the builder's "Play this theme"
   }
