@@ -441,3 +441,82 @@ def test_pre_cache_row_gets_its_payload_backfilled(api, monkeypatch, day_payload
     status, got = api._build_get_response({})
     assert status == 200
     assert filled["payload"] is payload
+
+
+# --- The archive calendar ------------------------------------------------------
+
+def test_month_bounds_spans_the_whole_month(api):
+    assert api._month_bounds("2026-02") == (date(2026, 2, 1), date(2026, 2, 28))
+    assert api._month_bounds("2024-02") == (date(2024, 2, 1), date(2024, 2, 29))  # leap
+    assert api._month_bounds("2026-12") == (date(2026, 12, 1), date(2026, 12, 31))
+
+
+def test_month_bounds_rejects_nonsense(api):
+    for bad in ("", "2026", "not-a-month", "2026-13", "2026-00", "abcd-ef"):
+        assert api._month_bounds(bad) is None, bad
+
+
+def test_calendar_rejects_a_malformed_month(api, monkeypatch):
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    status, body = api._build_get_response({"calendar": ["nope"]})
+    assert status == 400
+    assert "YYYY-MM" in body["error"]
+
+
+def test_calendar_is_empty_for_a_future_month(api, monkeypatch):
+    """A month that hasn't happened has no days — and asking mustn't hit the
+    store at all."""
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    monkeypatch.setattr(api.dailystore, "configured", lambda: (_ for _ in ()).throw(
+        AssertionError("the store must not be consulted for a future month")))
+    status, body = api._build_get_response({"calendar": ["2099-01"]})
+    assert status == 200
+    assert body["days"] == []
+
+
+def test_calendar_groups_scores_by_day_and_keeps_the_top(api, monkeypatch):
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    monkeypatch.setattr(api.dailystore, "configured", lambda: True)
+    monkeypatch.setattr(api.dailystore, "puzzles_in_range", lambda a, b: [
+        {"day": "2026-07-06", "theme": "cafe", "difficulty": "normal"},
+        {"day": "2026-07-07", "theme": "dnd", "difficulty": "giga"},
+    ])
+    monkeypatch.setattr(api.dailystore, "scores_in_range", lambda a, b: [
+        {"day": "2026-07-06", "name": "Ada", "time_ms": 1000, "steps": 30},
+        {"day": "2026-07-06", "name": "Bo", "time_ms": 2000, "steps": 31},
+        {"day": "2026-07-06", "name": "Cy", "time_ms": 3000, "steps": 32},
+        {"day": "2026-07-06", "name": "Di", "time_ms": 4000, "steps": 33},
+    ])
+    status, body = api._build_get_response({"calendar": ["2026-07"]})
+    assert status == 200
+    first, second = body["days"]
+    assert first["entries"] == 4, "the count is every entry, not just the ones shown"
+    assert [e["name"] for e in first["top"]] == ["Ada", "Bo", "Cy"]
+    assert first["theme_name"] == "The Morning Rush"
+    assert (first["categories"], first["items"]) == daily.daily_config(date(2026, 7, 6))[1:]
+    assert second["entries"] == 0 and second["top"] == []
+
+
+def test_calendar_never_reaches_past_today(api, monkeypatch):
+    """The month containing today is cut off at today: a day nobody could have
+    played yet must not be advertised."""
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    monkeypatch.setattr(api.dailystore, "configured", lambda: True)
+    seen = {}
+    def _range(start, end):
+        seen["start"], seen["end"] = start, end
+        return []
+    monkeypatch.setattr(api.dailystore, "puzzles_in_range", _range)
+    monkeypatch.setattr(api.dailystore, "scores_in_range", lambda a, b: [])
+    api._build_get_response({"calendar": ["2026-07"]})
+    assert seen["end"] == DAY, f"queried up to {seen['end']}, past today ({DAY})"
+
+
+def test_calendar_degrades_when_the_store_is_down(api, monkeypatch):
+    monkeypatch.setenv("DAILY_SECRET", SECRET)
+    monkeypatch.setattr(api.dailystore, "configured", lambda: True)
+    monkeypatch.setattr(api.dailystore, "puzzles_in_range",
+                        lambda a, b: (_ for _ in ()).throw(api.dailystore.StoreError("down")))
+    status, body = api._build_get_response({"calendar": ["2026-07"]})
+    assert status == 503
+    assert "error" in body

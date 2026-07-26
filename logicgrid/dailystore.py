@@ -112,6 +112,45 @@ def top_scores(day: date, limit: int = BOARD_LIMIT) -> list[dict]:
     ) or []
 
 
+ARCHIVE_TOP = 3  # entries kept per day in the calendar view
+
+
+def puzzles_in_range(start: date, end: date) -> list[dict]:
+    """Each day in [start, end] that actually ran, oldest first.
+
+    ``payload`` is deliberately not selected: the calendar wants a shape and a
+    theme, and pulling a month of full payloads (each with its answer key)
+    would be megabytes to throw away.
+    """
+    return _request(
+        "GET", "daily_puzzles",
+        params={
+            "day": f"gte.{start.isoformat()}",
+            "and": f"(day.lte.{end.isoformat()})",
+            "select": "day,theme,difficulty",
+            "order": "day.asc",
+        },
+    ) or []
+
+
+def scores_in_range(start: date, end: date) -> list[dict]:
+    """Every score across [start, end], grouped by day and ranked within it.
+
+    One request for the whole month rather than one per day: a calendar is 30
+    boards, and 30 round trips from a serverless function is the difference
+    between a page that opens and one that times out.
+    """
+    return _request(
+        "GET", "daily_scores",
+        params={
+            "day": f"gte.{start.isoformat()}",
+            "and": f"(day.lte.{end.isoformat()})",
+            "select": "day,name,time_ms,steps",
+            "order": "day.asc,time_ms.asc,created_at.asc",
+        },
+    ) or []
+
+
 def insert_score(day: date, name: str, time_ms: int, steps: int | None,
                  sid: str, ip_hash: str | None) -> None:
     """One row per solve. The unique ``sid`` makes a result token single-use:

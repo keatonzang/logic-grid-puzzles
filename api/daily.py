@@ -3,6 +3,9 @@
     GET  /api/daily            -> today's puzzle (no answer key), a signed
                                   session token, and the current leaderboard
     GET  /api/daily?board=1    -> leaderboard only (cheap refresh)
+    GET  /api/daily?calendar=YYYY-MM
+                               -> that month's played days, each with its
+                                  shape, theme and top of the board
     POST /api/daily {"action": "finish", "token": ..., "rows": [[label,..],..],
                      "steps": N}
         -> verifies the solution server-side against the regenerated puzzle;
@@ -19,6 +22,7 @@ layer stays thin and unit-testable like api/puzzle.py.
 
 from __future__ import annotations
 
+import calendar
 import hashlib
 import json
 import os
@@ -85,11 +89,76 @@ def _daily_payload(day, secret: str) -> tuple[dict, int]:
     return payload, chosen
 
 
+def _month_bounds(text: str):
+    """(first, last) dates of a "YYYY-MM", or None if it isn't one."""
+    try:
+        year, month = (int(part) for part in text.split("-", 1))
+        first = daily.date(year, month, 1)
+    except (ValueError, TypeError):
+        return None
+    last_day = calendar.monthrange(first.year, first.month)[1]
+    return first, first.replace(day=last_day)
+
+
+def _calendar(month: str) -> tuple[int, dict]:
+    """A month of past dailies with each day's board.
+
+    Days come from the store, because a day only exists once it was actually
+    played — the schedule alone would invent dailies for dates the site wasn't
+    live. Shape falls back to the weekday schedule, which is deterministic, for
+    rows written before it was recorded.
+    """
+    bounds = _month_bounds(month)
+    if bounds is None:
+        return 400, {"error": "month must look like YYYY-MM"}
+    first, last = bounds
+    today = daily.today_utc()
+    if first > today:
+        return 200, {"month": month, "today": today.isoformat(), "days": []}
+    last = min(last, today)  # never advertise a day that hasn't been played yet
+    if not dailystore.configured():
+        return 503, {"error": "the archive is unavailable right now"}
+
+    try:
+        rows = dailystore.puzzles_in_range(first, last)
+        scores = dailystore.scores_in_range(first, last)
+    except dailystore.StoreError:
+        return 503, {"error": "the archive is unavailable right now"}
+
+    by_day: dict[str, list[dict]] = {}
+    for row in scores:
+        by_day.setdefault(row["day"], []).append(row)
+
+    names = {t["key"]: t["name"] for t in daily.list_themes()}
+    days = []
+    for row in rows:
+        iso = row["day"]
+        entries = by_day.get(iso, [])
+        _band, categories, items = daily.daily_config(daily.date.fromisoformat(iso))
+        days.append({
+            "date": iso,
+            "theme": row["theme"],
+            "theme_name": names.get(row["theme"], row["theme"]),
+            "difficulty": row["difficulty"],
+            "categories": categories,
+            "items": items,
+            "entries": len(entries),
+            "top": [
+                {"name": e["name"], "time_ms": e["time_ms"], "steps": e.get("steps")}
+                for e in entries[:dailystore.ARCHIVE_TOP]
+            ],
+        })
+    return 200, {"month": month, "today": today.isoformat(), "days": days}
+
+
 def _build_get_response(query: dict, now: float | None = None) -> tuple[int, dict]:
     secret = _secret()
     if secret is None:
         return 503, {"error": "the daily challenge isn't configured yet (DAILY_SECRET)"}
     day = daily.today_utc()
+
+    if "calendar" in query:
+        return _calendar(query["calendar"][0] or day.strftime("%Y-%m"))
 
     if "board" in query:
         try:
