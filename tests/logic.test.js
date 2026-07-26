@@ -5,10 +5,11 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
-  lineHasEqElsewhere, nextState, derive, makeHistory, nextStateGroup, deriveGroup,
+  lineHasEqElsewhere, nextState, nextMaybe, derive, makeHistory, nextStateGroup,
+  deriveGroup,
 } = require("../public/logic.js");
 
-// 0 = blank, 1 = "=", 2 = "×"
+// 0 = blank, 1 = "=", 2 = "×", 3 = "?" (maybe)
 const grid = (n) => Array.from({ length: n }, () => new Array(n).fill(0));
 const tap = (M, a, b) => { M[a][b] = nextState(M, a, b); }; // simulate one click
 const countEq = (row) => row.filter((v) => v === 1).length;
@@ -114,6 +115,72 @@ test("auto-revert: removing an = drops only its auto ×, keeping manual ×", () 
 });
 
 // --- Undo/redo history ------------------------------------------------------
+const ggrid = () => Array.from({ length: 4 }, () => [0, 0]);
+const SIZES = [3, 1];
+
+// --- Maybe marks ("?") ------------------------------------------------------
+// A maybe is a pencil mark: it must behave exactly like a blank everywhere
+// that matters, and never influence another cell.
+
+test("maybe: right-click pencils one in and clears it again", () => {
+  const M = grid(4);
+  assert.equal(nextMaybe(M, 0, 0), 3); M[0][0] = 3;
+  assert.equal(nextMaybe(M, 0, 0), 0, "a second gesture clears it");
+});
+
+test("maybe: right-click walks a committed mark back to not-sure", () => {
+  const M = grid(4);
+  M[0][0] = 1;
+  assert.equal(nextMaybe(M, 0, 0), 3, "an = downgrades to a maybe");
+  M[0][0] = 2;
+  assert.equal(nextMaybe(M, 0, 0), 3, "so does a ×");
+});
+
+test("maybe: left-clicking one joins the normal cycle at ×", () => {
+  const M = grid(4);
+  M[0][0] = 3;
+  assert.equal(nextState(M, 0, 0), 2); tap(M, 0, 0);
+  assert.equal(nextState(M, 0, 0), 1, "and carries on to = as usual");
+});
+
+test("maybe: never blocks an = in its row or column", () => {
+  const M = grid(4);
+  M[0][1] = 3;
+  M[1][0] = 3;
+  assert.equal(lineHasEqElsewhere(M, 0, 0), false, "a maybe is not an =");
+  M[0][0] = 2;
+  assert.equal(nextState(M, 0, 0), 1, "so the = is still available");
+});
+
+test("maybe: displays as itself and forces nothing", () => {
+  const M = grid(4);
+  M[2][2] = 3;
+  const { display, lit } = derive(M);
+  assert.equal(display[2][2], 3);
+  assert.equal(lit[2][2], false, "a maybe is never a bright ×");
+  // no auto-× anywhere: a maybe asserts nothing
+  assert.equal(display.flat().filter((v) => v !== 0 && v !== 3).length, 0);
+});
+
+test("maybe: loses to a deduction, and comes back when it is undone", () => {
+  const M = grid(4);
+  M[0][1] = 3;          // pencilled candidate
+  M[0][0] = 1;          // ...then the row is settled by an = elsewhere
+  assert.equal(derive(M).display[0][1], 2, "the settled line overrides the note");
+  assert.equal(derive(M).lit[0][1], false, "and it shows as a dim auto-×, not a hand-placed one");
+  M[0][0] = 0;          // remove the =
+  assert.equal(derive(M).display[0][1], 3, "the note is still there underneath");
+});
+
+test("maybe: group grids behave the same way", () => {
+  const M = ggrid();
+  M[0][0] = 3;
+  assert.equal(deriveGroup(M, SIZES).display[0][0], 3);
+  assert.equal(nextStateGroup(M, SIZES, 0, 0), 2, "left-click joins the cycle at ×");
+  M[1][0] = 1; M[2][0] = 1; M[3][0] = 1; // column 0 reaches its size of 3
+  assert.equal(deriveGroup(M, SIZES).display[0][0], 2, "a full column overrides the note");
+});
+
 const cell = (key, a, b, before, after) => [{ key, a, b, before, after }];
 
 test("history: a single click records one undoable step", () => {
@@ -188,9 +255,6 @@ test("history: bulk actions (e.g. Clear) undo every cell at once", () => {
 
 // --- Group grids (subject × group) ------------------------------------------
 // 4 subjects, 2 groups with sizes [3, 1] (e.g. Furred holds 3, Finned holds 1).
-const ggrid = () => Array.from({ length: 4 }, () => [0, 0]);
-const SIZES = [3, 1];
-
 test("group: a ✓ crosses out the rest of its row (one group per subject)", () => {
   const M = ggrid();
   M[0][0] = 1; // subject 0 in group 0

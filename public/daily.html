@@ -87,6 +87,20 @@
           <p id="board-empty" class="board-empty">No solves yet today — be the first!</p>
         </section>
 
+        <section id="archive" class="archive-panel" hidden>
+          <h3>
+            Past dailies
+            <span class="archive-nav">
+              <button id="archive-prev" type="button" class="archive-step" aria-label="Previous month">‹</button>
+              <span id="archive-month" class="progress-count"></span>
+              <button id="archive-next" type="button" class="archive-step" aria-label="Next month">›</button>
+            </span>
+          </h3>
+          <div id="archive-grid" class="archive-grid" role="grid" aria-label="Past daily puzzles"></div>
+          <p id="archive-empty" class="board-empty" hidden>No dailies played this month.</p>
+          <div id="archive-day" class="archive-day" hidden></div>
+        </section>
+
         <div id="feedback" class="feedback empty" aria-live="polite"></div>
       </aside>
     </div>

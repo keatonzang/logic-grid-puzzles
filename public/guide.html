@@ -36,6 +36,7 @@
         <li><span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span> <span><b>Link.</b> These two items belong to the same entity.</span></li>
         <li><span class="chip no"><span class="mk mk-no" role="img" aria-label="cross"></span></span> <span><b>No link.</b> These two items belong to different entities.</span></li>
         <li><span class="chip blank"></span> <span><b>Blank.</b> Not yet known.</span></li>
+        <li><span class="chip maybe">?</span> <span><b>Maybe.</b> A candidate you want to remember. It claims nothing — see below.</span></li>
       </ul>
       <p>
         The one rule that powers everything: <b>each item links exactly one item in every other
@@ -47,6 +48,28 @@
       <p class="tip">
         In the app, click a cell to cycle <b>blank → <span class="mk mk-no" role="img" aria-label="cross"></span> → <span class="mk mk-yes" role="img" aria-label="equals"></span></b>. Click a clue to cross it off once
         you've used it, and hit <b>Hint</b> for the next logical step with an explanation.
+      </p>
+
+      <h3 class="sub">Maybe marks</h3>
+      <p>
+        Some deductions need you to hold a possibility in mind before you can prove it — the
+        two cells a clue narrows an item down to, or the branch you're testing in a
+        proof by contradiction. <b>Right-click</b> a cell (or <b>press and hold</b> on a
+        touchscreen) to pencil in a <span class="chip maybe">?</span>, and again to rub it out.
+      </p>
+      <p>
+        A maybe is a note to yourself and nothing more. It makes no claim about the puzzle, so:
+      </p>
+      <ul class="legend">
+        <li><span class="chip blank"></span> <span>It never forces another cell, and never blocks you from placing a <span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span> in its row or column.</span></li>
+        <li><span class="chip blank"></span> <span><b>Check</b> ignores it — a question can't be a mistake — and <b>Hint</b> treats the cell as still unknown.</span></li>
+        <li><span class="chip blank"></span> <span>A deduction beats it: once the line is settled by a <span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span>, the cell shows its
+          auto-<span class="mk mk-no" role="img" aria-label="cross"></span> instead. Undo that <span class="chip yes"><span class="mk mk-yes" role="img" aria-label="equals"></span></span> and your note is still underneath.</span></li>
+      </ul>
+      <p class="tip">
+        Left-clicking a pencilled cell commits it: the maybe steps into the normal cycle at
+        <span class="mk mk-no" role="img" aria-label="cross"></span>, so ruling a candidate out is one click. Maybes are saved with the rest of
+        your board, so they survive a reload like every other mark.
       </p>
     </section>
 

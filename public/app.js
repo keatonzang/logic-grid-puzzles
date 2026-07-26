@@ -1,7 +1,7 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
-const STATES = ["", "=", "×"]; // 0 blank, 1 link (=), 2 no-link (×)
+const STATES = ["", "=", "×", "?"]; // 0 blank, 1 link (=), 2 no-link (×), 3 maybe (?)
 // Per-group accent colors, ordered by hue (amber → green → blue → violet →
 // pink) so alphabetically-sorted groups pick up an even spread across the wheel.
 const GROUP_COLORS = ["#ffc46e", "#51cf66", "#6ea8fe", "#c9a7ff", "#ff8fab"];
@@ -127,10 +127,14 @@ function updateUndoUI() {
 // localStorage under an id derived from the puzzle's identity, so re-opening
 // the same puzzle picks the run back up where it stopped.
 //
-// The DAILY is deliberately excluded. Its clock is server-authoritative and a
-// reload issues a *fresh* session token, so restoring a nearly-complete board
-// across a reload would hand out a near-zero time. Losing an interrupted daily
-// is what that guarantee costs.
+// The DAILY saves too, but it can't just restore marks: its clock is
+// server-authoritative, measured from the `iat` inside the signed session
+// token, and a plain reload fetches a *fresh* token. Restoring a
+// nearly-complete board onto a fresh clock would hand out a near-zero time.
+// So the token is saved with the board and reused on the way back in — the
+// server then measures from the moment the run actually started, and an
+// interrupted daily costs you the wall-clock time you were away, exactly as
+// it would if you had left the tab open. See resumeDaily.
 //
 // Undo history is not restored: a new session starts with an empty stack (you
 // can't undo into moves you made yesterday), so the saved step count carries
@@ -155,7 +159,8 @@ function hashString(s) {
 
 // The storage key for the puzzle on screen, or null if this one isn't saved.
 function saveId() {
-  if (DAILY || !puzzle) return null;
+  if (!puzzle) return null;
+  if (DAILY) return dailyDate ? `daily:${dailyDate}` : null;
   // Big puzzles key on the bundle, NOT the theme: swapping theme mid-solve is
   // a re-rendering of the same logical board and must keep the same marks.
   if (BIG) return bigBundle ? `big:${bigBundle.id}` : null;
@@ -212,7 +217,9 @@ function saveProgress() {
   const store = readStore();
   const done = crossedClues();
   // Nothing to come back to — drop the slot rather than banking an empty board.
-  if (boardIsEmpty() && !done.length) {
+  // The daily is the exception: its record also carries the session token, and
+  // the clock is already running whether or not a mark has been made yet.
+  if (boardIsEmpty() && !done.length && !DAILY) {
     if (id in store) { delete store[id]; writeStore(store); }
     return;
   }
@@ -226,6 +233,9 @@ function saveProgress() {
     hints: hintsUsed,
     samples: progressSamples,
     solved: timerDone && solvedElapsedMs !== null,
+    // The daily's clock lives in its signed token, not in `ms` — banking the
+    // token is what lets a resumed run keep the time it has already spent.
+    ...(DAILY && dailyToken ? { token: dailyToken } : {}),
   };
   writeStore(store);
 }
@@ -257,7 +267,7 @@ function restoreProgress() {
     for (let a = 0; a < manual[key].length; a++)
       for (let b = 0; b < cols; b++) {
         const v = +flat[a * cols + b];
-        manual[key][a][b] = v === 1 || v === 2 ? v : 0;
+        manual[key][a][b] = v === 1 || v === 2 || v === 3 ? v : 0;
       }
     paintGrid(key);
   }
@@ -270,6 +280,51 @@ function restoreProgress() {
   startTimer(rec.ms || 0); // the clock resumes rather than restarting
   if (rec.solved) { solvedElapsedMs = rec.ms || 0; stopTimer(true); $("share-result").hidden = false; }
   renderProgress();
+  return true;
+}
+
+// The `iat` (issued-at, epoch seconds) inside a session token. The payload is
+// url-safe base64 JSON and the signature is what makes it trustworthy, so
+// reading it here is only to decide whether reusing it is still worth trying.
+function sessionIat(token) {
+  try {
+    const body = String(token).split(".")[0].replace(/-/g, "+").replace(/_/g, "/");
+    const data = JSON.parse(atob(body + "=".repeat((4 - (body.length % 4)) % 4)));
+    return typeof data.iat === "number" ? data.iat : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// A session the server will still accept. Mirrors daily.MAX_SOLVE_MS (12h),
+// pulled in slightly so a run that is about to expire starts fresh here
+// rather than being rejected at submit time.
+const DAILY_SESSION_MS = 11.5 * 60 * 60 * 1000;
+
+// Pick a part-solved daily back up. The board comes back AND the original
+// session token is put back in play, so the official elapsed time still runs
+// from when the run began — the whole point of saving the token. Returns true
+// if the run resumed.
+function resumeDaily() {
+  const id = saveId();
+  if (!id) return false;
+  const rec = readStore()[id];
+  if (!rec || !rec.token) return false;
+  const iat = sessionIat(rec.token);
+  if (iat === null) return false;
+  const elapsedMs = Date.now() - iat * 1000;
+  // A clock running backwards means a changed device clock; too old means the
+  // server would reject the token. Either way, start clean.
+  if (elapsedMs < 0 || elapsedMs > DAILY_SESSION_MS) { forgetProgress(); return false; }
+  if (!restoreProgress()) return false;
+  dailyToken = rec.token;
+  startTimer(elapsedMs); // show what the server will measure, not time-in-tab
+  const { filled, total } = tableProgress();
+  setFeedback(
+    `Back on today's puzzle — <b>${filled}</b> of <b>${total}</b> filled in, and the ` +
+    `clock has been running since you started.`,
+    "warn",
+  );
   return true;
 }
 
@@ -1127,6 +1182,8 @@ function dataCell(key, a, b, extra) {
   td.dataset.a = a;
   td.dataset.b = b;
   td.addEventListener("click", onCellClick);
+  td.addEventListener("contextmenu", onCellContextMenu);
+  attachLongPress(td);
   return td;
 }
 
@@ -1403,6 +1460,7 @@ function paintGrid(key) {
       td.textContent = STATES[state];
       td.classList.toggle("yes", state === 1);
       td.classList.toggle("no", state === 2);
+      td.classList.toggle("maybe", state === 3);
       td.classList.toggle("lit", lit[a][b]);
       td.classList.remove("right", "wrong");
     }
@@ -1420,6 +1478,60 @@ function onCellClick(e) {
   );
   paintGrid(key);
   afterEdit();
+}
+
+// --- The maybe gesture -------------------------------------------------------
+// Right-click pencils a "?" into a cell: a candidate worth remembering that
+// claims nothing (see logic.js). Touch devices have no right button, so a long
+// press does the same job — and because a long press on a grid also starts the
+// browser's own text-selection/callout gesture, the touch path suppresses that
+// only once the press has actually become a maybe.
+const LONG_PRESS_MS = 450;
+const LONG_PRESS_SLOP = 12; // px of finger drift still counted as a press, not a scroll
+
+function toggleMaybe(td) {
+  const key = td.dataset.key;
+  const a = +td.dataset.a;
+  const b = +td.dataset.b;
+  recordMutation(() => { manual[key][a][b] = LG.nextMaybe(manual[key], a, b); });
+  paintGrid(key);
+  afterEdit();
+}
+
+function onCellContextMenu(e) {
+  e.preventDefault(); // never show the browser menu over the board
+  toggleMaybe(e.currentTarget);
+}
+
+// A long press fires the maybe and then swallows the click that follows, so a
+// pencilled cell doesn't immediately advance through the normal cycle too.
+function attachLongPress(td) {
+  let timer = null;
+  let startX = 0, startY = 0;
+  let fired = false;
+  const cancel = () => { clearTimeout(timer); timer = null; };
+  td.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return cancel();
+    fired = false;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    timer = setTimeout(() => {
+      fired = true;
+      toggleMaybe(td);
+      if (navigator.vibrate) navigator.vibrate(10); // the usual "it took" nudge
+    }, LONG_PRESS_MS);
+  }, { passive: true });
+  td.addEventListener("touchmove", (e) => {
+    const t = e.touches[0];
+    if (!t) return;
+    if (Math.abs(t.clientX - startX) > LONG_PRESS_SLOP ||
+        Math.abs(t.clientY - startY) > LONG_PRESS_SLOP) cancel(); // it's a scroll
+  }, { passive: true });
+  td.addEventListener("touchend", (e) => {
+    cancel();
+    if (fired) e.preventDefault(); // suppress the synthetic click after a long press
+  });
+  td.addEventListener("touchcancel", cancel);
 }
 
 function clearHighlights() {
@@ -1520,7 +1632,10 @@ function check() {
     for (let a = 0; a < M.length; a++) {
       for (let b = 0; b < M[a].length; b++) {
         const state = M[a][b];
-        if (state === 0) continue; // blank or auto-derived — not a player claim
+        // Blank, auto-derived, or a pencilled maybe — none of them is a claim,
+        // and a maybe is a question rather than an answer, so Check has nothing
+        // to say about it either way.
+        if (state === 0 || state === 3) continue;
         const truth = linked[key].has(`${a},${b}`);
         const td = cellEl(key, a, b);
         if (!td) continue;
@@ -1651,7 +1766,11 @@ function setFeedback(html, cls) {
 // encoding: 0 blank · 1 link (=) · 2 no-link (×).
 function currentKnown() {
   const out = {};
-  for (const key of Object.keys(manual)) out[key] = LG.derive(manual[key]).display;
+  for (const key of Object.keys(manual)) {
+    // A maybe is a note, not knowledge — flatten it back to blank so the
+    // solver still offers the deduction that settles the cell.
+    out[key] = LG.derive(manual[key]).display.map((row) => row.map((v) => (v === 3 ? 0 : v)));
+  }
   return out;
 }
 
@@ -1886,7 +2005,10 @@ async function dailySubmit() {
       action: "finish",
       token: dailyToken,
       rows: labels,
-      steps: history.size(),
+      // Includes any earlier session of this same run: the undo stack resets
+      // on reload, but the server's min-interactions floor judges the whole
+      // solve, so a resumed run must not report only its final stretch.
+      steps: stepsBase + history.size(),
     });
     if (!res.correct) {
       resumeTimerDisplay();
@@ -1905,6 +2027,9 @@ async function dailySubmit() {
     }
   } catch (err) {
     resumeTimerDisplay(); // the submission never landed — still on the clock
+    // A dead session would be handed straight back on the next reload, so the
+    // run has to be let go of here or the player is stuck resubmitting it.
+    if (/session (has expired|token)/i.test(err.message)) forgetProgress();
     setFeedback(escapeHtml(err.message), "bad");
   } finally {
     btn.disabled = false;
@@ -1997,10 +2122,16 @@ async function loadDaily() {
     fitBoard();
     startTimer(); // display only — the official clock started server-side
     renderLeaderboard(data.leaderboard);
+    // A run already in progress puts its own token and board back; otherwise
+    // this is a fresh start and the token from the fetch above stands.
+    const resumed = resumeDaily();
     const prior = playedName();
     if (prior) {
       setFeedback(`You've already posted a time today as <b>${escapeHtml(prior)}</b> — replays are just for fun.`, "warn");
+    } else if (!resumed) {
+      saveProgress(); // bank the fresh token now, so an immediate reload resumes
     }
+    loadArchive(dailyDate.slice(0, 7)); // the month the current puzzle sits in
   } catch (err) {
     $("error").textContent = err.message;
     $("error").hidden = false;
@@ -2009,7 +2140,155 @@ async function loadDaily() {
   }
 }
 
+// --- The archive: a calendar of past dailies -----------------------------------
+// The daily used to be one day deep: miss it and it was gone, and there was no
+// way to see how a day had gone once its board scrolled off. The calendar lays
+// a month out as it was actually played — a cell per day carrying its measured
+// band, how many people posted, and the top of its board on click.
+//
+// Only days the store has a row for appear. The weekday schedule is
+// deterministic, so it *could* name a puzzle for any date in history, but a day
+// nobody ever played isn't a daily that happened.
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+  "August", "September", "October", "November", "December"];
+const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+let archiveMonth = null;   // "YYYY-MM" on screen
+let archiveDays = {};      // iso date -> day record
+let archiveSelected = null;
+
+function monthLabel(month) {
+  const [y, m] = month.split("-").map(Number);
+  return `${MONTHS[m - 1]} ${y}`;
+}
+
+function shiftMonth(month, delta) {
+  const [y, m] = month.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+// Monday-first weekday index, matching the schedule table in the README.
+function mondayIndex(date) {
+  return (date.getUTCDay() + 6) % 7;
+}
+
+function renderArchiveDay(iso) {
+  const box = $("archive-day");
+  const day = archiveDays[iso];
+  box.innerHTML = "";
+  if (!day) { box.hidden = true; return; }
+  box.hidden = false;
+
+  const head = document.createElement("p");
+  head.className = "archive-day-head";
+  head.innerHTML =
+    `<b>${iso}</b> · ${escapeHtml(day.theme_name)} · ${day.categories} × ${day.items} ` +
+    `<b>${escapeHtml(day.difficulty)}</b>`;
+  box.appendChild(head);
+
+  if (!day.top.length) {
+    const none = document.createElement("p");
+    none.className = "board-empty";
+    none.textContent = "Nobody posted a time this day.";
+    box.appendChild(none);
+    return;
+  }
+  const ol = document.createElement("ol");
+  ol.className = "board-list";
+  for (const entry of day.top) {
+    const li = document.createElement("li");
+    const name = document.createElement("span");
+    name.className = "board-name";
+    name.textContent = entry.name;
+    const time = document.createElement("span");
+    time.className = "board-time";
+    time.textContent = fmtTime(entry.time_ms);
+    li.append(name, time);
+    if (entry.steps) li.title = `${entry.steps} steps`;
+    ol.appendChild(li);
+  }
+  box.appendChild(ol);
+  if (day.entries > day.top.length) {
+    const more = document.createElement("p");
+    more.className = "archive-more";
+    more.textContent = `+${day.entries - day.top.length} more that day`;
+    box.appendChild(more);
+  }
+}
+
+function renderArchive() {
+  $("archive-month").textContent = monthLabel(archiveMonth);
+  const grid = $("archive-grid");
+  grid.innerHTML = "";
+  const dates = Object.keys(archiveDays).sort();
+  $("archive-empty").hidden = dates.length > 0;
+  // Next only goes forward while there is a month to go forward into.
+  $("archive-next").disabled = archiveMonth >= (dailyDate || "").slice(0, 7);
+
+  for (const label of DOW) {
+    const h = document.createElement("span");
+    h.className = "archive-dow";
+    h.textContent = label[0];
+    h.title = label;
+    grid.appendChild(h);
+  }
+  if (!dates.length) { renderArchiveDay(null); return; }
+
+  const [y, m] = archiveMonth.split("-").map(Number);
+  const first = new Date(Date.UTC(y, m - 1, 1));
+  const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  for (let i = 0; i < mondayIndex(first); i++) {
+    grid.appendChild(document.createElement("span")); // lead-in blanks
+  }
+  for (let d = 1; d <= days; d++) {
+    const iso = `${archiveMonth}-${String(d).padStart(2, "0")}`;
+    const day = archiveDays[iso];
+    if (!day) {
+      const blank = document.createElement("span");
+      blank.className = "archive-cell empty";
+      blank.textContent = d;
+      grid.appendChild(blank);
+      continue;
+    }
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = `archive-cell band-${day.difficulty}`;
+    if (iso === dailyDate) cell.classList.add("today");
+    if (iso === archiveSelected) cell.classList.add("selected");
+    if (day.entries) cell.classList.add("played");
+    cell.textContent = d;
+    cell.title = `${iso} · ${day.difficulty} ${day.categories}×${day.items} · ` +
+      `${day.entries} ${day.entries === 1 ? "solve" : "solves"}`;
+    cell.addEventListener("click", () => {
+      archiveSelected = archiveSelected === iso ? null : iso;
+      renderArchive();
+    });
+    grid.appendChild(cell);
+  }
+  renderArchiveDay(archiveSelected);
+}
+
+async function loadArchive(month) {
+  let data;
+  try {
+    data = await fetchJSON(`/api/daily?calendar=${encodeURIComponent(month)}`);
+  } catch (err) {
+    // The archive is a bonus panel: never block the puzzle over it, and stay
+    // hidden rather than claiming nobody played — an unreachable store and an
+    // empty month are not the same thing.
+    if (!archiveMonth) $("archive").hidden = true;
+    return;
+  }
+  archiveMonth = month;
+  archiveDays = Object.fromEntries((data.days || []).map((d) => [d.date, d]));
+  if (archiveSelected && !archiveDays[archiveSelected]) archiveSelected = null;
+  $("archive").hidden = false;
+  renderArchive();
+}
+
 if (DAILY) {
+  $("archive-prev").addEventListener("click", () => loadArchive(shiftMonth(archiveMonth, -1)));
+  $("archive-next").addEventListener("click", () => loadArchive(shiftMonth(archiveMonth, +1)));
   $("claim-submit").addEventListener("click", claimSpot);
   $("claim-name").addEventListener("keydown", (e) => {
     if (e.key === "Enter") { e.preventDefault(); claimSpot(); }

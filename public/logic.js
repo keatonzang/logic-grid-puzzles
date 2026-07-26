@@ -4,12 +4,19 @@
 // Node test suite (require). No DOM access lives here so it can be unit-tested.
 //
 // A grid's state is a 2D `manual` array M[a][b] of the user's intent:
-//   0 = blank   1 = "=" (link)   2 = "×" (no-link)
+//   0 = blank   1 = "=" (link)   2 = "×" (no-link)   3 = "?" (maybe)
 // Displayed × marks are *derived*: any blank cell sharing a row or column with
 // an "=" shows an auto "×". The rules enforced here:
 //   * at most one "=" per row and per column (a bijection),
 //   * an auto × renders dim, a hand-placed × renders bright,
 //   * removing an "=" reverts only the auto marks it implied.
+//
+// A "maybe" is a pencil mark and nothing more: a candidate the player wants to
+// remember without claiming. It asserts nothing, so it never forces another
+// cell, never blocks an "=", and is never judged right or wrong — everywhere
+// outside this display layer it counts as blank. It also loses to a deduction:
+// once its line gains an "=", the cell shows the auto × like any other blank,
+// and the maybe reappears if that "=" goes away.
 (function (root, factory) {
   const api = factory();
   if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -28,16 +35,27 @@
   // The manual value a cell takes when tapped.
   //   Free cell (no "=" in its line):  blank → × → = → blank
   //   Forced cell (line has an "="):   dim auto-× ⇄ bright manual-×  (never a 2nd "=")
+  // A maybe joins the cycle at the start: tapping one is the player deciding
+  // to commit, and ruling the candidate out is the first step of the cycle.
   function nextState(M, a, b) {
     const cur = M[a][b];
     const canLink = !lineHasEqElsewhere(M, a, b);
-    if (cur === 0) return 2;
+    if (cur === 0 || cur === 3) return 2;
     if (cur === 2) return canLink ? 1 : 0;
     return 0; // cur === 1 ("=") → blank
   }
 
+  // The manual value a cell takes on the *maybe* gesture (right-click, or a
+  // long press where there's no right button). Right-click owns one job —
+  // toggling the pencil mark — so it reads the same wherever it lands: on a
+  // maybe it clears, on anything else it pencils, which doubles as a way to
+  // walk a committed mark back to "not sure".
+  function nextMaybe(M, a, b) {
+    return M[a][b] === 3 ? 0 : 3;
+  }
+
   // Displayed state for every cell, plus which × marks render bright.
-  //   display[a][b] ∈ {0,1,2}
+  //   display[a][b] ∈ {0,1,2,3}
   //   lit[a][b]     = true  → a hand-placed × (bright); auto × stay dim.
   function derive(M) {
     const rows = M.length;
@@ -56,7 +74,10 @@
       lit.push([]);
       for (let c = 0; c < cols; c++) {
         const forced = rowHasEq[r] || colHasEq[c];
-        const state = M[r][c] !== 0 ? M[r][c] : forced ? 2 : 0;
+        // A maybe is only a note about an unknown cell, so a line that has
+        // been settled by an "=" overrides it exactly as it overrides a blank.
+        const pencil = M[r][c] === 3;
+        const state = M[r][c] !== 0 && !pencil ? M[r][c] : forced ? 2 : pencil ? 3 : 0;
         display[r].push(state);
         lit[r].push(M[r][c] === 2); // bright iff the user placed this × by hand
       }
@@ -125,7 +146,7 @@
   // The value a group cell takes when clicked: blank → × → (✓ if allowed) → blank.
   function nextStateGroup(M, sizes, s, g) {
     const cur = M[s][g];
-    if (cur === 0) return 2;
+    if (cur === 0 || cur === 3) return 2;
     if (cur === 2) return _groupCanLink(M, sizes, s, g) ? 1 : 0;
     return 0;
   }
@@ -147,12 +168,16 @@
       lit.push([]);
       for (let c = 0; c < g; c++) {
         const forced = rowHasOne[r] || colOnes[c] >= sizes[c];
-        display[r].push(M[r][c] !== 0 ? M[r][c] : forced ? 2 : 0);
+        const pencil = M[r][c] === 3;
+        display[r].push(M[r][c] !== 0 && !pencil ? M[r][c] : forced ? 2 : pencil ? 3 : 0);
         lit[r].push(M[r][c] === 2);
       }
     }
     return { display, lit };
   }
 
-  return { lineHasEqElsewhere, nextState, derive, makeHistory, nextStateGroup, deriveGroup };
+  return {
+    lineHasEqElsewhere, nextState, nextMaybe, derive, makeHistory,
+    nextStateGroup, deriveGroup,
+  };
 });
