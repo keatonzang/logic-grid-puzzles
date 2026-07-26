@@ -166,8 +166,13 @@ def build_daily(day: date, secret: str, seed: int | None = None,
 
 def public_daily(payload: dict) -> dict:
     """The client-safe view: no answer key, and no seed (a seed would let the
-    open /api/puzzle endpoint reproduce the puzzle WITH its answer key)."""
-    return {k: v for k, v in payload.items() if k not in ("solution", "seed")}
+    open /api/puzzle endpoint reproduce the puzzle WITH its answer key).
+
+    ``hints`` is stripped for the same reason as ``solution`` — the solve path
+    names every cell in order. ``build_daily`` never asks for it, so this is a
+    belt-and-braces guard against a cached payload from a build that did.
+    """
+    return {k: v for k, v in payload.items() if k not in ("solution", "seed", "hints")}
 
 
 def check_rows(payload: dict, rows) -> bool:

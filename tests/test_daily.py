@@ -136,6 +136,22 @@ def test_public_daily_withholds_solution_and_seed(day_payload):
     assert public["clues"] == payload["clues"]
 
 
+def test_build_daily_never_embeds_the_solve_path(day_payload):
+    """The seed walk builds many candidates and keeps one; paying for a solve
+    path on each would be wasted work, and shipping one would name every cell
+    in order."""
+    payload, _seed = day_payload
+    assert "hints" not in payload
+
+
+def test_public_daily_strips_a_solve_path_if_one_is_ever_present(day_payload):
+    """Payloads are cached in the store, so a row written by a build that did
+    ask for hints must still come out safe."""
+    payload, _seed = day_payload
+    public = daily.public_daily({**payload, "hints": [{"key": "0-1", "a": 0, "b": 0}]})
+    assert "hints" not in public
+
+
 def test_check_rows(day_payload):
     payload, _seed = day_payload
     truth = payload["solution"]

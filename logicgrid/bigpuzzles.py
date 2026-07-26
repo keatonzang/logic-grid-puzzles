@@ -60,7 +60,7 @@ from .clues import (
 )
 from .deduce import grade
 from .generate import generate_rated
-from .hint import _whatif_chain, trace
+from .hint import full_trace, trace
 from .solver import count_solutions
 from .model import Category, Theme
 from .webapi import (
@@ -430,21 +430,6 @@ def retheme_clues(clues: list, target: Theme) -> list:
 
 # --- Bundles ------------------------------------------------------------------
 
-def _hint_steps(theme: Theme, clues: list) -> list[dict]:
-    """The full solve path, JSON-safe. The server builds a what-if step's
-    contradiction chain lazily from the step's board context; a static
-    bundle has no later chance, so the chain is baked in here — otherwise a
-    what-if hint states its conclusion with no refutation line to follow."""
-    steps = []
-    for step in trace(theme, clues):
-        ctx = step.pop("_ctx", None)
-        if ctx is not None:
-            before, i, a, j, b, v = ctx
-            step["chain"] = _whatif_chain(theme, clues, before, i, a, j, b, v)
-        steps.append(step)
-    return steps
-
-
 def _theme_payload(theme: Theme, clues: list, X) -> dict:
     return {
         "name": theme.name,
@@ -453,7 +438,7 @@ def _theme_payload(theme: Theme, clues: list, X) -> dict:
         "categories": [_category_payload(c) for c in theme.categories],
         "clues": [c.text(theme) for c in clues],
         "solution": _solution_rows(theme, X),
-        "hints": _hint_steps(theme, clues),
+        "hints": full_trace(theme, clues),
     }
 
 

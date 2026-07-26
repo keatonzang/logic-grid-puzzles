@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 from .deduce import difficulty_index
 from .generate import DIFFICULTIES, generate_rated
-from .hint import next_hint
+from .hint import full_trace, next_hint
 from .model import Category, Theme
 
 def _ordinal(n: int) -> str:
@@ -1005,6 +1005,7 @@ def build_payload(
     categories: int = DEFAULT_CATEGORIES,
     theme: str = DEFAULT_THEME,
     theme_doc: dict | None = None,
+    hints: bool = False,
 ) -> dict:
     """Generate a puzzle and return a JSON-serialisable description.
 
@@ -1014,6 +1015,12 @@ def build_payload(
     With ``theme_doc`` the puzzle is built from that custom theme document
     instead (see build_custom_puzzle) and ``theme`` echoes ``"custom"`` — the
     client keeps the document and re-sends it for hints.
+
+    ``hints`` adds the full solve path, so the browser can serve every hint
+    itself instead of a round trip per hint. Off by default because it costs a
+    whole extra solve: callers that generate-and-reject in a loop (the daily's
+    seed walk) would pay it on every candidate. It also embeds the answer, so
+    only turn it on where ``solution`` is already being shipped.
     """
     if theme_doc is not None:
         theme_obj, puzzle, report, seed = build_custom_puzzle(seed, difficulty, theme_doc)
@@ -1021,7 +1028,7 @@ def build_payload(
     else:
         theme_obj, puzzle, report, seed = build_puzzle(seed, difficulty, items, categories, theme)
 
-    return {
+    payload = {
         "theme": theme,
         "name": theme_obj.name,
         "description": theme_obj.description,
@@ -1050,3 +1057,6 @@ def build_payload(
         "clues": [clue.text(theme_obj) for clue in puzzle.clues],
         "solution": _solution_rows(theme_obj, puzzle.solution),
     }
+    if hints:
+        payload["hints"] = full_trace(theme_obj, puzzle.clues)
+    return payload

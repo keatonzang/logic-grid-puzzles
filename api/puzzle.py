@@ -62,7 +62,8 @@ def _build_response(query: dict) -> tuple[int, dict]:
 
     try:
         return 200, build_payload(
-            seed=seed, difficulty=difficulty, items=items, categories=categories, theme=theme
+            seed=seed, difficulty=difficulty, items=items, categories=categories,
+            theme=theme, hints=True,
         )
     except ValueError as exc:
         return 400, {"error": str(exc)}
@@ -86,7 +87,9 @@ def _build_custom_response(body: dict) -> tuple[int, dict]:
             return 400, {"error": f"seed must be an integer, got {seed_raw!r}"}
 
     try:
-        return 200, build_payload(seed=seed, difficulty=difficulty, theme_doc=theme_doc)
+        return 200, build_payload(
+            seed=seed, difficulty=difficulty, theme_doc=theme_doc, hints=True
+        )
     except ValueError as exc:
         return 400, {"error": str(exc)}
 

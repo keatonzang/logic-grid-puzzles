@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import random
 
 import pytest
@@ -20,6 +21,7 @@ from logicgrid.webapi import (
     THEMES,
     build_cafe_theme,
     build_payload,
+    build_puzzle,
     build_theme,
     clamp_categories,
     clamp_items,
@@ -307,3 +309,48 @@ def test_grouped_theme_round_trips_through_json():
     assert theme_to_dict(again) == theme_to_dict(theme)
     trade = next(c for c in again.categories if c.name == "Trade")
     assert trade.has_groups
+
+
+def test_payload_omits_the_solve_path_by_default():
+    """It costs a whole extra solve, so a caller that generates and rejects in
+    a loop must not pay for it."""
+    payload = build_payload(seed=3, difficulty="normal", items=4, categories=3, theme="cafe")
+    assert "hints" not in payload
+
+
+def test_payload_with_hints_carries_a_complete_solve_path():
+    payload = build_payload(seed=3, difficulty="normal", items=4, categories=3,
+                            theme="cafe", hints=True)
+    steps = payload["hints"]
+    assert steps and all({"key", "a", "b", "value", "tier_name", "text"} <= set(s) for s in steps)
+    # every step must be JSON-safe: the live board context trace() stashes is
+    # what would break a static payload
+    json.dumps(steps)
+    assert not any("_ctx" in s for s in steps)
+    # replaying the path reconstructs exactly the shipped solution
+    cats = [c["items"] for c in payload["categories"]]
+    links = {}
+    for s in steps:
+        if s["value"] == 1:
+            i, j = (int(x) for x in s["key"].split("-"))
+            links[(i, cats[i][s["a"]])] = (j, cats[j][s["b"]])
+    assert links, "a solve path must place at least one link"
+    for row in payload["solution"]:
+        for i, label in enumerate(row):
+            got = links.get((i, label))
+            if got is not None:
+                assert row[got[0]] == got[1]
+
+
+def test_hint_path_matches_the_next_hint_endpoint():
+    """The browser walks the embedded path instead of calling /api/hint; both
+    must name the same first move."""
+    from logicgrid.hint import next_hint
+
+    theme_obj, puzzle, _report, _seed = build_puzzle(3, "normal", 4, 3, "cafe")
+    payload = build_payload(seed=3, difficulty="normal", items=4, categories=3,
+                            theme="cafe", hints=True)
+    first = payload["hints"][0]
+    served = next_hint(theme_obj, puzzle.clues, {})
+    assert (first["key"], first["a"], first["b"], first["value"]) == \
+           (served["key"], served["a"], served["b"], served["value"])

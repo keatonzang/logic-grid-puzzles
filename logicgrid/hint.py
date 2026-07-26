@@ -663,6 +663,28 @@ def trace(theme: Theme, clues: list) -> list[dict]:
     return steps
 
 
+def full_trace(theme: Theme, clues: list) -> list[dict]:
+    """``trace`` made JSON-safe, for shipping the whole solve path to a client.
+
+    A what-if step's contradiction chain is normally built lazily, from the
+    board context ``trace`` stashes in ``_ctx`` — a live object that can't be
+    serialised and won't exist by the time a static payload is read. So every
+    chain is baked in here; otherwise a what-if hint states its conclusion
+    with no refutation line to follow.
+
+    Callers that only need the *next* step should use ``next_hint``, which
+    builds one chain instead of all of them.
+    """
+    steps = []
+    for step in trace(theme, clues):
+        ctx = step.pop("_ctx", None)
+        if ctx is not None:
+            before, i, a, j, b, v = ctx
+            step["chain"] = _whatif_chain(theme, clues, before, i, a, j, b, v)
+        steps.append(step)
+    return steps
+
+
 def next_hint(theme: Theme, clues: list, known: dict | None = None) -> dict:
     """The first deduction the player hasn't already made correctly.
 
